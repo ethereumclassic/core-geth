@@ -62,6 +62,10 @@ var PrecompiledContractsBLS = map[common.Address]PrecompiledContract{
 	common.BytesToAddress([]byte{18}): &bls12381MapG2{},
 }
 
+var PrecompiledContractsMLDSA = map[common.Address]PrecompiledContract{
+	mldsa65VerifyAddr: &mldsa65VerifyPrecompile{},
+}
+
 func mergeContracts(base, target map[common.Address]PrecompiledContract) {
 	for k, v := range target {
 		base[k] = v
@@ -104,6 +108,16 @@ func PrecompiledContractsForConfig(config ctypes.ChainConfigurator, bn *big.Int,
 	}
 	if config.IsEnabledByTime(config.GetEIP4844TransitionTime, bt) || config.IsEnabled(config.GetEIP4844Transition, bn) {
 		precompileds[common.BytesToAddress([]byte{0x0a})] = &kzgPointEvaluation{}
+	}
+
+	// ML-DSA precompile(s) (ETC reserved higher precompile addresses)
+	type mldsaForker interface {
+		GetMLDSAPrecompileTransition() *uint64
+	}
+	if f, ok := config.(mldsaForker); ok {
+		if config.IsEnabled(f.GetMLDSAPrecompileTransition, bn) {
+			mergeContracts(precompileds, PrecompiledContractsMLDSA)
+		}
 	}
 
 	return precompileds

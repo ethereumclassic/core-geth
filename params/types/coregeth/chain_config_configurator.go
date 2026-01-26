@@ -418,6 +418,15 @@ func (c *CoreGethChainConfig) SetEIP2537Transition(n *uint64) error {
 	return nil
 }
 
+func (c *CoreGethChainConfig) GetMLDSAPrecompileTransition() *uint64 {
+	return c.MLDSAPrecompileBlock
+}
+
+func (c *CoreGethChainConfig) SetMLDSAPrecompileTransition(n *uint64) error {
+	c.MLDSAPrecompileBlock = n
+	return nil
+}
+
 func (c *CoreGethChainConfig) GetECBP1100Transition() *uint64 {
 	return bigNewU64(c.ECBP1100FBlock)
 }
