@@ -167,6 +167,13 @@ type btCurve struct {
 	*btcec.KoblitzCurve
 }
 
+func (curve btCurve) IsOnCurve(x, y *big.Int) bool {
+	if x.Cmp(curve.Params().P) >= 0 || y.Cmp(curve.Params().P) >= 0 {
+		return false
+	}
+	return curve.KoblitzCurve.IsOnCurve(x, y)
+}
+
 // Marshall converts a point given as (x, y) into a byte slice.
 func (curve btCurve) Marshal(x, y *big.Int) []byte {
 	byteLen := (curve.Params().BitSize + 7) / 8
