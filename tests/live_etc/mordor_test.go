@@ -97,3 +97,104 @@ func TestMordorNetVersion(t *testing.T) {
 		t.Errorf("Mordor net_version = %q, want %q", version, "7")
 	}
 }
+
+// TestMordorECBP1100Deactivated verifies that ECBP-1100 (MESS) deactivation
+// block has been passed. Mordor deactivated MESS at block 10,400,000.
+func TestMordorECBP1100Deactivated(t *testing.T) {
+	client := dialRPC(t, getMordorRPC())
+	defer client.Close()
+
+	latest := getBlockByNumber(t, client, nil)
+	blockNum := latest.Number.ToInt().Int64()
+
+	if blockNum < MordorECBP1100Deactivate {
+		t.Skipf("Mordor chain height %d has not reached ECBP-1100 deactivation (%d)",
+			blockNum, MordorECBP1100Deactivate)
+	}
+
+	t.Logf("Mordor block %d is past ECBP-1100 deactivation at %d", blockNum, MordorECBP1100Deactivate)
+
+	// Verify the deactivation block exists and is valid
+	deactBlock := getBlockByNumber(t, client, big.NewInt(MordorECBP1100Deactivate))
+	if deactBlock.Difficulty == nil || deactBlock.Difficulty.ToInt().Sign() <= 0 {
+		t.Error("ECBP-1100 deactivation block has zero difficulty")
+	}
+}
+
+// TestMordorECIP1099Epoch verifies ECIP-1099 epoch calculation on live chain.
+// After ECIP-1099 (block 2,520,000), epochs are 60,000 blocks long.
+func TestMordorECIP1099Epoch(t *testing.T) {
+	client := dialRPC(t, getMordorRPC())
+	defer client.Close()
+
+	latest := getBlockByNumber(t, client, nil)
+	blockNum := latest.Number.ToInt().Uint64()
+
+	if blockNum < MordorECIP1099Block {
+		t.Skipf("Mordor block %d is before ECIP-1099 activation", blockNum)
+	}
+
+	// Post-ECIP-1099: epoch = block / 60000
+	epoch := blockNum / EpochLengthECIP1099
+	t.Logf("Mordor block %d is in etchash epoch %d (60K-block epochs)", blockNum, epoch)
+
+	// The epoch should be a reasonable number (not overflowing, not zero)
+	if epoch == 0 {
+		t.Errorf("epoch should not be 0 at block %d", blockNum)
+	}
+	if epoch > 1000 {
+		t.Errorf("epoch %d seems unreasonably high for block %d", epoch, blockNum)
+	}
+}
+
+// TestMordorSpiralForkBlock verifies the Mordor Spiral fork block exists
+// and has expected properties.
+func TestMordorSpiralForkBlock(t *testing.T) {
+	client := dialRPC(t, getMordorRPC())
+	defer client.Close()
+
+	latest := getBlockByNumber(t, client, nil)
+	if latest.Number.ToInt().Int64() < MordorSpiralBlock {
+		t.Skipf("Mordor chain height %d has not reached Spiral (%d)",
+			latest.Number.ToInt().Int64(), MordorSpiralBlock)
+	}
+
+	spiral := getBlockByNumber(t, client, big.NewInt(MordorSpiralBlock))
+	if spiral.Difficulty == nil || spiral.Difficulty.ToInt().Sign() <= 0 {
+		t.Error("Spiral fork block has zero difficulty")
+	}
+	if spiral.GasLimit == nil || spiral.GasLimit.ToInt().Uint64() == 0 {
+		t.Error("Spiral fork block has zero gas limit")
+	}
+	t.Logf("Mordor Spiral block %d: difficulty=%s, gasLimit=%s",
+		MordorSpiralBlock, spiral.Difficulty.ToInt().String(), spiral.GasLimit.ToInt().String())
+}
+
+// TestMordorBlockHeaderCompleteness verifies that recent Mordor blocks have
+// all expected header fields populated (no nil or zero values where not expected).
+func TestMordorBlockHeaderCompleteness(t *testing.T) {
+	client := dialRPC(t, getMordorRPC())
+	defer client.Close()
+
+	block := getBlockByNumber(t, client, nil)
+	blockNum := block.Number.ToInt().Int64()
+
+	if block.Hash == (MordorGenesisHash) && blockNum > 0 {
+		t.Error("latest block hash should not equal genesis hash")
+	}
+	if block.ParentHash == (MordorGenesisHash) && blockNum > 1 {
+		t.Error("parent hash should not equal genesis hash for blocks > 1")
+	}
+	if block.StateRoot == ([32]byte{}) {
+		t.Error("state root is empty")
+	}
+	if block.Miner == ([20]byte{}) {
+		t.Error("miner address is empty — expected PoW miner")
+	}
+	if block.Timestamp == nil || block.Timestamp.ToInt().Sign() <= 0 {
+		t.Error("timestamp is zero or nil")
+	}
+	if block.GasLimit == nil || block.GasLimit.ToInt().Sign() <= 0 {
+		t.Error("gas limit is zero or nil")
+	}
+}

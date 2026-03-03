@@ -38,8 +38,23 @@ const (
 	ClassicECIP1099Block = 11_700_000
 	MordorECIP1099Block  = 2_520_000
 
+	// ECBP-1100 (MESS) activation windows
+	MordorECBP1100Activate   = 2_380_000
+	MordorECBP1100Deactivate = 10_400_000
+
+	ClassicECBP1100Activate   = 11_380_000
+	ClassicECBP1100Deactivate = 19_250_000
+
+	// Spiral fork blocks
+	MordorSpiralBlock  = 9_957_000
+	ClassicSpiralBlock = 19_250_000
+
 	// Gas limits (pre-olympia)
 	ETCGasLimit = 8_000_000
+
+	// Etchash epoch lengths
+	EpochLengthDefault   = 30_000
+	EpochLengthECIP1099  = 60_000
 )
 
 // Known genesis hashes

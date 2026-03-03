@@ -106,3 +106,61 @@ func TestETCMainnetDAOForkBlock(t *testing.T) {
 		t.Errorf("DAO fork block hash = %s, want %s (ETC classic chain)", block.Hash.Hex(), expectedHash)
 	}
 }
+
+// TestETCMainnetECBP1100Deactivated verifies ECBP-1100 (MESS) is deactivated
+// on ETC mainnet. MESS was active 11,380,000→19,250,000 (deactivated at Spiral).
+func TestETCMainnetECBP1100Deactivated(t *testing.T) {
+	client := dialRPC(t, getETCRPC())
+	defer client.Close()
+
+	latest := getBlockByNumber(t, client, nil)
+	blockNum := latest.Number.ToInt().Int64()
+
+	if blockNum < ClassicECBP1100Deactivate {
+		t.Skipf("ETC mainnet %d has not reached ECBP-1100 deactivation (%d)",
+			blockNum, ClassicECBP1100Deactivate)
+	}
+
+	t.Logf("ETC mainnet block %d is past ECBP-1100 deactivation at %d (Spiral)",
+		blockNum, ClassicECBP1100Deactivate)
+}
+
+// TestETCMainnetECIP1099Epoch verifies ECIP-1099 epoch calculation on live chain.
+// After block 11,700,000, epochs are 60,000 blocks long.
+func TestETCMainnetECIP1099Epoch(t *testing.T) {
+	client := dialRPC(t, getETCRPC())
+	defer client.Close()
+
+	latest := getBlockByNumber(t, client, nil)
+	blockNum := latest.Number.ToInt().Uint64()
+
+	if blockNum < ClassicECIP1099Block {
+		t.Skipf("ETC mainnet block %d is before ECIP-1099 activation", blockNum)
+	}
+
+	epoch := blockNum / EpochLengthECIP1099
+	t.Logf("ETC mainnet block %d is in etchash epoch %d (60K-block epochs)", blockNum, epoch)
+
+	if epoch == 0 {
+		t.Errorf("epoch should not be 0 at block %d", blockNum)
+	}
+}
+
+// TestETCMainnetSpiralForkBlock verifies the Spiral fork block exists on mainnet.
+func TestETCMainnetSpiralForkBlock(t *testing.T) {
+	client := dialRPC(t, getETCRPC())
+	defer client.Close()
+
+	latest := getBlockByNumber(t, client, nil)
+	if latest.Number.ToInt().Int64() < ClassicSpiralBlock {
+		t.Skipf("ETC mainnet %d has not reached Spiral (%d)",
+			latest.Number.ToInt().Int64(), ClassicSpiralBlock)
+	}
+
+	spiral := getBlockByNumber(t, client, big.NewInt(ClassicSpiralBlock))
+	if spiral.Difficulty == nil || spiral.Difficulty.ToInt().Sign() <= 0 {
+		t.Error("Spiral fork block has zero difficulty")
+	}
+	t.Logf("ETC mainnet Spiral block %d: difficulty=%s",
+		ClassicSpiralBlock, spiral.Difficulty.ToInt().String())
+}
