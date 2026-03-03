@@ -1,0 +1,93 @@
+{
+  "_comment": "Cross-client ETC consensus test vectors. Consumed by core-geth, besu, and fukuii.",
+  "_version": "1.0.0",
+  "_date": "2026-03-03",
+
+  "ecip1017_rewards": {
+    "_comment": "ECIP-1017: 80% decay per 5M-block era (mainnet) or 2M-block era (Mordor). Uncle inclusion = 1/32 of era reward.",
+    "mainnet_era_length": 5000000,
+    "mordor_era_length": 2000000,
+    "vectors": [
+      {"era": 0, "block_reward_wei": "5000000000000000000", "uncle_inclusion_wei": "156250000000000000"},
+      {"era": 1, "block_reward_wei": "4000000000000000000", "uncle_inclusion_wei": "125000000000000000"},
+      {"era": 2, "block_reward_wei": "3200000000000000000", "uncle_inclusion_wei": "100000000000000000"},
+      {"era": 3, "block_reward_wei": "2560000000000000000", "uncle_inclusion_wei": "80000000000000000"},
+      {"era": 4, "block_reward_wei": "2048000000000000000", "uncle_inclusion_wei": "64000000000000000"},
+      {"era": 5, "block_reward_wei": "1638400000000000000", "uncle_inclusion_wei": "51200000000000000"}
+    ]
+  },
+
+  "ecip1099_epochs": {
+    "_comment": "ECIP-1099: epoch length doubles from 30K to 60K. Classic: block 11,700,000; Mordor: block 2,520,000.",
+    "vectors": [
+      {"block": 0, "epoch_length": 30000, "expected_epoch": 0},
+      {"block": 29999, "epoch_length": 30000, "expected_epoch": 0},
+      {"block": 30000, "epoch_length": 30000, "expected_epoch": 1},
+      {"block": 11699999, "epoch_length": 30000, "expected_epoch": 389},
+      {"block": 11700000, "epoch_length": 60000, "expected_epoch": 195},
+      {"block": 11759999, "epoch_length": 60000, "expected_epoch": 195},
+      {"block": 11760000, "epoch_length": 60000, "expected_epoch": 196},
+      {"block": 2519999, "epoch_length": 30000, "expected_epoch": 83},
+      {"block": 2520000, "epoch_length": 60000, "expected_epoch": 42},
+      {"block": 15000000, "epoch_length": 60000, "expected_epoch": 250},
+      {"block": 20000000, "epoch_length": 60000, "expected_epoch": 333}
+    ]
+  },
+
+  "difficulty_constraints": {
+    "minimum_difficulty": 131072,
+    "bomb_pause_block_classic": 3000000,
+    "bomb_pause_length_classic": 2000000,
+    "bomb_disposal_block_classic": 5900000
+  },
+
+  "ecbp1100_windows": {
+    "classic": {"activation": 11380000, "deactivation": 19250000},
+    "mordor": {"activation": 2380000, "deactivation": 10400000}
+  },
+
+  "chain_identifiers": {
+    "classic": {"chain_id": 61, "network_id": 1},
+    "mordor": {"chain_id": 63, "network_id": 7}
+  },
+
+  "genesis_hashes": {
+    "classic": "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
+    "mordor": "0xa68ebde7932f0bf2579b075499416f0a693de84c26b05cd01de86e60aad05ec0"
+  },
+
+  "fork_blocks": {
+    "classic": {
+      "homestead": 1150000,
+      "dao_fork_rejected": 1920000,
+      "tangerine_whistle": 2500000,
+      "diehard": 3000000,
+      "gotham": 5000000,
+      "defuse": 5900000,
+      "atlantis": 8772000,
+      "agharta": 9573000,
+      "phoenix": 10500839,
+      "thanos": 11700000,
+      "magneto": 13189133,
+      "mystique": 14525000,
+      "spiral": 19250000
+    },
+    "mordor": {
+      "atlantis": 0,
+      "agharta": 301243,
+      "phoenix": 999983,
+      "thanos": 2520000,
+      "magneto": 3985893,
+      "mystique": 5520000,
+      "spiral": 9957000
+    }
+  },
+
+  "precompiles_per_fork": {
+    "pre_atlantis": [1, 2, 3, 4],
+    "atlantis": [1, 2, 3, 4, 5, 6, 7, 8],
+    "phoenix": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "magneto": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "spiral": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  }
+}
