@@ -27,6 +27,7 @@ build/_vendor/pkg
 /build/cache/
 /build/bin/
 /build/static/
+/geth
 /geth*.zip
 
 # travis
