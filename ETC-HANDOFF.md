@@ -66,9 +66,37 @@ master (v1.12.20)
 | Fork compliance | 10 | 15+ | 14 |
 | ECIP-1017 emission | 4 | 27 | 4 |
 | Difficulty (ECIP-1010/1041/1099) | 22 | 24+ | 29+ |
-| ECBP-1100 (MESS) | 18+ | 14+ | 22 |
+| ECBP-1100 (MESS) polynomial | 18+ | 14+ | 25 |
 | Precompile per fork | 10 | — | — |
 | Live RPC | 22 | 28+ | 16 |
+
+### ECIP-1100 MESS Alignment (All 3 Clients)
+
+All three ETC clients implement the ECIP-1100 cubic polynomial antigravity curve identically:
+
+```
+polynomialV(x) = DENOMINATOR + (3x² − 2x³/xcap) × HEIGHT / xcap²
+where DENOMINATOR=128, xcap=25132, HEIGHT=3840
+```
+
+- **core-geth:** `core/blockchain_af.go` — reference implementation
+- **Besu:** `ArtificialFinality.java` — matches core-geth
+- **Fukuii:** `ArtificialFinality.scala` — rewritten (March 2026) from exponential decay to match spec
+
+MESS is deactivated at Spiral (ECIP-1110): ETC mainnet block 19,250,000, Mordor block 10,400,000.
+
+### EIP-7642 Exclusion (Intentional)
+
+EIP-7642 (eth/69 — removes TD from the `Status` handshake message) is deliberately excluded from all three ETC clients. ETC uses Proof of Work and requires Total Difficulty for chain selection. Removing TD from `Status` would break PoW peer negotiation. This will be removed from the ECIP-1121 draft before finalization.
+
+### Treasury Address Note
+
+The Mordor treasury address (`0xCfE1e0ECbff745e6c800fF980178a8dDEf94bEe2`) is a placeholder in Chris Mercer's development branches. Once merged into the official `ethereumclassic` organization, the address will be updated through proper coordination with the core development team.
+
+### Olympia Activation Timeline
+
+- **Mordor testnet:** block 15,800,850 (~March 28, 2026)
+- **ETC mainnet:** block ~24,751,337 (~mid-June 2026)
 
 ## How to Run
 
