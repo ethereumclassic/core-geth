@@ -53,9 +53,10 @@ func (g *GoToolchain) Go(command string, args ...string) *exec.Cmd {
 	} else if os.Getenv("CC") != "" {
 		tool.Env = append(tool.Env, "CC="+os.Getenv("CC"))
 	}
-	// CKZG by default is not portable, append the necessary build flags to make
+	// CKZG/blst by default is not portable, append the necessary build flags to make
 	// it not rely on modern CPU instructions and enable linking against.
-	tool.Env = append(tool.Env, "CGO_CFLAGS=-O2 -g -D__BLST_PORTABLE__")
+	// -std=gnu11 prevents C23-aware compilers from rejecting legacy typedefs.
+	tool.Env = append(tool.Env, "CGO_CFLAGS=-O2 -g -D__BLST_PORTABLE__ -std=gnu11")
 
 	return tool
 }
