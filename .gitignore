@@ -60,3 +60,20 @@ les/transactions.rlp
 /MANIFEST
 /manifest.json
 /site
+
+# Secrets & credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+keystore/
+
+# Claude internal files
+.claude/SESSION_NOTES.md
+.claude/reports/
+.claude/debug.log
+SESSION_NOTES.md
+PLANNING.md
+SCRATCH.md

@@ -281,7 +281,7 @@ var opCodeToString = [256]string{
 	COINBASE:    "COINBASE",
 	TIMESTAMP:   "TIMESTAMP",
 	NUMBER:      "NUMBER",
-	DIFFICULTY:  "DIFFICULTY", // TODO (MariusVanDerWijden) rename to PREVRANDAO post merge
+	DIFFICULTY:  "DIFFICULTY", // ETC PoW: Remains DIFFICULTY (not PREVRANDAO). ETC does not implement the PoS merge.
 	GASLIMIT:    "GASLIMIT",
 	CHAINID:     "CHAINID",
 	SELFBALANCE: "SELFBALANCE",

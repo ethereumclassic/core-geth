@@ -1,91 +1,111 @@
-## CoreGeth: An Ethereum Protocol Provider
+## CoreGeth: Ethereum Classic Execution Client
 
-> An [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum) downstream effort to make the Ethereum Protocol accessible and extensible for a diverse ecosystem.
+> A [go-ethereum](https://github.com/ethereum/go-ethereum) fork providing the production Ethereum Classic (ETC) execution client.
 
-Priority is given to reducing opinions around chain configuration, IP-based feature implementations, and API predictability.
-Upstream development from [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum) is merged to this repository regularly,
- usually at every upstream tagged release. Every effort is made to maintain seamless compatibility with upstream source, including compatible RPC, JS, and CLI
- APIs, data storage locations and schemas, and, of course, interoperable node protocols. Applicable bug reports, bug fixes, features, and proposals should be
- made upstream whenever possible.
+CoreGeth is the current production client for the Ethereum Classic network. It supports all ETC hard forks from Frontier through Spiral, and implements the upcoming **Olympia** hard fork (ECIP-1111, ECIP-1112, ECIP-1121).
 
-[![OpenRPC](https://img.shields.io/static/v1.svg?label=OpenRPC&message=1.14.0&color=blue)](#openrpc-discovery)
-[![API Reference](https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f676f6c616e672f6764646f3f7374617475732e737667)](https://godoc.org/github.com/etclabscore/core-geth)
-[![Go Report Card](https://goreportcard.com/badge/github.com/etclabscore/core-geth)](https://goreportcard.com/report/github.com/etclabscore/core-geth)
-[![Travis](https://travis-ci.org/etclabscore/core-geth.svg?branch=master)](https://travis-ci.org/etclabscore/core-geth)
-[![Gitter](https://badges.gitter.im/core-geth/community.svg)](https://gitter.im/core-geth/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+**Note:** Upstream go-ethereum has deprecated support for Ethereum Classic. Long-term, ETC will migrate to [Fukuii](https://github.com/chris-mercer/fukuii) as the native ETC client. CoreGeth remains the recommended production client during this transition.
 
-## Network/provider comparison
+## Supported Networks
 
-Networks supported by the respective go-ethereum packaged `geth` program.
+| Network | Chain ID | Consensus | Status |
+|---------|----------|-----------|--------|
+| Ethereum Classic (ETC) | 61 | Proof of Work (ETChash) | Production |
+| Mordor Testnet | 63 | Proof of Work (ETChash) | Active |
+| Private chains | configurable | PoW / PoA | Supported |
 
-| Ticker | Consensus         | Network                               | core-geth                                                | ethereum/go-ethereum |
-| ---    | ---               | ---                                   | ---                                                      | ---                  |
-| ETC    | :zap:             | Ethereum Classic                      | :heavy_check_mark:                                       |                      |
-| ETH    | :zap:             | Ethereum (Foundation)                 | :heavy_check_mark:                                       | :heavy_check_mark:   |
-| -      | :zap: :handshake: | Private chains                        | :heavy_check_mark:                                       | :heavy_check_mark:   |
-|        | :zap:             | Mordor (Geth+Parity ETH PoW Testnet)  | :heavy_check_mark:                                       |                      |
-|        | :zap:             | Morden (Geth+Parity ETH PoW Testnet)  |                                                          |                      |
-|        | :zap:             | Ropsten (Geth+Parity ETH PoW Testnet) | :heavy_check_mark:                                       | :heavy_check_mark:   |
-|        | :handshake:       | Rinkeby (Geth-only ETH PoA Testnet)   | :heavy_check_mark:                                       | :heavy_check_mark:   |
-|        | :handshake:       | Kovan (Parity-only ETH PoA Testnet)   |                                                          |                      |
-|        |                   | Tobalaba (EWF Testnet)                |                                                          |                      |
-|        |                   | Ephemeral development PoA network     | :heavy_check_mark:                                       | :heavy_check_mark:   |
-| MINTME | :zap:             | MintMe.com Coin                       | :heavy_check_mark:                                       |                      |
+### ETC Hard Fork History
 
-- :zap: = __Proof of Work__
-- :handshake: = __Proof of Authority__
+| Fork | Block | ECIPs |
+|------|-------|-------|
+| Atlantis | 8,772,000 | ECIP-1054 (Byzantium equivalent) |
+| Agharta | 9,573,000 | ECIP-1056 (Constantinople equivalent) |
+| Phoenix | 10,500,839 | ECIP-1088 (Istanbul equivalent) |
+| Thanos | 11,700,000 | ECIP-1099 (ETChash 60K epochs) |
+| Magneto | 13,189,133 | ECIP-1103 (Berlin equivalent) |
+| Mystique | 14,525,000 | ECIP-1104 (partial London, no EIP-1559) |
+| Spiral | 19,250,000 | ECIP-1109 (Shanghai equivalent) |
+| **Olympia** | **TBD** | ECIP-1111 + ECIP-1121 (EIP-1559 + treasury + EVM modernization) |
 
-<a name="ellaism-footnote">1</a>: This is originally an [Ellaism
-Project](https://github.com/ellaism). However, A [recent hard
-fork](https://github.com/ellaism/specs/blob/master/specs/2018-0003-wasm-hardfork.md)
-makes Ellaism not feasible to support with go-ethereum any more. Existing
-Ellaism users are asked to switch to
-[Parity](https://github.com/paritytech/parity).
+**Gas limit:** 8M (current) converging to 60M post-Olympia (EIP-7935).
 
-<a name="configuration-capable">2</a>: Network not supported by default, but network configuration is possible. Make a PR!
+## Olympia Hard Fork
+
+The `olympia` branch implements the Olympia upgrade:
+
+- **ECIP-1111:** EIP-1559 dynamic base fee + EIP-3198 BASEFEE opcode. Base fee is redirected to the Olympia Treasury (not burned).
+- **ECIP-1112:** Deterministic, immutable Treasury contract receiving all base fee revenue.
+- **ECIP-1121:** 13 execution-layer EIPs for EVM modernization (EIP-5656/MCOPY, EIP-1153/transient storage, EIP-6780/SELFDESTRUCT, EIP-2537/BLS12-381, EIP-7951/P256VERIFY, EIP-7702/EOA code delegation, EIP-2935/block hashes in state, and more).
+
+**EIP-7642 (eth/69) is intentionally excluded** — it removes Total Difficulty from the protocol handshake, which ETC requires for Proof-of-Work chain selection.
+
+### Activation
+
+- **Mordor testnet:** Block 15,800,850 (~March 28, 2026)
+- **ETC mainnet:** ~Block 24,751,337 (~mid-June 2026, before Era 6)
+
+### Cross-Client Alignment
+
+| Client | Pre-Olympia | Post-Olympia | Role |
+|--------|-------------|--------------|------|
+| [core-geth](https://github.com/chris-mercer/core-geth) | `etc` branch | `olympia` branch | Production client |
+| [Fukuii](https://github.com/chris-mercer/fukuii) | `alpha` branch | `olympia` branch | Native ETC client (migration target) |
+| [Besu](https://github.com/chris-mercer/besu) | `etc` branch | `olympia` branch | Reference/testing client |
+
+## Build
+
+```bash
+make geth
+```
+
+## Test
+
+```bash
+# ETC-specific unit tests
+go test ./params/... -run TestETC -v
+go test ./core/... -run "TestGasLimit|TestForkCompliance|TestECIP1017|TestTreasury|TestOlympia" -v
+go test ./consensus/ethash/... -run "TestDifficultyETC|TestDifficultyECIP" -v
+
+# Live tests (requires running Mordor/ETC node)
+go test -tags live ./tests/live_etc/ -v
+```
+
+## Mining
+
+CoreGeth supports full Ethash/ETChash Proof-of-Work mining:
+
+```bash
+./build/bin/geth --classic --mine --miner.etherbase <address>
+```
+
+For testing with fake PoW (no DAG generation):
+
+```bash
+./build/bin/geth --classic --mine --miner.etherbase <address> --fakepow
+```
 
 ## Documentation
 
-- CoreGeth documentation is available [here](https://etclabscore.github.io/core-geth).
-  + Getting Started [Installation](https://etclabscore.github.io/core-geth/getting-started/installation) and [CLI](https://etclabscore.github.io/core-geth/getting-started/run-cli)
-  + [JSONRPC API](https://etclabscore.github.io/core-geth/JSON-RPC-API)
-  + [Developers](https://etclabscore.github.io/core-geth/developers/build-from-source)
-  + [Tutorials](https://etclabscore.github.io/core-geth/tutorials/private-network)
-- Further [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum) documentation about can be found [here](https://geth.ethereum.org/docs/).
-- Documentation about documentation lives [here](./docs/developers/documentation.md).
+- [ETC-HANDOFF.md](./ETC-HANDOFF.md) — Pre-Olympia branch documentation
+- [OLYMPIA-HANDOFF.md](./OLYMPIA-HANDOFF.md) — Olympia hard fork documentation
+- [CoreGeth docs](https://etclabscore.github.io/core-geth) — General documentation
+- [go-ethereum docs](https://geth.ethereum.org/docs/) — Upstream reference
 
-## Contribution
+## Security Patches
 
-Thank you for considering to help out with the source code! We welcome contributions
-from anyone on the internet, and are grateful for even the smallest of fixes!
+The `etc` branch includes 5 security patches applied before any feature work:
 
-If you'd like to contribute to core-geth, please fork, fix, commit and send a pull request
-for the maintainers to review and merge into the main code base. If you wish to submit
-more complex changes though, please check up with the core devs first on [our gitter channel](https://gitter.im/etclabscore/core-geth)
-to ensure those changes are in line with the general philosophy of the project and/or get
-some early feedback which can make both your efforts much lighter as well as our review
-and merge procedures quick and simple.
+| CVE | Severity | Component |
+|-----|----------|-----------|
+| CVE-2026-26314 | High | secp256k1 coordinate validation |
+| CVE-2026-26315 | Moderate | ECIES invalid-curve attack |
+| CVE-2026-22862 | High | ECIES decrypt length |
+| CVE-2025-24883 | Moderate | UnmarshalPubkey curve check |
+| x/crypto, x/net | — | Dependency updates |
 
-Please make sure your contributions adhere to our coding guidelines:
-
- * Code must adhere to the official Go [formatting](https://golang.org/doc/effective_go.html#formatting)
-   guidelines (i.e. uses [gofmt](https://golang.org/cmd/gofmt/)).
- * Code must be documented adhering to the official Go [commentary](https://golang.org/doc/effective_go.html#commentary)
-   guidelines.
- * Pull requests need to be based on and opened against the `master` branch.
- * Commit messages should be prefixed with the package(s) they modify.
-   * E.g. "eth, rpc: make trace configs optional"
-
-Please see the [Developers' Guide](https://github.com/ethereum/go-ethereum/wiki/Developers'-Guide)
-for more details on configuring your environment, managing project dependencies, and
-testing procedures.
+Nodes should rotate P2P keys after upgrading: `rm <datadir>/geth/nodekey`
 
 ## License
 
-The core-geth library (i.e. all code outside of the `cmd` directory) is licensed under the
-[GNU Lesser General Public License v3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html),
-also included in our repository in the `COPYING.LESSER` file.
-
-The core-geth binaries (i.e. all code inside of the `cmd` directory) is licensed under the
-[GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html), also
-included in our repository in the `COPYING` file.
+The core-geth library (outside `cmd/`) is licensed under [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html).
+The core-geth binaries (`cmd/`) are licensed under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).
