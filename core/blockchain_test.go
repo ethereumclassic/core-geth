@@ -3669,6 +3669,13 @@ func testEIP1559Transition(t *testing.T, scheme string) {
 			},
 		}
 	)
+	splitBaseFee := func(baseFeePortion *big.Int) (logtrees, etc, rainbow *big.Int) {
+		logtrees = new(big.Int).Div(new(big.Int).Set(baseFeePortion), big.NewInt(10))
+		etc = new(big.Int).Div(new(big.Int).Set(baseFeePortion), big.NewInt(10))
+		rainbow = new(big.Int).Sub(new(big.Int).Set(baseFeePortion), logtrees)
+		rainbow.Sub(rainbow, etc)
+		return logtrees, etc, rainbow
+	}
 
 	zero := uint64(0)
 	// Berlin
@@ -3746,6 +3753,18 @@ func testEIP1559Transition(t *testing.T, scheme string) {
 	if actual.Cmp(expected) != 0 {
 		t.Fatalf("sender balance incorrect: expected %d, got %d", expected, actual)
 	}
+	baseFeePortion := new(big.Int).SetUint64(block.GasUsed())
+	baseFeePortion.Mul(baseFeePortion, block.BaseFee())
+	expectedLogtrees1, expectedEtc1, expectedRainbow1 := splitBaseFee(baseFeePortion)
+	if got := state.GetBalance(elysiumLogtreesContractAddress).ToBig(); got.Cmp(expectedLogtrees1) != 0 {
+		t.Fatalf("logtrees routing balance incorrect: expected %d, got %d", expectedLogtrees1, got)
+	}
+	if got := state.GetBalance(elysiumEtcContractAddress).ToBig(); got.Cmp(expectedEtc1) != 0 {
+		t.Fatalf("ETC routing balance incorrect: expected %d, got %d", expectedEtc1, got)
+	}
+	if got := state.GetBalance(elysiumRainbowComputeContractAddress).ToBig(); got.Cmp(expectedRainbow1) != 0 {
+		t.Fatalf("rainbow routing balance incorrect: expected %d, got %d", expectedRainbow1, got)
+	}
 
 	blocks, _ = GenerateChain(gspec.Config, block, engine, genDb, 1, func(i int, b *BlockGen) {
 		b.SetCoinbase(common.Address{2})
@@ -3785,6 +3804,18 @@ func testEIP1559Transition(t *testing.T, scheme string) {
 	expected = new(big.Int).SetUint64(block.GasUsed() * (effectiveTip + block.BaseFee().Uint64()))
 	if actual.Cmp(expected) != 0 {
 		t.Fatalf("sender balance incorrect: expected %d, got %d", expected, actual)
+	}
+	baseFeePortion = new(big.Int).SetUint64(block.GasUsed())
+	baseFeePortion.Mul(baseFeePortion, block.BaseFee())
+	expectedLogtrees2, expectedEtc2, expectedRainbow2 := splitBaseFee(baseFeePortion)
+	if got := state.GetBalance(elysiumLogtreesContractAddress).ToBig(); got.Cmp(new(big.Int).Add(expectedLogtrees1, expectedLogtrees2)) != 0 {
+		t.Fatalf("logtrees routing balance incorrect after block 2: expected %d, got %d", new(big.Int).Add(expectedLogtrees1, expectedLogtrees2), got)
+	}
+	if got := state.GetBalance(elysiumEtcContractAddress).ToBig(); got.Cmp(new(big.Int).Add(expectedEtc1, expectedEtc2)) != 0 {
+		t.Fatalf("ETC routing balance incorrect after block 2: expected %d, got %d", new(big.Int).Add(expectedEtc1, expectedEtc2), got)
+	}
+	if got := state.GetBalance(elysiumRainbowComputeContractAddress).ToBig(); got.Cmp(new(big.Int).Add(expectedRainbow1, expectedRainbow2)) != 0 {
+		t.Fatalf("rainbow routing balance incorrect after block 2: expected %d, got %d", new(big.Int).Add(expectedRainbow1, expectedRainbow2), got)
 	}
 }
 
