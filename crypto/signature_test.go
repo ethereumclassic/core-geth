@@ -19,6 +19,7 @@ package crypto
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"math/big"
 	"reflect"
 	"testing"
 
@@ -148,6 +149,25 @@ func BenchmarkVerifySignature(b *testing.B) {
 		if !VerifySignature(testpubkey, testmsg, sig) {
 			b.Fatal("verify error")
 		}
+	}
+}
+
+// TestS256IsOnCurveRejectsOutOfField verifies that S256().IsOnCurve rejects
+// coordinates >= P. This covers both CGO and non-CGO paths via the crypto
+// package's S256() wrapper.
+func TestS256IsOnCurveRejectsOutOfField(t *testing.T) {
+	curve := S256()
+	P := curve.Params().P
+
+	if curve.IsOnCurve(P, big.NewInt(1)) {
+		t.Fatal("IsOnCurve should reject x == P")
+	}
+	if curve.IsOnCurve(big.NewInt(1), P) {
+		t.Fatal("IsOnCurve should reject y == P")
+	}
+	pPlus1 := new(big.Int).Add(P, big.NewInt(1))
+	if curve.IsOnCurve(pPlus1, big.NewInt(1)) {
+		t.Fatal("IsOnCurve should reject x > P")
 	}
 }
 

@@ -13,6 +13,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"io"
+	"math/big"
 	"testing"
 )
 
@@ -225,6 +226,26 @@ func BenchmarkSign(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		Sign(msg, seckey)
+	}
+}
+
+// TestIsOnCurveRejectsOutOfField verifies that coordinates >= P are rejected.
+func TestIsOnCurveRejectsOutOfField(t *testing.T) {
+	curve := S256()
+	P := curve.Params().P
+
+	// x == P should be rejected (out of field).
+	if curve.IsOnCurve(P, big.NewInt(1)) {
+		t.Fatal("IsOnCurve should reject x == P")
+	}
+	// y == P should be rejected.
+	if curve.IsOnCurve(big.NewInt(1), P) {
+		t.Fatal("IsOnCurve should reject y == P")
+	}
+	// x == P+1 should be rejected.
+	pPlus1 := new(big.Int).Add(P, big.NewInt(1))
+	if curve.IsOnCurve(pPlus1, big.NewInt(1)) {
+		t.Fatal("IsOnCurve should reject x > P")
 	}
 }
 
