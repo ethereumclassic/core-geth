@@ -17,6 +17,7 @@
 package eth
 
 import (
+	"bytes"
 	"fmt"
 	"math/big"
 	"time"
@@ -196,6 +197,13 @@ func handleMessage(backend Backend, peer *Peer) error {
 		return fmt.Errorf("%w: %v > %v", errMsgTooLarge, msg.Size, maxMessageSize)
 	}
 	defer msg.Discard()
+
+	// Validate item counts in response messages to prevent memory DoS (CVE-2026-26313).
+	if data, err := validateMessageItems(msg.Payload, msg.Size, msg.Code); err != nil {
+		return err
+	} else if data != nil {
+		msg.Payload = bytes.NewReader(data)
+	}
 
 	var handlers = eth68
 
