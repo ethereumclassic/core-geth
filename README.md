@@ -1,91 +1,110 @@
-## CoreGeth: An Ethereum Protocol Provider
+## CoreGeth: Ethereum Classic Execution Client
 
-> An [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum) downstream effort to make the Ethereum Protocol accessible and extensible for a diverse ecosystem.
+> A [go-ethereum](https://github.com/ethereum/go-ethereum) fork providing the primary execution client for the Ethereum Classic (ETC) network.
 
-Priority is given to reducing opinions around chain configuration, IP-based feature implementations, and API predictability.
-Upstream development from [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum) is merged to this repository regularly,
- usually at every upstream tagged release. Every effort is made to maintain seamless compatibility with upstream source, including compatible RPC, JS, and CLI
- APIs, data storage locations and schemas, and, of course, interoperable node protocols. Applicable bug reports, bug fixes, features, and proposals should be
- made upstream whenever possible.
+**Status: Maintenance mode.** CoreGeth is the only production ETC execution client. It is maintained by community contributors on a volunteer basis. There is no dedicated funding or full-time development team. The last official release (v1.12.20) was June 2024. Contributions, sponsorship, and review are welcome.
 
-[![OpenRPC](https://img.shields.io/static/v1.svg?label=OpenRPC&message=1.14.0&color=blue)](#openrpc-discovery)
-[![API Reference](https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f676f6c616e672f6764646f3f7374617475732e737667)](https://godoc.org/github.com/etclabscore/core-geth)
-[![Go Report Card](https://goreportcard.com/badge/github.com/etclabscore/core-geth)](https://goreportcard.com/report/github.com/etclabscore/core-geth)
-[![Travis](https://travis-ci.org/etclabscore/core-geth.svg?branch=master)](https://travis-ci.org/etclabscore/core-geth)
-[![Gitter](https://badges.gitter.im/core-geth/community.svg)](https://gitter.im/core-geth/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+CoreGeth supports all ETC hard forks from Frontier through Spiral (ECIP-1109), and implements ETC-specific consensus rules including ETChash, ECIP-1017 emission schedule, and ECBP-1100 (MESS) artificial finality.
 
-## Network/provider comparison
+Upstream go-ethereum development is merged when feasible. Compatible RPC, CLI APIs, data storage schemas, and P2P protocols are maintained.
 
-Networks supported by the respective go-ethereum packaged `geth` program.
+## Supported Networks
 
-| Ticker | Consensus         | Network                               | core-geth                                                | ethereum/go-ethereum |
-| ---    | ---               | ---                                   | ---                                                      | ---                  |
-| ETC    | :zap:             | Ethereum Classic                      | :heavy_check_mark:                                       |                      |
-| ETH    | :zap:             | Ethereum (Foundation)                 | :heavy_check_mark:                                       | :heavy_check_mark:   |
-| -      | :zap: :handshake: | Private chains                        | :heavy_check_mark:                                       | :heavy_check_mark:   |
-|        | :zap:             | Mordor (Geth+Parity ETH PoW Testnet)  | :heavy_check_mark:                                       |                      |
-|        | :zap:             | Morden (Geth+Parity ETH PoW Testnet)  |                                                          |                      |
-|        | :zap:             | Ropsten (Geth+Parity ETH PoW Testnet) | :heavy_check_mark:                                       | :heavy_check_mark:   |
-|        | :handshake:       | Rinkeby (Geth-only ETH PoA Testnet)   | :heavy_check_mark:                                       | :heavy_check_mark:   |
-|        | :handshake:       | Kovan (Parity-only ETH PoA Testnet)   |                                                          |                      |
-|        |                   | Tobalaba (EWF Testnet)                |                                                          |                      |
-|        |                   | Ephemeral development PoA network     | :heavy_check_mark:                                       | :heavy_check_mark:   |
-| MINTME | :zap:             | MintMe.com Coin                       | :heavy_check_mark:                                       |                      |
+| Network | Chain ID | Flag | Consensus |
+|---------|----------|------|-----------|
+| Ethereum Classic | 61 | `--classic` | Proof of Work (ETChash) |
+| Mordor Testnet | 63 | `--mordor` | Proof of Work (ETChash) |
 
-- :zap: = __Proof of Work__
-- :handshake: = __Proof of Authority__
+### ETC Hard Fork History
 
-<a name="ellaism-footnote">1</a>: This is originally an [Ellaism
-Project](https://github.com/ellaism). However, A [recent hard
-fork](https://github.com/ellaism/specs/blob/master/specs/2018-0003-wasm-hardfork.md)
-makes Ellaism not feasible to support with go-ethereum any more. Existing
-Ellaism users are asked to switch to
-[Parity](https://github.com/paritytech/parity).
+| Fork | ETC Mainnet Block | Mordor Block | ECIPs |
+|------|-------------------|--------------|-------|
+| Atlantis | 8,772,000 | 252,500 | ECIP-1054 (Byzantium equivalent) |
+| Agharta | 9,573,000 | 301,243 | ECIP-1056 (Constantinople equivalent) |
+| Phoenix | 10,500,839 | 999,983 | ECIP-1088 (Istanbul equivalent) |
+| Thanos | 11,700,000 | 2,520,000 | ECIP-1099 (ETChash, 60K epoch length) |
+| Magneto | 13,189,133 | 3,985,893 | ECIP-1103 (Berlin equivalent) |
+| Mystique | 14,525,000 | 5,520,000 | ECIP-1104 (partial London, no EIP-1559) |
+| Spiral | 19,250,000 | 9,957,000 | ECIP-1109 (Shanghai equivalent, PUSH0) |
 
-<a name="configuration-capable">2</a>: Network not supported by default, but network configuration is possible. Make a PR!
+## Build
+
+Requires Go 1.21+ (1.24+ recommended).
+
+```bash
+make geth
+```
+
+The binary is built to `./build/bin/geth`.
+
+## Run
+
+```bash
+# ETC Mainnet
+./build/bin/geth --classic
+
+# Mordor Testnet
+./build/bin/geth --mordor
+
+# With RPC enabled
+./build/bin/geth --classic --http --http.api eth,net,web3
+```
+
+## Test
+
+```bash
+# Core tests
+go test ./core/... -count=1 -timeout 10m
+
+# Consensus tests
+go test ./consensus/... -count=1 -timeout 5m
+
+# Chain config tests
+go test ./params/... -count=1 -timeout 2m
+
+# ETC-specific tests
+go test ./params/... -run TestETC -v
+go test ./core/... -run "TestGasLimit|TestForkCompliance|TestECIP1017" -v
+go test ./consensus/ethash/... -run "TestDifficultyETC|TestDifficultyECIP" -v
+go test ./core/vm/... -run TestETC -v
+
+# Live RPC tests (requires running node)
+go test -tags live ./tests/live_etc/ -v
+```
+
+## Key ETC Files
+
+| File | Purpose |
+|------|---------|
+| `params/config_classic.go` | ETC mainnet chain config (fork blocks, chain ID) |
+| `params/config_mordor.go` | Mordor testnet chain config |
+| `consensus/ethash/consensus.go` | ETChash PoW consensus + ECIP-1017 emission |
+| `core/blockchain_af.go` | ECBP-1100 (MESS) artificial finality |
+| `core/vm/contracts.go` | Precompile registry |
+
+## Docker
+
+```bash
+docker build -t coregeth:latest -f Dockerfile .
+docker run --rm coregeth:latest version
+```
 
 ## Documentation
 
-- CoreGeth documentation is available [here](https://etclabscore.github.io/core-geth).
-  + Getting Started [Installation](https://etclabscore.github.io/core-geth/getting-started/installation) and [CLI](https://etclabscore.github.io/core-geth/getting-started/run-cli)
-  + [JSONRPC API](https://etclabscore.github.io/core-geth/JSON-RPC-API)
-  + [Developers](https://etclabscore.github.io/core-geth/developers/build-from-source)
-  + [Tutorials](https://etclabscore.github.io/core-geth/tutorials/private-network)
-- Further [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum) documentation about can be found [here](https://geth.ethereum.org/docs/).
-- Documentation about documentation lives [here](./docs/developers/documentation.md).
+- [CoreGeth docs](https://etclabscore.github.io/core-geth) — Installation, CLI, JSON-RPC API
+- [go-ethereum docs](https://geth.ethereum.org/docs/) — Upstream reference
+- [ECIP repository](https://github.com/ethereumclassic/ECIPs) — ETC protocol specifications
 
-## Contribution
+## Contributing
 
-Thank you for considering to help out with the source code! We welcome contributions
-from anyone on the internet, and are grateful for even the smallest of fixes!
+Contributions are welcome. Please fork, fix, commit, and send a pull request.
 
-If you'd like to contribute to core-geth, please fork, fix, commit and send a pull request
-for the maintainers to review and merge into the main code base. If you wish to submit
-more complex changes though, please check up with the core devs first on [our gitter channel](https://gitter.im/etclabscore/core-geth)
-to ensure those changes are in line with the general philosophy of the project and/or get
-some early feedback which can make both your efforts much lighter as well as our review
-and merge procedures quick and simple.
-
-Please make sure your contributions adhere to our coding guidelines:
-
- * Code must adhere to the official Go [formatting](https://golang.org/doc/effective_go.html#formatting)
-   guidelines (i.e. uses [gofmt](https://golang.org/cmd/gofmt/)).
- * Code must be documented adhering to the official Go [commentary](https://golang.org/doc/effective_go.html#commentary)
-   guidelines.
- * Pull requests need to be based on and opened against the `master` branch.
- * Commit messages should be prefixed with the package(s) they modify.
-   * E.g. "eth, rpc: make trace configs optional"
-
-Please see the [Developers' Guide](https://github.com/ethereum/go-ethereum/wiki/Developers'-Guide)
-for more details on configuring your environment, managing project dependencies, and
-testing procedures.
+- Code must use [gofmt](https://golang.org/cmd/gofmt/) formatting
+- Pull requests should target the `master` branch
+- Commit messages should be prefixed with the package(s) they modify (e.g., `eth, rpc: make trace configs optional`)
+- Run `go test ./...` before submitting
 
 ## License
 
-The core-geth library (i.e. all code outside of the `cmd` directory) is licensed under the
-[GNU Lesser General Public License v3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html),
-also included in our repository in the `COPYING.LESSER` file.
-
-The core-geth binaries (i.e. all code inside of the `cmd` directory) is licensed under the
-[GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html), also
-included in our repository in the `COPYING` file.
+The core-geth library (outside `cmd/`) is licensed under [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html).
+The core-geth binaries (`cmd/`) are licensed under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).

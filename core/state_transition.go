@@ -441,11 +441,8 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 		return nil, fmt.Errorf("%w: address %v", ErrInsufficientFundsForTransfer, msg.From.Hex())
 	}
 
-	// FIXME-meowsbits The comment here suggests to me that the contract code size is getting checked.
-	// If I'm not mistaken, there are EIPs before Shanghai that defined constraints on this.
-	// However, this was not enforced in the incumbent core-geth version. It may be a red herring.
-	//
-	// Check whether the init code size has been exceeded.
+	// EIP-3860 (activated in Spiral): Enforce max initcode size for contract creation.
+	// This limits CREATE/CREATE2 initcode to 49152 bytes (2 * MAX_CODE_SIZE).
 	if eip3860f && contractCreation && uint64(len(msg.Data)) > vars.MaxInitCodeSize {
 		return nil, fmt.Errorf("%w: code size %v limit %v", ErrMaxInitCodeSizeExceeded, len(msg.Data), vars.MaxInitCodeSize)
 	}

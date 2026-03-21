@@ -60,3 +60,15 @@ les/transactions.rlp
 /MANIFEST
 /manifest.json
 /site
+
+# Built binary
+geth
+
+# Secrets & credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+keystore/
