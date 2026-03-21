@@ -412,6 +412,65 @@ func TestSharedKeyStatic(t *testing.T) {
 	}
 }
 
+// TestDecryptTruncatedCiphertext verifies that truncated ciphertexts return
+// ErrInvalidMessage rather than panicking. This is a regression test for the
+// minimum-length check at ecies.go:293.
+func TestDecryptTruncatedCiphertext(t *testing.T) {
+	prv, err := GenerateKey(rand.Reader, DefaultCurve, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Encrypt a real message to get a valid ciphertext prefix.
+	message := []byte("Hello, world.")
+	ct, err := Encrypt(rand.Reader, &prv.PublicKey, message, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Compute the three components that define the minimum ciphertext length.
+	// For secp256k1: rLen=65, hLen=32 (SHA-256), BlockSize=16 (AES).
+	params := ParamsFromCurve(prv.PublicKey.Curve)
+	rLen := (prv.PublicKey.Curve.Params().BitSize + 7) / 4
+	hLen := params.Hash().Size()
+	minLen := rLen + hLen + params.BlockSize
+
+	tests := []struct {
+		name string
+		ct   []byte
+	}{
+		{
+			name: "empty ciphertext",
+			ct:   []byte{},
+		},
+		{
+			name: "single byte (valid prefix byte only)",
+			ct:   ct[:1],
+		},
+		{
+			name: "truncated to rLen only",
+			ct:   ct[:rLen],
+		},
+		{
+			name: "one byte short of minimum (ctPart < BlockSize)",
+			ct:   ct[:minLen-1],
+		},
+		{
+			name: "exactly at minimum boundary (rLen+hLen+BlockSize)",
+			ct:   ct[:minLen],
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := prv.Decrypt(tc.ct, nil, nil)
+			if err == nil {
+				t.Fatal("expected error for truncated ciphertext, got nil")
+			}
+		})
+	}
+}
+
 func hexKey(prv string) *PrivateKey {
 	key, err := crypto.HexToECDSA(prv)
 	if err != nil {
