@@ -492,3 +492,55 @@ func newGQLService(t *testing.T, stack *node.Node, shanghai bool, gspec *genesis
 	}
 	return handler, chain
 }
+
+// TestGraphQLQueryDepthLimit verifies that deeply nested queries are rejected
+// when maxQueryDepth is set. This is a regression test for the depth limit
+// security fix.
+func TestGraphQLQueryDepthLimit(t *testing.T) {
+	stack := createNode(t)
+	defer stack.Close()
+	genesis := &genesisT.Genesis{
+		Config:     params.AllEthashProtocolChanges,
+		GasLimit:   11500000,
+		Difficulty: big.NewInt(1048576),
+	}
+	newGQLService(t, stack, false, genesis, 1, func(i int, gen *core.BlockGen) {})
+	if err := stack.Start(); err != nil {
+		t.Fatalf("could not start node: %v", err)
+	}
+
+	// Build a deeply nested query using block.parent self-reference.
+	// Depth = maxQueryDepth + 1 should be rejected.
+	depth := maxQueryDepth + 1
+	var b strings.Builder
+	b.WriteString(`{"query": "{ block `)
+	for i := 1; i < depth; i++ {
+		b.WriteString("{ parent ")
+	}
+	b.WriteString("{ number }")
+	for i := 0; i < depth; i++ {
+		b.WriteString(" }")
+	}
+	b.WriteString(`}","variables": null}`)
+
+	resp, err := http.Post(fmt.Sprintf("%s/graphql", stack.HTTPEndpoint()), "application/json", strings.NewReader(b.String()))
+	if err != nil {
+		t.Fatalf("could not post: %v", err)
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("could not read response: %v", err)
+	}
+
+	if resp.StatusCode != 400 {
+		t.Fatalf("expected 400 for depth-exceeding query, got %d: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	// Verify the error mentions depth.
+	body := string(bodyBytes)
+	if !strings.Contains(body, "MaxDepthExceeded") && !strings.Contains(body, "max depth") {
+		t.Fatalf("expected depth-related error, got: %s", body)
+	}
+}
