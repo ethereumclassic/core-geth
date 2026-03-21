@@ -62,5 +62,5 @@ var (
 	ErrAlreadyReserved = errors.New("address already reserved")
 
 	// ErrKZGVerificationError is returned when a KZG proof was not verified correctly.
-	ErrKZGVerificationError = errors.New("KZG verification error")
+	ErrKZGVerificationError = errors.New("kzg verification error")
 )
