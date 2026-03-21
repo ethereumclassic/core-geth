@@ -85,13 +85,32 @@ func validateSnapMessageItems(payload io.Reader, size uint32, code uint64) ([]by
 		return data, nil // Let the normal decoder report the error.
 	}
 
-	count, err := rlp.CountValues(responseContent)
+	exceeded, err := countValuesExceedsLimit(responseContent, limit)
 	if err != nil {
 		return data, nil // Let the normal decoder report the error.
 	}
-	if count > limit {
-		return nil, fmt.Errorf("%w: message %#02x contains %d items, limit is %d",
-			errTooManySnapItems, code, count, limit)
+	if exceeded {
+		return nil, fmt.Errorf("%w: message %#02x exceeds item limit %d",
+			errTooManySnapItems, code, limit)
 	}
 	return data, nil
+}
+
+// countValuesExceedsLimit counts the number of RLP values in b and returns
+// true if the count exceeds the given limit. Exits early as soon as the
+// limit is exceeded, avoiding excessive iterations for attack payloads.
+func countValuesExceedsLimit(b []byte, limit int) (bool, error) {
+	count := 0
+	for len(b) > 0 {
+		_, _, rest, err := rlp.Split(b)
+		if err != nil {
+			return false, err
+		}
+		b = rest
+		count++
+		if count > limit {
+			return true, nil
+		}
+	}
+	return false, nil
 }

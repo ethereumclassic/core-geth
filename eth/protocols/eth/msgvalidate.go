@@ -69,6 +69,12 @@ var flatMessages = map[uint64]bool{
 // caller can replace the consumed io.Reader. The payload has already been
 // read into memory by the transport layer, so this does not increase peak
 // memory usage.
+//
+// Note: This validates only the top-level item count in each message. Inner
+// lists (e.g., transactions within a BlockBody) are not counted. The 10 MiB
+// maxMessageSize naturally limits inner list damage since each inner item has
+// a minimum encoding size. A future full backport of upstream's rlp.RawList
+// delayed decoding would address inner lists as well.
 func validateMessageItems(payload io.Reader, size uint32, code uint64) ([]byte, error) {
 	limit, ok := responseItemLimits[code]
 	if !ok {
@@ -107,13 +113,33 @@ func validateMessageItems(payload io.Reader, size uint32, code uint64) ([]byte, 
 		itemData = responseContent
 	}
 
-	count, err := rlp.CountValues(itemData)
+	exceeded, err := countValuesExceedsLimit(itemData, limit)
 	if err != nil {
 		return data, nil // Let the normal decoder report the error.
 	}
-	if count > limit {
-		return nil, fmt.Errorf("%w: message %#02x contains %d items, limit is %d",
-			errTooManyItems, code, count, limit)
+	if exceeded {
+		return nil, fmt.Errorf("%w: message %#02x exceeds item limit %d",
+			errTooManyItems, code, limit)
 	}
 	return data, nil
+}
+
+// countValuesExceedsLimit counts the number of RLP values in b and returns
+// true if the count exceeds the given limit. Unlike rlp.CountValues, this
+// exits early as soon as the limit is exceeded, avoiding 10M iterations
+// for attack payloads with millions of tiny items.
+func countValuesExceedsLimit(b []byte, limit int) (bool, error) {
+	count := 0
+	for len(b) > 0 {
+		_, _, rest, err := rlp.Split(b)
+		if err != nil {
+			return false, err
+		}
+		b = rest
+		count++
+		if count > limit {
+			return true, nil
+		}
+	}
+	return false, nil
 }
