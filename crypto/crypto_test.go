@@ -89,6 +89,15 @@ func TestUnmarshalPubkey(t *testing.T) {
 	if !reflect.DeepEqual(key, dec) {
 		t.Fatal("wrong result")
 	}
+
+	// 65 bytes with 0x04 prefix but coordinates not on secp256k1 curve.
+	offCurve, _ := hex.DecodeString("04" +
+		"0000000000000000000000000000000000000000000000000000000000000001" +
+		"0000000000000000000000000000000000000000000000000000000000000001")
+	key, err = UnmarshalPubkey(offCurve)
+	if err != errInvalidPubkey || key != nil {
+		t.Fatalf("expected errInvalidPubkey for off-curve point, got %v, %v", err, key)
+	}
 }
 
 func TestSign(t *testing.T) {
