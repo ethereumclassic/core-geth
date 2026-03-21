@@ -83,7 +83,10 @@ func (it *Iterator) Offset() int {
 	return it.offset - len(it.next)
 }
 
-// Err returns the error that caused Next to return false, if any.
+// Err returns the error encountered during iteration, if any.
+// When Next encounters a parse error, it returns true one final time
+// with Value set to nil and the error accessible via Err. Subsequent
+// calls to Next return false.
 func (it *Iterator) Err() error {
 	return it.err
 }

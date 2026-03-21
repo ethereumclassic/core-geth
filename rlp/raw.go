@@ -106,6 +106,9 @@ func (r *RawList[T]) Items() ([]T, error) {
 	items := make([]T, r.Len())
 	it := r.ContentIterator()
 	for i := 0; it.Next(); i++ {
+		if err := it.Err(); err != nil {
+			return items[:i], err
+		}
 		if err := DecodeBytes(it.Value(), &items[i]); err != nil {
 			return items[:i], err
 		}
@@ -278,6 +281,8 @@ func SplitList(b []byte) (content, rest []byte, err error) {
 }
 
 // CountValues counts the number of encoded values in b.
+// If an error is encountered while parsing, it returns the count of values
+// successfully parsed so far (which may be zero) along with the error.
 func CountValues(b []byte) (int, error) {
 	i := 0
 	for ; len(b) > 0; i++ {
