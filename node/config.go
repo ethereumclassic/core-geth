@@ -309,11 +309,9 @@ func (c *Config) NodeName() string {
 	if c.UserIdent != "" {
 		name += "/" + c.UserIdent
 	}
-	if c.Version != "" {
-		name += "/v" + c.Version
-	}
-	name += "/" + runtime.GOOS + "-" + runtime.GOARCH
-	name += "/" + runtime.Version()
+	// Use clean version (e.g. "1.13.0-unstable") without commit hash or date
+	// for a concise P2P identity on network dashboards like etcnodes.org.
+	name += "/v" + params.VersionWithMeta
 	return name
 }
 

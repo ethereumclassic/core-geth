@@ -22,10 +22,10 @@ import (
 
 const (
 	VersionMajor = 1          // Major version component of the current release
-	VersionMinor = 12         // Minor version component of the current release
-	VersionPatch = 21         // Patch version component of the current release
+	VersionMinor = 13         // Minor version component of the current release
+	VersionPatch = 0          // Patch version component of the current release
 	VersionMeta  = "unstable" // Version metadata to append to the version string
-	VersionName  = "CoreGeth"
+	VersionName  = "core-geth-v1.13.0"
 )
 
 // Version holds the textual version string.
