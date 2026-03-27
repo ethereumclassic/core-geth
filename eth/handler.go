@@ -768,6 +768,33 @@ func (h *handler) enableSyncedFeatures() {
 		log.Info("Snap sync complete, auto disabling")
 		h.snapSync.Store(false)
 	}
+	// Ensure the snapshot tree is available for snap/1 serving. This handles
+	// multiple failure modes beyond the snap sync transition above:
+	//   - Snapshot disabled from an interrupted snap sync (Disable() ran but
+	//     Rebuild() never did because the node crashed before pivot commit)
+	//   - Node restarted after --snapshot=false was used temporarily
+	//   - Any state where the snapshot tree is empty but the chain is synced
+	//
+	// DiskRoot() returns the zero hash when the tree has no layers (disabled
+	// or never built). If generation is already in progress, DiskRoot() is
+	// non-zero, so we skip the Rebuild to avoid discarding progress.
+	if snapshots := h.chain.Snapshots(); snapshots != nil {
+		head := h.chain.CurrentBlock()
+		diskRoot := snapshots.DiskRoot()
+
+		if diskRoot == (common.Hash{}) {
+			log.Info("Snapshot tree empty, rebuilding for snap serving", "root", head.Root)
+			snapshots.Rebuild(head.Root)
+		} else {
+			// Report snapshot status for operator visibility
+			generating, _ := snapshots.Generating()
+			if generating {
+				log.Info("Snapshot generation in progress, snap/1 serving unavailable until complete", "diskroot", diskRoot, "headroot", head.Root)
+			} else {
+				log.Info("Snapshot ready for snap/1 serving", "diskroot", diskRoot, "headroot", head.Root)
+			}
+		}
+	}
 	if h.chain.TrieDB().Scheme() == rawdb.PathScheme {
 		h.chain.TrieDB().SetBufferSize(pathdb.DefaultBufferSize)
 	}

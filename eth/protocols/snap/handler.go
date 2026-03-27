@@ -19,6 +19,8 @@ package snap
 import (
 	"bytes"
 	"fmt"
+	"runtime"
+	"sync/atomic"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -50,11 +52,40 @@ const (
 	// number is there to limit the number of disk lookups.
 	maxTrieNodeLookups = 1024
 
-	// maxTrieNodeTimeSpent is the maximum time we should spend on looking up trie nodes.
-	// If we spend too much time, then it's a fairly high chance of timing out
-	// at the remote side, which means all the work is in vain.
-	maxTrieNodeTimeSpent = 5 * time.Second
+	// maxSnapServingTime is the maximum time we should spend on serving any single
+	// snap request (account ranges, storage ranges, bytecodes, or trie nodes).
+	// If we spend too much time, the remote side will likely time out, and heavy
+	// I/O from snap serving can starve ETH protocol responses (e.g. GetBlockHeaders)
+	// due to write token serialization in p2p/peer.go.
+	maxSnapServingTime = 2 * time.Second
 )
+
+// snapNotReadyWarned is used to rate-limit log warnings when snap serving
+// is unavailable due to snapshot generation still being in progress.
+var snapNotReadyWarned atomic.Bool
+
+// warnSnapNotReady logs a warning about snap serving being unavailable,
+// rate-limited to once per 60 seconds to avoid log spam.
+func warnSnapNotReady(reason string) {
+	if snapNotReadyWarned.CompareAndSwap(false, true) {
+		log.Warn("Snap serving unavailable, returning empty responses", "reason", reason)
+		time.AfterFunc(60*time.Second, func() { snapNotReadyWarned.Store(false) })
+	}
+}
+
+// isSnapServingReady checks whether the snapshot tree is ready to serve
+// snap/1 requests. Returns false if snapshots are nil or still generating.
+func isSnapServingReady(chain *core.BlockChain) bool {
+	snaps := chain.Snapshots()
+	if snaps == nil {
+		return false
+	}
+	generating, err := snaps.Generating()
+	if err != nil || generating {
+		return false
+	}
+	return true
+}
 
 // Handler is a callback to invoke from an outside runner after the boilerplate
 // exchanges have passed.
@@ -123,6 +154,11 @@ func Handle(backend Backend, peer *Peer) error {
 			peer.Log().Debug("Message handling failed in `snap`", "err", err)
 			return err
 		}
+		// Yield to the Go scheduler after serving each snap request.
+		// Without this, back-to-back snap requests can monopolize the
+		// per-peer write token (p2p/peer.go), starving ETH protocol
+		// responses such as GetBlockHeaders.
+		runtime.Gosched()
 	}
 }
 
@@ -160,8 +196,14 @@ func HandleMessage(backend Backend, peer *Peer) error {
 		if err := msg.Decode(&req); err != nil {
 			return fmt.Errorf("%w: message %v: %v", errDecode, msg, err)
 		}
+		// If the snapshot is not ready (still generating), return an empty
+		// response immediately rather than hanging on iterator creation.
+		if !isSnapServingReady(backend.Chain()) {
+			warnSnapNotReady("snapshot generating")
+			return p2p.Send(peer.rw, AccountRangeMsg, &AccountRangePacket{ID: req.ID})
+		}
 		// Service the request, potentially returning nothing in case of errors
-		accounts, proofs := ServiceGetAccountRangeQuery(backend.Chain(), &req)
+		accounts, proofs := ServiceGetAccountRangeQuery(backend.Chain(), &req, start)
 
 		// Send back anything accumulated (or empty in case of errors)
 		return p2p.Send(peer.rw, AccountRangeMsg, &AccountRangePacket{
@@ -192,8 +234,12 @@ func HandleMessage(backend Backend, peer *Peer) error {
 		if err := msg.Decode(&req); err != nil {
 			return fmt.Errorf("%w: message %v: %v", errDecode, msg, err)
 		}
+		if !isSnapServingReady(backend.Chain()) {
+			warnSnapNotReady("snapshot generating")
+			return p2p.Send(peer.rw, StorageRangesMsg, &StorageRangesPacket{ID: req.ID})
+		}
 		// Service the request, potentially returning nothing in case of errors
-		slots, proofs := ServiceGetStorageRangesQuery(backend.Chain(), &req)
+		slots, proofs := ServiceGetStorageRangesQuery(backend.Chain(), &req, start)
 
 		// Send back anything accumulated (or empty in case of errors)
 		return p2p.Send(peer.rw, StorageRangesMsg, &StorageRangesPacket{
@@ -226,8 +272,12 @@ func HandleMessage(backend Backend, peer *Peer) error {
 		if err := msg.Decode(&req); err != nil {
 			return fmt.Errorf("%w: message %v: %v", errDecode, msg, err)
 		}
+		if !isSnapServingReady(backend.Chain()) {
+			warnSnapNotReady("snapshot generating")
+			return p2p.Send(peer.rw, ByteCodesMsg, &ByteCodesPacket{ID: req.ID})
+		}
 		// Service the request, potentially returning nothing in case of errors
-		codes := ServiceGetByteCodesQuery(backend.Chain(), &req)
+		codes := ServiceGetByteCodesQuery(backend.Chain(), &req, start)
 
 		// Send back anything accumulated (or empty in case of errors)
 		return p2p.Send(peer.rw, ByteCodesMsg, &ByteCodesPacket{
@@ -250,6 +300,10 @@ func HandleMessage(backend Backend, peer *Peer) error {
 		var req GetTrieNodesPacket
 		if err := msg.Decode(&req); err != nil {
 			return fmt.Errorf("%w: message %v: %v", errDecode, msg, err)
+		}
+		if !isSnapServingReady(backend.Chain()) {
+			warnSnapNotReady("snapshot generating")
+			return p2p.Send(peer.rw, TrieNodesMsg, &TrieNodesPacket{ID: req.ID})
 		}
 		// Service the request, potentially returning nothing in case of errors
 		nodes, err := ServiceGetTrieNodesQuery(backend.Chain(), &req, start)
@@ -279,7 +333,7 @@ func HandleMessage(backend Backend, peer *Peer) error {
 
 // ServiceGetAccountRangeQuery assembles the response to an account range query.
 // It is exposed to allow external packages to test protocol behavior.
-func ServiceGetAccountRangeQuery(chain *core.BlockChain, req *GetAccountRangePacket) ([]*AccountData, [][]byte) {
+func ServiceGetAccountRangeQuery(chain *core.BlockChain, req *GetAccountRangePacket, start time.Time) ([]*AccountData, [][]byte) {
 	if req.Bytes > softResponseLimit {
 		req.Bytes = softResponseLimit
 	}
@@ -290,6 +344,7 @@ func ServiceGetAccountRangeQuery(chain *core.BlockChain, req *GetAccountRangePac
 	}
 	it, err := chain.Snapshots().AccountIterator(req.Root, req.Origin)
 	if err != nil {
+		log.Warn("Snap account range serving unavailable", "root", req.Root, "err", err)
 		return nil, nil
 	}
 	// Iterate over the requested range and pile accounts up
@@ -317,8 +372,14 @@ func ServiceGetAccountRangeQuery(chain *core.BlockChain, req *GetAccountRangePac
 		if size > req.Bytes {
 			break
 		}
+		if time.Since(start) > maxSnapServingTime {
+			break
+		}
 	}
 	it.Release()
+	if err := it.Error(); err != nil {
+		log.Warn("Snap account iteration failed", "root", req.Root, "err", err)
+	}
 
 	// Generate the Merkle proofs for the first and last account
 	proof := trienode.NewProofSet()
@@ -339,7 +400,7 @@ func ServiceGetAccountRangeQuery(chain *core.BlockChain, req *GetAccountRangePac
 	return accounts, proofs
 }
 
-func ServiceGetStorageRangesQuery(chain *core.BlockChain, req *GetStorageRangesPacket) ([][]*StorageData, [][]byte) {
+func ServiceGetStorageRangesQuery(chain *core.BlockChain, req *GetStorageRangesPacket, start time.Time) ([][]*StorageData, [][]byte) {
 	if req.Bytes > softResponseLimit {
 		req.Bytes = softResponseLimit
 	}
@@ -362,6 +423,9 @@ func ServiceGetStorageRangesQuery(chain *core.BlockChain, req *GetStorageRangesP
 		if size >= req.Bytes {
 			break
 		}
+		if time.Since(start) > maxSnapServingTime {
+			break
+		}
 		// The first account might start from a different origin and end sooner
 		var origin common.Hash
 		if len(req.Origin) > 0 {
@@ -374,6 +438,7 @@ func ServiceGetStorageRangesQuery(chain *core.BlockChain, req *GetStorageRangesP
 		// Retrieve the requested state and bail out if non existent
 		it, err := chain.Snapshots().StorageIterator(req.Root, account, origin)
 		if err != nil {
+			log.Warn("Snap storage range serving unavailable", "root", req.Root, "account", account, "err", err)
 			return nil, nil
 		}
 		// Iterate over the requested range and pile slots up
@@ -384,6 +449,10 @@ func ServiceGetStorageRangesQuery(chain *core.BlockChain, req *GetStorageRangesP
 		)
 		for it.Next() {
 			if size >= hardLimit {
+				abort = true
+				break
+			}
+			if time.Since(start) > maxSnapServingTime {
 				abort = true
 				break
 			}
@@ -407,6 +476,9 @@ func ServiceGetStorageRangesQuery(chain *core.BlockChain, req *GetStorageRangesP
 			slots = append(slots, storage)
 		}
 		it.Release()
+		if err := it.Error(); err != nil {
+			log.Warn("Snap storage iteration failed", "root", req.Root, "account", account, "err", err)
+		}
 
 		// Generate the Merkle proofs for the first and last storage slot, but
 		// only if the response was capped. If the entire storage trie included
@@ -452,7 +524,7 @@ func ServiceGetStorageRangesQuery(chain *core.BlockChain, req *GetStorageRangesP
 
 // ServiceGetByteCodesQuery assembles the response to a byte codes query.
 // It is exposed to allow external packages to test protocol behavior.
-func ServiceGetByteCodesQuery(chain *core.BlockChain, req *GetByteCodesPacket) [][]byte {
+func ServiceGetByteCodesQuery(chain *core.BlockChain, req *GetByteCodesPacket, start time.Time) [][]byte {
 	if req.Bytes > softResponseLimit {
 		req.Bytes = softResponseLimit
 	}
@@ -474,6 +546,9 @@ func ServiceGetByteCodesQuery(chain *core.BlockChain, req *GetByteCodesPacket) [
 			bytes += uint64(len(blob))
 		}
 		if bytes > req.Bytes {
+			break
+		}
+		if time.Since(start) > maxSnapServingTime {
 			break
 		}
 	}
@@ -554,13 +629,13 @@ func ServiceGetTrieNodesQuery(chain *core.BlockChain, req *GetTrieNodesPacket, s
 				bytes += uint64(len(blob))
 
 				// Sanity check limits to avoid DoS on the store trie loads
-				if bytes > req.Bytes || loads > maxTrieNodeLookups || time.Since(start) > maxTrieNodeTimeSpent {
+				if bytes > req.Bytes || loads > maxTrieNodeLookups || time.Since(start) > maxSnapServingTime {
 					break
 				}
 			}
 		}
 		// Abort request processing if we've exceeded our limits
-		if bytes > req.Bytes || loads > maxTrieNodeLookups || time.Since(start) > maxTrieNodeTimeSpent {
+		if bytes > req.Bytes || loads > maxTrieNodeLookups || time.Since(start) > maxSnapServingTime {
 			break
 		}
 	}

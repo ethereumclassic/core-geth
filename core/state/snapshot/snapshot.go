@@ -860,6 +860,27 @@ func (t *Tree) generating() (bool, error) {
 	return layer.genMarker != nil, nil
 }
 
+// Generating is a public helper function which reports whether the snapshot
+// is still under construction.
+func (t *Tree) Generating() (bool, error) {
+	return t.generating()
+}
+
+// GeneratorProgress returns the current snapshot generation progress.
+// It reads the persisted generator state from the database, which is
+// updated every batch flush (~100KB) during generation.
+func (t *Tree) GeneratorProgress() (done bool, accounts, slots, storage uint64, marker []byte, err error) {
+	blob := rawdb.ReadSnapshotGenerator(t.diskdb)
+	if len(blob) == 0 {
+		return false, 0, 0, 0, nil, errors.New("no snapshot generator state")
+	}
+	var generator journalGenerator
+	if err := rlp.DecodeBytes(blob, &generator); err != nil {
+		return false, 0, 0, 0, nil, fmt.Errorf("failed to decode generator: %v", err)
+	}
+	return generator.Done, generator.Accounts, generator.Slots, generator.Storage, generator.Marker, nil
+}
+
 // DiskRoot is a external helper function to return the disk layer root.
 func (t *Tree) DiskRoot() common.Hash {
 	t.lock.Lock()

@@ -454,6 +454,16 @@ func NewBlockChain(db ethdb.Database, cacheConfig *CacheConfig, genesis *genesis
 			AsyncBuild: !bc.cacheConfig.SnapshotWait,
 		}
 		bc.snaps, _ = snapshot.New(snapconfig, bc.db, bc.triedb, head.Root)
+		if bc.snaps != nil {
+			diskRoot := bc.snaps.DiskRoot()
+			if diskRoot == (common.Hash{}) {
+				log.Warn("Snapshot tree is empty, snap/1 serving will be unavailable")
+			} else if generating, _ := bc.snaps.Generating(); generating {
+				log.Info("Snapshot generation in progress", "diskroot", diskRoot, "headroot", head.Root)
+			} else {
+				log.Info("Snapshot loaded", "diskroot", diskRoot, "headroot", head.Root)
+			}
+		}
 	}
 
 	// Start future block processor.

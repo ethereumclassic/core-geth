@@ -440,3 +440,29 @@ func (api *DebugAPI) GetTrieFlushInterval() (string, error) {
 	}
 	return api.eth.blockchain.GetTrieFlushInterval().String(), nil
 }
+
+// SnapshotGeneratorStatus returns the current state of the snapshot generator,
+// including whether generation is complete, progress counters, and the current
+// marker position. This is useful for monitoring snapshot readiness without
+// watching logs.
+func (api *DebugAPI) SnapshotGeneratorStatus() (map[string]interface{}, error) {
+	snaps := api.eth.blockchain.Snapshots()
+	if snaps == nil {
+		return nil, errors.New("snapshots not enabled")
+	}
+	done, accounts, slots, storage, marker, err := snaps.GeneratorProgress()
+	if err != nil {
+		return nil, err
+	}
+	result := map[string]interface{}{
+		"done":     done,
+		"accounts": accounts,
+		"slots":    slots,
+		"storage":  storage,
+		"diskRoot": snaps.DiskRoot(),
+	}
+	if len(marker) > 0 {
+		result["marker"] = hexutil.Encode(marker)
+	}
+	return result, nil
+}
