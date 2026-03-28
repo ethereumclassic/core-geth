@@ -66,6 +66,11 @@ type Config struct {
 	// in memory.
 	DataDir string
 
+	// TmpDir is the file system folder for temporary files. If empty, the system
+	// default (os.TempDir()) is used. When DataDir is set and TmpDir is not
+	// explicitly configured, it defaults to a "tmp" subdirectory of DataDir.
+	TmpDir string `toml:",omitempty"`
+
 	// Configuration of peer-to-peer networking.
 	P2P p2p.Config
 

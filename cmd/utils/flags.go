@@ -104,6 +104,11 @@ var (
 		Value:    flags.DirectoryString(vars.DefaultDataDir()),
 		Category: flags.EthCategory,
 	}
+	TmpDirFlag = &flags.DirectoryFlag{
+		Name:     "tmpdir",
+		Usage:    "Temporary files directory (default = <datadir>/tmp)",
+		Category: flags.EthCategory,
+	}
 	RemoteDBFlag = &cli.StringFlag{
 		Name:     "remotedb",
 		Usage:    "URL for remote database",
@@ -1136,6 +1141,7 @@ var (
 	// DatabaseFlags is the flag group of all database flags.
 	DatabaseFlags = []cli.Flag{
 		DataDirFlag,
+		TmpDirFlag,
 		AncientFlag,
 		RemoteDBFlag,
 		DBEngineFlag,
@@ -1580,6 +1586,7 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	setWS(ctx, cfg)
 	setNodeUserIdent(ctx, cfg)
 	SetDataDir(ctx, cfg)
+	SetTmpDir(ctx, cfg)
 	setSmartCard(ctx, cfg)
 
 	if ctx.IsSet(JWTSecretFlag.Name) {
@@ -1709,6 +1716,15 @@ func SetDataDir(ctx *cli.Context, cfg *node.Config) {
 
 	case cfg.DataDir == vars.DefaultDataDir():
 		cfg.DataDir = dataDirPathForCtxChainConfig(ctx, vars.DefaultDataDir())
+	}
+}
+
+func SetTmpDir(ctx *cli.Context, cfg *node.Config) {
+	switch {
+	case ctx.IsSet(TmpDirFlag.Name):
+		cfg.TmpDir = ctx.String(TmpDirFlag.Name)
+	case cfg.DataDir != "":
+		cfg.TmpDir = filepath.Join(cfg.DataDir, "tmp")
 	}
 }
 

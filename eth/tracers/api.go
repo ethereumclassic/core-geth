@@ -792,7 +792,7 @@ func (api *API) standardTraceBlockToFile(ctx context.Context, block *types.Block
 			if !canon {
 				prefix = fmt.Sprintf("%valt-", prefix)
 			}
-			dump, err = os.CreateTemp(os.TempDir(), prefix)
+			dump, err = os.CreateTemp("", prefix)
 			if err != nil {
 				return nil, err
 			}

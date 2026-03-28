@@ -98,6 +98,20 @@ func New(conf *Config) (*Node, error) {
 	if conf.Logger == nil {
 		conf.Logger = log.New()
 	}
+	// Set up the temporary directory. This redirects all os.TempDir() and
+	// os.CreateTemp("", ...) calls to the configured path, keeping temp files
+	// on the same volume as the data directory.
+	if conf.TmpDir != "" {
+		abstmpdir, err := filepath.Abs(conf.TmpDir)
+		if err != nil {
+			return nil, err
+		}
+		conf.TmpDir = abstmpdir
+		if err := os.MkdirAll(conf.TmpDir, 0700); err != nil {
+			return nil, err
+		}
+		os.Setenv("TMPDIR", conf.TmpDir)
+	}
 
 	// Ensure that the instance name doesn't cause weird conflicts with
 	// other files in the data directory.
