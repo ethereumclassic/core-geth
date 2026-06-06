@@ -142,14 +142,15 @@ func (ExtIP) AddMapping(string, int, int, string, time.Duration) (uint16, error)
 func (ExtIP) DeleteMapping(string, int, int) error                               { return nil }
 
 // Any returns a port mapper that tries to discover any supported
-// mechanism on the local network.
+// mechanism on the local network. The cascade order is: UPnP → NAT-PMP → STUN → HTTP.
+// All four probes run concurrently; the first to succeed wins.
 func Any() Interface {
-	// TODO: attempt to discover whether the local machine has an
-	// Internet-class address. Return ExtIP in this case.
-	return startautodisc("UPnP or NAT-PMP", func() Interface {
-		found := make(chan Interface, 2)
+	return startautodisc("UPnP, NAT-PMP, STUN or HTTP", func() Interface {
+		found := make(chan Interface, 4)
 		go func() { found <- discoverUPnP() }()
 		go func() { found <- discoverPMP() }()
+		go func() { found <- discoverSTUN() }()
+		go func() { found <- discoverHTTP() }()
 		for i := 0; i < cap(found); i++ {
 			if c := <-found; c != nil {
 				return c
