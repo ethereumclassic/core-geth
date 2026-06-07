@@ -166,6 +166,11 @@ func (srv *Server) portMappingLoop() {
 				}
 				// It was mapped!
 				m.extPort = int(p)
+				if m.extPort == 0 {
+					log.Debug("NAT mapping returned extport=0, skipping ENR update")
+					m.nextTime = srv.clock.Now().Add(portMapRetryInterval)
+					continue
+				}
 				m.nextTime = srv.clock.Now().Add(portMapRefreshInterval)
 				if external != m.extPort {
 					log = newLogger(m.protocol, m.extPort, m.port)
