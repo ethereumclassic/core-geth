@@ -2185,7 +2185,10 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *ethconfig.Config) {
 			cfg.SnapDiscoveryURLs = cfg.EthDiscoveryURLs
 		}
 	case ctx.Bool(MordorFlag.Name):
-		SetDNSDiscoveryDefaults2(cfg, params.MordorDNSNetwork1)
+		if cfg.EthDiscoveryURLs == nil {
+			cfg.EthDiscoveryURLs = []string{params.MordorDNSNetwork1, params.MordorDNSNetwork2}
+			cfg.SnapDiscoveryURLs = cfg.EthDiscoveryURLs
+		}
 	default:
 		// No --<chain> flag was given.
 	}

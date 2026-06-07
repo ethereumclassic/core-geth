@@ -23,3 +23,4 @@ var MordorBootnodes = []string{
 	"enode://4539a067ae1f6a7ffac509603ba37baf772fc832880ddc67c53f292b6199fb048267f0311c820bc90bfd39ec663bc6b5256bdf787ec38425c82bde6bc2bcfe3c@24.199.107.164:30303", // @etccoop-sfo
 }
 var MordorDNSNetwork1 = dnsPrefixETC + "all.mordor.blockd.info"
+var MordorDNSNetwork2 = dnsPrefixETC + "all.mordor.etcdisco.net"
