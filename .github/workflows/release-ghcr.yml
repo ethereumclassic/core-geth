@@ -1,0 +1,238 @@
+name: Release GHCR artifacts
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and attest without pushing release images
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
+
+env:
+  IMAGE_NAME: ghcr.io/ethereumclassic/core-geth
+  GO_VERSION: '1.21'
+  WORKFLOW_IDENTITY_BASE: https://github.com/ethereumclassic/core-geth/.github/workflows/release-ghcr.yml
+
+jobs:
+  prepare:
+    name: Prepare release metadata
+    runs-on: ubuntu-latest
+    outputs:
+      dry_run: ${{ steps.vars.outputs.dry_run }}
+      should_push: ${{ steps.vars.outputs.should_push }}
+      version: ${{ steps.vars.outputs.version }}
+      image_tags: ${{ steps.vars.outputs.image_tags }}
+      is_prerelease: ${{ steps.vars.outputs.is_prerelease }}
+      workflow_ref: ${{ steps.vars.outputs.workflow_ref }}
+      signer_identity: ${{ steps.vars.outputs.signer_identity }}
+    steps:
+      - name: Compute metadata
+        id: vars
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          SHA: ${{ github.sha }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          WORKFLOW_IDENTITY_BASE: ${{ env.WORKFLOW_IDENTITY_BASE }}
+        run: |
+          set -euo pipefail
+
+          dry_run=false
+          if [[ "$EVENT_NAME" == "workflow_dispatch" && "$INPUT_DRY_RUN" == "true" ]]; then
+            dry_run=true
+          fi
+
+          should_push=false
+          if [[ "$REF_TYPE" == "tag" && "$dry_run" != "true" ]]; then
+            should_push=true
+          fi
+
+          version="dry-run-${SHA::7}"
+          workflow_ref="refs/heads/$REF_NAME"
+          if [[ "$REF_TYPE" == "tag" ]]; then
+            version="$REF_NAME"
+            workflow_ref="refs/tags/$REF_NAME"
+          fi
+
+          is_prerelease=false
+          if [[ "$version" == *-* && "$version" != dry-run-* ]]; then
+            is_prerelease=true
+          fi
+
+          {
+            echo "dry_run=$dry_run"
+            echo "should_push=$should_push"
+            echo "version=$version"
+            echo "is_prerelease=$is_prerelease"
+            echo "workflow_ref=$workflow_ref"
+            echo "signer_identity=${WORKFLOW_IDENTITY_BASE}@${workflow_ref}"
+            echo 'image_tags<<EOF'
+            echo "${IMAGE_NAME}:${version}"
+            if [[ "$should_push" == "true" && "$is_prerelease" != "true" ]]; then
+              echo "${IMAGE_NAME}:latest"
+            fi
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+  build-image:
+    name: Build and attest container image
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+
+      - name: Log in to GHCR
+        if: needs.prepare.outputs.should_push == 'true'
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Cosign
+        if: needs.prepare.outputs.should_push == 'true'
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+
+      - name: Build image
+        id: build
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ needs.prepare.outputs.should_push == 'true' }}
+          tags: ${{ needs.prepare.outputs.image_tags }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
+          build-args: |
+            COMMIT=${{ github.sha }}
+            VERSION=${{ needs.prepare.outputs.version }}
+            BUILDNUM=${{ github.run_number }}
+          provenance: false
+          sbom: false
+
+      - name: Sign image
+        if: needs.prepare.outputs.should_push == 'true'
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+        run: |
+          set -euo pipefail
+          cosign sign --yes "${IMAGE_NAME}@${DIGEST}"
+
+      - name: Attest image provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be
+        with:
+          subject-name: ${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: ${{ needs.prepare.outputs.should_push == 'true' }}
+
+  build-binaries:
+    name: Build release binaries (${{ matrix.name }})
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-amd64
+            build_os_name: linux
+            archive_glob: core-geth*-linux-${{ needs.prepare.outputs.version }}.zip*
+            build_command: go run build/ci.go install
+          - name: linux-arm64
+            build_os_name: arm64
+            archive_glob: core-geth*-arm64-${{ needs.prepare.outputs.version }}.zip*
+            build_command: go run build/ci.go install -arch arm64 -cc aarch64-linux-gnu-gcc
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Install cross-compiler
+        if: matrix.build_os_name == 'arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross
+
+      - name: Build binaries
+        env:
+          BUILD_COMMAND: ${{ matrix.build_command }}
+        run: |
+          set -euo pipefail
+          eval "$BUILD_COMMAND"
+
+      - name: Package release archives
+        env:
+          BUILD_OS_NAME: ${{ matrix.build_os_name }}
+          ARCHIVE_VERSION: ${{ needs.prepare.outputs.version }}
+        run: ./build/archive-signing.sh
+
+      - name: Collect artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          mv ${{ matrix.archive_glob }} dist/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-binaries-${{ matrix.name }}
+          path: dist/*
+          if-no-files-found: error
+
+  attest-binaries:
+    name: Attest release binaries and checksums
+    needs:
+      - prepare
+      - build-binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download binary artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: release-binaries-*
+          merge-multiple: true
+          path: release-artifacts
+
+      - name: Create consolidated checksums
+        working-directory: release-artifacts
+        run: |
+          set -euo pipefail
+          cat ./*.sha256 | sort > "SHA256SUMS-${{ needs.prepare.outputs.version }}.txt"
+
+      - name: Upload combined release artifact bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-binaries-${{ needs.prepare.outputs.version }}
+          path: release-artifacts/*
+          if-no-files-found: error
+
+      - name: Attest binary provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be
+        with:
+          subject-path: release-artifacts/*

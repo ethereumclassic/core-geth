@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 
-GETH_ARCHIVE_NAME="core-geth-${BUILD_OS_NAME}-$(git describe --abbrev=0 --tags)"
-ALLTOOLS_ARCHIVE_NAME="core-geth-alltools-${BUILD_OS_NAME}-$(git describe --abbrev=0 --tags)"
+ARCHIVE_VERSION="${ARCHIVE_VERSION:-$(git describe --abbrev=0 --tags)}"
+
+GETH_ARCHIVE_NAME="core-geth-${BUILD_OS_NAME}-${ARCHIVE_VERSION}"
+ALLTOOLS_ARCHIVE_NAME="core-geth-alltools-${BUILD_OS_NAME}-${ARCHIVE_VERSION}"
 
 if [[ "${BUILD_OS_NAME}" == "win64" ]]; then
   7z a "$GETH_ARCHIVE_NAME.zip" ./build/bin/geth.exe
