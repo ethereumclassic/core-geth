@@ -46,6 +46,12 @@ The 32-bit `arm`, `arm5`, `arm6`, and `arm7` targets are not built. `arm` was
 already announced as deprecated in `build/archive-signing.sh` for removal at
 v1.12.7.
 
+`core-geth-osx-amd64-` is built with blst's portable C path
+(`-D__BLST_NO_ASM__`), because blst's x86_64 assembly no longer assembles under
+the Clang on current macOS runner images. BLS and KZG operations are slower in
+that one archive. Every other platform, including `osx-arm64`, uses blst's
+assembly as normal.
+
 ## How the image is built
 
 Each platform is built on a native runner — `linux/amd64` on `ubuntu-latest`,

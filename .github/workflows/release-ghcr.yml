@@ -379,12 +379,16 @@ jobs:
           - name: osx-arm64
             runner: macos-latest
             build_os_name: osx-arm64
-          # Built natively on Intel. Cross-compiling darwin/amd64 from Apple
-          # Silicon fails assembling the blst/CKZG cgo sources with
-          # "invalid CFI advance_loc expression".
+          # blst's x86_64 assembly no longer assembles under the Clang
+          # shipped on current macOS images ("invalid CFI advance_loc
+          # expression"), natively or cross-compiled. __BLST_NO_ASM__ is
+          # blst's own switch for targets without assembly support, so build
+          # the portable C path here. Costs some BLS/KZG throughput on this
+          # platform only; the arm64 macOS assembly is unaffected.
           - name: osx-amd64
             runner: macos-15-intel
             build_os_name: osx-amd64
+            cc: clang -D__BLST_NO_ASM__
           # blst v0.3.11 typedefs `bool`, which is a reserved keyword under
           # C23 — the default for the MinGW GCC on current Windows images.
           # ci.go hardcodes CGO_CFLAGS, so the standard has to come in via CC.
