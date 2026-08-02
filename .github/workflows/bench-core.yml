@@ -12,19 +12,19 @@ jobs:
     steps:
       - name: Set up Go 1.x
         id: go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version: '1.21'
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2
 
       - name: Benchmark etclabscore/core-geth
         id: bench
         run: |
           go test -short ./core -count 1 -p 1 -timeout 60m -run NONE -bench=. -v |& tee core-geth.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: core-geth
           path: ./core-geth.txt
@@ -36,12 +36,12 @@ jobs:
     steps:
       - name: Set up Go 1.x
         id: go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version: '1.21'
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2
         with:
           repository: 'ethereum/go-ethereum'
           ref: 'v1.10.26'
@@ -51,7 +51,7 @@ jobs:
         run: |
           go test -short ./core -count 1 -p 1 -timeout 60m -run NONE -bench=. -v |& tee go-ethereum.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: go-ethereum
           path: ./go-ethereum.txt
@@ -64,24 +64,24 @@ jobs:
     steps:
       - name: Set up Go 1.x
         id: go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version: '1.21'
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2
 
       - name: Get dependencies
         run: |
           go install golang.org/x/perf/cmd/benchstat@latest
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         name: Get go-ethereum artifact
         with:
           name: go-ethereum
 
-      - uses: actions/download-artifact@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         name: Get core-geth artifact
         with:
           name: core-geth
