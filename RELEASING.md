@@ -36,7 +36,7 @@ Four platforms, each with a `geth` archive and an `alltools` archive plus a
 Plus a consolidated `SHA256SUMS-<version>.txt` and the multi-arch container
 image `ghcr.io/ethereumclassic/core-geth`.
 
-The macOS archives carry their architecture in the name. The older bare `osx`
+The macOS archive carries its architecture in the name. The older bare `osx`
 name silently changed meaning when GitHub moved `macos-latest` to Apple Silicon,
 so an `osx` archive could be either an Intel or an arm64 binary depending on when
 it was cut.
@@ -64,6 +64,8 @@ without the `ckzg` build tag so blst is never compiled and `crypto/kzg4844`
 falls back to the pure-Go `gokzg4844` implementation. `build/ci.go` currently
 adds `ckzg` unconditionally, so this needs a build-tool change and would ship a
 binary whose KZG implementation differs from every other archive.
+
+Tracked in [#38](https://github.com/ethereumclassic/core-geth/issues/38).
 
 ## How the image is built
 
