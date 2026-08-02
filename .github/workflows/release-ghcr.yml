@@ -373,22 +373,14 @@ jobs:
             build_os_name: arm64
             goarch: arm64
             cc: aarch64-linux-gnu-gcc
-          # macos-latest is Apple Silicon. Both macOS archives carry their
-          # arch in the name; the old bare "osx" name silently changed
-          # meaning when GitHub moved the runner to arm64.
+          # The arch is in the name deliberately: the old bare "osx" archive
+          # silently changed meaning when macos-latest moved to Apple
+          # Silicon. There is no darwin/amd64 archive — blst v0.3.11 cannot
+          # be built for x86_64 macOS on current runner images. See the
+          # "macOS" note in RELEASING.md.
           - name: osx-arm64
             runner: macos-latest
             build_os_name: osx-arm64
-          # blst's x86_64 assembly no longer assembles under the Clang
-          # shipped on current macOS images ("invalid CFI advance_loc
-          # expression"), natively or cross-compiled. __BLST_NO_ASM__ is
-          # blst's own switch for targets without assembly support, so build
-          # the portable C path here. Costs some BLS/KZG throughput on this
-          # platform only; the arm64 macOS assembly is unaffected.
-          - name: osx-amd64
-            runner: macos-15-intel
-            build_os_name: osx-amd64
-            cc: clang -D__BLST_NO_ASM__
           # blst v0.3.11 typedefs `bool`, which is a reserved keyword under
           # C23 — the default for the MinGW GCC on current Windows images.
           # ci.go hardcodes CGO_CFLAGS, so the standard has to come in via CC.

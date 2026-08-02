@@ -23,14 +23,13 @@ fork's token carries no OIDC identity to sign with.
 
 ## What a release contains
 
-Five platforms, each with a `geth` archive and an `alltools` archive plus a
+Four platforms, each with a `geth` archive and an `alltools` archive plus a
 `.sha256` sidecar:
 
 | archive prefix | target |
 | --- | --- |
 | `core-geth-linux-` | linux/amd64 |
 | `core-geth-arm64-` | linux/arm64 |
-| `core-geth-osx-amd64-` | darwin/amd64 |
 | `core-geth-osx-arm64-` | darwin/arm64 |
 | `core-geth-win64-` | windows/amd64 |
 
@@ -46,11 +45,25 @@ The 32-bit `arm`, `arm5`, `arm6`, and `arm7` targets are not built. `arm` was
 already announced as deprecated in `build/archive-signing.sh` for removal at
 v1.12.7.
 
-`core-geth-osx-amd64-` is built with blst's portable C path
-(`-D__BLST_NO_ASM__`), because blst's x86_64 assembly no longer assembles under
-the Clang on current macOS runner images. BLS and KZG operations are slower in
-that one archive. Every other platform, including `osx-arm64`, uses blst's
-assembly as normal.
+### macOS is arm64 only
+
+There is no `darwin/amd64` archive. blst v0.3.11's x86_64 assembly no longer
+assembles under the Clang on current macOS runner images — it fails with
+`invalid CFI advance_loc expression`, both natively on `macos-15-intel` and
+cross-compiled from Apple Silicon. Defining blst's own `__BLST_NO_ASM__` escape
+hatch does not help on x86_64: `src/vect.h` matches `__x86_64__` before the
+`__BLST_NO_ASM__` branch, so the macro yields 64-bit limbs with `llimb_t`
+suppressed and the portable path fails to compile.
+
+This is not a regression. `core-geth-osx-v1.12.22.zip` from upstream contains an
+arm64 binary, so no macOS release has shipped x86_64 since `macos-latest` moved
+to Apple Silicon.
+
+The remaining route, if darwin/amd64 is needed, is to build that platform
+without the `ckzg` build tag so blst is never compiled and `crypto/kzg4844`
+falls back to the pure-Go `gokzg4844` implementation. `build/ci.go` currently
+adds `ckzg` unconditionally, so this needs a build-tool change and would ship a
+binary whose KZG implementation differs from every other archive.
 
 ## How the image is built
 
