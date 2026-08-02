@@ -90,6 +90,8 @@ jobs:
     name: Build and attest container image
     needs: prepare
     runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.digest.outputs.value }}
     steps:
       - name: Checkout source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -112,14 +114,15 @@ jobs:
         if: needs.prepare.outputs.should_push == 'true'
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
 
-      - name: Build image
-        id: build
+      - name: Build and push image
+        id: build-push
+        if: needs.prepare.outputs.should_push == 'true'
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
         with:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
-          push: ${{ needs.prepare.outputs.should_push == 'true' }}
+          push: true
           tags: ${{ needs.prepare.outputs.image_tags }}
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
@@ -132,10 +135,40 @@ jobs:
           provenance: false
           sbom: false
 
+      - name: Build dry-run image
+        id: build-dry-run
+        if: needs.prepare.outputs.should_push != 'true'
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          outputs: type=oci,dest=/tmp/core-geth-image.tar
+          tags: ${{ needs.prepare.outputs.image_tags }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
+          build-args: |
+            COMMIT=${{ github.sha }}
+            VERSION=${{ needs.prepare.outputs.version }}
+            BUILDNUM=${{ github.run_number }}
+          provenance: false
+          sbom: false
+
+      - name: Select image digest
+        id: digest
+        run: |
+          if [[ -n "${{ steps.build-push.outputs.digest }}" ]]; then
+            echo "value=${{ steps.build-push.outputs.digest }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ steps.build-dry-run.outputs.digest }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Sign image
         if: needs.prepare.outputs.should_push == 'true'
         env:
-          DIGEST: ${{ steps.build.outputs.digest }}
+          DIGEST: ${{ steps.digest.outputs.value }}
           IMAGE_NAME: ${{ env.IMAGE_NAME }}
         run: |
           set -euo pipefail
@@ -145,7 +178,7 @@ jobs:
         uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be
         with:
           subject-name: ${{ env.IMAGE_NAME }}
-          subject-digest: ${{ steps.build.outputs.digest }}
+          subject-digest: ${{ steps.digest.outputs.value }}
           push-to-registry: ${{ needs.prepare.outputs.should_push == 'true' }}
 
   build-binaries:
@@ -158,12 +191,8 @@ jobs:
         include:
           - name: linux-amd64
             build_os_name: linux
-            archive_glob: core-geth*-linux-${{ needs.prepare.outputs.version }}.zip*
-            build_command: go run build/ci.go install
           - name: linux-arm64
             build_os_name: arm64
-            archive_glob: core-geth*-arm64-${{ needs.prepare.outputs.version }}.zip*
-            build_command: go run build/ci.go install -arch arm64 -cc aarch64-linux-gnu-gcc
     steps:
       - name: Checkout source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -179,12 +208,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross
 
-      - name: Build binaries
-        env:
-          BUILD_COMMAND: ${{ matrix.build_command }}
-        run: |
-          set -euo pipefail
-          eval "$BUILD_COMMAND"
+      - name: Build amd64 binaries
+        if: matrix.build_os_name == 'linux'
+        run: go run build/ci.go install
+
+      - name: Build arm64 binaries
+        if: matrix.build_os_name == 'arm64'
+        run: go run build/ci.go install -arch arm64 -cc aarch64-linux-gnu-gcc
 
       - name: Package release archives
         env:
@@ -196,7 +226,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-          mv ${{ matrix.archive_glob }} dist/
+          mv core-geth*-"${{ matrix.build_os_name }}"-"${{ needs.prepare.outputs.version }}".zip* dist/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
