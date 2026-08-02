@@ -25,6 +25,11 @@ on:
 permissions:
   contents: read
 
+# archive-signing.sh is bash, including on the Windows runner.
+defaults:
+  run:
+    shell: bash
+
 env:
   IMAGE_NAME: ghcr.io/ethereumclassic/core-geth
   GO_VERSION: '1.21'
@@ -351,19 +356,37 @@ jobs:
   build-binaries:
     name: Build release binaries (${{ matrix.name }})
     needs: prepare
-    # Oldest supported runner image, so release binaries do not pick up a newer
-    # glibc than the distros users actually run.
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
         include:
+          # ubuntu-22.04 is the oldest available image, so Linux release
+          # archives do not link a newer glibc than the distros users run.
           - name: linux-amd64
+            runner: ubuntu-22.04
             build_os_name: linux
           - name: linux-arm64
+            runner: ubuntu-22.04
             build_os_name: arm64
+            goarch: arm64
+            cc: aarch64-linux-gnu-gcc
+          # macos-latest is Apple Silicon. Both macOS archives carry their
+          # arch in the name; the old bare "osx" name silently changed
+          # meaning when GitHub moved the runner to arm64.
+          - name: osx-arm64
+            runner: macos-latest
+            build_os_name: osx-arm64
+          - name: osx-amd64
+            runner: macos-latest
+            build_os_name: osx-amd64
+            goarch: amd64
+            cc: clang -arch x86_64
+          - name: win64
+            runner: windows-latest
+            build_os_name: win64
     steps:
       - name: Checkout source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -374,18 +397,26 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Install cross-compiler
-        if: matrix.build_os_name == 'arm64'
+        if: matrix.name == 'linux-arm64'
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross
 
-      - name: Build amd64 binaries
-        if: matrix.build_os_name == 'linux'
-        run: go run build/ci.go install
-
-      - name: Build arm64 binaries
-        if: matrix.build_os_name == 'arm64'
-        run: go run build/ci.go install -arch arm64 -cc aarch64-linux-gnu-gcc
+      - name: Build binaries
+        env:
+          TARGET_ARCH: ${{ matrix.goarch }}
+          TARGET_CC: ${{ matrix.cc }}
+        run: |
+          set -euo pipefail
+          args=(build/ci.go install)
+          if [[ -n "${TARGET_ARCH}" ]]; then
+            args+=(-arch "${TARGET_ARCH}")
+          fi
+          if [[ -n "${TARGET_CC}" ]]; then
+            args+=(-cc "${TARGET_CC}")
+          fi
+          echo "go run ${args[*]}"
+          go run "${args[@]}"
 
       - name: Package release archives
         env:
@@ -450,3 +481,69 @@ jobs:
         uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be
         with:
           subject-path: release-artifacts/*
+
+  publish-release:
+    name: Publish draft GitHub Release
+    # Depends on both attest jobs, so a release is only ever drafted once the
+    # complete verifiable set — signed image and attested archives — exists.
+    needs:
+      - prepare
+      - publish-image
+      - attest-binaries
+    if: needs.prepare.outputs.should_push == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download attested release artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-binaries-${{ needs.prepare.outputs.version }}
+          path: release-artifacts
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+          IS_PRERELEASE: ${{ needs.prepare.outputs.is_prerelease }}
+          SIGNER_IDENTITY: ${{ needs.prepare.outputs.signer_identity }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          args=(--draft --title "$VERSION" --generate-notes)
+          if [[ "$IS_PRERELEASE" == "true" ]]; then
+            args+=(--prerelease)
+          fi
+
+          gh release create "$VERSION" "${args[@]}" release-artifacts/*
+
+          # Prepend verification instructions to the generated changelog, so
+          # the commands are on the page people actually download from.
+          {
+            cat <<EOF
+          ## Verifying this release
+
+          Every archive below, the \`SHA256SUMS\` file, and the container image
+          carry GitHub build provenance produced by this workflow alone.
+
+          \`\`\`sh
+          gh attestation verify core-geth-linux-${VERSION}.zip \\
+            --repo ${REPOSITORY} \\
+            --cert-identity ${SIGNER_IDENTITY} \\
+            --cert-oidc-issuer https://token.actions.githubusercontent.com
+          \`\`\`
+
+          Container image: \`${IMAGE_NAME}:${VERSION}\`
+
+          See [RELEASING.md](../blob/master/RELEASING.md) for container image
+          signature verification and the full trust model.
+
+          ---
+
+          EOF
+            gh release view "$VERSION" --json body -q .body
+          } > notes.md
+
+          gh release edit "$VERSION" --notes-file notes.md

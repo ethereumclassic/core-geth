@@ -1,22 +1,50 @@
 # Releasing core-geth with verifiable artifacts
 
-The release workflow lives at `.github/workflows/release-ghcr.yml` and is the only path that should produce verifiable release artifacts for GHCR.
+The release workflow lives at `.github/workflows/release-ghcr.yml`. It is the only path that produces core-geth release artifacts: it builds the release archives, publishes and signs the container image, attests everything, and drafts the GitHub Release.
 
 ## Trust model
 
 Release verification is pinned to this workflow file and to the ref that ran it.
 
 - Tagged releases must verify against `https://github.com/ethereumclassic/core-geth/.github/workflows/release-ghcr.yml@refs/tags/<tag>`.
-- Manual dry runs must verify against `https://github.com/ethereumclassic/core-geth/.github/workflows/release-ghcr.yml@refs/heads/<branch>`.
+- Manual dry runs must verify against `...@refs/heads/<branch>`; pull request dry runs against `...@refs/pull/<n>/merge`.
 - Protected release tags keep unreviewed refs from minting trusted release artifacts.
 - Anything pushed outside this workflow — including images pushed by org admins — will fail verification because it will not have both the expected workflow identity and GitHub attestation provenance.
 
 ## Triggers
 
-- Push a tag matching `v*` to build, push, sign, and attest the release image and release archives.
+- Push a tag matching `v*` to build, push, sign, and attest the release image and release archives, then draft the GitHub Release.
 - Run `Release GHCR artifacts` with `dry_run=true` to build and attest without pushing, so reviewers can exercise the release path before cutting a tag.
+- Opening or updating a pull request that touches the release path itself (`release-ghcr.yml`, `Dockerfile`, `build/archive-signing.sh`, `build/ci.go`) runs the same dry run automatically, so a broken release surfaces on the PR instead of at tag time.
 
-Dry runs use `dry-run-<sha7>` in artifact names and never publish to GHCR.
+Dry runs use `dry-run-<sha7>` in artifact names, never publish to GHCR, and never
+create a release. Pull requests from forks build but skip attestation, because a
+fork's token carries no OIDC identity to sign with.
+
+## What a release contains
+
+Five platforms, each with a `geth` archive and an `alltools` archive plus a
+`.sha256` sidecar:
+
+| archive prefix | target |
+| --- | --- |
+| `core-geth-linux-` | linux/amd64 |
+| `core-geth-arm64-` | linux/arm64 |
+| `core-geth-osx-amd64-` | darwin/amd64 |
+| `core-geth-osx-arm64-` | darwin/arm64 |
+| `core-geth-win64-` | windows/amd64 |
+
+Plus a consolidated `SHA256SUMS-<version>.txt` and the multi-arch container
+image `ghcr.io/ethereumclassic/core-geth`.
+
+The macOS archives carry their architecture in the name. The older bare `osx`
+name silently changed meaning when GitHub moved `macos-latest` to Apple Silicon,
+so an `osx` archive could be either an Intel or an arm64 binary depending on when
+it was cut.
+
+The 32-bit `arm`, `arm5`, `arm6`, and `arm7` targets are not built. `arm` was
+already announced as deprecated in `build/archive-signing.sh` for removal at
+v1.12.7.
 
 ## How the image is built
 
@@ -65,7 +93,7 @@ DIGEST="$(docker buildx imagetools inspect "${IMAGE}:${TAG}" \
 gh attestation verify "oci://${IMAGE}@${DIGEST}" \
   --repo "${REPO}" \
   --cert-identity "${TAG_IDENTITY}" \
-  --oidc-issuer "${OIDC_ISSUER}"
+  --cert-oidc-issuer "${OIDC_ISSUER}"
 ```
 
 ## Verify the container image signature
@@ -88,7 +116,7 @@ the run, then verify the archives as files against the branch identity:
 gh attestation verify "core-geth-image-linux-amd64-dry-run-<sha7>.tar" \
   --repo "${REPO}" \
   --cert-identity "${BRANCH_IDENTITY}" \
-  --oidc-issuer "${OIDC_ISSUER}"
+  --cert-oidc-issuer "${OIDC_ISSUER}"
 ```
 
 To inspect what was actually built, load the archive locally:
@@ -105,24 +133,24 @@ skopeo copy \
 
 ## Verify release binaries and checksums
 
-Download the `release-binaries-<version>` artifact from the workflow run, then verify the archives and consolidated checksum file.
+Download the assets from the GitHub Release (or, for a dry run, the
+`release-binaries-<version>` workflow artifact), then verify every archive and
+the consolidated checksum file:
 
 ```sh
-gh attestation verify "core-geth-linux-${TAG}.zip" \
-  --repo "${REPO}" \
-  --cert-identity "${TAG_IDENTITY}" \
-  --oidc-issuer "${OIDC_ISSUER}"
+gh release download "${TAG}" --repo "${REPO}"
 
-gh attestation verify "core-geth-arm64-${TAG}.zip" \
-  --repo "${REPO}" \
-  --cert-identity "${TAG_IDENTITY}" \
-  --oidc-issuer "${OIDC_ISSUER}"
-
-gh attestation verify "SHA256SUMS-${TAG}.txt" \
-  --repo "${REPO}" \
-  --cert-identity "${TAG_IDENTITY}" \
-  --oidc-issuer "${OIDC_ISSUER}"
+for f in core-geth-*-"${TAG}".zip "SHA256SUMS-${TAG}.txt"; do
+  gh attestation verify "$f" \
+    --repo "${REPO}" \
+    --cert-identity "${TAG_IDENTITY}" \
+    --cert-oidc-issuer "${OIDC_ISSUER}" || echo "FAILED: $f"
+done
 ```
+
+`--cert-identity` is what makes this meaningful. Without it, `gh attestation
+verify` accepts any attestation from the repository, including one minted by a
+different workflow.
 
 Once the checksum file is verified, the archives can be checked against it
 directly:
