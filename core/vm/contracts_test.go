@@ -18,6 +18,7 @@ package vm
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -293,6 +294,86 @@ func TestPrecompiledMLDSA65Verify(t *testing.T) {
 	}
 	if len(out) != 32 || new(big.Int).SetBytes(out).Cmp(big.NewInt(1)) != 0 {
 		t.Fatalf("expected 1, got %x", out)
+	}
+}
+
+func TestPrecompiledMLDSA65Verify_NISTACVP(t *testing.T) {
+	// This fixture is a two-case subset of NIST's ACVP vectors. Only
+	// empty-context cases match the precompile's intentionally fixed context.
+	data, err := os.ReadFile("testdata/precompiles/mldsa65_nist_acvp.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		Source struct {
+			Repository string `json:"repository"`
+			Commit     string `json:"commit"`
+			Algorithm  string `json:"algorithm"`
+			Revision   string `json:"revision"`
+		} `json:"source"`
+		Tests []struct {
+			Name          string `json:"name"`
+			SourceDir     string `json:"sourceDirectory"`
+			TestGroupID   int    `json:"testGroupId"`
+			TestCaseID    int    `json:"testCaseId"`
+			Context       string `json:"context"`
+			PublicKey     string `json:"publicKey"`
+			Signature     string `json:"signature"`
+			Message       string `json:"message"`
+			ExpectedValid bool   `json:"expected"`
+		} `json:"tests"`
+	}
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatal(err)
+	}
+	if len(fixture.Tests) != 2 {
+		t.Fatalf("expected two NIST ACVP vectors, got %d", len(fixture.Tests))
+	}
+
+	p := &mldsa65VerifyPrecompile{}
+	for _, test := range fixture.Tests {
+		test := test
+		t.Run(fmt.Sprintf("%s/tg%d/tc%d", test.Name, test.TestGroupID, test.TestCaseID), func(t *testing.T) {
+			t.Logf("source: %s@%s/%s", fixture.Source.Repository, fixture.Source.Commit, test.SourceDir)
+			if test.Context != "" {
+				t.Fatalf("test context must be empty, got %d hex characters", len(test.Context))
+			}
+
+			pk, err := hex.DecodeString(test.PublicKey)
+			if err != nil {
+				t.Fatal(err)
+			}
+			sig, err := hex.DecodeString(test.Signature)
+			if err != nil {
+				t.Fatal(err)
+			}
+			msg, err := hex.DecodeString(test.Message)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(pk) != mldsa65.PublicKeySize {
+				t.Fatalf("public key length: want %d, got %d", mldsa65.PublicKeySize, len(pk))
+			}
+			if len(sig) != mldsa65.SignatureSize {
+				t.Fatalf("signature length: want %d, got %d", mldsa65.SignatureSize, len(sig))
+			}
+
+			input := make([]byte, 0, len(pk)+len(sig)+len(msg))
+			input = append(input, pk...)
+			input = append(input, sig...)
+			input = append(input, msg...)
+			out, _, err := RunPrecompiledContract(p, input, p.RequiredGas(input))
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := make([]byte, 32)
+			if test.ExpectedValid {
+				want[31] = 1
+			}
+			if !bytes.Equal(out, want) {
+				t.Fatalf("expected %x, got %x", want, out)
+			}
+		})
 	}
 }
 
