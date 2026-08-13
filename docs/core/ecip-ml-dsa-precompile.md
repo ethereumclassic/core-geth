@@ -139,8 +139,7 @@ Activation block numbers:
 
 #### Why ML-DSA first?
 
-ML-DSA is standardized by NIST (FIPS 204) and offers a favorable performance profile compared to hash-based
-signatures, while still being designed for security against quantum adversaries.
+ML-DSA is proposed first because FIPS 204 is final, NIST identifies ML-DSA as its primary post-quantum signature standard, and interoperable implementations and test vectors are available today. These properties allow ETC to define consensus-critical verification behavior against a completed standard. Falcon/FN-DSA offers substantially smaller signatures and efficient verification and remains a strong candidate for a subsequent ECIP, but its FIPS standard and integration conventions are still developing. Starting with ML-DSA minimizes consensus and implementation risk without excluding Falcon later.
 
 #### Why a precompile (vs pure Solidity)?
 
