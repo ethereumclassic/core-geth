@@ -164,6 +164,24 @@ Protocol-native transaction signature changes require:
 This ECIP focuses on a minimal, additive primitive that enables immediate experimentation and adoption
 via contract wallets, without destabilizing existing transaction processing.
 
+### Application Example: LogtreesTreemap
+
+The non-normative [`LogtreesTreemapMLDSAExample`](../logtrees_treemap_mldsa_example.sol) adapts the
+existing Logtrees `logN` state update with the smallest practical application-level authorization layer.
+It demonstrates:
+
+- one-time registration of an ML-DSA-65 public-key hash before ECDSA compromise;
+- an explicit account parameter so the outer transaction may come from the user or a relayer;
+- an action digest bound to the chain ID, contract, function selector, account, Treemap payload, nonce,
+  and deadline;
+- verification of `pk || sig || digest` through the precompile at `0x0101`; and
+- mutation of Treemap state and emission of the account event only after successful verification.
+
+The example intentionally provides no ECDSA-authorized key replacement. A production key-rotation or
+recovery design must itself require post-quantum authorization or an independently secured recovery policy.
+The pattern protects the Logtrees application action; it does not protect ordinary assets held directly by
+the submitting ECDSA EOA.
+
 ### Backwards Compatibility
 
 This ECIP is not backward compatible at the EVM level:
