@@ -221,13 +221,15 @@ func TestIsPrecompiledContractEnabled(t *testing.T) {
 	}
 
 	// ML-DSA precompile (0x0101) is gated by an optional config transition getter.
-	for _, a := range []common.Address{mldsa65VerifyAddr} {
-		addCaseWhere(mldsaTestConfigurator{ChainConfigurator: params.AllEthashProtocolChanges, transition: nil}, a, big.NewInt(0), false)
-		addCaseWhere(mldsaTestConfigurator{ChainConfigurator: params.AllEthashProtocolChanges, transition: new(uint64)}, a, big.NewInt(0), true)
-		blk10 := uint64(10)
-		addCaseWhere(mldsaTestConfigurator{ChainConfigurator: params.AllEthashProtocolChanges, transition: &blk10}, a, big.NewInt(9), false)
-		addCaseWhere(mldsaTestConfigurator{ChainConfigurator: params.AllEthashProtocolChanges, transition: &blk10}, a, big.NewInt(10), true)
+	configWith := func(transition *uint64) mldsaTestConfigurator {
+		return mldsaTestConfigurator{ChainConfigurator: params.AllEthashProtocolChanges, transition: transition}
 	}
+	uint64Ptr := func(n uint64) *uint64 { return &n }
+	a := mldsa65VerifyAddr
+	addCaseWhere(configWith(nil), a, big.NewInt(0), false)
+	addCaseWhere(configWith(uint64Ptr(0)), a, big.NewInt(0), true)
+	addCaseWhere(configWith(uint64Ptr(10)), a, big.NewInt(9), false)
+	addCaseWhere(configWith(uint64Ptr(10)), a, big.NewInt(10), true)
 
 	// TODO (ziogaschr): add tests for the other precompiles, apply time activation on precompiles that use it
 	zero := uint64(0)
