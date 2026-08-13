@@ -62,10 +62,6 @@ var PrecompiledContractsBLS = map[common.Address]PrecompiledContract{
 	common.BytesToAddress([]byte{18}): &bls12381MapG2{},
 }
 
-var PrecompiledContractsMLDSA = map[common.Address]PrecompiledContract{
-	mldsa65VerifyAddr: &mldsa65VerifyPrecompile{},
-}
-
 func mergeContracts(base, target map[common.Address]PrecompiledContract) {
 	for k, v := range target {
 		base[k] = v
@@ -116,7 +112,7 @@ func PrecompiledContractsForConfig(config ctypes.ChainConfigurator, bn *big.Int,
 	}
 	if f, ok := config.(mldsaForker); ok {
 		if config.IsEnabled(f.GetMLDSAPrecompileTransition, bn) {
-			mergeContracts(precompileds, PrecompiledContractsMLDSA)
+			precompileds[mldsa65VerifyAddr] = &mldsa65VerifyPrecompile{}
 		}
 	}
 
