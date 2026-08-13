@@ -166,8 +166,17 @@ via contract wallets, without destabilizing existing transaction processing.
 
 ### Application Example: LogtreesTreemap
 
-The non-normative [`LogtreesTreemapMLDSAExample`](../logtrees_treemap_mldsa_example.sol) adapts the
-existing Logtrees `logN` state update with the smallest practical application-level authorization layer.
+The example is provided as a direct review pair:
+
+| Before | After |
+| --- | --- |
+| [`LogtreesTreemap`](../logtrees_treemap_original.sol) | [`LogtreesTreemapMLDSAExample`](../logtrees_treemap_mldsa_example.sol) |
+| Full Logtrees contract; `logN` attributes and authorizes the action through `msg.sender`. | Focused `logN` adaptation; the outer caller submits an action authorized by an ML-DSA proof. |
+
+The baseline contract body is copied without behavioral changes from
+[`GravityLabLLC/logtrees@c4aa346`](https://github.com/GravityLabLLC/logtrees/blob/c4aa3460606e1684fae62c3519be40207bdd9f39/contracts/LogtreesTreemap.sol).
+The non-normative ML-DSA example is intentionally not a drop-in replacement for every baseline function;
+it isolates the `logN` state update and adds the smallest practical application-level authorization layer.
 It demonstrates:
 
 - one-time registration of an ML-DSA-65 public-key hash before ECDSA compromise;
