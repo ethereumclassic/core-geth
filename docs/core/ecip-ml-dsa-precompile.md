@@ -225,7 +225,6 @@ A reference test corpus SHOULD be published alongside the ECIP implementation.
 
 - This ECIP does not by itself prevent quantum theft from existing ECDSA-controlled EOAs.
   It provides tooling primitives to build migration paths.
-- Implementations must be constant-time where required and carefully audited for side channels.
 - Gas schedule MUST be calibrated to prevent DoS vectors where verification is underpriced.
 - Input validation MUST be strict (length checks, encoding checks) to prevent differential behavior across clients.
 
@@ -242,7 +241,6 @@ Suggested implementation strategy:
 Implementation notes:
 - Add to the precompile registry with the selected address(es).
 - Implement strict input parsing and fixed-size enforcement per parameter set.
-- Return 32-byte 0/1 outputs; never revert on invalid signatures.
 
 ### Future Work (Non-Normative)
 
