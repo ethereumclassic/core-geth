@@ -215,10 +215,18 @@ func Compatible(headBlock *big.Int, headTime *uint64, a, b ctypes.ChainConfigura
 
 func compatible(headBlock *big.Int, headTime *uint64, a, b ctypes.ChainConfigurator) *ConfigCompatError {
 	aFns, aNames := Transitions(a)
-	bFns, _ := Transitions(b)
+	bFns, bNames := Transitions(b)
+	bByName := make(map[string]func() *uint64, len(bFns))
+	for i := range bFns {
+		bByName[bNames[i]] = bFns[i]
+	}
 	// Handle forks by block.
 	if headBlock != nil {
 		for i := range aFns {
+			bFn, ok := bByName[aNames[i]]
+			if !ok {
+				continue
+			}
 			// Skip cross-compatible namespaced transition names, assuming
 			// these will not be enforced as hardforks.
 			if nameSignalsCompatibility(aNames[i]) {
@@ -241,7 +249,7 @@ func compatible(headBlock *big.Int, headTime *uint64, a, b ctypes.ChainConfigura
 			// We need to dereference them to get the actual values for the comparison
 			// before converting to big.Int pointers for the actual check.
 			av := aFns[i]()
-			bv := bFns[i]()
+			bv := bFn()
 			var aBig, bBig *big.Int
 			if av != nil {
 				aBig = new(big.Int).SetUint64(*av)
@@ -267,6 +275,10 @@ func compatible(headBlock *big.Int, headTime *uint64, a, b ctypes.ChainConfigura
 	// Handle forks by time.
 	if headTime != nil {
 		for i, afn := range aFns {
+			bFn, ok := bByName[aNames[i]]
+			if !ok {
+				continue
+			}
 			// Skip cross-compatible namespaced transition names, assuming
 			// these will not be enforced as hardforks.
 			if nameSignalsCompatibility(aNames[i]) {
@@ -284,7 +296,7 @@ func compatible(headBlock *big.Int, headTime *uint64, a, b ctypes.ChainConfigura
 				}
 				return nil
 			}
-			if err := check(afn(), bFns[i](), headTime); err != nil {
+			if err := check(afn(), bFn(), headTime); err != nil {
 				return err
 			}
 		}

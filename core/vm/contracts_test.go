@@ -18,6 +18,7 @@ package vm
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -25,6 +26,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cloudflare/circl/sign/mldsa/mldsa65"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/params/types/ctypes"
 
@@ -94,7 +96,15 @@ var allPrecompiles = map[common.Address]PrecompiledContract{
 	common.BytesToAddress([]byte{0x0f, 0x10}): &bls12381Pairing{},
 	common.BytesToAddress([]byte{0x0f, 0x11}): &bls12381MapG1{},
 	common.BytesToAddress([]byte{0x0f, 0x12}): &bls12381MapG2{},
+	mldsa65VerifyAddr:                         &mldsa65VerifyPrecompile{},
 }
+
+type mldsaTestConfigurator struct {
+	ctypes.ChainConfigurator
+	transition *uint64
+}
+
+func (c mldsaTestConfigurator) GetMLDSAPrecompileTransition() *uint64 { return c.transition }
 
 func testPrecompiled(addr string, test precompiledTest, t *testing.T) {
 	p := allPrecompiles[common.HexToAddress(addr)]
@@ -211,12 +221,27 @@ func TestIsPrecompiledContractEnabled(t *testing.T) {
 		addCaseWhere(params.MainnetChainConfig, a, new(big.Int).Add(params.MainnetChainConfig.ByzantiumBlock, common.Big1), false)
 	}
 
+	// ML-DSA precompile (0x0101) is gated by an optional config transition getter.
+	configWith := func(transition *uint64) mldsaTestConfigurator {
+		return mldsaTestConfigurator{ChainConfigurator: params.AllEthashProtocolChanges, transition: transition}
+	}
+	uint64Ptr := func(n uint64) *uint64 { return &n }
+	a := mldsa65VerifyAddr
+	addCaseWhere(configWith(nil), a, big.NewInt(0), false)
+	addCaseWhere(configWith(uint64Ptr(0)), a, big.NewInt(0), true)
+	addCaseWhere(configWith(uint64Ptr(10)), a, big.NewInt(9), false)
+	addCaseWhere(configWith(uint64Ptr(10)), a, big.NewInt(10), true)
+
 	// TODO (ziogaschr): add tests for the other precompiles, apply time activation on precompiles that use it
 	zero := uint64(0)
 	for i, c := range cases {
 		got := PrecompiledContractsForConfig(c.config, c.blockNum, &zero)[c.addr] != nil
 		if c.want != got {
 			t.Errorf("test: %d, address: %x, want: %v, got: %v", i, c.addr, c.want, got)
+		}
+
+		if c.addr == mldsa65VerifyAddr {
+			continue
 		}
 
 		// test 1:1 with pre-existing hard-fork implementation style in *evm#Call
@@ -242,6 +267,203 @@ func TestIsPrecompiledContractEnabled(t *testing.T) {
 		got = PrecompiledContractsForConfig(c.config, c.blockNum, &zero)[c.addr] == nil
 		if got != expect {
 			t.Errorf("addr: %x, bn: %v, want: %v, got: %v", c.addr, c.blockNum, c.want, expect)
+		}
+	}
+}
+
+func TestPrecompiledMLDSA65Verify(t *testing.T) {
+	pk, sk, err := mldsa65.GenerateKey(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	msg := []byte("hello etc pq")
+
+	sig := make([]byte, mldsa65.SignatureSize)
+	if err := mldsa65.SignTo(sk, msg, nil, true, sig); err != nil {
+		t.Fatal(err)
+	}
+	pkBytes, err := pk.MarshalBinary()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	in := append(append(pkBytes, sig...), msg...)
+	out, _, err := RunPrecompiledContract(&mldsa65VerifyPrecompile{}, in, 10_000_000)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(out) != 32 || new(big.Int).SetBytes(out).Cmp(big.NewInt(1)) != 0 {
+		t.Fatalf("expected 1, got %x", out)
+	}
+}
+
+func TestPrecompiledMLDSA65Verify_NISTACVP(t *testing.T) {
+	// This fixture is a two-case subset of NIST's ACVP vectors. Only
+	// empty-context cases match the precompile's intentionally fixed context.
+	data, err := os.ReadFile("testdata/precompiles/mldsa65_nist_acvp.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		Source struct {
+			Repository string `json:"repository"`
+			Commit     string `json:"commit"`
+			Algorithm  string `json:"algorithm"`
+			Revision   string `json:"revision"`
+		} `json:"source"`
+		Tests []struct {
+			Name          string `json:"name"`
+			SourceDir     string `json:"sourceDirectory"`
+			TestGroupID   int    `json:"testGroupId"`
+			TestCaseID    int    `json:"testCaseId"`
+			Context       string `json:"context"`
+			PublicKey     string `json:"publicKey"`
+			Signature     string `json:"signature"`
+			Message       string `json:"message"`
+			ExpectedValid bool   `json:"expected"`
+		} `json:"tests"`
+	}
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatal(err)
+	}
+	if len(fixture.Tests) != 2 {
+		t.Fatalf("expected two NIST ACVP vectors, got %d", len(fixture.Tests))
+	}
+
+	p := &mldsa65VerifyPrecompile{}
+	for _, test := range fixture.Tests {
+		test := test
+		t.Run(fmt.Sprintf("%s/tg%d/tc%d", test.Name, test.TestGroupID, test.TestCaseID), func(t *testing.T) {
+			t.Logf("source: %s@%s/%s", fixture.Source.Repository, fixture.Source.Commit, test.SourceDir)
+			if test.Context != "" {
+				t.Fatalf("test context must be empty, got %d hex characters", len(test.Context))
+			}
+
+			pk, err := hex.DecodeString(test.PublicKey)
+			if err != nil {
+				t.Fatal(err)
+			}
+			sig, err := hex.DecodeString(test.Signature)
+			if err != nil {
+				t.Fatal(err)
+			}
+			msg, err := hex.DecodeString(test.Message)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(pk) != mldsa65.PublicKeySize {
+				t.Fatalf("public key length: want %d, got %d", mldsa65.PublicKeySize, len(pk))
+			}
+			if len(sig) != mldsa65.SignatureSize {
+				t.Fatalf("signature length: want %d, got %d", mldsa65.SignatureSize, len(sig))
+			}
+
+			input := make([]byte, 0, len(pk)+len(sig)+len(msg))
+			input = append(input, pk...)
+			input = append(input, sig...)
+			input = append(input, msg...)
+			out, _, err := RunPrecompiledContract(p, input, p.RequiredGas(input))
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := make([]byte, 32)
+			if test.ExpectedValid {
+				want[31] = 1
+			}
+			if !bytes.Equal(out, want) {
+				t.Fatalf("expected %x, got %x", want, out)
+			}
+		})
+	}
+}
+
+func TestPrecompiledMLDSA65Verify_InvalidInputs(t *testing.T) {
+	zero := make([]byte, 32)
+
+	t.Run("too short", func(t *testing.T) {
+		in := make([]byte, mldsa65.PublicKeySize+mldsa65.SignatureSize-1)
+		out, _, err := RunPrecompiledContract(&mldsa65VerifyPrecompile{}, in, 10_000_000)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !bytes.Equal(out, zero) {
+			t.Fatalf("expected 0, got %x", out)
+		}
+	})
+
+	t.Run("tampered msg", func(t *testing.T) {
+		pk, sk, err := mldsa65.GenerateKey(nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		msg := []byte("hello etc pq")
+		sig := make([]byte, mldsa65.SignatureSize)
+		if err := mldsa65.SignTo(sk, msg, nil, true, sig); err != nil {
+			t.Fatal(err)
+		}
+		pkBytes, err := pk.MarshalBinary()
+		if err != nil {
+			t.Fatal(err)
+		}
+		badMsg := []byte("hello etc PQ")
+		in := append(append(pkBytes, sig...), badMsg...)
+		out, _, err := RunPrecompiledContract(&mldsa65VerifyPrecompile{}, in, 10_000_000)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !bytes.Equal(out, zero) {
+			t.Fatalf("expected 0, got %x", out)
+		}
+	})
+
+	t.Run("tampered sig", func(t *testing.T) {
+		pk, sk, err := mldsa65.GenerateKey(nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		msg := []byte("hello etc pq")
+		sig := make([]byte, mldsa65.SignatureSize)
+		if err := mldsa65.SignTo(sk, msg, nil, true, sig); err != nil {
+			t.Fatal(err)
+		}
+		sig[0] ^= 0xff
+		pkBytes, err := pk.MarshalBinary()
+		if err != nil {
+			t.Fatal(err)
+		}
+		in := append(append(pkBytes, sig...), msg...)
+		out, _, err := RunPrecompiledContract(&mldsa65VerifyPrecompile{}, in, 10_000_000)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !bytes.Equal(out, zero) {
+			t.Fatalf("expected 0, got %x", out)
+		}
+	})
+}
+
+func BenchmarkPrecompiledMLDSA65Verify(b *testing.B) {
+	pk, sk, err := mldsa65.GenerateKey(nil)
+	if err != nil {
+		b.Fatal(err)
+	}
+	msg := make([]byte, 1024)
+	sig := make([]byte, mldsa65.SignatureSize)
+	if err := mldsa65.SignTo(sk, msg, nil, true, sig); err != nil {
+		b.Fatal(err)
+	}
+	pkBytes, err := pk.MarshalBinary()
+	if err != nil {
+		b.Fatal(err)
+	}
+	in := append(append(pkBytes, sig...), msg...)
+	p := &mldsa65VerifyPrecompile{}
+	gas := p.RequiredGas(in)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, _, err := RunPrecompiledContract(p, in, gas); err != nil {
+			b.Fatal(err)
 		}
 	}
 }

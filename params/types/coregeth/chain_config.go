@@ -176,6 +176,9 @@ type CoreGethChainConfig struct {
 	// https://github.com/ethereum/EIPs/pull/2537: BLS12-381 curve operations
 	EIP2537FBlock *big.Int `json:"eip2537FBlock,omitempty"`
 
+	// Enable ML-DSA precompile(s) at/after this block (nil = disabled)
+	MLDSAPrecompileBlock *uint64 `json:"mldsaPrecompileBlock,omitempty"`
+
 	// EWASMBlock *big.Int `json:"ewasmBlock,omitempty"` // EWASM switch block (nil = no fork, 0 = already activated)
 
 	ECIP1010PauseBlock *big.Int `json:"ecip1010PauseBlock,omitempty"` // ECIP1010 pause HF block

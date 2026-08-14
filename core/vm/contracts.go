@@ -106,6 +106,16 @@ func PrecompiledContractsForConfig(config ctypes.ChainConfigurator, bn *big.Int,
 		precompileds[common.BytesToAddress([]byte{0x0a})] = &kzgPointEvaluation{}
 	}
 
+	// ML-DSA precompile(s) (ETC reserved higher precompile addresses)
+	type mldsaForker interface {
+		GetMLDSAPrecompileTransition() *uint64
+	}
+	if f, ok := config.(mldsaForker); ok {
+		if config.IsEnabled(f.GetMLDSAPrecompileTransition, bn) {
+			precompileds[mldsa65VerifyAddr] = &mldsa65VerifyPrecompile{}
+		}
+	}
+
 	return precompileds
 }
 
