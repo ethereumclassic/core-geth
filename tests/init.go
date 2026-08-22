@@ -53,6 +53,130 @@ var Forks = map[string]ctypes.ChainConfigurator{
 		EIP155Block:    big.NewInt(0),
 		EIP158Block:    big.NewInt(0),
 	},
+	// The three entries below cover the Ethereum Classic upgrades that precede
+	// Atlantis. Every value is derived from params.ClassicChainConfig evaluated at
+	// the upgrade's own mainnet height: a rule whose height is <= the upgrade's is
+	// written big.NewInt(0), one that is not yet reached is written nil. Heights are
+	// quoted in the comments so the derivation can be re-checked against
+	// params/config_classic.go without leaving this file.
+	//
+	// ECIP1017FBlock is big.NewInt(0) rather than the absolute 5000000 the entries
+	// from Atlantis on carry beside a "FIXME(meows) maybe". Those are left alone;
+	// see the note on ETC_Gotham.
+
+	// ETC_DieHard is ETC mainnet at block 3,000,000: ECIP-1010, EIP-155, EIP-160.
+	//
+	// This is the rule combination no Ethereum fork ever had. Replay protection
+	// (EIP-155) and EXP repricing (EIP-160) are live while state clearing (EIP-161)
+	// and the code size limit (EIP-170) are not; ETC did not take those until
+	// Atlantis, at 8,772,000. Upstream's EIP158 entry activates all four together,
+	// so no upstream fixture substitutes for one filled here.
+	"ETC_DieHard": &coregeth.CoreGethChainConfig{
+		NetworkID:  1,
+		Ethash:     new(ctypes.EthashConfig),
+		ChainID:    big.NewInt(61),
+		EIP2FBlock: big.NewInt(0), // Homestead, 1,150,000
+		EIP7FBlock: big.NewInt(0), // Homestead, 1,150,000
+
+		EIP150Block: big.NewInt(0), // Gas Reprice (ECIP-1015), 2,500,000
+
+		// Die Hard, 3,000,000
+		EIP155Block:  big.NewInt(0),
+		EIP160FBlock: big.NewInt(0),
+
+		// ECIP-1010, 3,000,000, pausing the bomb for 2,000,000 blocks. The start is
+		// rebased to 0 like every other height in this table; the length is a
+		// duration, not a height, so it is carried across unchanged. The pause
+		// therefore runs [0, 2,000,000) and the bomb resumes at 2,000,000 with a
+		// 2,000,000-block offset -- the same shape the rule has on mainnet.
+		ECIP1010PauseBlock: big.NewInt(0),
+		ECIP1010Length:     big.NewInt(2000000),
+
+		// Not yet reached at 3,000,000.
+		ECIP1017FBlock:    nil, // Gotham, 5,000,000
+		ECIP1017EraRounds: nil, // Gotham, 5,000,000
+		DisposalBlock:     nil, // Defuse Difficulty Bomb (ECIP-1041), 5,900,000
+		EIP161FBlock:      nil, // Atlantis, 8,772,000
+		EIP170FBlock:      nil, // Atlantis, 8,772,000
+	},
+
+	// ETC_Gotham is ETC mainnet at block 5,000,000: ECIP-1017, the era-based
+	// emission schedule. Reaching it needs a block-level fixture; a state test
+	// applies no block reward, and evm t8n takes its reward from --state.reward
+	// rather than from the chain configuration.
+	//
+	// ECIP1017FBlock is big.NewInt(0), not the absolute 5000000 that ETC_Atlantis
+	// and its successors carry. Those entries put ECIP-1017 out of reach of every
+	// fixture filled below block 5,000,000, which is all of them; the reason it has
+	// never shown up is that params/mutations.GetBlockWinnerRewardByEra returns the
+	// unmodified reward for era 0, so the disabled path and the era-0 path agree
+	// numerically. For an entry whose entire subject is the emission schedule that
+	// coincidence is not good enough -- 0 is what makes the ECIP-1017 code path
+	// actually run. The six pre-existing entries are deliberately left untouched.
+	//
+	// ECIP1017EraRounds stays at the mainnet 5,000,000: it is an era length, a
+	// duration, and params/mutations.GetBlockEra reads it against the absolute
+	// block number, so fixtures fill in era 0 as mainnet's first five million
+	// blocks do.
+	"ETC_Gotham": &coregeth.CoreGethChainConfig{
+		NetworkID:  1,
+		Ethash:     new(ctypes.EthashConfig),
+		ChainID:    big.NewInt(61),
+		EIP2FBlock: big.NewInt(0), // Homestead, 1,150,000
+		EIP7FBlock: big.NewInt(0), // Homestead, 1,150,000
+
+		EIP150Block: big.NewInt(0), // Gas Reprice (ECIP-1015), 2,500,000
+
+		// Die Hard, 3,000,000
+		EIP155Block:        big.NewInt(0),
+		EIP160FBlock:       big.NewInt(0),
+		ECIP1010PauseBlock: big.NewInt(0),
+		ECIP1010Length:     big.NewInt(2000000),
+
+		// Gotham, 5,000,000
+		ECIP1017FBlock:    big.NewInt(0),
+		ECIP1017EraRounds: big.NewInt(5000000),
+
+		// Not yet reached at 5,000,000.
+		DisposalBlock: nil, // Defuse Difficulty Bomb (ECIP-1041), 5,900,000
+		EIP161FBlock:  nil, // Atlantis, 8,772,000
+		EIP170FBlock:  nil, // Atlantis, 8,772,000
+	},
+
+	// ETC_DefuseDifficultyBomb is ETC mainnet at block 5,900,000: ECIP-1041, which
+	// removes the difficulty bomb rather than delaying it. It is the only ETC entry
+	// in this table for which the bomb is gone but Byzantium's EIP-100 difficulty
+	// adjustment is not yet in force.
+	"ETC_DefuseDifficultyBomb": &coregeth.CoreGethChainConfig{
+		NetworkID:  1,
+		Ethash:     new(ctypes.EthashConfig),
+		ChainID:    big.NewInt(61),
+		EIP2FBlock: big.NewInt(0), // Homestead, 1,150,000
+		EIP7FBlock: big.NewInt(0), // Homestead, 1,150,000
+
+		EIP150Block: big.NewInt(0), // Gas Reprice (ECIP-1015), 2,500,000
+
+		// Die Hard, 3,000,000
+		EIP155Block:  big.NewInt(0),
+		EIP160FBlock: big.NewInt(0),
+
+		// Gotham, 5,000,000
+		ECIP1017FBlock:    big.NewInt(0),
+		ECIP1017EraRounds: big.NewInt(5000000),
+
+		// Defuse Difficulty Bomb (ECIP-1041), 5,900,000
+		DisposalBlock: big.NewInt(0),
+
+		// ECIP-1010's pause schedule is unreachable once the bomb is disposed of --
+		// ethash.CalcDifficulty returns on the ECIP-1041 check, before the explosion
+		// clause -- so it is nil here, as in every ETC entry from Atlantis on.
+		ECIP1010PauseBlock: nil,
+		ECIP1010Length:     nil,
+
+		// Not yet reached at 5,900,000.
+		EIP161FBlock: nil, // Atlantis, 8,772,000
+		EIP170FBlock: nil, // Atlantis, 8,772,000
+	},
 	"Byzantium": &goethereum.ChainConfig{
 		Ethash:         new(ctypes.EthashConfig),
 		ChainID:        big.NewInt(1),
