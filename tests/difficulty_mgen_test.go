@@ -46,12 +46,20 @@ func TestDifficultyGen2(t *testing.T) {
 		t.Skip()
 	}
 
+	// Die Hard and Defuse Difficulty Bomb are difficulty rules, not state-transition
+	// rules, so this generator is the only path that can assert anything about them:
+	// ECIP-1010's pause and ECIP-1041's removal of the bomb are invisible to a state
+	// fixture. Gotham is here because it is the one entry in which the bomb is still
+	// live and un-disposed while ECIP-1010's pause has a defined length.
 	configs := map[string]ctypes.ChainConfigurator{
-		"ETC_Atlantis": Forks["ETC_Atlantis"],
-		"ETC_Agharta":  Forks["ETC_Agharta"],
-		"ETC_Phoenix":  Forks["ETC_Phoenix"],
-		"ETC_Magneto":  Forks["ETC_Magneto"],
-		"ETC_Mystique": Forks["ETC_Mystique"],
+		"ETC_DieHard":              Forks["ETC_DieHard"],
+		"ETC_Gotham":               Forks["ETC_Gotham"],
+		"ETC_DefuseDifficultyBomb": Forks["ETC_DefuseDifficultyBomb"],
+		"ETC_Atlantis":             Forks["ETC_Atlantis"],
+		"ETC_Agharta":              Forks["ETC_Agharta"],
+		"ETC_Phoenix":              Forks["ETC_Phoenix"],
+		"ETC_Magneto":              Forks["ETC_Magneto"],
+		"ETC_Mystique":             Forks["ETC_Mystique"],
 	}
 
 	targetDir := filepath.Join(generatedBasedir, "DifficultyTests", "dfETC")
@@ -73,8 +81,14 @@ func TestDifficultyGen2(t *testing.T) {
 	parentDifficulty := new(big.Int).Mul(vars.MinimumDifficulty, big.NewInt(100))
 	blockTimeDefault := uint64(13)
 
-	filledTests := map[string]*DifficultyTest{}
 	for configName, config := range configs {
+		// filledTests is per-config. It used to be declared outside this loop, so
+		// each file accumulated every previously-generated config's cases under its
+		// own name. That was invisible while every configuration in the list shared
+		// one difficulty rule set -- Atlantis through Mystique all carry EIP-100 and
+		// a disposed bomb, so they fill identically -- and stops being invisible the
+		// moment a config with different difficulty behavior joins the list.
+		filledTests := map[string]*DifficultyTest{}
 		testsName := fmt.Sprintf("difficulty%s", configName)
 		targetFileBaseName := fmt.Sprintf("difficulty%s.json", configName)
 		targetFilePath := filepath.Join(targetDir, targetFileBaseName)
@@ -145,9 +159,43 @@ func difficultyTestCaseHeights(config ctypes.ChainConfigurator) []uint64 {
 		blockHeights = append(blockHeights, uint64(rand.Int63n(100_000_000)))
 	}
 
+	// Drop heights at which this configuration's difficulty is not representable.
+	if maxHeight := maxDifficultyTestCaseHeight(config); maxHeight > 0 {
+		kept := blockHeights[:0]
+		for _, h := range blockHeights {
+			if h <= maxHeight {
+				kept = append(kept, h)
+			}
+		}
+		blockHeights = kept
+	}
+
 	//
 	sort.Slice(blockHeights, func(i, j int) bool { return blockHeights[i] < blockHeights[j] })
 	return blockHeights
+}
+
+// maxDifficultyTestCaseHeight returns the highest block number worth generating a
+// difficulty case for under config, or 0 for no bound.
+//
+// A configuration whose difficulty bomb is still live cannot be swept to arbitrary
+// heights. The explosion term is 2^((exPeriodRef / ExpDiffPeriod) - 2), so it leaves
+// 256 bits a little past height 25,800,000 -- and a DifficultyTest encodes
+// currentDifficulty as a math.HexOrDecimal256, so a case generated above that point
+// is written out but can never be read back. Nothing on Ethereum Classic ever ran a
+// live bomb past 5,900,000, where ECIP-1041 removed it, so the heights being dropped
+// are arithmetic the chain never performed.
+//
+// Every ETC configuration from Defuse Difficulty Bomb on disposes of the bomb and is
+// therefore unbounded, which is why this changes nothing about the cases the
+// pre-existing Atlantis-through-Mystique entries generate.
+func maxDifficultyTestCaseHeight(config ctypes.ChainConfigurator) uint64 {
+	if config.IsEnabled(config.GetEthashECIP1041Transition, new(big.Int)) {
+		return 0 // bomb disposed of from block 0; nothing to bound
+	}
+	// Hold the explosion term under 2^250, leaving headroom above it for the
+	// adjusted difficulty the term is added to.
+	return 252 * params.ExpDiffPeriod.Uint64()
 }
 
 func writeDifficultyTestFileJSON(t *testing.T, filePath string, tests map[string]*DifficultyTest, testName string, configName string) {
