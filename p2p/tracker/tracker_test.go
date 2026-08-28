@@ -17,6 +17,7 @@
 package tracker
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -80,4 +81,87 @@ func TestMetricsOnStop(t *testing.T) {
 	if gauge2.Snapshot().Value() != 0 {
 		t.Fatalf("gauge2 value after stop: got %d, want 0", gauge2.Snapshot().Value())
 	}
+}
+
+// TestFulfilRejections covers every way Fulfil can refuse a response. Since the
+// pre-decode item ceilings were removed from the snap protocol, this is the only
+// bound standing between an oversized response and the materialization of its
+// contents, so each refusal path is pinned here rather than left to the callers.
+func TestFulfilRejections(t *testing.T) {
+	cap := p2p.Cap{Name: "test", Version: 1}
+	newTracker := func() *Tracker { return New(cap, "peer1", time.Minute) }
+
+	t.Run("no matching request", func(t *testing.T) {
+		tr := newTracker()
+		defer tr.Stop()
+		if err := tr.Fulfil(Response{ID: 7, MsgCode: 0x02, Size: 1}); !errors.Is(err, ErrNoMatchingRequest) {
+			t.Fatalf("have %v, want %v", err, ErrNoMatchingRequest)
+		}
+	})
+
+	t.Run("wrong response code", func(t *testing.T) {
+		tr := newTracker()
+		defer tr.Stop()
+		if err := tr.Track(Request{ID: 1, ReqCode: 0x01, RespCode: 0x02, Size: 4}); err != nil {
+			t.Fatalf("track: %v", err)
+		}
+		if err := tr.Fulfil(Response{ID: 1, MsgCode: 0x03, Size: 4}); !errors.Is(err, ErrCodeMismatch) {
+			t.Fatalf("have %v, want %v", err, ErrCodeMismatch)
+		}
+	})
+
+	t.Run("response larger than requested", func(t *testing.T) {
+		tr := newTracker()
+		defer tr.Stop()
+		if err := tr.Track(Request{ID: 1, ReqCode: 0x01, RespCode: 0x02, Size: 4}); err != nil {
+			t.Fatalf("track: %v", err)
+		}
+		if err := tr.Fulfil(Response{ID: 1, MsgCode: 0x02, Size: 5}); !errors.Is(err, ErrTooManyItems) {
+			t.Fatalf("have %v, want %v", err, ErrTooManyItems)
+		}
+	})
+
+	t.Run("response at the requested size is accepted", func(t *testing.T) {
+		tr := newTracker()
+		defer tr.Stop()
+		if err := tr.Track(Request{ID: 1, ReqCode: 0x01, RespCode: 0x02, Size: 4}); err != nil {
+			t.Fatalf("track: %v", err)
+		}
+		if err := tr.Fulfil(Response{ID: 1, MsgCode: 0x02, Size: 4}); err != nil {
+			t.Fatalf("response at the requested size rejected: %v", err)
+		}
+	})
+
+	t.Run("request id collision", func(t *testing.T) {
+		tr := newTracker()
+		defer tr.Stop()
+		if err := tr.Track(Request{ID: 1, ReqCode: 0x01, RespCode: 0x02, Size: 4}); err != nil {
+			t.Fatalf("track: %v", err)
+		}
+		if err := tr.Track(Request{ID: 1, ReqCode: 0x01, RespCode: 0x02, Size: 4}); !errors.Is(err, ErrCollision) {
+			t.Fatalf("have %v, want %v", err, ErrCollision)
+		}
+	})
+
+	t.Run("tracking limit reached", func(t *testing.T) {
+		tr := newTracker()
+		defer tr.Stop()
+		for i := 0; i < maxTrackedPackets; i++ {
+			if err := tr.Track(Request{ID: uint64(i), ReqCode: 0x01, RespCode: 0x02, Size: 1}); err != nil {
+				t.Fatalf("track %d: %v", i, err)
+			}
+		}
+		err := tr.Track(Request{ID: maxTrackedPackets, ReqCode: 0x01, RespCode: 0x02, Size: 1})
+		if !errors.Is(err, ErrLimitReached) {
+			t.Fatalf("have %v, want %v", err, ErrLimitReached)
+		}
+	})
+
+	t.Run("tracking after stop", func(t *testing.T) {
+		tr := newTracker()
+		tr.Stop()
+		if err := tr.Track(Request{ID: 1, ReqCode: 0x01, RespCode: 0x02, Size: 1}); !errors.Is(err, ErrStopped) {
+			t.Fatalf("have %v, want %v", err, ErrStopped)
+		}
+	})
 }

@@ -22,6 +22,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/p2p/tracker"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/holiman/uint256"
 )
@@ -82,29 +83,40 @@ func densestHonestResponse() []*AccountData {
 	return accounts
 }
 
-// TestAccountRangeHonestMaximum pins that an AccountRange response filled to
-// the byte budget the server is allowed to spend is decoded without error.
+// TestAccountRangeHonestMaximum drives a byte-filled AccountRange response
+// through HandleMessage against a tracked request, the way a real peer answers
+// one, and requires it to be accepted.
 //
 // This client carried an item-count ceiling of 2048 applied to every snap
-// response type, which rejected such responses and disconnected the peer:
-// AccountRange is bounded by bytes rather than by item count, so an honest
-// reply holds as many entries as fit. The ceiling is gone and the protocol
-// now decodes the list lazily, but the case is worth pinning, because the
-// failure it produced was a torn-down connection to a peer behaving correctly.
+// response type, which disconnected peers for replying correctly: AccountRange
+// is bounded by bytes rather than by item count, so an honest reply holds as
+// many entries as fit the budget. That ceiling is gone and the bound is now the
+// request itself, but the case is pinned because the failure it produced was a
+// torn-down connection to a peer behaving correctly.
 func TestAccountRangeHonestMaximum(t *testing.T) {
 	accounts := densestHonestResponse()
-	if len(accounts) < 10000 {
+	if len(accounts) <= maxRequestSize/(common.HashLength+5) {
 		t.Fatalf("test lost its meaning: honest maximum fell to %d items", len(accounts))
 	}
 	blob, err := rlp.EncodeToBytes(&AccountRangePacket{ID: 1, Accounts: accounts})
 	if err != nil {
 		t.Fatalf("failed to encode response: %v", err)
 	}
-	var res AccountRangePacket
-	if err := rlp.DecodeBytes(blob, &res); err != nil {
-		t.Fatalf("honest byte-filled response (%d items) rejected: %v", len(accounts), err)
+	rw := &dummyRW{code: uint64(AccountRangeMsg), data: blob}
+	peer := NewFakePeer(SNAP1, "honest-peer", rw)
+	defer peer.tracker.Stop()
+
+	// Track the request this response answers, with the size a real
+	// RequestAccountRange would record for a full-budget request.
+	if err := peer.tracker.Track(tracker.Request{
+		ReqCode:  GetAccountRangeMsg,
+		RespCode: AccountRangeMsg,
+		ID:       1,
+		Size:     2 * maxRequestSize,
+	}); err != nil {
+		t.Fatalf("failed to track request: %v", err)
 	}
-	if got := len(res.Accounts); got != len(accounts) {
-		t.Fatalf("decoded %d accounts, want %d", got, len(accounts))
+	if err := HandleMessage(&dummyBackend{}, peer); err != nil {
+		t.Fatalf("honest byte-filled response (%d items) rejected: %v", len(accounts), err)
 	}
 }
