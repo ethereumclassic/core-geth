@@ -1,0 +1,37 @@
+Core-Geth
+Copyright 2020-present The core-geth Authors
+Copyright 2019-present The multi-geth Authors
+Copyright 2013-present The go-ethereum Authors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. The libraries it provides are distributed under the GNU Lesser
+General Public License, version 3 or later.
+
+The split is deliberate and is inherited from go-ethereum. The command-line
+programs under cmd/ are covered by the GNU General Public License, version 3,
+in the file COPYING. Everything outside cmd/ is covered by the GNU Lesser
+General Public License, version 3, in the file COPYING.LESSER. Each source
+file's header states which of the two applies to it; where a header and this
+summary disagree, the header governs.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+Core-Geth is the Ethereum Classic execution client. It supports every Ethereum
+Classic hard fork from Frontier through Spiral, and retains the multi-network
+configuration model it inherited, in which a further network is a chain
+configuration rather than a new client.
+https://github.com/ethereumclassic/core-geth
+
+Core-Geth is a fork of go-ethereum (https://github.com/ethereum/go-ethereum)
+by way of multi-geth (https://github.com/multi-geth/multi-geth), and is a
+derivative work of both. The great majority of this source is theirs; the
+copyright header on any given file records which. Their contributors are
+listed in AUTHORS, which this project maintains rather than replaces.
+
+Individual copyright is held by the contributors named in AUTHORS and by the
+authors of every commit in this repository's history, not by any one company
+or organization. "The core-geth Authors" refers to that body collectively.
