@@ -49,18 +49,6 @@ func accountHashAt(i int) common.Hash {
 }
 
 // realisticAccounts generates n consecutive accounts carrying real slim EOA
-// encodings of varying sizes (5 to ~15 bytes), in ascending hash order.
-func realisticAccounts(n int) []*AccountData {
-	accounts := make([]*AccountData, n)
-	for i := 0; i < n; i++ {
-		balance := new(uint256.Int).Mul(uint256.NewInt(uint64(i%5)), uint256.NewInt(1e18))
-		accounts[i] = &AccountData{
-			Hash: accountHashAt(i),
-			Body: slimEOABody(uint64(i%7), balance),
-		}
-	}
-	return accounts
-}
 
 // densestHonestResponse replays ServiceGetAccountRangeQuery's accounting
 // (size += common.HashLength + len(body); append; stop once size > budget)
