@@ -25,8 +25,22 @@ const (
 	VersionMinor = 13         // Minor version component of the current release
 	VersionPatch = 0          // Patch version component of the current release
 	VersionMeta  = "unstable" // Version metadata to append to the version string
-	VersionName  = "core-geth-v1.13.0"
+	// VersionName is the devp2p FAMILY name and must not carry the version.
+	// node.Config.NodeName() appends "/v<VersionWithMeta>" itself, and network
+	// censuses group peers by this first segment -- etcnodes.org counts 512 of
+	// 536 ETC peers under "CoreGeth". A version-bearing family name changes
+	// every release, so those nodes would be counted as a different client and
+	// the version would appear twice in one identity string.
+	VersionName = "CoreGeth"
 )
+
+// VersionMeta carries the release stage and must never be empty. It advances
+// "unstable" -> "RC1", "RC2", ... -> "stable", set at the moment each tag is
+// cut. Both ArchiveVersion and VersionWithCommit below branch on
+// VersionMeta != "stable" rather than on emptiness, so an empty value takes
+// the not-a-release path and appends nothing after its separator, producing
+// "1.13.0--<commit>". Emptying this field to suppress a suffix therefore
+// yields a malformed archive name rather than a clean one.
 
 // Version holds the textual version string.
 var Version = func() string {
