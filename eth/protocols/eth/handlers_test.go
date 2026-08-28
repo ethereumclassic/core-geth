@@ -916,3 +916,68 @@ func TestNewBlockSanityCheck(t *testing.T) {
 		}
 	}
 }
+
+// Tests that a peer cannot pack an unbounded number of announcements into one
+// NewBlockHashes message. Announcements are unsolicited, so no pending request
+// bounds them and the packet is not lazily decoded; each entry costs a chain
+// lookup and a handoff to the block fetcher shared by every peer.
+func TestHandleNewBlockhashesCountLimit(t *testing.T) {
+	t.Parallel()
+
+	announces := func(n int) *NewBlockHashesPacket {
+		ann := make(NewBlockHashesPacket, n)
+		for i := range ann {
+			ann[i].Hash = common.Hash{byte(i), byte(i >> 8), byte(i >> 16)}
+			ann[i].Number = uint64(i)
+		}
+		return &ann
+	}
+
+	t.Run("at the limit is accepted", func(t *testing.T) {
+		backend := &recordingBackend{testBackend: newTestBackend(1), handled: make(chan Packet, 1)}
+		defer backend.close()
+
+		peer, errc := newTestPeer("peer", ETH68, backend)
+		defer peer.close()
+
+		if err := p2p.Send(peer.app, NewBlockHashesMsg, announces(maxBlockAnnounces)); err != nil {
+			t.Fatalf("failed to send announcements: %v", err)
+		}
+		select {
+		case packet := <-backend.handled:
+			res, ok := packet.(*NewBlockHashesPacket)
+			if !ok {
+				t.Fatalf("unexpected packet type delivered: %T", packet)
+			}
+			if len(*res) != maxBlockAnnounces {
+				t.Fatalf("announcement count mismatch: have %d, want %d", len(*res), maxBlockAnnounces)
+			}
+		case err := <-errc:
+			t.Fatalf("peer dropped for %d announcements: %v", maxBlockAnnounces, err)
+		case <-time.After(4 * time.Second):
+			t.Fatalf("%d announcements not delivered to backend", maxBlockAnnounces)
+		}
+	})
+
+	t.Run("above the limit drops peer", func(t *testing.T) {
+		backend := &recordingBackend{testBackend: newTestBackend(1), handled: make(chan Packet, 1)}
+		defer backend.close()
+
+		peer, errc := newTestPeer("peer", ETH68, backend)
+		defer peer.close()
+
+		if err := p2p.Send(peer.app, NewBlockHashesMsg, announces(maxBlockAnnounces+1)); err != nil {
+			t.Fatalf("failed to send announcements: %v", err)
+		}
+		select {
+		case <-backend.handled:
+			t.Fatalf("%d announcements accepted, want the peer dropped", maxBlockAnnounces+1)
+		case err := <-errc:
+			if !errors.Is(err, errDecode) {
+				t.Fatalf("peer dropped with %v, want %v", err, errDecode)
+			}
+		case <-time.After(4 * time.Second):
+			t.Fatalf("peer not dropped for %d announcements", maxBlockAnnounces+1)
+		}
+	})
+}

@@ -285,6 +285,16 @@ func handleNewBlockhashes(backend Backend, msg Decoder, peer *Peer) error {
 	if err := msg.Decode(ann); err != nil {
 		return fmt.Errorf("%w: message %v: %v", errDecode, msg, err)
 	}
+	// Announcements are unsolicited, so nothing upstream bounds how many a peer
+	// may claim: there is no request to match them against, and the packet is a
+	// plain list rather than a lazily decoded one. Each entry costs a chain
+	// lookup and a handoff to the single block-fetcher goroutine that serves
+	// every peer, so an oversized batch is expensive well beyond its own memory.
+	// The fetcher keeps at most hashLimit announcements per peer and discards the
+	// rest, which makes anything past that ceiling work performed for nothing.
+	if len(*ann) > maxBlockAnnounces {
+		return fmt.Errorf("%w: block announcements: %d > %d", errDecode, len(*ann), maxBlockAnnounces)
+	}
 	// Mark the hashes as present at the remote node
 	for _, block := range *ann {
 		peer.markBlock(block.Hash)

@@ -50,6 +50,14 @@ var protocolLengths = map[uint]uint64{ETH68: 17}
 const maxMessageSize = 10 * 1024 * 1024
 
 // This is the maximum number of transactions in a Transactions message.
+// maxBlockAnnounces is the maximum number of block announcements a peer may pack
+// into one NewBlockHashes message. Announcements are unsolicited, so no pending
+// request bounds them, and each one costs a chain lookup plus a handoff to the
+// single block-fetcher goroutine shared by every peer. The fetcher itself retains
+// at most 256 per peer and discards the rest, so this ceiling is generous against
+// what is actually used while keeping the per-item work bounded.
+const maxBlockAnnounces = 2048
+
 const maxTransactionAnnouncements = 5000
 
 const (
