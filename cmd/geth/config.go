@@ -170,18 +170,25 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 // makeFullNode loads geth configuration and creates the Ethereum backend.
 func makeFullNode(ctx *cli.Context) (*node.Node, ethapi.Backend) {
 	stack, cfg := makeConfigNode(ctx)
-	if ctx.IsSet(utils.ECBP1100Flag.Name) {
-		if n := ctx.Uint64(utils.ECBP1100Flag.Name); n != math.MaxUint64 {
+	// --mess=false is the simple off switch. It pushes activation out of reach,
+	// which is the method ECIP-1110 itself documents for disabling MESS on any
+	// version that implements it. An explicit --mess.activate wins over it.
+	if ctx.IsSet(utils.MESSFlag.Name) && !ctx.Bool(utils.MESSFlag.Name) {
+		never := uint64(math.MaxUint64 - 1)
+		cfg.Eth.OverrideECBP1100 = &never
+	}
+	if ctx.IsSet(utils.MESSActivateFlag.Name) {
+		if n := ctx.Uint64(utils.MESSActivateFlag.Name); n != math.MaxUint64 {
 			cfg.Eth.OverrideECBP1100 = &n
 		}
 	}
-	if ctx.IsSet(utils.ECBP1100NoDisableFlag.Name) {
-		if enable := ctx.Bool(utils.ECBP1100NoDisableFlag.Name); enable {
+	if ctx.IsSet(utils.MESSNoDisableFlag.Name) {
+		if enable := ctx.Bool(utils.MESSNoDisableFlag.Name); enable {
 			cfg.Eth.ECBP1100NoDisable = &enable
 		}
 	}
-	if ctx.IsSet(utils.OverrideECBP1100DeactivateFlag.Name) {
-		if n := ctx.Uint64(utils.OverrideECBP1100DeactivateFlag.Name); n != math.MaxUint64 {
+	if ctx.IsSet(utils.MESSDeactivateFlag.Name) {
+		if n := ctx.Uint64(utils.MESSDeactivateFlag.Name); n != math.MaxUint64 {
 			cfg.Eth.OverrideECBP1100Deactivate = &n
 		}
 	}

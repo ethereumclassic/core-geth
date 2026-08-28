@@ -1080,20 +1080,35 @@ Please note that --` + MetricsHTTPFlag.Name + ` must be set to start the server.
 		Usage: "External EVM configuration (default = built-in interpreter)",
 		Value: "",
 	}
-	ECBP1100Flag = &cli.Uint64Flag{
-		Name:     "ecbp1100", // should have been override.ecbp1100, but maintained now for backwards compatibility
-		Usage:    "Manually specify the ECBP-1100 (MESS) block activation number, overriding the bundled setting",
+	// MESS (ECBP-1100) flags. The --mess form is the one to use; every prior
+	// spelling is kept as an alias so existing operator scripts keep working.
+	// The old names were inconsistent three ways: --ecbp1100 read as a toggle
+	// but took a block number, --override.ecbp1100.deactivate used a different
+	// prefix for the same kind of value, and --ecbp1100.nodisable was a double
+	// negative.
+	MESSFlag = &cli.BoolFlag{
+		Name:     "mess",
+		Usage:    "Enable the ECBP-1100 (MESS) chain-selection defense against deep reorganizations",
+		Value:    true,
 		Category: flags.EthCategory,
 	}
-	OverrideECBP1100DeactivateFlag = &cli.Uint64Flag{
-		Name:     "override.ecbp1100.deactivate",
-		Usage:    "Manually specify the ECBP-1100 (MESS) deactivation block number, overriding the bundled setting",
+	MESSActivateFlag = &cli.Uint64Flag{
+		Name:     "mess.activate",
+		Aliases:  []string{"ecbp1100"},
+		Usage:    "Block number at which ECBP-1100 (MESS) activates, overriding the bundled setting",
 		Category: flags.EthCategory,
 	}
-	ECBP1100NoDisableFlag = &cli.BoolFlag{
-		Name:     "ecbp1100.nodisable",
-		Usage:    "Short-circuit ECBP-1100 (MESS) disable mechanisms; (yields a permanent-once-activated state, deactivating auto-shutoff mechanisms)",
-		Category: flags.DeprecatedCategory,
+	MESSDeactivateFlag = &cli.Uint64Flag{
+		Name:     "mess.deactivate",
+		Aliases:  []string{"override.ecbp1100.deactivate"},
+		Usage:    "Block number at which ECBP-1100 (MESS) deactivates, overriding the bundled setting",
+		Category: flags.EthCategory,
+	}
+	MESSNoDisableFlag = &cli.BoolFlag{
+		Name:     "mess.nodisable",
+		Aliases:  []string{"ecbp1100.nodisable"},
+		Usage:    "Keep ECBP-1100 (MESS) on once activated, bypassing the low-peer-count and stale-head auto-shutoffs",
+		Category: flags.EthCategory,
 	}
 
 	MetricsEnableInfluxDBV2Flag = &cli.BoolFlag{
