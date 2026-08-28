@@ -1,9 +1,9 @@
 # Adding a Network to Core-Geth
 
-CoreGeth currently supports a handful of networks out of the box, 
+Core-Geth currently supports a handful of networks out of the box, 
 and can readily be configured to support others.
 
-This guide will show you how to add a network to CoreGeth.
+This guide will show you how to add a network to Core-Geth.
 
 For the context of this tutorial, I'm going to use __AlphaBeta Coin__:registered:
 as the name of my new network. 

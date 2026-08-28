@@ -1,4 +1,4 @@
-## CoreGeth: Ethereum Classic Execution Client
+## Core-Geth: Ethereum Classic Execution Client
 
 > A [go-ethereum](https://github.com/ethereum/go-ethereum) fork providing the production Ethereum Classic (ETC) execution client.
 
@@ -56,7 +56,7 @@ Full detail: the [March 2026 audit](docs/audits/2026-03-security-audit.md), the
 
 ---
 
-CoreGeth is a production execution client for the Ethereum Classic network. It implements every ETC hard fork from Frontier through Spiral.
+Core-Geth is a production execution client for the Ethereum Classic network. It implements every ETC hard fork from Frontier through Spiral.
 
 **Note:** Upstream go-ethereum has removed support for Ethereum Classic, so ETC consensus rules are maintained here rather than inherited.
 
@@ -146,7 +146,7 @@ before any suite that reads the shared consensus fixtures.
 
 ## Mining
 
-CoreGeth supports Ethash/ETChash proof-of-work mining:
+Core-Geth supports Ethash/ETChash proof-of-work mining:
 
 ```bash
 ./build/bin/geth --classic --mine --miner.etherbase <address>
@@ -160,7 +160,7 @@ For testing with fake PoW, which skips DAG generation:
 
 ## Documentation
 
-- [CoreGeth docs](https://etclabscore.github.io/core-geth) — general documentation
+- [Core-Geth docs](https://etclabscore.github.io/core-geth) — general documentation
 - [go-ethereum docs](https://geth.ethereum.org/docs/) — upstream reference
 
 ## Security

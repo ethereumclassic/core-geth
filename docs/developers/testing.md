@@ -14,12 +14,12 @@ The `Makefile` at the root of the project includes many commands that can be use
 
 
 - `make test` runs all package tests which are, for the most part, _shared with go-ethereum_.
-- `make test-coregeth` runs a suite of tests that are specific to CoreGeth.
+- `make test-coregeth` runs a suite of tests that are specific to Core-Geth.
 
 
 ## Test generation
 
-CoreGeth is capable of generating some sets of tests used in the `tests` package, which are originally (and still largely)
+Core-Geth is capable of generating some sets of tests used in the `tests` package, which are originally (and still largely)
 driven by the [ethereum/tests](https://github.com/ethereum/tests) suite.
 
 - `make tests-generate` runs test(s) generation for the `state` and `difficulty` subsections of this suite, extending the ethereum/tests version

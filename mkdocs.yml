@@ -1,8 +1,8 @@
 # Project information
-site_name: CoreGeth Documentation
-site_description: Documentation for CoreGeth Ethereum Protocol Provider
+site_name: Core-Geth Documentation
+site_description: Documentation for Core-Geth Ethereum Protocol Provider
 site_url: https://etclabscore.github.io/core-geth/
-site_author: CoreGeth Team
+site_author: Core-Geth Team
 
 # Repository
 repo_name: etclabscore/core-geth
