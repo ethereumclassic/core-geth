@@ -1,7 +1,7 @@
 These directories contain gzipped RLP-encoded blockchain data files along with respective JSON configuration files.
 
 The blockchains contained in these data files use configurations that are designed to reflect the stages of their namesake production counterparts, eg. Ethereum Classic and Foundation main networks, albeit in smaller "condensed" versions.
-Whereas the prominent test networks used in staging and development for these communities often (in the case of Goerli, Mordor, Ropsten, and Rinkeby) use abbreviated fork configurations,
+Whereas the prominent test networks used in staging and development for these communities often used (in the case of Goerli, Mordor, Ropsten, and Rinkeby) abbreviated fork configurations,
 where mainnet forks prior to the launch of the given testnet are "squashed" into the testnet's configuration at block 0, and thus never actually transitioned through at any point in the testnets' progress.
 
 This testnet/mainnet configuration discrepency is in principle a cause of concern since:
