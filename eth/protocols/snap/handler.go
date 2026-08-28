@@ -178,6 +178,7 @@ func HandleMessage(backend Backend, peer *Peer) error {
 	if msg.Size > maxMessageSize {
 		return fmt.Errorf("%w: %v > %v", errMsgTooLarge, msg.Size, maxMessageSize)
 	}
+
 	start := time.Now()
 	// Track the amount of time it takes to serve the request and run the handler
 	if metrics.Enabled {

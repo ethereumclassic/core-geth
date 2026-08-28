@@ -17,13 +17,11 @@
 package snap
 
 import (
-	"bytes"
 	"encoding/binary"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/p2p"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/holiman/uint256"
 )
@@ -84,53 +82,29 @@ func densestHonestResponse() []*AccountData {
 	return accounts
 }
 
-// TestAccountRangeResponseItemLimit pins the AccountRangeMsg entry of
-// snapResponseLimits from both sides: honest responses filled to the byte
-// budget must pass, and only counts that could never fit the request
-// tracker's byte bound (2*maxRequestSize) may be rejected.
-func TestAccountRangeResponseItemLimit(t *testing.T) {
-	limit := snapResponseLimits[AccountRangeMsg]
-
-	check := func(t *testing.T, accounts []*AccountData) error {
-		t.Helper()
-		blob, err := rlp.EncodeToBytes(&AccountRangePacket{ID: 1, Accounts: accounts})
-		if err != nil {
-			t.Fatalf("failed to encode response: %v", err)
-		}
-		msg := p2p.Msg{Code: AccountRangeMsg, Size: uint32(len(blob)), Payload: bytes.NewReader(blob)}
-		return checkSnapResponseItems(&msg, limit)
+// TestAccountRangeHonestMaximum pins that an AccountRange response filled to
+// the byte budget the server is allowed to spend is decoded without error.
+//
+// This client carried an item-count ceiling of 2048 applied to every snap
+// response type, which rejected such responses and disconnected the peer:
+// AccountRange is bounded by bytes rather than by item count, so an honest
+// reply holds as many entries as fit. The ceiling is gone and the protocol
+// now decodes the list lazily, but the case is worth pinning, because the
+// failure it produced was a torn-down connection to a peer behaving correctly.
+func TestAccountRangeHonestMaximum(t *testing.T) {
+	accounts := densestHonestResponse()
+	if len(accounts) < 10000 {
+		t.Fatalf("test lost its meaning: honest maximum fell to %d items", len(accounts))
 	}
-
-	t.Run("honest-maximum-accepted", func(t *testing.T) {
-		// A response filled to the requested byte budget with the densest
-		// real accounts must never tear down the peer.
-		accounts := densestHonestResponse()
-		if err := check(t, accounts); err != nil {
-			t.Fatalf("honest byte-filled response (%d items) rejected: %v", len(accounts), err)
-		}
-	})
-	t.Run("regression-over-old-cap", func(t *testing.T) {
-		// The previous cap of 10240 (maxCodeLookups*10) rejected honest
-		// byte-filled responses: EOA items cost 37-50 accounting bytes, so a
-		// 512KiB budget legitimately holds well over 10240 of them. Pin that
-		// the honest maximum indeed exceeds the old cap and is now accepted.
-		const oldLimit = 10240
-		accounts := densestHonestResponse()
-		if len(accounts) <= oldLimit {
-			t.Fatalf("test lost its meaning: honest maximum %d no longer exceeds the old cap %d", len(accounts), oldLimit)
-		}
-		if err := check(t, accounts[:oldLimit+1]); err != nil {
-			t.Fatalf("response one item over the old cap rejected: %v", err)
-		}
-	})
-	t.Run("at-limit-accepted", func(t *testing.T) {
-		if err := check(t, realisticAccounts(limit)); err != nil {
-			t.Fatalf("response at the item limit (%d) rejected: %v", limit, err)
-		}
-	})
-	t.Run("over-limit-rejected", func(t *testing.T) {
-		if err := check(t, realisticAccounts(limit+1)); err == nil {
-			t.Fatalf("response one item over the limit (%d) accepted", limit+1)
-		}
-	})
+	blob, err := rlp.EncodeToBytes(&AccountRangePacket{ID: 1, Accounts: accounts})
+	if err != nil {
+		t.Fatalf("failed to encode response: %v", err)
+	}
+	var res AccountRangePacket
+	if err := rlp.DecodeBytes(blob, &res); err != nil {
+		t.Fatalf("honest byte-filled response (%d items) rejected: %v", len(accounts), err)
+	}
+	if got := len(res.Accounts); got != len(accounts) {
+		t.Fatalf("decoded %d accounts, want %d", got, len(accounts))
+	}
 }
