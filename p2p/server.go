@@ -837,7 +837,21 @@ func (srv *Server) postHandshakeChecks(peers map[enode.ID]*Peer, inboundCount in
 	case !c.is(trustedConn) && c.is(inboundConn) && inboundCount >= srv.maxInboundConns():
 		return DiscTooManyPeers
 	case peers[c.node.ID()] != nil:
-		return DiscAlreadyConnected
+		existing := peers[c.node.ID()]
+		// If the existing connection has been silent for more than 2 ping intervals,
+		// it is likely a stale half-closed TCP connection (e.g. the remote peer
+		// restarted and the OS never sent a RST). Replace it with the new connection.
+		if time.Since(existing.lastRecvTime()) > 2*pingInterval {
+			srv.log.Debug("Replacing stale peer connection", "id", c.node.ID(),
+				"old_addr", existing.RemoteAddr(), "new_addr", c.fd.RemoteAddr(),
+				"silent_for", time.Since(existing.lastRecvTime()).Round(time.Second))
+			existing.Disconnect(DiscNetworkError)
+			delete(peers, c.node.ID())
+			// Fall through to default: allow the new connection to proceed.
+		} else {
+			return DiscAlreadyConnected
+		}
+		return nil
 	case c.node.ID() == srv.localnode.ID():
 		return DiscSelf
 	default:

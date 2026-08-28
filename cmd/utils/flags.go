@@ -2194,7 +2194,10 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *ethconfig.Config) {
 	case ctx.Bool(GoerliFlag.Name):
 		SetDNSDiscoveryDefaults(cfg, params.GoerliGenesisHash)
 	case ctx.Bool(ClassicFlag.Name):
-		SetDNSDiscoveryDefaults2(cfg, params.ClassicDNSNetwork1)
+		if cfg.EthDiscoveryURLs == nil {
+			cfg.EthDiscoveryURLs = []string{params.ClassicDNSNetwork1, params.ClassicDNSNetwork2}
+			cfg.SnapDiscoveryURLs = cfg.EthDiscoveryURLs
+		}
 	case ctx.Bool(MordorFlag.Name):
 		SetDNSDiscoveryDefaults2(cfg, params.MordorDNSNetwork1)
 	default:

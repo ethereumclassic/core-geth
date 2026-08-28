@@ -28,3 +28,4 @@ var ClassicBootnodes = []string{
 var dnsPrefixETC = "enrtree://AJE62Q4DUX4QMMXEHCSSCSC65TDHZYSMONSD64P3WULVLSF6MRQ3K@"
 
 var ClassicDNSNetwork1 = dnsPrefixETC + "all.classic.blockd.info"
+var ClassicDNSNetwork2 = dnsPrefixETC + "all.classic.etcdisco.net"

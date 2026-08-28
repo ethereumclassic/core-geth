@@ -22,6 +22,7 @@ import (
 	"io"
 	"net"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common/mclock"
@@ -118,6 +119,12 @@ type Peer struct {
 	// events receives message send / receive events if set
 	events   *event.Feed
 	testPipe *MsgPipeRW // for testing
+
+	// lastRecv tracks the wall-clock time of the most recently received message
+	// (stored as Unix nanoseconds). Zero means no message received yet.
+	// Used to detect stale connections that have gone silent.
+	lastRecv  atomic.Int64
+	createdAt time.Time
 }
 
 // NewPeer returns a peer for testing purposes.
@@ -228,14 +235,15 @@ func (p *Peer) Inbound() bool {
 func newPeer(log log.Logger, conn *conn, protocols []Protocol) *Peer {
 	protomap := matchProtocols(protocols, conn.caps, conn)
 	p := &Peer{
-		rw:       conn,
-		running:  protomap,
-		created:  mclock.Now(),
-		disc:     make(chan DiscReason),
-		protoErr: make(chan error, len(protomap)+1), // protocols + pingLoop
-		closed:   make(chan struct{}),
-		pingRecv: make(chan struct{}, 16),
-		log:      log.New("id", conn.node.ID(), "conn", conn.flags),
+		rw:        conn,
+		running:   protomap,
+		created:   mclock.Now(),
+		createdAt: time.Now(),
+		disc:      make(chan DiscReason),
+		protoErr:  make(chan error, len(protomap)+1), // protocols + pingLoop
+		closed:    make(chan struct{}),
+		pingRecv:  make(chan struct{}, 16),
+		log:       log.New("id", conn.node.ID(), "conn", conn.flags),
 	}
 	return p
 }
@@ -327,11 +335,21 @@ func (p *Peer) readLoop(errc chan<- error) {
 			return
 		}
 		msg.ReceivedAt = time.Now()
+		p.lastRecv.Store(msg.ReceivedAt.UnixNano())
 		if err = p.handle(msg); err != nil {
 			errc <- err
 			return
 		}
 	}
+}
+
+// lastRecvTime returns the wall-clock time of the most recently received message.
+// Falls back to the peer's creation time if no message has been received yet.
+func (p *Peer) lastRecvTime() time.Time {
+	if ns := p.lastRecv.Load(); ns != 0 {
+		return time.Unix(0, ns)
+	}
+	return p.createdAt
 }
 
 func (p *Peer) handle(msg Msg) error {
