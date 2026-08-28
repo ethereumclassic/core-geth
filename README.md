@@ -2,55 +2,60 @@
 
 > A [go-ethereum](https://github.com/ethereum/go-ethereum) fork providing the production Ethereum Classic (ETC) execution client.
 
-CoreGeth is the current production client for the Ethereum Classic network. It supports all ETC hard forks from Frontier through Spiral, and implements the upcoming **Olympia** hard fork (ECIP-1111, ECIP-1112, ECIP-1121).
+CoreGeth is a production execution client for the Ethereum Classic network. It implements every ETC hard fork from Frontier through Spiral.
 
-**Note:** Upstream go-ethereum has deprecated support for Ethereum Classic. Long-term, ETC will migrate to [Fukuii](https://github.com/chris-mercer/fukuii) as the native ETC client. CoreGeth remains the recommended production client during this transition.
+**Note:** Upstream go-ethereum has removed support for Ethereum Classic, so ETC consensus rules are maintained here rather than inherited.
 
 ## Supported Networks
 
-| Network | Chain ID | Consensus | Status |
-|---------|----------|-----------|--------|
-| Ethereum Classic (ETC) | 61 | Proof of Work (ETChash) | Production |
-| Mordor Testnet | 63 | Proof of Work (ETChash) | Active |
-| Private chains | configurable | PoW / PoA | Supported |
+| Network | Chain ID | Consensus | Flag |
+|---------|----------|-----------|------|
+| Ethereum Classic (ETC) | 61 | Proof of Work (ETChash) | `--classic` |
+| Mordor Testnet | 63 | Proof of Work (ETChash) | `--mordor` |
+| MintMe.com Coin | 24734 | Proof of Work | `--mintme` |
+| Private chains | configurable | PoW / PoA | genesis config |
 
-### ETC Hard Fork History
+Sepolia and Holesky are also registered, inherited from upstream go-ethereum.
 
-| Fork | Block | ECIPs |
-|------|-------|-------|
-| Atlantis | 8,772,000 | ECIP-1054 (Byzantium equivalent) |
-| Agharta | 9,573,000 | ECIP-1056 (Constantinople equivalent) |
-| Phoenix | 10,500,839 | ECIP-1088 (Istanbul equivalent) |
-| Thanos | 11,700,000 | ECIP-1099 (ETChash 60K epochs) |
-| Magneto | 13,189,133 | ECIP-1103 (Berlin equivalent) |
-| Mystique | 14,525,000 | ECIP-1104 (partial London, no EIP-1559) |
-| Spiral | 19,250,000 | ECIP-1109 (Shanghai equivalent) |
-| **Olympia** | **TBD** | ECIP-1111 + ECIP-1121 (EIP-1559 + treasury + EVM modernization) |
+### ETC consensus history
 
-**Gas limit:** 8M (current) converging to 60M post-Olympia (EIP-7935).
+Activation blocks, governing specifications and included EIPs, aligned with
+[ECIP-1066](https://ecips.ethereumclassic.org/ECIPs/ecip-1066), which is the network description this table follows. The Mordor
+column is client detail and is not part of that specification.
 
-## Olympia Hard Fork
+| Upgrade | ETC Block | Mordor Block | Date | Specs | Included EIPs |
+|---------|----------:|-------------:|------|-------|---------------|
+| Spiral <br><sub>Shanghai</sub> | 19,250,000 | 9,957,000 | 2024-02-04 | [ECIP-1109](https://ecips.ethereumclassic.org/ECIPs/ecip-1109) | Shanghai: [EIP-3651](https://eips.ethereum.org/EIPS/eip-3651), [EIP-3855](https://eips.ethereum.org/EIPS/eip-3855), [EIP-3860](https://eips.ethereum.org/EIPS/eip-3860), [EIP-6049](https://eips.ethereum.org/EIPS/eip-6049) |
+| MESS Default: Off <br><sub>ECBP-1110</sub> | 19,250,000 | 10,400,000 | 2024-02-04 | [ECIP-1110](https://ecips.ethereumclassic.org/ECIPs/ecip-1110) | None |
+| Mystique <br><sub>London</sub> | 14,525,000 | 5,520,000 | 2022-02-12 | [ECIP-1104](https://ecips.ethereumclassic.org/ECIPs/ecip-1104) | London: [EIP-3529](https://eips.ethereum.org/EIPS/eip-3529), [EIP-3541](https://eips.ethereum.org/EIPS/eip-3541) |
+| Magneto <br><sub>Berlin</sub> | 13,189,133 | 3,985,893 | 2021-07-23 | [ECIP-1103](https://ecips.ethereumclassic.org/ECIPs/ecip-1103) | Berlin: [EIP-2565](https://eips.ethereum.org/EIPS/eip-2565), [EIP-2718](https://eips.ethereum.org/EIPS/eip-2718), [EIP-2929](https://eips.ethereum.org/EIPS/eip-2929), [EIP-2930](https://eips.ethereum.org/EIPS/eip-2930) |
+| Thanos <br><sub>ECIP-1099</sub> | 11,700,000 | 2,520,000 | 2020-11-28 | [ECIP-1099](https://ecips.ethereumclassic.org/ECIPs/ecip-1099) | None |
+| MESS Default: On <br><sub>ECBP-1100</sub> | 11,380,000 | 2,380,000 | 2020-10-09 | [ECIP-1100](https://ecips.ethereumclassic.org/ECIPs/ecip-1100) | None |
+| Phoenix <br><sub>Istanbul</sub> | 10,500,839 | 999,983 | 2020-06-01 | [ECIP-1088](https://ecips.ethereumclassic.org/ECIPs/ecip-1088) | Istanbul: [EIP-152](https://eips.ethereum.org/EIPS/eip-152), [EIP-1108](https://eips.ethereum.org/EIPS/eip-1108), [EIP-1344](https://eips.ethereum.org/EIPS/eip-1344), [EIP-1884](https://eips.ethereum.org/EIPS/eip-1884), [EIP-2028](https://eips.ethereum.org/EIPS/eip-2028), [EIP-2200](https://eips.ethereum.org/EIPS/eip-2200) |
+| Agharta <br><sub>Constantinople+Petersburg</sub> | 9,573,000 | 301,243 | 2020-01-11 | [ECIP-1056](https://ecips.ethereumclassic.org/ECIPs/ecip-1056) | Constantinople+Petersburg: [EIP-145](https://eips.ethereum.org/EIPS/eip-145), [EIP-1014](https://eips.ethereum.org/EIPS/eip-1014), [EIP-1052](https://eips.ethereum.org/EIPS/eip-1052) |
+| Atlantis <br><sub>Byzantium</sub> | 8,772,000 | 0 | 2019-09-12 | [ECIP-1054](https://ecips.ethereumclassic.org/ECIPs/ecip-1054) | Spurious Dragon: [EIP-161](https://eips.ethereum.org/EIPS/eip-161), [EIP-170](https://eips.ethereum.org/EIPS/eip-170) <br> Byzantium: [EIP-100](https://eips.ethereum.org/EIPS/eip-100), [EIP-140](https://eips.ethereum.org/EIPS/eip-140), [EIP-196](https://eips.ethereum.org/EIPS/eip-196), [EIP-197](https://eips.ethereum.org/EIPS/eip-197), [EIP-198](https://eips.ethereum.org/EIPS/eip-198), [EIP-211](https://eips.ethereum.org/EIPS/eip-211), [EIP-214](https://eips.ethereum.org/EIPS/eip-214), [EIP-658](https://eips.ethereum.org/EIPS/eip-658) |
+| Defuse Difficulty Bomb <br><sub>ECIP-1041</sub> | 5,900,000 | 0 | 2018-05-29 | [ECIP-1041](https://ecips.ethereumclassic.org/ECIPs/ecip-1041) | None |
+| Gotham <br><sub>ECIP-1017</sub> | 5,000,000 | 0 | 2017-12-11 | [ECIP-1017](https://ecips.ethereumclassic.org/ECIPs/ecip-1017) <br> [ECIP-1039](https://ecips.ethereumclassic.org/ECIPs/ecip-1039) | None |
+| Die Hard <br><sub>Spurious Dragon</sub> | 3,000,000 | 0 | 2017-01-13 | [ECIP-1010](https://ecips.ethereumclassic.org/ECIPs/ecip-1010) | Spurious Dragon: [EIP-155](https://eips.ethereum.org/EIPS/eip-155), [EIP-160](https://eips.ethereum.org/EIPS/eip-160) |
+| Gas Reprice <br><sub>Tangerine Whistle</sub> | 2,500,000 | 0 | 2016-10-24 | [ECIP-1015](https://ecips.ethereumclassic.org/ECIPs/ecip-1015) | Tangerine Whistle: [EIP-150](https://eips.ethereum.org/EIPS/eip-150) |
+| ~~DAO Fork~~ | 1,920,000 | — | 2016-07-20 | [HFM-779](https://eips.ethereum.org/EIPS/eip-779) | **Rejected on ETC** |
+| Homestead | 1,150,000 | 0 | 2016-03-14 | [HFM-606](https://eips.ethereum.org/EIPS/eip-606) | Homestead: [EIP-2](https://eips.ethereum.org/EIPS/eip-2), [EIP-7](https://eips.ethereum.org/EIPS/eip-7), [EIP-8](https://eips.ethereum.org/EIPS/eip-8) |
+| Frontier Thawing | 200,000 | 0 | 2015-09-07 | Genesis | None |
+| Frontier | 1 | 0 | 2015-07-30 | Genesis | None |
 
-The `olympia` branch implements the Olympia upgrade:
+**MESS** (Modified Exponential Subjective Scoring, ECBP-1100) is a chain-selection
+defense against deep reorganizations. It is a client-side policy rather than a state
+transition, which is why it appears as two rows: the block at which it defaults on, and
+the block at which it defaults off.
 
-- **ECIP-1111:** EIP-1559 dynamic base fee + EIP-3198 BASEFEE opcode. Base fee is redirected to the Olympia Treasury (not burned).
-- **ECIP-1112:** Deterministic, immutable Treasury contract receiving all base fee revenue.
-- **ECIP-1121:** 13 execution-layer EIPs for EVM modernization (EIP-5656/MCOPY, EIP-1153/transient storage, EIP-6780/SELFDESTRUCT, EIP-2537/BLS12-381, EIP-7951/P256VERIFY, EIP-7702/EOA code delegation, EIP-2935/block hashes in state, and more).
+Ethereum Classic does not implement EIP-1559. Transactions are legacy and EIP-2930
+access-list types.
 
-**EIP-7642 (eth/69) is intentionally excluded** — it removes Total Difficulty from the protocol handshake, which ETC requires for Proof-of-Work chain selection.
+### Wire protocol
 
-### Activation
-
-- **Mordor testnet:** Block 15,800,850 (~March 28, 2026)
-- **ETC mainnet:** ~Block 24,751,337 (~mid-June 2026, before Era 6)
-
-### Cross-Client Alignment
-
-| Client | Pre-Olympia | Post-Olympia | Role |
-|--------|-------------|--------------|------|
-| [core-geth](https://github.com/chris-mercer/core-geth) | `etc` branch | `olympia` branch | Production client |
-| [Fukuii](https://github.com/chris-mercer/fukuii) | `alpha` branch | `olympia` branch | Native ETC client (migration target) |
-| [Besu](https://github.com/chris-mercer/besu) | `etc` branch | `olympia` branch | Reference/testing client |
+**EIP-7642 (`eth/69`) is deliberately excluded.** It removes Total Difficulty from the
+protocol handshake, and Ethereum Classic requires that field for proof-of-work chain
+selection. Do not restore it.
 
 ## Build
 
@@ -58,27 +63,42 @@ The `olympia` branch implements the Olympia upgrade:
 make geth
 ```
 
+The binary is written to `./build/bin/geth`.
+
 ## Test
 
 ```bash
 # ETC-specific unit tests
 go test ./params/... -run TestETC -v
-go test ./core/... -run "TestGasLimit|TestForkCompliance|TestECIP1017|TestTreasury|TestOlympia" -v
+go test ./core/... -run "TestGasLimit|TestECIP1017|TestETCForkCompliance" -v
 go test ./consensus/ethash/... -run "TestDifficultyETC|TestDifficultyECIP" -v
 
-# Live tests (requires running Mordor/ETC node)
+# Live-network tests, build-tagged; requires a running Mordor or ETC node
 go test -tags live ./tests/live_etc/ -v
 ```
 
+`tests/evm-benchmarks` is a submodule. Run `git submodule update --init --recursive`
+before any suite that reads the shared consensus fixtures.
+
+## Run a node
+
+```bash
+./build/bin/geth --classic --datadir <path>     # Ethereum Classic mainnet
+./build/bin/geth --mordor  --datadir <path>     # Mordor testnet
+```
+
+`--http.addr` defaults to loopback. Do not widen it, enable `--http.corsdomain`, or add
+`admin` or `debug` to `--http.api` on a node reachable from an untrusted network.
+
 ## Mining
 
-CoreGeth supports full Ethash/ETChash Proof-of-Work mining:
+CoreGeth supports Ethash/ETChash proof-of-work mining:
 
 ```bash
 ./build/bin/geth --classic --mine --miner.etherbase <address>
 ```
 
-For testing with fake PoW (no DAG generation):
+For testing with fake PoW, which skips DAG generation:
 
 ```bash
 ./build/bin/geth --classic --mine --miner.etherbase <address> --fakepow
@@ -86,26 +106,37 @@ For testing with fake PoW (no DAG generation):
 
 ## Documentation
 
-- [ETC-HANDOFF.md](./ETC-HANDOFF.md) — Pre-Olympia branch documentation
-- [OLYMPIA-HANDOFF.md](./OLYMPIA-HANDOFF.md) — Olympia hard fork documentation
-- [CoreGeth docs](https://etclabscore.github.io/core-geth) — General documentation
-- [go-ethereum docs](https://geth.ethereum.org/docs/) — Upstream reference
+- [CoreGeth docs](https://etclabscore.github.io/core-geth) — general documentation
+- [go-ethereum docs](https://geth.ethereum.org/docs/) — upstream reference
 
-## Security Patches
+## Security
 
-The `etc` branch includes 5 security patches applied before any feature work:
+This release backports six CVE fixes from upstream go-ethereum and adds a GraphQL query
+depth limit. Each is a separate commit; run `git log --grep CVE-` for the full detail,
+including the upstream commit every fix derives from.
 
-| CVE | Severity | Component |
-|-----|----------|-----------|
-| CVE-2026-26314 | High | secp256k1 coordinate validation |
-| CVE-2026-26315 | Moderate | ECIES invalid-curve attack |
-| CVE-2026-22862 | High | ECIES decrypt length |
-| CVE-2025-24883 | Moderate | UnmarshalPubkey curve check |
-| x/crypto, x/net | — | Dependency updates |
+| Identifier | Component | Issue |
+|-----|-----------|-------|
+| CVE-2026-26313 | `eth/protocols` | Unbounded RLP message decoding |
+| CVE-2026-26314 | `crypto/secp256k1` | `IsOnCurve` accepted coordinates outside the field |
+| CVE-2026-26315 | `crypto/ecies` | Invalid-curve attack on the RLPx handshake |
+| CVE-2026-22862 | `crypto/ecies` | Minimum ciphertext length check |
+| CVE-2026-22868 | `eth` | Invalid KZG blob proofs |
+| CVE-2025-24883 | `crypto` | `UnmarshalPubkey` accepted off-curve points |
+| — | `graphql` | Unbounded query depth |
 
-Nodes should rotate P2P keys after upgrading: `rm <datadir>/geth/nodekey`
+**Rotate P2P node keys after upgrading.** CVE-2026-26315 is an oracle against the node key
+itself, so a key used by an unpatched node should be treated as exposed. Stop the node,
+remove `<datadir>/geth/nodekey`, and restart; the client generates a new one. The node's
+enode ID changes, so update any static-peer or trusted-peer list that names it.
+
+`SECURITY.md` carries the disclosure policy and PGP key.
 
 ## License
 
 The core-geth library (outside `cmd/`) is licensed under [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html).
 The core-geth binaries (`cmd/`) are licensed under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).
+
+`COPYING` and `COPYING.LESSER` carry the full texts, and `NOTICE` carries attribution.
+There is deliberately no `LICENSE` file: the split is inherited from go-ethereum, and a
+per-file header states which of the two applies.
