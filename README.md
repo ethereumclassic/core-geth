@@ -2,6 +2,60 @@
 
 > A [go-ethereum](https://github.com/ethereum/go-ethereum) fork providing the production Ethereum Classic (ETC) execution client.
 
+---
+
+## ⚠️ Node operators: upgrade to v1.13.0, and rotate your node key
+
+**Every release in the v1.12.x line carries at least one unpatched CVE, and the earliest
+carry all six.** They were built on a Go toolchain that reached end of life in August 2024.
+Upgrade, then perform the one cleanup step below.
+
+**1. Upgrade, and change where you track releases.** Releases are cut from
+[`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth). A node tracking
+the previous repository will not see v1.13.0.
+
+**2. Rotate the P2P node key. This is required, not precautionary.** CVE-2026-26315 is an
+oracle: an invalid-curve ephemeral key in the RLPx handshake previously reached ECDH and
+failed only at MAC verification, which leaks bits of the node key across repeated
+handshakes. Any key used by an unpatched node should be treated as exposed.
+
+```bash
+# with the node stopped
+mv <datadir>/geth/nodekey <datadir>/geth/nodekey.old-rotated-$(date +%F)
+```
+
+The client generates a fresh key on the next start. **Your enode ID changes**, so update
+every static-peer, trusted-peer or bootnode list that names this node — on your own
+machines and with anyone peering with you. Capture the old enode ID before rotating if you
+need it to find those references; it cannot be re-derived afterwards.
+
+**3. Re-check your RPC exposure while the node is down.** `--http.addr` should be loopback
+unless a trusted proxy sits in front of it, and `admin`, `debug` and `personal` do not
+belong in `--http.api` on any reachable interface. `--http.corsdomain="*"` is not a safe
+default.
+
+**A resync is not required.** No finding in either audit corrupts chain data, and none is
+known to have been exploited against this network. Verify your head matches another source
+before concluding otherwise:
+
+```bash
+geth attach --exec 'eth.blockNumber' <datadir>/geth.ipc
+```
+
+Compare against a block explorer or a second client. Resync only if it diverges — and if it
+does, that is a finding worth reporting.
+
+**Nothing here requires touching your keystore.** These are network-layer and handshake
+issues; account keys are not implicated by any of them. Rotate account keys only if your
+`admin` or `personal` RPC was reachable from an untrusted network, which is its own
+exposure rather than one of these CVEs.
+
+Full detail: the [March 2026 audit](docs/audits/2026-03-security-audit.md), the
+[August 2026 follow-up](docs/audits/2026-08-security-followup.md), and the
+[v1.13.0 migration guide](docs/tutorials/v1.13.0-migration.md).
+
+---
+
 CoreGeth is a production execution client for the Ethereum Classic network. It implements every ETC hard fork from Frontier through Spiral.
 
 **Note:** Upstream go-ethereum has removed support for Ethereum Classic, so ETC consensus rules are maintained here rather than inherited.
