@@ -1,6 +1,6 @@
 //go:build live
 
-// Package live_etc provides pre-fork integration tests that verify current
+// Package live_etc provides integration tests that verify current
 // ETC and Mordor chain state via JSON-RPC. These tests require a running
 // core-geth node and are excluded from normal test runs.
 //
@@ -25,7 +25,7 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-// Pre-olympia chain constants (NO olympia-specific values here)
+// ETC chain constants
 const (
 	MordorChainID     = 63
 	ETCMainnetChainID = 61
@@ -49,7 +49,7 @@ const (
 	MordorSpiralBlock  = 9_957_000
 	ClassicSpiralBlock = 19_250_000
 
-	// Gas limits (pre-olympia)
+	// Gas limits
 	ETCGasLimit = 8_000_000
 
 	// Etchash epoch lengths

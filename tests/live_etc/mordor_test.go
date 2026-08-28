@@ -48,7 +48,7 @@ func TestMordorPoWFields(t *testing.T) {
 	}
 }
 
-// TestMordorGasLimit verifies that Mordor gas limit is around 8M (pre-olympia).
+// TestMordorGasLimit verifies that the Mordor gas limit is around 8M.
 func TestMordorGasLimit(t *testing.T) {
 	client := dialRPC(t, getMordorRPC())
 	defer client.Close()
@@ -58,7 +58,7 @@ func TestMordorGasLimit(t *testing.T) {
 
 	// Gas limit should be near 8M (within adjustment bounds)
 	if gasLimit < 7_000_000 || gasLimit > 9_000_000 {
-		t.Errorf("Mordor gas limit = %d, expected ~8M (pre-olympia)", gasLimit)
+		t.Errorf("Mordor gas limit = %d, expected ~8M", gasLimit)
 	}
 }
 

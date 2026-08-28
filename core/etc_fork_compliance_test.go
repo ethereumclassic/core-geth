@@ -302,8 +302,8 @@ func TestETCTransactionTypes(t *testing.T) {
 	assertForkDisabled(t, config, "EIP-2930 (Type 1)", 13189132, config.GetEIP2930Transition)
 	assertForkEnabled(t, config, "EIP-2930 (Type 1)", 13189133, config.GetEIP2930Transition)
 
-	// Type 2 (EIP-1559) — NOT activated pre-Olympia on Classic
+	// Type 2 (EIP-1559) is not implemented on Classic
 	if config.IsEnabled(config.GetEIP1559Transition, big.NewInt(19250000)) {
-		t.Error("EIP-1559 should NOT be active at Spiral on Classic (pre-Olympia)")
+		t.Error("EIP-1559 should not be active at Spiral on Classic")
 	}
 }
