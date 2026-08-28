@@ -223,7 +223,14 @@ func TestETCMordorNoBombPause(t *testing.T) {
 	}
 }
 
-// TestETCClassicECBP1100Config verifies MESS (ECBP-1100) activation and deactivation.
+// TestETCClassicECBP1100Config verifies MESS (ECBP-1100) ships activated and is
+// not scheduled to switch itself off.
+//
+// The deactivation assertion is inverted from what this test held before
+// v1.13.0, when the bundled configuration disabled MESS at the Spiral block.
+// This client ships it on, so a non-nil deactivation block is the regression to
+// catch: it would silently disarm the defense at a block height, and nothing
+// else in the tree would report it.
 func TestETCClassicECBP1100Config(t *testing.T) {
 	if ClassicChainConfig.ECBP1100FBlock == nil {
 		t.Fatal("ECBP-1100 activation block is nil")
@@ -231,10 +238,18 @@ func TestETCClassicECBP1100Config(t *testing.T) {
 	if ClassicChainConfig.ECBP1100FBlock.Int64() != 11380000 {
 		t.Errorf("ECBP-1100 activation: got %d, want 11380000", ClassicChainConfig.ECBP1100FBlock.Int64())
 	}
-	if ClassicChainConfig.ECBP1100DeactivateFBlock == nil {
-		t.Fatal("ECBP-1100 deactivation block is nil")
+	if b := ClassicChainConfig.ECBP1100DeactivateFBlock; b != nil {
+		t.Errorf("ECBP-1100 deactivation: got block %v, want nil (MESS stays on)", b)
 	}
-	if ClassicChainConfig.ECBP1100DeactivateFBlock.Int64() != 19250000 {
-		t.Errorf("ECBP-1100 deactivation: got %d, want 19250000", ClassicChainConfig.ECBP1100DeactivateFBlock.Int64())
+}
+
+// TestETCMordorECBP1100Config holds Mordor to the same posture as mainnet, so a
+// change to one is not silently applied to only one network.
+func TestETCMordorECBP1100Config(t *testing.T) {
+	if MordorChainConfig.ECBP1100FBlock == nil {
+		t.Fatal("ECBP-1100 activation block is nil")
+	}
+	if b := MordorChainConfig.ECBP1100DeactivateFBlock; b != nil {
+		t.Errorf("ECBP-1100 deactivation: got block %v, want nil (MESS stays on)", b)
 	}
 }

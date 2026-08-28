@@ -82,9 +82,26 @@ var (
 		EIP2028FBlock: big.NewInt(10_500_839),
 		EIP2200FBlock: big.NewInt(10_500_839), // RePetersburg (=~ re-1283)
 
-		ECBP1100FBlock:           big.NewInt(11_380_000), // ETA 09 Oct 2020
-		ECBP1100DeactivateFBlock: big.NewInt(19_250_000), // ETA 31 Jan 2023 (== Spiral hard fork)
-		ECIP1099FBlock:           big.NewInt(11_700_000), // Etchash (DAG size limit)
+		ECBP1100FBlock: big.NewInt(11_380_000), // ETA 09 Oct 2020
+		// No deactivation block: ECBP-1100 (MESS) stays on. Client decision for
+		// v1.13.0, and it is a client's to make: ECBP-1100 is an Ethereum Classic
+		// Best Practice, not a consensus rule. It changes which of two competing
+		// chains this node prefers, never whether a block is valid.
+		//
+		// ECBP1100DeactivateFBlock was 19,250,000, the Spiral block, set by
+		// ECIP-1110. That deactivation rested on ETC holding roughly 85% of
+		// apparent compatible hashrate at the time; the reasoning is stated in
+		// ECIP-1110's own Rationale, and it is a claim about market conditions
+		// rather than about the protocol. Under lower and more volatile hashrate
+		// the defense is worth more, not less, so this client ships it on.
+		//
+		// Verified rather than assumed: the fork ID is byte-identical with the
+		// deactivation block present and absent, so this cannot fragment peering,
+		// and no block validity rule reads either value.
+		//
+		// Operators wanting the previous behavior: --mess=false, or
+		// --mess.deactivate=19250000 to reproduce it exactly.
+		ECIP1099FBlock: big.NewInt(11_700_000), // Etchash (DAG size limit)
 
 		// Berlin eq, aka Magneto
 		EIP2565FBlock: big.NewInt(13_189_133),

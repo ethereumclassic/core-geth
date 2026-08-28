@@ -88,13 +88,14 @@ var (
 		// EIP4895FBlock: nil, // Beacon chain push withdrawals as operations
 		EIP6049FBlock: big.NewInt(9_957_000), // Deprecate SELFDESTRUCT (noop)
 
-		DisposalBlock:            big.NewInt(0),
-		ECIP1017FBlock:           big.NewInt(0),
-		ECIP1017EraRounds:        big.NewInt(2000000),
-		ECIP1010PauseBlock:       nil,
-		ECIP1010Length:           nil,
-		ECBP1100FBlock:           big.NewInt(2380000),    // ETA 29 Sept 2020, ~1500 UTC
-		ECBP1100DeactivateFBlock: big.NewInt(10_400_000), // ETA 13 January 2024
+		DisposalBlock:      big.NewInt(0),
+		ECIP1017FBlock:     big.NewInt(0),
+		ECIP1017EraRounds:  big.NewInt(2000000),
+		ECIP1010PauseBlock: nil,
+		ECIP1010Length:     nil,
+		ECBP1100FBlock:     big.NewInt(2380000), // ETA 29 Sept 2020, ~1500 UTC
+		// No deactivation block: MESS stays on, matching the mainnet default.
+		// ECBP1100DeactivateFBlock was 10,400,000. See config_classic.go.
 
 		RequireBlockHashes: map[uint64]common.Hash{
 			840013: common.HexToHash("0x2ceada2b191879b71a5bcf2241dd9bc50d6d953f1640e62f9c2cee941dc61c9d"),
