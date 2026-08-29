@@ -1,0 +1,154 @@
+{
+  "requiredBlockHeaders": {
+    "_info": {
+      "comment": "Header requirements at specific heights: a block at one of these heights must hash to exactly the stated value, and a chain presenting anything else there is refused however much difficulty it carries. The production client states these as RequireBlockHashes. Two heights are listed and only one of them is about the declined fork; the other is a checkpoint at this chain's own EIP-150 activation, and it is included because the rule is the requirement list rather than the interesting member of it.",
+      "thisIsTheThirdMechanismForOneRefusal": "This chain declined Ethereum's DAO fork, and three separate layers of a client express that. The PEER layer is the fork identifier, which makes the two chains unable to recognize each other -- covered by forkid/mainnet_fork_identifiers.json, where the assertion is that the identifier does not move across 1,920,000. The CHAIN-VALIDATION layer is this file: the block at that height must be this one. The HEADER layer is the extraData below. They are not redundant: a client with only the identifier refuses to TALK to the other chain but would accept its blocks if handed them by something it does trust, and a client with only the hash requirement will still peer with nodes it can never agree with.",
+      "crossImplementation": "Read on 2026-08-24, and the four disagree, which is the reason to write this down. The production client requires BOTH hashes. This project's Besu overlay requires the 1,920,000 one and not the 2,500,000 one -- as a header-validation rule that compares the hash at that height against a constant. This project's Nethermind overlay and its Scala client require NEITHER: neither hash appears anywhere in either source tree. That is a live divergence in a rule that decides which chain a node follows, not a stylistic difference, and it is exactly what a conformance fixture is for.",
+      "oracle": "The chain itself. Every hash and every extraData value below was read from an archive node on 2026-08-24 and matches what the production client's configuration requires -- so this is the chain's own record agreeing with the client, rather than the client quoted back to itself. The counterexample hashes are real hashes of real neighbouring blocks on this chain, presented at the wrong height.",
+      "oracle-version": "observed mainnet, 2026-08-24; requirement list from core-geth v1.12.21-unstable at commit 4185df450",
+      "scope": "Asserting that a client REFUSES a chain presenting a wrong hash at one of these heights needs a chain-level runner, the same gap the emission and chain-selection fixtures record. What is here is the requirement itself, with counterexamples, and the observation that grounds it.",
+      "generated": "2026-08-24",
+      "whyThereIsNoWrongBuildScoreHere": "Every other fixture in this suite states a rule that can be reimplemented, so a deliberately wrong implementation can be written and scored against it. THIS ONE CANNOT, and the reason is worth stating rather than leaving as an apparent omission: it asserts a client's CONFIGURATION -- that two specific block hashes are required -- not the output of a computation. There is no arithmetic to get wrong. A client either carries the required hashes or does not, and the fixture separates those two states directly. Its discrimination has been demonstrated the other way instead, against real implementations rather than synthetic ones: the four clients consulted while authoring it do not agree, which is the strongest possible evidence that the assertion is not vacuous. The declinedForkExtraData half IS mechanically checkable and is the sharper half: a client that ported Ethereum's DAO header validator unchanged cannot sync past 1,920,000 on this chain, and it presents as a corrupt database rather than as a misconfigured fork."
+    },
+    "requiredHashes": [
+      {
+        "block": "1920000",
+        "hash": "0x94365e3a8c0b35089c1d1195081fe7489b528a84b22199c916180db8b28ade7f",
+        "role": "the declined fork",
+        "note": "The block Ethereum applied its irregular state change at. This chain did not, so the two chains hold different blocks at the same height -- and a client that requires THIS hash here cannot be walked onto the other chain by a peer offering it, whatever total difficulty that peer claims. It is the block-validation half of a refusal the fork identifier states at the peer layer."
+      },
+      {
+        "block": "2500000",
+        "hash": "0xca12c63534f565899681965528d536c52cb05b7c48e269c2a6cb77ad864d878a",
+        "role": "Gas Reprice",
+        "note": "Not about the declined fork. A checkpoint at this chain's own EIP-150 activation, and it is in the production client's requirement list beside the other one, so a fixture covering only the interesting one would under-report the rule."
+      }
+    ],
+    "vectors": [
+      {
+        "block": "1920000",
+        "hash": "0x94365e3a8c0b35089c1d1195081fe7489b528a84b22199c916180db8b28ade7f",
+        "accepted": true,
+        "note": "the required hash at the required height: accepted"
+      },
+      {
+        "block": "1920000",
+        "hash": "0xa218e2c611f21232d857e3c8cecdcdf1f65f25a4477f98f6f47e4063807f2308",
+        "accepted": false,
+        "hashTakenFrom": "block 1919999 of this chain",
+        "note": "A REAL hash from this chain, presented one block too late. Rejected. The control is deliberately a genuine hash rather than a fabricated one, because a client that checks only the SHAPE of the value passes a fabricated one for the wrong reason."
+      },
+      {
+        "block": "1920000",
+        "hash": "0xab7668dfd3bedcf9da505d69306e8fd12ad78116429cf8880a9942c6f0605b60",
+        "accepted": false,
+        "hashTakenFrom": "block 1920001 of this chain",
+        "note": "The same, one block too early. Rejected."
+      },
+      {
+        "block": "2500000",
+        "hash": "0xca12c63534f565899681965528d536c52cb05b7c48e269c2a6cb77ad864d878a",
+        "accepted": true,
+        "note": "the required hash at the required height: accepted"
+      },
+      {
+        "block": "2500000",
+        "hash": "0xe524f4a9e5452d29b5273da48910db8bf028ab0749b01db19b021c7312652192",
+        "accepted": false,
+        "hashTakenFrom": "block 2499999 of this chain",
+        "note": "Rejected. Paired with its successor below so the boundary is pinned from both sides."
+      },
+      {
+        "block": "2500000",
+        "hash": "0xc5afbcac4573e29f1b5a53eb08af189e3112e233c2a84fed53325c8efa785cd5",
+        "accepted": false,
+        "hashTakenFrom": "block 2500001 of this chain",
+        "note": "Rejected."
+      },
+      {
+        "block": "1919999",
+        "hash": "0xa218e2c611f21232d857e3c8cecdcdf1f65f25a4477f98f6f47e4063807f2308",
+        "accepted": true,
+        "note": "A height with NO requirement, carrying its own real hash: accepted. This vector exists to stop a harness passing the file by rejecting everything -- a check that refuses every block also refuses every wrong block."
+      },
+      {
+        "block": "1920001",
+        "hash": "0xab7668dfd3bedcf9da505d69306e8fd12ad78116429cf8880a9942c6f0605b60",
+        "accepted": true,
+        "note": "the other side of the same non-requirement: accepted."
+      }
+    ],
+    "declinedForkExtraData": {
+      "marker": "0x64616f2d686172642d666f726b",
+      "markerText": "dao-hard-fork",
+      "range": {
+        "from": "1920000",
+        "to": "1920009"
+      },
+      "mustCarryMarker": false,
+      "note": "On Ethereum every block in this range carries the marker above in its extraData, and a client following that chain REQUIRES it there. On this chain not one of the ten does -- they carry ordinary miner identifiers, eight of them one pool's and one another's. Read from an archive node on 2026-08-24 and recorded in full below, because the whole range is the claim: a single block could be a coincidence of what one miner happened to write. A client that ported Ethereum's DAO header validator unchanged rejects all ten of these blocks and cannot sync this chain past 1,920,000, which is a failure that looks like a corrupt database rather than like a misconfigured fork.",
+      "observed": [
+        {
+          "block": "1920000",
+          "extraData": "0xe4b883e5bda9e7a59ee4bb99e9b1bc",
+          "carriesMarker": false,
+          "miner": "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+        },
+        {
+          "block": "1920001",
+          "extraData": "0x65746865726d696e652e6f7267202855533129",
+          "carriesMarker": false,
+          "miner": "0xea674fdde714fd979de3edf0f56aa9716b898ec8"
+        },
+        {
+          "block": "1920002",
+          "extraData": "0xe4b883e5bda9e7a59ee4bb99e9b1bc",
+          "carriesMarker": false,
+          "miner": "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+        },
+        {
+          "block": "1920003",
+          "extraData": "0xe4b883e5bda9e7a59ee4bb99e9b1bc",
+          "carriesMarker": false,
+          "miner": "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+        },
+        {
+          "block": "1920004",
+          "extraData": "0xe4b883e5bda9e7a59ee4bb99e9b1bc",
+          "carriesMarker": false,
+          "miner": "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+        },
+        {
+          "block": "1920005",
+          "extraData": "0xe4b883e5bda9e7a59ee4bb99e9b1bc",
+          "carriesMarker": false,
+          "miner": "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+        },
+        {
+          "block": "1920006",
+          "extraData": "0xe4b883e5bda9e7a59ee4bb99e9b1bc",
+          "carriesMarker": false,
+          "miner": "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+        },
+        {
+          "block": "1920007",
+          "extraData": "0xe4b883e5bda9e7a59ee4bb99e9b1bc",
+          "carriesMarker": false,
+          "miner": "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+        },
+        {
+          "block": "1920008",
+          "extraData": "0xe4b883e5bda9e7a59ee4bb99e9b1bc",
+          "carriesMarker": false,
+          "miner": "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+        },
+        {
+          "block": "1920009",
+          "extraData": "0xe4b883e5bda9e7a59ee4bb99e9b1bc",
+          "carriesMarker": false,
+          "miner": "0x61c808d82a3ac53231750dadc13c777b59310bd9"
+        }
+      ]
+    }
+  }
+}
