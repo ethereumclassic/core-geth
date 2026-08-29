@@ -21,63 +21,15 @@
         "usesTheProposedHeadsTimestamp": "curve 11/11, decision 9/11. See below -- this is the one worth understanding."
       },
       "theTimestampIsTheLocalHeadsNotTheProposeds": "The curve is evaluated on (local head time - common ancestor time), NOT on the proposed head's. That distinction is the reason every decision vector here publishes all THREE timestamps rather than a single pre-computed delta: a fixture carrying only the delta cannot express which head it came from, and a reader would have to guess. It is worth guarding because the production client's own source invites the wrong guess -- the comment directly above the implementation states the rule with proposed.Time while the code two lines below uses current.Time, and the block comment further down agrees with the code. An implementer following the nearest comment writes the wrong one. Measured: that reading scores 9/11 here, so this file catches it.",
-      "MESSIsOPTIONALAndTheseBlocksAreADEFAULTNotAnActivation": "READ THIS BEFORE TREATING ANY VECTOR HERE AS MANDATORY. ECBP-1100 is a local chain-selection POLICY, not a consensus rule. A node running with it switched off is not thereby producing an invalid chain and is not non-conformant -- it is accepting reorganizations that a defended node would refuse. Nothing in a block header records whether the producer had MESS on. The two block numbers in this file are the window in which the client's BUNDLED configuration turns it on. They are not an activation in the sense every other height in this suite is.",
-      "theGateHasTWOLayersAndBothMustHold": "MESS fires only when the chain configuration's window is open AND the runtime toggle is on. The client's own comment on EnableArtificialFinality is explicit that the runtime layer sits BELOW the configuration: if the config has not activated ECBP-1100 at the current height, enabling it at runtime is a no-op. Conversely IsArtificialFinalityEnabled is documented as 'agnostic of feature activation by chain configuration', so the two states are tracked separately and a harness that models only one of them will mispredict.",
-      "everyPartOfTheWindowIsOperatorOverridable": {
-        "--ecbp1100": "Uint64. 'Manually specify the ECBP-1100 (MESS) block activation number, overriding the bundled setting.'",
-        "--override.ecbp1100.deactivate": "Uint64. The same for the deactivation block.",
-        "--ecbp1100.nodisable": "Bool, and in the client's DEPRECATED flag category. 'Short-circuit ECBP-1100 (MESS) disable mechanisms; yields a permanent-once-activated state, deactivating auto-shutoff mechanisms.'",
-        "whatThatImplies": "The client has AUTO-SHUTOFF mechanisms of its own, so even a node on stock settings inside the window may have MESS off at a given moment. 'Inside the window' is therefore not a prediction about any particular node."
-      },
       "whatAHarnessSHOULDAssertFromThisFile": "Assert the DECISION GIVEN THE RULE IS IN FORCE, never that a node must reject a reorganization. curveVectors, decisionVectors and subchainVectors are all conditional on MESS being active, and that is the useful thing to certify: an implementation that has the curve, the comparison or the subchain derivation wrong is wrong whenever it does run. windowVectors is the one part that is about configuration rather than arithmetic -- its `active` field means THE BUNDLED DEFAULT HAS MESS ENABLED AT THIS HEIGHT, and a harness must not read it as 'a conformant node refuses reorgs here'. Testing a node with MESS deliberately disabled against decisionVectors will fail it for being configured, not for being wrong.",
-      "theBlocksThemselvesAreCorrect": "Verified against the production client 2026-08-25: ECBP1100FBlock is 11,380,000 and ECBP1100DeactivateFBlock is 19,250,000, the latter coinciding with the Spiral hard fork. Only the FRAMING needed correcting -- this file previously described the window as the rule being 'active', which reads as consensus and is a stronger claim than the client makes.",
       "theDeniedFifthImplementationIsWhyUniversalNEGATIVESAreDangerous": "The sentence replaced above said no client outside this project had EVER implemented MESS. That is a claim about every client that exists, and it was made from a survey of the clients this project had cloned -- which is one instrument looking at one corpus. It was false when written or shortly after, and nothing about it read as unchecked. Where a fixture must characterize the wider ecosystem, write the smaller true claim naming what was actually searched.",
-      "whySpecFirstSOURCINGIsTheDefensiblePath": "The oracle above recomputes the curve from ECIP-1100's pseudocode rather than reading it back from a client, and there is a documented position behind that rather than only a preference. ECIPs issue #374 comment 706436742, 2020-10-09, records a Besu MESS implementation being deliberately abandoned, one stated reason being that deriving from core-geth's LGPL source would encumber an Apache-2.0 client. The author of both the specification and the core-geth implementation rebutted it the following day: the specification is primary and Apache-2.0, the client derivative of it. Sourcing from the specification is therefore the path that keeps a fixture usable by every license."
+      "whySpecFirstSOURCINGIsTheDefensiblePath": "The oracle above recomputes the curve from ECIP-1100's pseudocode rather than reading it back from a client, and there is a documented position behind that rather than only a preference. ECIPs issue #374 comment 706436742, 2020-10-09, records a Besu MESS implementation being deliberately abandoned, one stated reason being that deriving from core-geth's LGPL source would encumber an Apache-2.0 client. The author of both the specification and the core-geth implementation rebutted it the following day: the specification is primary and Apache-2.0, the client derivative of it. Sourcing from the specification is therefore the path that keeps a fixture usable by every license.",
+      "theWINDOWLAYERMOVEDOUT": "SPLIT 2026-08-29. activationBlock, deactivationBlock and windowVectors now live in mess_window.json beside this file, because they pin a CLIENT POLICY CHOICE while everything left here pins arithmetic every client must satisfy. A consumer previously had to know to skip that layer -- the production client vendored the whole file and skipped it in code -- and now does not. Nothing here changed in value. If you were reading the window from this file, read it from mess_window.json and read its _info first: more than one answer is now correct."
     },
-    "activationBlock": "11380000",
-    "deactivationBlock": "19250000",
     "curveDenominator": "128",
     "curveXCap": "25132",
     "curveAmplitude": "15",
     "curveHeight": "3840",
-    "windowVectors": [
-      {
-        "block": "0",
-        "active": false
-      },
-      {
-        "block": "11379999",
-        "active": false
-      },
-      {
-        "block": "11380000",
-        "active": true
-      },
-      {
-        "block": "11380001",
-        "active": true
-      },
-      {
-        "block": "15000000",
-        "active": true
-      },
-      {
-        "block": "19249999",
-        "active": true
-      },
-      {
-        "block": "19250000",
-        "active": false
-      },
-      {
-        "block": "19250001",
-        "active": false
-      },
-      {
-        "block": "25000000",
-        "active": false
-      }
-    ],
     "curveVectors": [
       {
         "timeDeltaSeconds": "0",
