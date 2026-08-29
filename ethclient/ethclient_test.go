@@ -1194,6 +1194,7 @@ var allRPCMethods = []string{
 	"debug_setHead",
 	"debug_setMutexProfileFraction",
 	"debug_setTrieFlushInterval",
+	"debug_snapshotGeneratorStatus",
 	"debug_stacks",
 	"debug_standardTraceBadBlockToFile",
 	"debug_standardTraceBlockToFile",
