@@ -20,10 +20,10 @@ jobs:
         - os: macos-latest
           BUILD_OS_NAME: osx
 
-        - os: ubuntu-20.04
+        - os: ubuntu-24.04
           BUILD_OS_NAME: linux
 
-        - os: ubuntu-20.04
+        - os: ubuntu-24.04
           BUILD_OS_NAME: arm
 
         - os: windows-latest
