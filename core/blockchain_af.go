@@ -119,7 +119,13 @@ func ecbp1100(commonAncestor, current, proposed *types.Header, getTDFunc func(co
 	proposedTD := new(big.Int).Add(proposed.Difficulty, proposedParentTD)
 	localTD := getTDFunc(current.Hash(), current.Number.Uint64())
 
-	// if proposed_subchain_td * CURVE_FUNCTION_DENOMINATOR < get_curve_function_numerator(proposed.Time - commonAncestor.Time) * local_subchain_td.
+	// if proposed_subchain_td * CURVE_FUNCTION_DENOMINATOR < get_curve_function_numerator(current.Time - commonAncestor.Time) * local_subchain_td.
+	//
+	// The curve's x is the LOCAL head's age, not the proposed head's. This comment said
+	// proposed.Time while the line below correctly used current.Time; ECIP-1100's own
+	// pseudocode says current.Time. Corrected rather than left, because a reader
+	// reimplementing from the comment would get the rule wrong in a way that only shows
+	// up when the two heads' timestamps differ.
 	proposedSubchainTD := new(big.Int).Sub(proposedTD, commonAncestorTD)
 	localSubchainTD := new(big.Int).Sub(localTD, commonAncestorTD)
 
