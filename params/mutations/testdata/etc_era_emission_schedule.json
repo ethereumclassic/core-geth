@@ -1,0 +1,1073 @@
+{
+  "eraEmissionSchedule": {
+    "_info": {
+      "comment": "The era emission schedule, in full, including the ommer accounting that the block-reward figure hides. Rewards are a function of height and, for an ommer, of how far back it was mined -- no state, no transaction -- so these are computable and checkable without executing a block. THREE PAYMENTS ARE MADE PER BLOCK, not one: the winner's base reward, an includer bonus to the winner for each ommer carried, and a payment to each ommer's own miner. Only the first is what people mean by 'the block reward', and it is the one this upgrade changes least. THE ACTIVATION IS A NON-EVENT: the rule takes effect at 5,000,000 but that block is in era 0, whose reward is the unchanged 5e18, so nothing moves until 5,000,001. A fixture aimed at the activation height alone passes against a client that never implemented the rule. WHAT ACTUALLY CHANGES: through era 0 an ommer's miner is paid on recency, (8 - distance)/8 of the full reward, so the six valid distances pay six different amounts from 4.375e18 down to 1.25e18. From era 1 that is replaced by a flat thirty-second of the era reward and all six become identical. The shape change is the rule, which is why every vector carries all six distances and a flag saying whether they still differ. THE EFFECT ON MONETARY POLICY IS MUCH LARGER THAN THE BASE REWARD SUGGESTS. A maximally ommer-laden block issues 14.0625e18 in era 0 and 4.5e18 in era 1 -- a fall of 3.125 times, against the base reward's 1.25. And per-block issuance stops varying: the ratio of maximum to base is 2.8125 in era 0 and exactly 1.125 in every era after, forever. This upgrade did not only reduce emission, it made emission nearly deterministic per block, and that is the property the network has since ossified around.",
+      "ghostInvariants": "ECIP-1017 changes payments only. It does not touch ommer VALIDATION, and the two must agree or the reward formula pays for a block that should not have been accepted. At most 2 ommers per block; the ancestor walk is 7 deep; an ommer's parent must be one of those ancestors and must not be the block's own parent, which makes the valid distances exactly 1 through 6. The era-0 formula is defined past that range -- distance 7 would pay an eighth of the reward and distance 8 nothing -- but GHOST makes both unreachable. A client whose validation admitted a distance-7 ommer would therefore mint currency no other client mints, which is why the invariant is recorded beside the amounts rather than left to the validation suite.",
+      "oracle": "Computed independently from ECIP-1017 and cross-checked against the production client's own reward vectors: eleven block numbers for the winner reward and eleven for the ommer reward, all agreeing. The ommer test there draws its distance at random, so it exercises the formula without pinning any particular distance; these vectors pin all six.",
+      "scope": "Emission values, not block-level state transitions. Asserting that a mined block credits these amounts still needs a block-level runner, which the transition tool cannot supply: its reward flag is one flat value applied uniformly and never consults the era schedule.",
+      "generated": "2026-08-23",
+      "observedGrounding": "Every value in this fixture is confirmed against mainnet, not only against a client. Forty-two zero-transaction zero-ommer blocks give an exact static reward, sampled ACROSS each era rather than once per era so that a reward drifting WITHIN an era would show; eight boundary-adjacent blocks confirm the reduction lands after the boundary rather than on it; and seven ommer-bearing blocks confirm the reward formula at ALL SIX valid distances in era 0 and at one distance in era 1, which is what turns the era-1 flattening from a computed claim into an observed one. See observedMainnet.",
+      "decayArithmetic": "The era reward is `5e18 * 4**era / 5**era` with a SINGLE truncating division at the end, not the reduction applied era by era. core-geth's GetBlockWinnerRewardByEra raises both the quotient and the divisor to the era and divides once; iterating truncates at every step. The two readings agree for every era through 20 and diverge from ERA 21 onward, by one wei at eras 21 to 23 and by two at era 24. Era 21 begins at block 105,000,001, so no chain has reached the difference and nothing observed can settle it -- which is exactly why it is pinned here rather than left to be discovered by whichever client gets there first. The era index itself is GetBlockEra's: remainder = (n-1) mod eraLength, base = n - remainder, era = base / eraLength, which is what puts the reduction at the boundary PLUS ONE.",
+      "wrongBuildScores": {
+        "method": "Scored 2026-08-25 by reimplementing ECIP-1017 from the specification and breaking it one parameter at a time. The correct reimplementation reproduces all 17 vectors, which makes it a second oracle for this file.",
+        "correct": "17/17",
+        "includerBonusDividedBy16": "0/17",
+        "disinflation4over5to3over4": "3/17",
+        "era0UncleFormulaUsedAtAllEras": "3/17",
+        "eraFromBlockWithoutTheMinusOne": "13/17",
+        "uncleDenominator8to7": "14/17",
+        "truncatesEveryEraInsteadOfOnce": "14/17 -- see below; this is the one worth understanding"
+      },
+      "theTruncationOrderIsPartOfTheRule": "The reward for era n is 5 ETC * 4^n / 5^n -- ONE division, taken at the end. It is NOT the same as multiplying by 4/5 once per era and truncating each time, which is the natural reading of 'reduced by twenty percent each era' and is what a first implementation here actually did. The two agree for twenty eras and then diverge: era 21 differs by 1 wei, era 24 by 2. A client taking the natural reading is correct for roughly a century of blocks and then forks. Confirmed against the production client, which computes r.Mul(blockReward, q); r.Div(r, d) with q = 4^era and d = 5^era, and carries the identity in its own comment: (q/d)**n == q**n / d**n. The high-era vectors in this file exist for exactly this reason -- they look like padding and they are the only part of the file that separates the two readings."
+    },
+    "eraLength": "5000000",
+    "activationBlock": "5000000",
+    "maxOmmersPerBlock": "2",
+    "ancestorWindow": "7",
+    "validOmmerDistances": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    "vectors": [
+      {
+        "block": "1",
+        "era": "0",
+        "winnerBaseReward": "5000000000000000000",
+        "includerBonusPerUncle": "156250000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "4375000000000000000",
+          "2": "3750000000000000000",
+          "3": "3125000000000000000",
+          "4": "2500000000000000000",
+          "5": "1875000000000000000",
+          "6": "1250000000000000000"
+        },
+        "uncleRewardDependsOnDistance": true,
+        "totalIssuance": {
+          "noUncles": "5000000000000000000",
+          "oneUncleByDistance": {
+            "1": "9531250000000000000",
+            "2": "8906250000000000000",
+            "3": "8281250000000000000",
+            "4": "7656250000000000000",
+            "5": "7031250000000000000",
+            "6": "6406250000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "14062500000000000000",
+            "2": "12812500000000000000",
+            "3": "11562500000000000000",
+            "4": "10312500000000000000",
+            "5": "9062500000000000000",
+            "6": "7812500000000000000"
+          }
+        },
+        "maxIssuance": "14062500000000000000",
+        "maxIssuanceOverBaseReward": "2.812500"
+      },
+      {
+        "block": "4999999",
+        "era": "0",
+        "winnerBaseReward": "5000000000000000000",
+        "includerBonusPerUncle": "156250000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "4375000000000000000",
+          "2": "3750000000000000000",
+          "3": "3125000000000000000",
+          "4": "2500000000000000000",
+          "5": "1875000000000000000",
+          "6": "1250000000000000000"
+        },
+        "uncleRewardDependsOnDistance": true,
+        "totalIssuance": {
+          "noUncles": "5000000000000000000",
+          "oneUncleByDistance": {
+            "1": "9531250000000000000",
+            "2": "8906250000000000000",
+            "3": "8281250000000000000",
+            "4": "7656250000000000000",
+            "5": "7031250000000000000",
+            "6": "6406250000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "14062500000000000000",
+            "2": "12812500000000000000",
+            "3": "11562500000000000000",
+            "4": "10312500000000000000",
+            "5": "9062500000000000000",
+            "6": "7812500000000000000"
+          }
+        },
+        "maxIssuance": "14062500000000000000",
+        "maxIssuanceOverBaseReward": "2.812500"
+      },
+      {
+        "block": "5000000",
+        "era": "0",
+        "winnerBaseReward": "5000000000000000000",
+        "includerBonusPerUncle": "156250000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "4375000000000000000",
+          "2": "3750000000000000000",
+          "3": "3125000000000000000",
+          "4": "2500000000000000000",
+          "5": "1875000000000000000",
+          "6": "1250000000000000000"
+        },
+        "uncleRewardDependsOnDistance": true,
+        "totalIssuance": {
+          "noUncles": "5000000000000000000",
+          "oneUncleByDistance": {
+            "1": "9531250000000000000",
+            "2": "8906250000000000000",
+            "3": "8281250000000000000",
+            "4": "7656250000000000000",
+            "5": "7031250000000000000",
+            "6": "6406250000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "14062500000000000000",
+            "2": "12812500000000000000",
+            "3": "11562500000000000000",
+            "4": "10312500000000000000",
+            "5": "9062500000000000000",
+            "6": "7812500000000000000"
+          }
+        },
+        "maxIssuance": "14062500000000000000",
+        "maxIssuanceOverBaseReward": "2.812500"
+      },
+      {
+        "block": "5000001",
+        "era": "1",
+        "winnerBaseReward": "4000000000000000000",
+        "includerBonusPerUncle": "125000000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "125000000000000000",
+          "2": "125000000000000000",
+          "3": "125000000000000000",
+          "4": "125000000000000000",
+          "5": "125000000000000000",
+          "6": "125000000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "4000000000000000000",
+          "oneUncleByDistance": {
+            "1": "4250000000000000000",
+            "2": "4250000000000000000",
+            "3": "4250000000000000000",
+            "4": "4250000000000000000",
+            "5": "4250000000000000000",
+            "6": "4250000000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "4500000000000000000",
+            "2": "4500000000000000000",
+            "3": "4500000000000000000",
+            "4": "4500000000000000000",
+            "5": "4500000000000000000",
+            "6": "4500000000000000000"
+          }
+        },
+        "maxIssuance": "4500000000000000000",
+        "maxIssuanceOverBaseReward": "1.125000"
+      },
+      {
+        "block": "9999999",
+        "era": "1",
+        "winnerBaseReward": "4000000000000000000",
+        "includerBonusPerUncle": "125000000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "125000000000000000",
+          "2": "125000000000000000",
+          "3": "125000000000000000",
+          "4": "125000000000000000",
+          "5": "125000000000000000",
+          "6": "125000000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "4000000000000000000",
+          "oneUncleByDistance": {
+            "1": "4250000000000000000",
+            "2": "4250000000000000000",
+            "3": "4250000000000000000",
+            "4": "4250000000000000000",
+            "5": "4250000000000000000",
+            "6": "4250000000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "4500000000000000000",
+            "2": "4500000000000000000",
+            "3": "4500000000000000000",
+            "4": "4500000000000000000",
+            "5": "4500000000000000000",
+            "6": "4500000000000000000"
+          }
+        },
+        "maxIssuance": "4500000000000000000",
+        "maxIssuanceOverBaseReward": "1.125000"
+      },
+      {
+        "block": "10000000",
+        "era": "1",
+        "winnerBaseReward": "4000000000000000000",
+        "includerBonusPerUncle": "125000000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "125000000000000000",
+          "2": "125000000000000000",
+          "3": "125000000000000000",
+          "4": "125000000000000000",
+          "5": "125000000000000000",
+          "6": "125000000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "4000000000000000000",
+          "oneUncleByDistance": {
+            "1": "4250000000000000000",
+            "2": "4250000000000000000",
+            "3": "4250000000000000000",
+            "4": "4250000000000000000",
+            "5": "4250000000000000000",
+            "6": "4250000000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "4500000000000000000",
+            "2": "4500000000000000000",
+            "3": "4500000000000000000",
+            "4": "4500000000000000000",
+            "5": "4500000000000000000",
+            "6": "4500000000000000000"
+          }
+        },
+        "maxIssuance": "4500000000000000000",
+        "maxIssuanceOverBaseReward": "1.125000"
+      },
+      {
+        "block": "10000001",
+        "era": "2",
+        "winnerBaseReward": "3200000000000000000",
+        "includerBonusPerUncle": "100000000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "100000000000000000",
+          "2": "100000000000000000",
+          "3": "100000000000000000",
+          "4": "100000000000000000",
+          "5": "100000000000000000",
+          "6": "100000000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "3200000000000000000",
+          "oneUncleByDistance": {
+            "1": "3400000000000000000",
+            "2": "3400000000000000000",
+            "3": "3400000000000000000",
+            "4": "3400000000000000000",
+            "5": "3400000000000000000",
+            "6": "3400000000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "3600000000000000000",
+            "2": "3600000000000000000",
+            "3": "3600000000000000000",
+            "4": "3600000000000000000",
+            "5": "3600000000000000000",
+            "6": "3600000000000000000"
+          }
+        },
+        "maxIssuance": "3600000000000000000",
+        "maxIssuanceOverBaseReward": "1.125000"
+      },
+      {
+        "block": "14999999",
+        "era": "2",
+        "winnerBaseReward": "3200000000000000000",
+        "includerBonusPerUncle": "100000000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "100000000000000000",
+          "2": "100000000000000000",
+          "3": "100000000000000000",
+          "4": "100000000000000000",
+          "5": "100000000000000000",
+          "6": "100000000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "3200000000000000000",
+          "oneUncleByDistance": {
+            "1": "3400000000000000000",
+            "2": "3400000000000000000",
+            "3": "3400000000000000000",
+            "4": "3400000000000000000",
+            "5": "3400000000000000000",
+            "6": "3400000000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "3600000000000000000",
+            "2": "3600000000000000000",
+            "3": "3600000000000000000",
+            "4": "3600000000000000000",
+            "5": "3600000000000000000",
+            "6": "3600000000000000000"
+          }
+        },
+        "maxIssuance": "3600000000000000000",
+        "maxIssuanceOverBaseReward": "1.125000"
+      },
+      {
+        "block": "15000000",
+        "era": "2",
+        "winnerBaseReward": "3200000000000000000",
+        "includerBonusPerUncle": "100000000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "100000000000000000",
+          "2": "100000000000000000",
+          "3": "100000000000000000",
+          "4": "100000000000000000",
+          "5": "100000000000000000",
+          "6": "100000000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "3200000000000000000",
+          "oneUncleByDistance": {
+            "1": "3400000000000000000",
+            "2": "3400000000000000000",
+            "3": "3400000000000000000",
+            "4": "3400000000000000000",
+            "5": "3400000000000000000",
+            "6": "3400000000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "3600000000000000000",
+            "2": "3600000000000000000",
+            "3": "3600000000000000000",
+            "4": "3600000000000000000",
+            "5": "3600000000000000000",
+            "6": "3600000000000000000"
+          }
+        },
+        "maxIssuance": "3600000000000000000",
+        "maxIssuanceOverBaseReward": "1.125000"
+      },
+      {
+        "block": "15000001",
+        "era": "3",
+        "winnerBaseReward": "2560000000000000000",
+        "includerBonusPerUncle": "80000000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "80000000000000000",
+          "2": "80000000000000000",
+          "3": "80000000000000000",
+          "4": "80000000000000000",
+          "5": "80000000000000000",
+          "6": "80000000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "2560000000000000000",
+          "oneUncleByDistance": {
+            "1": "2720000000000000000",
+            "2": "2720000000000000000",
+            "3": "2720000000000000000",
+            "4": "2720000000000000000",
+            "5": "2720000000000000000",
+            "6": "2720000000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "2880000000000000000",
+            "2": "2880000000000000000",
+            "3": "2880000000000000000",
+            "4": "2880000000000000000",
+            "5": "2880000000000000000",
+            "6": "2880000000000000000"
+          }
+        },
+        "maxIssuance": "2880000000000000000",
+        "maxIssuanceOverBaseReward": "1.125000"
+      },
+      {
+        "block": "19999999",
+        "era": "3",
+        "winnerBaseReward": "2560000000000000000",
+        "includerBonusPerUncle": "80000000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "80000000000000000",
+          "2": "80000000000000000",
+          "3": "80000000000000000",
+          "4": "80000000000000000",
+          "5": "80000000000000000",
+          "6": "80000000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "2560000000000000000",
+          "oneUncleByDistance": {
+            "1": "2720000000000000000",
+            "2": "2720000000000000000",
+            "3": "2720000000000000000",
+            "4": "2720000000000000000",
+            "5": "2720000000000000000",
+            "6": "2720000000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "2880000000000000000",
+            "2": "2880000000000000000",
+            "3": "2880000000000000000",
+            "4": "2880000000000000000",
+            "5": "2880000000000000000",
+            "6": "2880000000000000000"
+          }
+        },
+        "maxIssuance": "2880000000000000000",
+        "maxIssuanceOverBaseReward": "1.125000"
+      },
+      {
+        "block": "20000000",
+        "era": "3",
+        "winnerBaseReward": "2560000000000000000",
+        "includerBonusPerUncle": "80000000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "80000000000000000",
+          "2": "80000000000000000",
+          "3": "80000000000000000",
+          "4": "80000000000000000",
+          "5": "80000000000000000",
+          "6": "80000000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "2560000000000000000",
+          "oneUncleByDistance": {
+            "1": "2720000000000000000",
+            "2": "2720000000000000000",
+            "3": "2720000000000000000",
+            "4": "2720000000000000000",
+            "5": "2720000000000000000",
+            "6": "2720000000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "2880000000000000000",
+            "2": "2880000000000000000",
+            "3": "2880000000000000000",
+            "4": "2880000000000000000",
+            "5": "2880000000000000000",
+            "6": "2880000000000000000"
+          }
+        },
+        "maxIssuance": "2880000000000000000",
+        "maxIssuanceOverBaseReward": "1.125000"
+      },
+      {
+        "block": "20000001",
+        "era": "4",
+        "winnerBaseReward": "2048000000000000000",
+        "includerBonusPerUncle": "64000000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "64000000000000000",
+          "2": "64000000000000000",
+          "3": "64000000000000000",
+          "4": "64000000000000000",
+          "5": "64000000000000000",
+          "6": "64000000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "2048000000000000000",
+          "oneUncleByDistance": {
+            "1": "2176000000000000000",
+            "2": "2176000000000000000",
+            "3": "2176000000000000000",
+            "4": "2176000000000000000",
+            "5": "2176000000000000000",
+            "6": "2176000000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "2304000000000000000",
+            "2": "2304000000000000000",
+            "3": "2304000000000000000",
+            "4": "2304000000000000000",
+            "5": "2304000000000000000",
+            "6": "2304000000000000000"
+          }
+        },
+        "maxIssuance": "2304000000000000000",
+        "maxIssuanceOverBaseReward": "1.125000"
+      },
+      {
+        "block": "25000001",
+        "era": "5",
+        "winnerBaseReward": "1638400000000000000",
+        "includerBonusPerUncle": "51200000000000000",
+        "uncleMinerRewardByDistance": {
+          "1": "51200000000000000",
+          "2": "51200000000000000",
+          "3": "51200000000000000",
+          "4": "51200000000000000",
+          "5": "51200000000000000",
+          "6": "51200000000000000"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "1638400000000000000",
+          "oneUncleByDistance": {
+            "1": "1740800000000000000",
+            "2": "1740800000000000000",
+            "3": "1740800000000000000",
+            "4": "1740800000000000000",
+            "5": "1740800000000000000",
+            "6": "1740800000000000000"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "1843200000000000000",
+            "2": "1843200000000000000",
+            "3": "1843200000000000000",
+            "4": "1843200000000000000",
+            "5": "1843200000000000000",
+            "6": "1843200000000000000"
+          }
+        },
+        "maxIssuance": "1843200000000000000",
+        "maxIssuanceOverBaseReward": "1.125000",
+        "note": "era 5, the era this chain is in today. Grounded in observedMainnet."
+      },
+      {
+        "block": "105000001",
+        "era": "21",
+        "winnerBaseReward": "46116860184273879",
+        "includerBonusPerUncle": "1441151880758558",
+        "uncleMinerRewardByDistance": {
+          "1": "1441151880758558",
+          "2": "1441151880758558",
+          "3": "1441151880758558",
+          "4": "1441151880758558",
+          "5": "1441151880758558",
+          "6": "1441151880758558"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "46116860184273879",
+          "oneUncleByDistance": {
+            "1": "48999163945790995",
+            "2": "48999163945790995",
+            "3": "48999163945790995",
+            "4": "48999163945790995",
+            "5": "48999163945790995",
+            "6": "48999163945790995"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "51881467707308111",
+            "2": "51881467707308111",
+            "3": "51881467707308111",
+            "4": "51881467707308111",
+            "5": "51881467707308111",
+            "6": "51881467707308111"
+          }
+        },
+        "maxIssuance": "51881467707308111",
+        "maxIssuanceOverBaseReward": "1.125000",
+        "note": "ERA 21, WHERE TWO PLAUSIBLE READINGS OF THE DECAY DIVERGE. The client computes base * 4**era / 5**era with a SINGLE truncating division. Iterating the reduction -- multiply by 4, divide by 5, twenty-one times -- truncates at every step and arrives one wei lower here. The two agree at every era this chain has reached, so nothing before this block can tell them apart."
+      },
+      {
+        "block": "110000001",
+        "era": "22",
+        "winnerBaseReward": "36893488147419103",
+        "includerBonusPerUncle": "1152921504606846",
+        "uncleMinerRewardByDistance": {
+          "1": "1152921504606846",
+          "2": "1152921504606846",
+          "3": "1152921504606846",
+          "4": "1152921504606846",
+          "5": "1152921504606846",
+          "6": "1152921504606846"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "36893488147419103",
+          "oneUncleByDistance": {
+            "1": "39199331156632795",
+            "2": "39199331156632795",
+            "3": "39199331156632795",
+            "4": "39199331156632795",
+            "5": "39199331156632795",
+            "6": "39199331156632795"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "41505174165846487",
+            "2": "41505174165846487",
+            "3": "41505174165846487",
+            "4": "41505174165846487",
+            "5": "41505174165846487",
+            "6": "41505174165846487"
+          }
+        },
+        "maxIssuance": "41505174165846487",
+        "maxIssuanceOverBaseReward": "1.125000",
+        "note": "era 22. The divergence persists rather than being a one-off rounding coincidence."
+      },
+      {
+        "block": "120000001",
+        "era": "24",
+        "winnerBaseReward": "23611832414348226",
+        "includerBonusPerUncle": "737869762948382",
+        "uncleMinerRewardByDistance": {
+          "1": "737869762948382",
+          "2": "737869762948382",
+          "3": "737869762948382",
+          "4": "737869762948382",
+          "5": "737869762948382",
+          "6": "737869762948382"
+        },
+        "uncleRewardDependsOnDistance": false,
+        "totalIssuance": {
+          "noUncles": "23611832414348226",
+          "oneUncleByDistance": {
+            "1": "25087571940244990",
+            "2": "25087571940244990",
+            "3": "25087571940244990",
+            "4": "25087571940244990",
+            "5": "25087571940244990",
+            "6": "25087571940244990"
+          },
+          "twoUnclesBothAtDistance": {
+            "1": "26563311466141754",
+            "2": "26563311466141754",
+            "3": "26563311466141754",
+            "4": "26563311466141754",
+            "5": "26563311466141754",
+            "6": "26563311466141754"
+          }
+        },
+        "maxIssuance": "26563311466141754",
+        "maxIssuanceOverBaseReward": "1.125000",
+        "note": "era 24, where the gap is TWO wei rather than one -- so a client that patched the era-21 case with an off-by-one adjustment is still wrong here."
+      }
+    ],
+    "observedMainnet": {
+      "method": "Miner balance delta across a single block, read from archive state at the block and its parent. This is the chain's own record rather than any client's computation, so it settles disagreements between implementations instead of adding another opinion to them.",
+      "source": "an archive node serving eth_getBalance at historical heights; sweeps of 2026-08-23 and 2026-08-24",
+      "emptyBlockBaselines": {
+        "note": "Zero transactions and zero ommers, so the delta IS the static reward with no fee component and nothing else to subtract. Sampled ACROSS each era rather than once per era, at eight points spread from two percent to ninety-nine percent of the era's span, because one block per era proves the reward is right at six heights and says nothing about whether it drifts within one. Every sample matches the computed schedule exactly. Era 5 carries fewer samples than the others and that is not a gap: it extends to block 30,000,000 and the chain has not reached it, so most of its probe points are in the future -- which makes this the one part of the fixture that gains coverage by the passage of time rather than by anyone editing it.",
+        "perEraSampleCount": {
+          "0": "9",
+          "1": "8",
+          "2": "8",
+          "3": "8",
+          "4": "8",
+          "5": "1"
+        },
+        "blocks": [
+          {
+            "block": "100000",
+            "era": "0",
+            "observedDeltaWei": "5000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "750003",
+            "era": "0",
+            "observedDeltaWei": "5000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "1500009",
+            "era": "0",
+            "observedDeltaWei": "5000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "2250004",
+            "era": "0",
+            "observedDeltaWei": "5000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "3000000",
+            "era": "0",
+            "observedDeltaWei": "5000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "3750002",
+            "era": "0",
+            "observedDeltaWei": "5000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "4500002",
+            "era": "0",
+            "observedDeltaWei": "5000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "4900002",
+            "era": "0",
+            "observedDeltaWei": "5000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "4950001",
+            "era": "0",
+            "observedDeltaWei": "5000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "5100001",
+            "era": "1",
+            "observedDeltaWei": "4000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "5750000",
+            "era": "1",
+            "observedDeltaWei": "4000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "6500001",
+            "era": "1",
+            "observedDeltaWei": "4000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "7250000",
+            "era": "1",
+            "observedDeltaWei": "4000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "8000000",
+            "era": "1",
+            "observedDeltaWei": "4000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "8750001",
+            "era": "1",
+            "observedDeltaWei": "4000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "9500001",
+            "era": "1",
+            "observedDeltaWei": "4000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "9950001",
+            "era": "1",
+            "observedDeltaWei": "4000000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "10100000",
+            "era": "2",
+            "observedDeltaWei": "3200000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "10750001",
+            "era": "2",
+            "observedDeltaWei": "3200000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "11500000",
+            "era": "2",
+            "observedDeltaWei": "3200000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "12250000",
+            "era": "2",
+            "observedDeltaWei": "3200000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "13000005",
+            "era": "2",
+            "observedDeltaWei": "3200000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "13750002",
+            "era": "2",
+            "observedDeltaWei": "3200000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "14500000",
+            "era": "2",
+            "observedDeltaWei": "3200000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "14950007",
+            "era": "2",
+            "observedDeltaWei": "3200000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "15100002",
+            "era": "3",
+            "observedDeltaWei": "2560000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "15750001",
+            "era": "3",
+            "observedDeltaWei": "2560000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "16500000",
+            "era": "3",
+            "observedDeltaWei": "2560000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "17250000",
+            "era": "3",
+            "observedDeltaWei": "2560000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "18000000",
+            "era": "3",
+            "observedDeltaWei": "2560000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "18750000",
+            "era": "3",
+            "observedDeltaWei": "2560000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "19500013",
+            "era": "3",
+            "observedDeltaWei": "2560000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "19950000",
+            "era": "3",
+            "observedDeltaWei": "2560000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "20100003",
+            "era": "4",
+            "observedDeltaWei": "2048000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "20750000",
+            "era": "4",
+            "observedDeltaWei": "2048000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "21500000",
+            "era": "4",
+            "observedDeltaWei": "2048000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "22250002",
+            "era": "4",
+            "observedDeltaWei": "2048000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "23000001",
+            "era": "4",
+            "observedDeltaWei": "2048000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "23750000",
+            "era": "4",
+            "observedDeltaWei": "2048000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "24500000",
+            "era": "4",
+            "observedDeltaWei": "2048000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "24950000",
+            "era": "4",
+            "observedDeltaWei": "2048000000000000000",
+            "matchesComputed": true
+          },
+          {
+            "block": "25100000",
+            "era": "5",
+            "observedDeltaWei": "1638400000000000000",
+            "matchesComputed": true
+          }
+        ]
+      },
+      "eraBoundaries": {
+        "note": "THE REDUCTION LANDS AT BOUNDARY PLUS ONE, NEVER AT THE BOUNDARY. A block at an exact multiple of the era length is the LAST block of the outgoing era, not the first of the incoming one. Verified at all four transitions against chain state. The deltas here include transaction fees, so read the integer part.",
+        "blocks": [
+          {
+            "block": "4999999",
+            "observedDeltaWei": "5002226000000000000",
+            "impliedBaseWei": "5000000000000000000"
+          },
+          {
+            "block": "5000000",
+            "observedDeltaWei": "5002214544000000000",
+            "impliedBaseWei": "5000000000000000000",
+            "note": "last block of era 1 -- still 5"
+          },
+          {
+            "block": "5000002",
+            "observedDeltaWei": "4000627900000000000",
+            "impliedBaseWei": "4000000000000000000"
+          },
+          {
+            "block": "10000000",
+            "observedDeltaWei": "4001260116000000000",
+            "impliedBaseWei": "4000000000000000000",
+            "note": "last block of era 2 -- still 4"
+          },
+          {
+            "block": "10000002",
+            "observedDeltaWei": "3200000000000000000",
+            "impliedBaseWei": "3200000000000000000"
+          },
+          {
+            "block": "15000000",
+            "observedDeltaWei": "3302194713000000000",
+            "impliedBaseWei": "3200000000000000000",
+            "note": "last block of era 3, carrying one ommer: 3.2 base plus a 0.1 includer bonus plus fees"
+          },
+          {
+            "block": "20000000",
+            "observedDeltaWei": "2560242043000000000",
+            "impliedBaseWei": "2560000000000000000",
+            "note": "last block of era 4 -- still 2.56"
+          },
+          {
+            "block": "20000002",
+            "observedDeltaWei": "2048021000000000000",
+            "impliedBaseWei": "2048000000000000000"
+          }
+        ]
+      },
+      "ommerPayments": {
+        "note": "Observed ommer payouts, with the ommer's own height resolved from its hash rather than inferred from the amount, which would be circular -- an ommer's reward IMPLIES its distance under the era-0 formula, so reading the distance off the reward and then declaring the reward correct proves nothing. Every row below carries a resolved ommerHeight and distance = block - ommerHeight. Three further confounds are excluded and each has to be, because a balance delta is only one payment when nothing else pays that address in that block: every block here carries exactly ONE ommer, the ommer's miner is NOT the includer, and transactionsInBlock says whether a fee term is present in the includer's delta. The first sweep for these hit two of those confounds -- a block where the ommer's miner was also the includer, and one with two ommers -- and both read as a reward formula being wrong when nothing was wrong but the measurement.",
+        "allSixDistancesObserved": true,
+        "blocks": [
+          {
+            "block": "1000356",
+            "era": "0",
+            "ommerHeight": "1000353",
+            "distance": "3",
+            "ommerRewardWei": "3125000000000000000",
+            "includerDeltaWei": "5156250000000000000",
+            "includerBonusWei": "156250000000000000",
+            "transactionsInBlock": "0",
+            "ommerMinerIsNotIncluder": true,
+            "note": "distance three, and the first observation of it anywhere in this suite. Zero transactions, so the includer's delta is the base reward plus the bonus with no fee term at all: five eighths of five to the ommer's miner, 5.15625 to the includer."
+          },
+          {
+            "block": "1000501",
+            "era": "0",
+            "ommerHeight": "1000497",
+            "distance": "4",
+            "ommerRewardWei": "2500000000000000000",
+            "includerDeltaWei": "5156250000000000000",
+            "includerBonusWei": "156250000000000000",
+            "transactionsInBlock": "0",
+            "ommerMinerIsNotIncluder": true,
+            "note": "distance four, zero transactions. Four eighths of five."
+          },
+          {
+            "block": "1001792",
+            "era": "0",
+            "ommerHeight": "1001787",
+            "distance": "5",
+            "ommerRewardWei": "1875000000000000000",
+            "includerDeltaWei": "5156250000000000000",
+            "includerBonusWei": "156250000000000000",
+            "transactionsInBlock": "0",
+            "ommerMinerIsNotIncluder": true,
+            "note": "distance five, zero transactions. Three eighths of five."
+          },
+          {
+            "block": "1200179",
+            "era": "0",
+            "ommerHeight": "1200173",
+            "distance": "6",
+            "ommerRewardWei": "1250000000000000000",
+            "includerDeltaWei": "5156250000000000000",
+            "includerBonusWei": "156250000000000000",
+            "transactionsInBlock": "0",
+            "ommerMinerIsNotIncluder": true,
+            "note": "distance six, zero transactions -- the greatest distance the ancestor window admits, and the smallest era-0 ommer reward that exists. Two eighths of five."
+          },
+          {
+            "block": "3000012",
+            "era": "0",
+            "ommerHeight": "3000010",
+            "distance": "2",
+            "ommerRewardWei": "3750000000000000000",
+            "includerDeltaWei": "5156973260000000000",
+            "includerBonusWei": "156250000000000000",
+            "transactionsInBlock": "1",
+            "ommerMinerIsNotIncluder": true,
+            "note": "distance two. The block carries one transaction, so the includer's delta exceeds the base plus bonus by exactly that transaction's fee; the ommer miner's delta carries no fee term and is exact."
+          },
+          {
+            "block": "4500004",
+            "era": "0",
+            "ommerHeight": "4500003",
+            "distance": "1",
+            "ommerRewardWei": "4375000000000000000",
+            "includerDeltaWei": "5156250000000000000",
+            "includerBonusWei": "156250000000000000",
+            "transactionsInBlock": "0",
+            "ommerMinerIsNotIncluder": true,
+            "note": "distance one, zero transactions, so both deltas are exact. Seven eighths of five."
+          },
+          {
+            "block": "6000003",
+            "era": "1",
+            "ommerHeight": "5999999",
+            "distance": "4",
+            "ommerRewardWei": "125000000000000000",
+            "includerDeltaWei": "4192002516400000000",
+            "includerBonusWei": "125000000000000000",
+            "transactionsInBlock": "16",
+            "ommerMinerIsNotIncluder": true,
+            "note": "ERA 1 AT DISTANCE FOUR, and the pair to make of it is with block 1,000,501 above -- the same distance, in era 0, paying 2.5 ETC against this block's 0.125. That is the rule change observed rather than computed: from era 1 the ommer's miner is paid a flat thirty-second of the base reward whatever the distance, and the same amount the includer is paid for including it. The includer's delta here carries the fees of sixteen transactions."
+          }
+        ]
+      },
+      "explorerDiscrepancy": {
+        "summary": "A widely used block explorer reports the reduced reward AT each era boundary rather than after it, understating four blocks in this chain's history: 5,000,000, 10,000,000, 15,000,000 and 20,000,000.",
+        "evidence": "At block 5,000,000 it reports 4.002214544 where chain state shows a delta of 5.002214544 -- exactly one ETC less, with a byte-identical fee component, which identifies the error as the era selection and not the fee accounting. Both its v1 and v2 endpoints return the same wrong figure, so it is in the reward logic rather than a legacy endpoint.",
+        "verdict": "The specification, the production client, the Parity-lineage client and the chain's own state all agree on the later boundary. The explorer is the only source that disagrees, and it is wrong. Recorded here because an explorer is what most people check, so a fixture asserting the correct value is the thing that survives the disagreement."
+      },
+      "chainHead": {
+        "observed": "25209171",
+        "era": "5",
+        "checkedOn": "2026-08-24",
+        "note": "Era 5 pays 1.6384 ETC and runs to block 30,000,000. This is the one figure in the suite that goes stale by the passage of time rather than by anyone changing anything: when the head crosses 30,000,000 a sixth era begins and the vectors should gain one. Recorded so the check is a comparison rather than a rediscovery."
+      }
+    }
+  }
+}
