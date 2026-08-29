@@ -1,0 +1,279 @@
+{
+  "forkIdentifierMainnet": {
+    "_info": {
+      "comment": "Fork identifiers across this chain's whole schedule. Each vector is the pair a node announces at a given head: a checksum over the genesis hash and every fork block already passed, and the next fork block it expects. The sweep sits one block below, at, and one above every fork, because the boundary is where an off-by-one in a schedule shows and nowhere else. THE DECLINED FORK: heads 1919999, 1920000 and 1920001 are not boundaries of any fork this chain has -- they are included because they are boundaries of one it refused, and the assertion is that nothing happens there. The identifier is unchanged across all three. The other chain's identifier changes at 1920000 from 97c2c34c to 91d1f948, and its next-fork field already differs from this one's from 1150000 onward, announcing 1920000 where this chain announces 2500000. So the two networks become unable to recognize each other at Homestead, before the block they disagree about is ever reached. That is the mechanism by which the split is enforced at the peer layer, and it is asserted here from within this chain's own vectors rather than by carrying a second chain's. THANOS: the vector at 11700000 is the only coverage anywhere in this suite for that upgrade. It changes no state-transition rule the generator can select, so no state fixture reaches it, but it is a fork block and therefore participates in the identifier.",
+      "genesisNote": "The genesis hash is Ethereum's, because this chain shares that genesis. It is the divergence in the fork list, not the genesis, that separates the identifiers.",
+      "oracle": "Values computed independently from EIP-2124 -- a CRC-32 checksum accumulated over the genesis hash and each passed fork block as a big-endian 64-bit value -- and cross-checked against the production client's own generated table, which agrees on all 14 heads it covers. The three declined-fork heads and the below/above neighbours are additions to that sweep.",
+      "generated": "2026-08-23",
+      "declinedForkIsDocumentedButMustNotBeListed": "This chain is aware of the fork it refused and says so: the schedule specification carries it as a struck-through row dated 2016-07-20, citing the Ethereum meta-EIP, marked rejected. The block is recorded here too, as declinedForkBlock, so the number is machine-readable rather than only prose. IT MUST NOT JOIN forkBlocks, and the reason is consensus rather than editorial: the identifier is a checksum over exactly the blocks in that list, so adding 1920000 would produce a hash no node on this network computes and would partition a client from the chain it is trying to follow. Documenting the rejection and excluding it from the checksum are therefore not in tension -- they are the same position stated at two layers. The layer where it is weakest is the client: the production implementation carries the rejection as a commented-out configuration line preserving the number, and its Classic configuration type has the DAO-support field commented out of the struct as well. Comments are invisible to tooling and cannot be asserted, which is what these vectors are for.",
+      "wrongBuildScores": {
+        "method": "EIP-2124 was reimplemented from its own text and every vector re-derived, then five deliberately-wrong variants of that implementation were scored against all 40 vectors. No client was involved: a fork identifier is a pure function of the genesis hash and the passed fork blocks, so a wrong implementation can be written directly rather than patched into a build.",
+        "correct": "40/40 -- the independent reimplementation reproduces every vector, which makes it a second oracle for this file rather than only a scoring tool.",
+        "includesTheDeclinedDaoFork": "2/40. This is the defect the file exists to catch: a client that ports Ethereum's fork list unchanged. Only the two vectors below the DAO block survive, because before 1,920,000 the two chains genuinely agree.",
+        "usesEthereumsForkListEntirely": "2/40, and it fails the same way and for the same reason.",
+        "littleEndianBlockNumbers": "2/40. The checksum accumulates each block as a big-endian 64-bit value; the byte order is part of the rule, not an encoding detail.",
+        "omitsOneForkBlock": "14/40. Every vector at or above the omitted fork diverges; the ones below it correctly still agree.",
+        "crcNotSeededWithGenesis": "0/40.",
+        "whatThisDemonstrates": "A wrong fork identifier does not produce a wrong answer -- it produces a node that will not peer, and the failure surfaces as unexplained isolation rather than as a consensus error. That is expensive to diagnose from the outside and cheap to assert here."
+      }
+    },
+    "genesisHash": "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3",
+    "forkBlocks": [
+      "1150000",
+      "2500000",
+      "3000000",
+      "5000000",
+      "5900000",
+      "8772000",
+      "9573000",
+      "10500839",
+      "11700000",
+      "13189133",
+      "14525000",
+      "19250000"
+    ],
+    "declinedForkBlock": "1920000",
+    "vectors": [
+      {
+        "head": "0",
+        "forkHash": "0xfc64ec04",
+        "forkNext": "1150000",
+        "forkIdRlp": "0xc984fc64ec0483118c30"
+      },
+      {
+        "head": "1149999",
+        "forkHash": "0xfc64ec04",
+        "forkNext": "1150000",
+        "forkIdRlp": "0xc984fc64ec0483118c30"
+      },
+      {
+        "head": "1150000",
+        "forkHash": "0x97c2c34c",
+        "forkNext": "2500000",
+        "forkIdRlp": "0xc98497c2c34c832625a0"
+      },
+      {
+        "head": "1150001",
+        "forkHash": "0x97c2c34c",
+        "forkNext": "2500000",
+        "forkIdRlp": "0xc98497c2c34c832625a0"
+      },
+      {
+        "head": "1919999",
+        "forkHash": "0x97c2c34c",
+        "forkNext": "2500000",
+        "forkIdRlp": "0xc98497c2c34c832625a0"
+      },
+      {
+        "head": "1920000",
+        "forkHash": "0x97c2c34c",
+        "forkNext": "2500000",
+        "forkIdRlp": "0xc98497c2c34c832625a0"
+      },
+      {
+        "head": "1920001",
+        "forkHash": "0x97c2c34c",
+        "forkNext": "2500000",
+        "forkIdRlp": "0xc98497c2c34c832625a0"
+      },
+      {
+        "head": "2499999",
+        "forkHash": "0x97c2c34c",
+        "forkNext": "2500000",
+        "forkIdRlp": "0xc98497c2c34c832625a0"
+      },
+      {
+        "head": "2500000",
+        "forkHash": "0xdb06803f",
+        "forkNext": "3000000",
+        "forkIdRlp": "0xc984db06803f832dc6c0"
+      },
+      {
+        "head": "2500001",
+        "forkHash": "0xdb06803f",
+        "forkNext": "3000000",
+        "forkIdRlp": "0xc984db06803f832dc6c0"
+      },
+      {
+        "head": "2999999",
+        "forkHash": "0xdb06803f",
+        "forkNext": "3000000",
+        "forkIdRlp": "0xc984db06803f832dc6c0"
+      },
+      {
+        "head": "3000000",
+        "forkHash": "0xaff4bed4",
+        "forkNext": "5000000",
+        "forkIdRlp": "0xc984aff4bed4834c4b40"
+      },
+      {
+        "head": "3000001",
+        "forkHash": "0xaff4bed4",
+        "forkNext": "5000000",
+        "forkIdRlp": "0xc984aff4bed4834c4b40"
+      },
+      {
+        "head": "4999999",
+        "forkHash": "0xaff4bed4",
+        "forkNext": "5000000",
+        "forkIdRlp": "0xc984aff4bed4834c4b40"
+      },
+      {
+        "head": "5000000",
+        "forkHash": "0xf79a63c0",
+        "forkNext": "5900000",
+        "forkIdRlp": "0xc984f79a63c0835a06e0"
+      },
+      {
+        "head": "5000001",
+        "forkHash": "0xf79a63c0",
+        "forkNext": "5900000",
+        "forkIdRlp": "0xc984f79a63c0835a06e0"
+      },
+      {
+        "head": "5899999",
+        "forkHash": "0xf79a63c0",
+        "forkNext": "5900000",
+        "forkIdRlp": "0xc984f79a63c0835a06e0"
+      },
+      {
+        "head": "5900000",
+        "forkHash": "0x744899d6",
+        "forkNext": "8772000",
+        "forkIdRlp": "0xc984744899d68385d9a0"
+      },
+      {
+        "head": "5900001",
+        "forkHash": "0x744899d6",
+        "forkNext": "8772000",
+        "forkIdRlp": "0xc984744899d68385d9a0"
+      },
+      {
+        "head": "8771999",
+        "forkHash": "0x744899d6",
+        "forkNext": "8772000",
+        "forkIdRlp": "0xc984744899d68385d9a0"
+      },
+      {
+        "head": "8772000",
+        "forkHash": "0x518b59c6",
+        "forkNext": "9573000",
+        "forkIdRlp": "0xc984518b59c683921288"
+      },
+      {
+        "head": "8772001",
+        "forkHash": "0x518b59c6",
+        "forkNext": "9573000",
+        "forkIdRlp": "0xc984518b59c683921288"
+      },
+      {
+        "head": "9572999",
+        "forkHash": "0x518b59c6",
+        "forkNext": "9573000",
+        "forkIdRlp": "0xc984518b59c683921288"
+      },
+      {
+        "head": "9573000",
+        "forkHash": "0x7ba22882",
+        "forkNext": "10500839",
+        "forkIdRlp": "0xc9847ba2288283a03ae7"
+      },
+      {
+        "head": "9573001",
+        "forkHash": "0x7ba22882",
+        "forkNext": "10500839",
+        "forkIdRlp": "0xc9847ba2288283a03ae7"
+      },
+      {
+        "head": "10500838",
+        "forkHash": "0x7ba22882",
+        "forkNext": "10500839",
+        "forkIdRlp": "0xc9847ba2288283a03ae7"
+      },
+      {
+        "head": "10500839",
+        "forkHash": "0x9007bfcc",
+        "forkNext": "11700000",
+        "forkIdRlp": "0xc9849007bfcc83b28720"
+      },
+      {
+        "head": "10500840",
+        "forkHash": "0x9007bfcc",
+        "forkNext": "11700000",
+        "forkIdRlp": "0xc9849007bfcc83b28720"
+      },
+      {
+        "head": "11699999",
+        "forkHash": "0x9007bfcc",
+        "forkNext": "11700000",
+        "forkIdRlp": "0xc9849007bfcc83b28720"
+      },
+      {
+        "head": "11700000",
+        "forkHash": "0xdb63a1ca",
+        "forkNext": "13189133",
+        "forkIdRlp": "0xc984db63a1ca83c9400d"
+      },
+      {
+        "head": "11700001",
+        "forkHash": "0xdb63a1ca",
+        "forkNext": "13189133",
+        "forkIdRlp": "0xc984db63a1ca83c9400d"
+      },
+      {
+        "head": "13189132",
+        "forkHash": "0xdb63a1ca",
+        "forkNext": "13189133",
+        "forkIdRlp": "0xc984db63a1ca83c9400d"
+      },
+      {
+        "head": "13189133",
+        "forkHash": "0x0f6bf187",
+        "forkNext": "14525000",
+        "forkIdRlp": "0xc9840f6bf18783dda248"
+      },
+      {
+        "head": "13189134",
+        "forkHash": "0x0f6bf187",
+        "forkNext": "14525000",
+        "forkIdRlp": "0xc9840f6bf18783dda248"
+      },
+      {
+        "head": "14524999",
+        "forkHash": "0x0f6bf187",
+        "forkNext": "14525000",
+        "forkIdRlp": "0xc9840f6bf18783dda248"
+      },
+      {
+        "head": "14525000",
+        "forkHash": "0x7fd1bb25",
+        "forkNext": "19250000",
+        "forkIdRlp": "0xca847fd1bb25840125bb50"
+      },
+      {
+        "head": "14525001",
+        "forkHash": "0x7fd1bb25",
+        "forkNext": "19250000",
+        "forkIdRlp": "0xca847fd1bb25840125bb50"
+      },
+      {
+        "head": "19249999",
+        "forkHash": "0x7fd1bb25",
+        "forkNext": "19250000",
+        "forkIdRlp": "0xca847fd1bb25840125bb50"
+      },
+      {
+        "head": "19250000",
+        "forkHash": "0xbe46d57c",
+        "forkNext": "0",
+        "forkIdRlp": "0xc684be46d57c80"
+      },
+      {
+        "head": "19250001",
+        "forkHash": "0xbe46d57c",
+        "forkNext": "0",
+        "forkIdRlp": "0xc684be46d57c80"
+      }
+    ]
+  }
+}

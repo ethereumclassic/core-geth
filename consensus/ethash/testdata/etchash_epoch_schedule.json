@@ -1,0 +1,279 @@
+{
+  "etchashEpochSchedule": {
+    "_info": {
+      "comment": "ECIP-1099 (Etchash): the epoch schedule that decides which dataset a proof-of-work seal is verified against. It is the ONLY activation in this chain's mainnet configuration that no other fixture in this suite asserts -- the fork-identifier vectors cover its block as a participant in the checksum, which says the schedule knows about it and nothing about what it does. Getting it wrong is not a subtle divergence: a client computing the wrong epoch generates the wrong dataset and rejects every block after the activation. At the activation the epoch length doubles from 30,000 to 60,000, so the epoch number HALVES from 389 to 195 and the dataset requirement falls back to what it was at roughly half the height.",
+      "theSeedIterationCountDoesNotUseTheEpochLength": "The seed for an epoch is keccak256 applied N times to thirty-two zero bytes, and N is the epoch's start block divided by 30,000 -- the DEFAULT epoch length -- whatever the epoch length actually in force is. It is not the epoch number. Across the activation that gives 389 iterations for epoch 389 and 390 for epoch 195, so the seed chain CONTINUES across the activation rather than restarting or skipping. A post-fork epoch e therefore takes exactly the seed legacy epoch 2e would have had, which is an identity rather than a coincidence and is pinned in seedContinuity below -- and it is NOT a collision, because legacy epoch 2e begins at or after the fork block for every e from 195 up, so no legacy twin is ever reached on this chain. An implementation that used the epoch number, or that divided by the epoch length in force, would produce 195 iterations for the first post-activation epoch and genuinely collide with a seed already used at block 5,850,001 -- generating a real dataset for the wrong epoch rather than failing. That wrong seed is published beside the right one, and `seedIterations` sits beside every seed, so a consumer failing this lands on the step rather than on the digest.",
+      "oracle": "Derived from ECIP-1099 and the ethash specification: epoch length 30,000 doubling to 60,000 at block 11,700,000; epoch = block // epochLength; epoch start = epoch*epochLength + 1; the seed as described above; cache size = 2^24 + 2^17*epoch - 64 reduced by 128 until the quotient by 64 is prime, and dataset size = 2^30 + 2^23*epoch - 128 reduced by 256 until the quotient by 128 is prime. No value is read back from a running client. The generator was calibrated first: keccak against the published digest of the empty string, and both size formulas against core-geth's own hardcoded size TABLES at nine epochs -- those tables are data rather than the formula, so agreement between them is a second statement of the same numbers and not a restatement of one. A control confirms the calibration discriminates: the formula at one epoch must not match the table entry for its neighbour. A third, wholly external check: the published PoWTests tier states cache_size 16776896 and full_size 1073739904 with a thirty-two-zero-byte seed, and this generator produces exactly those three at epoch 0. That tier covers epoch 0 AND NOTHING ELSE -- two cases, both Ethereum's, both at the first epoch -- so it confirms the base of the schedule and says nothing whatever about ECIP-1099 or about any epoch above the first, which is why this fixture exists.",
+      "oracle-version": "ECIP-1099; algorithm cross-checked against core-geth v1.12.21-unstable at commit 4185df450",
+      "scope": "These are the epoch-derived quantities and not a sealed header. A full proof-of-work case needs a mined nonce, which cannot be authored -- the published `PoWTests` tier carries two such cases and both are Ethereum's. Every field here is a pure function of the block number and is verifiable by hand. What this does NOT assert is that a client rejects a seal validated against the wrong dataset; that needs a sealed header from this chain, which is a mining problem rather than an authoring one. Field names follow the published tier where it has one: `seedHash` is its `seed`, `cacheSizeBytes` its `cache_size`, `datasetSizeBytes` its `full_size`.",
+      "generated": "2026-08-24",
+      "wrongBuildScores": {
+        "method": "Scored 2026-08-25 by reimplementing ECIP-1099's schedule from the specification and breaking it one parameter at a time. The correct reimplementation reproduces all 16 vectors including every seed hash, which makes it a second oracle rather than only a scoring tool.",
+        "correct": "16/16",
+        "epochLengthNeverDoubles": "10/16",
+        "seedDivisorUsesTheEpochLength": "10/16 -- the defect seedContinuity already describes in prose, now measured. It is the natural simplification and it silently reuses a seed from millions of blocks earlier.",
+        "epochStartHasNoPlusOne": "0/16 -- every vector",
+        "epochComputedFromBlockMinusOne": "10/16",
+        "doublingHappensOneEpochLate": "13/16 -- the narrowest miss, and the three it catches are the vectors bracketing the activation",
+        "correctedToIncludeTheSizeFields": "The first scoring pass compared epochLength, epoch, epochStartBlock, seedIterations and seedHash and SKIPPED cacheSizeBytes and datasetSizeBytes, so its scores understated what this file asserts. Re-derived 2026-08-25: both size fields reproduce at 16/16 from the ethash sizing functions -- the largest prime multiple below an epoch-linear bound.",
+        "sizesComputedFromTheUndoubledEpoch": "10/16, and it is the sharpest Etchash defect available. A client can double the epoch LENGTH for scheduling and still size its cache and dataset from the old epoch number. Scheduling then looks correct, seeds look correct, and the DAG is the wrong size -- so every seal fails verification for a reason that points nowhere near the actual mistake. Only the size fields catch it.",
+        "sizesOffByOneEpoch": "0/16"
+      },
+      "doNOTSourceFromIquidusEcip1099Data": "iquidus/ecip-1099-data carries cache and dataset sha256sums at the epoch boundary and looks like an oracle for this file. It is not: its MAINNET.md declares ETCHASH_FORK_BLOCK=11460000 throughout, while core-geth's ECIP1099FBlock is 11_700_000 -- the value this file already carries. It is pre-activation research whose headline constant was superseded before activation. Recorded because the repository is plausible, is on this machine, and would silently move the activation by 240,000 blocks."
+    },
+    "activationBlock": "11700000",
+    "epochLengthBefore": "30000",
+    "epochLengthFrom": "60000",
+    "seedIterationDivisor": "30000",
+    "vectors": [
+      {
+        "block": "0",
+        "epochLength": "30000",
+        "epoch": "0",
+        "epochStartBlock": "1",
+        "seedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seedIterations": "0",
+        "cacheSizeBytes": "16776896",
+        "datasetSizeBytes": "1073739904",
+        "note": "genesis. The seed is thirty-two zero bytes, because the epoch's start block is below one default epoch length."
+      },
+      {
+        "block": "1",
+        "epochLength": "30000",
+        "epoch": "0",
+        "epochStartBlock": "1",
+        "seedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seedIterations": "0",
+        "cacheSizeBytes": "16776896",
+        "datasetSizeBytes": "1073739904",
+        "note": "still epoch 0, still the zero seed."
+      },
+      {
+        "block": "29999",
+        "epochLength": "30000",
+        "epoch": "0",
+        "epochStartBlock": "1",
+        "seedHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "seedIterations": "0",
+        "cacheSizeBytes": "16776896",
+        "datasetSizeBytes": "1073739904",
+        "note": "the last block of epoch 0."
+      },
+      {
+        "block": "30000",
+        "epochLength": "30000",
+        "epoch": "1",
+        "epochStartBlock": "30001",
+        "seedHash": "0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563",
+        "seedIterations": "1",
+        "cacheSizeBytes": "16907456",
+        "datasetSizeBytes": "1082130304",
+        "note": "epoch 1 begins. The first NON-zero seed: its start block is 30,001, which is at least one default epoch length, so the seed is hashed once."
+      },
+      {
+        "block": "30001",
+        "epochLength": "30000",
+        "epoch": "1",
+        "epochStartBlock": "30001",
+        "seedHash": "0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563",
+        "seedIterations": "1",
+        "cacheSizeBytes": "16907456",
+        "datasetSizeBytes": "1082130304",
+        "note": "inside epoch 1, unchanged from the boundary -- a boundary that moved and then stopped moving."
+      },
+      {
+        "block": "8999999",
+        "epochLength": "30000",
+        "epoch": "299",
+        "epochStartBlock": "8970001",
+        "seedHash": "0xbe5c4f9f1a15a55f177bc13b92fca1b049d02e8a378964a0ef284b7c3b4cfedb",
+        "seedIterations": "299",
+        "cacheSizeBytes": "55967168",
+        "datasetSizeBytes": "3581934464",
+        "note": "the last block of epoch 299, well inside the original regime."
+      },
+      {
+        "block": "9000000",
+        "epochLength": "30000",
+        "epoch": "300",
+        "epochStartBlock": "9000001",
+        "seedHash": "0xca4e0bf72f4f439ec403a495c3da58229837edf966a9ca94db534de054eba34b",
+        "seedIterations": "300",
+        "cacheSizeBytes": "56097856",
+        "datasetSizeBytes": "3590324096",
+        "note": "epoch 300."
+      },
+      {
+        "block": "11669999",
+        "epochLength": "30000",
+        "epoch": "388",
+        "epochStartBlock": "11640001",
+        "seedHash": "0xba7432405e69c5bf85b4c735c819237f5aa84766b93c2b597616fe181194e5c6",
+        "seedIterations": "388",
+        "cacheSizeBytes": "67631296",
+        "datasetSizeBytes": "4328521088",
+        "note": "the last block of epoch 388 under the original thirty-thousand-block epoch."
+      },
+      {
+        "block": "11670000",
+        "epochLength": "30000",
+        "epoch": "389",
+        "epochStartBlock": "11670001",
+        "seedHash": "0x82232565de6c6216a88e3d3b4a49c8ad5e5913b731e78c93c7e29e50b9f0743f",
+        "seedIterations": "389",
+        "cacheSizeBytes": "67763776",
+        "datasetSizeBytes": "4336909184",
+        "note": "epoch 389 begins -- the LAST epoch under the original length, and the largest DAG this chain ever required."
+      },
+      {
+        "block": "11699999",
+        "epochLength": "30000",
+        "epoch": "389",
+        "epochStartBlock": "11670001",
+        "seedHash": "0x82232565de6c6216a88e3d3b4a49c8ad5e5913b731e78c93c7e29e50b9f0743f",
+        "seedIterations": "389",
+        "cacheSizeBytes": "67763776",
+        "datasetSizeBytes": "4336909184",
+        "note": "the last block before ECIP-1099. Epoch 389, epoch length 30,000."
+      },
+      {
+        "block": "11700000",
+        "epochLength": "60000",
+        "epoch": "195",
+        "epochStartBlock": "11700001",
+        "seedHash": "0xe79f0f63030bf691445c2b9d0266b24a9619e355194067f2ad2c73a8e0a26c65",
+        "seedIterations": "390",
+        "cacheSizeBytes": "42334912",
+        "datasetSizeBytes": "2709518464",
+        "note": "ECIP-1099 ACTIVATES. The epoch length doubles to 60,000 and the epoch number therefore HALVES, 389 to 195 -- the dataset requirement falls back to roughly what it was at half the height, which is the entire point of the proposal. A client that keeps the old epoch length computes epoch 390 here and asks for a dataset no other node is using."
+      },
+      {
+        "block": "11700001",
+        "epochLength": "60000",
+        "epoch": "195",
+        "epochStartBlock": "11700001",
+        "seedHash": "0xe79f0f63030bf691445c2b9d0266b24a9619e355194067f2ad2c73a8e0a26c65",
+        "seedIterations": "390",
+        "cacheSizeBytes": "42334912",
+        "datasetSizeBytes": "2709518464",
+        "note": "one block after activation, unchanged. The transition is a step, not a ramp."
+      },
+      {
+        "block": "11759999",
+        "epochLength": "60000",
+        "epoch": "195",
+        "epochStartBlock": "11700001",
+        "seedHash": "0xe79f0f63030bf691445c2b9d0266b24a9619e355194067f2ad2c73a8e0a26c65",
+        "seedIterations": "390",
+        "cacheSizeBytes": "42334912",
+        "datasetSizeBytes": "2709518464",
+        "note": "the last block of epoch 195 under the new length."
+      },
+      {
+        "block": "11760000",
+        "epochLength": "60000",
+        "epoch": "196",
+        "epochStartBlock": "11760001",
+        "seedHash": "0x1ba62b295a00a4a170571539c1b90d97125bd99543c4fa38949778158873095d",
+        "seedIterations": "392",
+        "cacheSizeBytes": "42467008",
+        "datasetSizeBytes": "2717907328",
+        "note": "epoch 196 under the new length. Boundaries are now sixty thousand blocks apart."
+      },
+      {
+        "block": "19250000",
+        "epochLength": "60000",
+        "epoch": "320",
+        "epochStartBlock": "19200001",
+        "seedHash": "0x84e642a88be37e2b795c6e443500247cd968a223ce3102c202425a8bb9094c64",
+        "seedIterations": "640",
+        "cacheSizeBytes": "58720192",
+        "datasetSizeBytes": "3758091136",
+        "note": "Spiral. The proof-of-work schedule is unaffected by it, and that is the assertion."
+      },
+      {
+        "block": "25000000",
+        "epochLength": "60000",
+        "epoch": "416",
+        "epochStartBlock": "24960001",
+        "seedHash": "0x72255a7f00ce18321e3baf7defdbc7600d0f9e2d26d9c5342a618cb2f76d6cdc",
+        "seedIterations": "832",
+        "cacheSizeBytes": "71303104",
+        "datasetSizeBytes": "4563402112",
+        "note": "a recent height, well past activation."
+      }
+    ],
+    "seedContinuity": {
+      "identity": "seed(postForkEpoch e, 60000) == seed(legacyEpoch 2e, 30000)",
+      "note": "The identity holds because the iteration count divides the epoch's start block by 30,000 whatever the epoch length is, and a post-fork epoch's start block, e*60000+1, is exactly legacy epoch 2e's start block. So the seed chain does not restart or skip at the activation -- it CONTINUES, and a post-fork epoch takes the seed its legacy twin would have had. THIS IS NOT A COLLISION, and the reason is the part worth checking rather than assuming: legacy epoch 2e begins at or after the fork block for every e from 195 upward, so no legacy twin of a post-fork epoch is ever reached on this chain. legacyEpochWouldBeginAtOrAfterTheFork records that per vector. A harness that reproduces these seeds has the iteration rule right; one that restarts the chain, or indexes it by the epoch number, does not.",
+      "vectors": [
+        {
+          "postForkEpoch": "195",
+          "postForkEpochStartBlock": "11700001",
+          "seedIterations": "390",
+          "equivalentLegacyEpoch": "390",
+          "legacyEpochStartBlock": "11700001",
+          "legacyEpochWouldBeginAtOrAfterTheFork": true,
+          "seedHash": "0xe79f0f63030bf691445c2b9d0266b24a9619e355194067f2ad2c73a8e0a26c65"
+        },
+        {
+          "postForkEpoch": "196",
+          "postForkEpochStartBlock": "11760001",
+          "seedIterations": "392",
+          "equivalentLegacyEpoch": "392",
+          "legacyEpochStartBlock": "11760001",
+          "legacyEpochWouldBeginAtOrAfterTheFork": true,
+          "seedHash": "0x1ba62b295a00a4a170571539c1b90d97125bd99543c4fa38949778158873095d"
+        },
+        {
+          "postForkEpoch": "200",
+          "postForkEpochStartBlock": "12000001",
+          "seedIterations": "400",
+          "equivalentLegacyEpoch": "400",
+          "legacyEpochStartBlock": "12000001",
+          "legacyEpochWouldBeginAtOrAfterTheFork": true,
+          "seedHash": "0x312b6007e9a1bb08b78dad2afdce476501adb039bc29ea6c27ede523fe87d3d4"
+        },
+        {
+          "postForkEpoch": "250",
+          "postForkEpochStartBlock": "15000001",
+          "seedIterations": "500",
+          "equivalentLegacyEpoch": "500",
+          "legacyEpochStartBlock": "15000001",
+          "legacyEpochWouldBeginAtOrAfterTheFork": true,
+          "seedHash": "0x398c942492d1d1065c5accfa3ed3d5c541d9995437065daf8e7996bd1fa39ce3"
+        },
+        {
+          "postForkEpoch": "416",
+          "postForkEpochStartBlock": "24960001",
+          "seedIterations": "832",
+          "equivalentLegacyEpoch": "832",
+          "legacyEpochStartBlock": "24960001",
+          "legacyEpochWouldBeginAtOrAfterTheFork": true,
+          "seedHash": "0x72255a7f00ce18321e3baf7defdbc7600d0f9e2d26d9c5342a618cb2f76d6cdc"
+        }
+      ],
+      "wrongImplementation": {
+        "describes": "Dividing the start block by the epoch length IN FORCE instead of by 30,000. It is the natural simplification and it silently reuses a seed from six million blocks earlier, so the client generates a real dataset for the wrong epoch rather than failing. Published so a consumer landing on wrongSeedHash knows exactly which mistake it made.",
+        "vectors": [
+          {
+            "postForkEpoch": "195",
+            "wrongSeedIterations": "195",
+            "collidesWithLegacyEpoch": "195",
+            "firstUsedAtBlock": "5850001",
+            "wrongSeedHash": "0x52341cf7371faf9a5a0105914ad69f04b0cabfc51d12a2a28a00d5b808ea4e5c",
+            "correctSeedHash": "0xe79f0f63030bf691445c2b9d0266b24a9619e355194067f2ad2c73a8e0a26c65"
+          },
+          {
+            "postForkEpoch": "196",
+            "wrongSeedIterations": "196",
+            "collidesWithLegacyEpoch": "196",
+            "firstUsedAtBlock": "5880001",
+            "wrongSeedHash": "0x9d3fef9bc522aee668ac0c6f6b22cf92cd30916e8da6cc5ac3ebe0a64234d5ce",
+            "correctSeedHash": "0x1ba62b295a00a4a170571539c1b90d97125bd99543c4fa38949778158873095d"
+          }
+        ]
+      }
+    }
+  }
+}
