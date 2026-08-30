@@ -68,3 +68,19 @@ jobs:
             git status
             exit 1
           fi
+
+      # go-ethereum verifies `go generate` and `go mod tidy` together in its
+      # ci.go check_generate. The generate half is the job above, which is
+      # deliberately fork-specific. This is the tidy half: a manifest that does
+      # not survive `go mod tidy` drifts silently, and nothing else here would
+      # notice until the next dependency change made it look like that change's
+      # fault.
+      - name: Check that go mod tidy produces no changes
+        id: tidy-check
+        run: |
+          go mod tidy
+          if ! git diff --quiet go.mod go.sum; then
+            echo "🔴 ERROR: 'go mod tidy' modified go.mod or go.sum"
+            git --no-pager diff --stat go.mod go.sum
+            exit 1
+          fi
