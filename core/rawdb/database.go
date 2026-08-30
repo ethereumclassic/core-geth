@@ -615,15 +615,18 @@ func InspectDatabase(db ethdb.Database, keyPrefix, keyStart []byte) error {
 		total += ancient.size()
 	}
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Database", "Category", "Size", "Items"})
-	table.SetFooter([]string{"", "Total", total.String(), " "})
-	table.AppendBulk(stats)
-	table.Render()
+	table.Header("Database", "Category", "Size", "Items")
+	table.Footer("", "Total", total.String(), " ")
+	if err := table.Bulk(stats); err != nil {
+		return err
+	}
 
+	// Report unaccounted data before rendering, so a table-rendering failure
+	// cannot suppress a database-integrity warning.
 	if unaccounted.size > 0 {
 		log.Error("Database contains unaccounted data", "size", unaccounted.size, "count", unaccounted.count)
 	}
-	return nil
+	return table.Render()
 }
 
 // printChainMetadata prints out chain metadata to stderr.
