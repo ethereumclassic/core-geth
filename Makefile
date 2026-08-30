@@ -2,7 +2,7 @@
 # with Go source code. If you know what GOPATH is then you probably
 # don't need to bother with make.
 
-.PHONY: geth android ios geth-cross evm evmc mkdocs-serve all test clean
+.PHONY: geth evm mkdocs-serve all test clean
 
 GOBIN = ./build/bin
 GO ?= latest
@@ -14,6 +14,11 @@ geth:
 	$(GORUN) build/ci.go install ./cmd/geth
 	@echo "Done building."
 	@echo "Run \"$(GOBIN)/geth\" to launch geth."
+
+evm:
+	$(GORUN) build/ci.go install ./cmd/evm
+	@echo "Done building."
+	@echo "Run \"$(GOBIN)/evm\" to launch evm."
 
 #? all: Build all packages and executables
 all:
