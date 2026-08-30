@@ -7,12 +7,18 @@ on:
 
   pull_request:
     branches:
-      - 'master'
+      - 'main'
     paths:
       - 'params/bootnode*'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+# Least privilege. create-pull-request opens a PR from a pushed branch, which
+# needs contents:write to push and pull-requests:write to open it.
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
 
@@ -22,13 +28,13 @@ jobs:
     steps:
 
       - name: Set up Go 1.x
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version: '1.26'
         id: go
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Build bin/devp2p
         run: |
@@ -67,7 +73,7 @@ jobs:
 
       - name: Create Pull Request
         if: github.event_name != 'pull_request'
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           commit-message: 'params: remove unresponsive bootnodes'
           title: 'params: remove unresponsive bootnodes'
