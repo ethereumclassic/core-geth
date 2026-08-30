@@ -27,11 +27,12 @@ Available commands are:
 	install    [ -arch architecture ] [ -cc compiler ] [ packages... ]                          -- builds packages and executables
 	test       [ -coverage ] [ packages... ]                                                    -- runs the tests
 	lint                                                                                        -- runs certain pre-selected linters
-	archive    [ -arch architecture ] [ -type zip|tar ] [ -signer key-envvar ] [ -signify key-envvar ] [ -upload dest ] -- archives build artifacts
-	importkeys                                                                                  -- imports signing keys from env
+	archive    [ -arch architecture ] [ -type zip|tar ] [ -signify key-envvar ] [ -upload dest ]                        -- archives build artifacts
+	docker     [ -image ] [ -manifest list ] [ -upload dest ]                                   -- builds and pushes docker images
 	debsrc     [ -signer key-id ] [ -upload dest ]                                              -- creates a debian source package
 	nsis                                                                                        -- creates a Windows NSIS installer
 	purge      [ -store blobstore ] [ -days threshold ]                                         -- purges old archives from the blobstore
+	sanitycheck                                                                                 -- sanity checks the build environment
 
 For all commands, -n prevents execution of external programs (dry run mode).
 */
@@ -418,7 +419,6 @@ func doArchive(cmdline []string) {
 	var (
 		arch    = flag.String("arch", runtime.GOARCH, "Architecture cross packaging")
 		atype   = flag.String("type", "zip", "Type of archive to write (zip|tar)")
-		signer  = flag.String("signer", "", `Environment variable holding the signing key (e.g. LINUX_SIGNING_KEY)`)
 		signify = flag.String("signify", "", `Environment variable holding the signify key (e.g. LINUX_SIGNIFY_KEY)`)
 		upload  = flag.String("upload", "", `Destination to upload the archives (usually "gethstore/builds")`)
 		ext     string
@@ -447,7 +447,7 @@ func doArchive(cmdline []string) {
 		log.Fatal(err)
 	}
 	for _, archive := range []string{geth, alltools} {
-		if err := archiveUpload(archive, *upload, *signer, *signify); err != nil {
+		if err := archiveUpload(archive, *upload, *signify); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -467,14 +467,8 @@ func archiveBasename(arch string, archiveVersion string) string {
 	return platform + "-" + archiveVersion
 }
 
-func archiveUpload(archive string, blobstore string, signer string, signifyVar string) error {
-	// If signing was requested, generate the signature files
-	if signer != "" {
-		key := getenvBase64(signer)
-		if err := build.PGPSignFile(archive, archive+".asc", string(key)); err != nil {
-			return err
-		}
-	}
+func archiveUpload(archive string, blobstore string, signifyVar string) error {
+	// If signing was requested, generate the signature file
 	if signifyVar != "" {
 		key := os.Getenv(signifyVar)
 		untrustedComment := "verify with geth-release.pub"
@@ -492,11 +486,6 @@ func archiveUpload(archive string, blobstore string, signer string, signifyVar s
 		}
 		if err := build.AzureBlobstoreUpload(archive, filepath.Base(archive), auth); err != nil {
 			return err
-		}
-		if signer != "" {
-			if err := build.AzureBlobstoreUpload(archive+".asc", filepath.Base(archive+".asc"), auth); err != nil {
-				return err
-			}
 		}
 		if signifyVar != "" {
 			if err := build.AzureBlobstoreUpload(archive+".sig", filepath.Base(archive+".sig"), auth); err != nil {
@@ -996,7 +985,6 @@ func doWindowsInstaller(cmdline []string) {
 	// Parse the flags and make skip installer generation on PRs
 	var (
 		arch    = flag.String("arch", runtime.GOARCH, "Architecture for cross build packaging")
-		signer  = flag.String("signer", "", `Environment variable holding the signing key (e.g. WINDOWS_SIGNING_KEY)`)
 		signify = flag.String("signify key", "", `Environment variable holding the signify signing key (e.g. WINDOWS_SIGNIFY_KEY)`)
 		upload  = flag.String("upload", "", `Destination to upload the archives (usually "gethstore/builds")`)
 		workdir = flag.String("workdir", "", `Output directory for packages (uses temp dir if unset)`)
@@ -1062,7 +1050,7 @@ func doWindowsInstaller(cmdline []string) {
 		filepath.Join(*workdir, "geth.nsi"),
 	)
 	// Sign and publish installer.
-	if err := archiveUpload(installer, *upload, *signer, *signify); err != nil {
+	if err := archiveUpload(installer, *upload, *signify); err != nil {
 		log.Fatal(err)
 	}
 }
