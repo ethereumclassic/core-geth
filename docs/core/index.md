@@ -60,7 +60,7 @@ description of _all_ available methods, their parameters, and results.
 
 ### Risk Management
 
-- [Public](https://ci.etccore.in/blue/organizations/jenkins/core-geth-regression/activity) chaindata [regression testing](https://github.com/etclabscore/core-geth/blob/master/Jenkinsfile) run at each push to `master`.
+- Chaindata regression testing against simulated canonical chains, run by `make test-coregeth`.
 
 ### Extended _Improvement Proposal_ Support (EIP, ECIP, *IP)
 
