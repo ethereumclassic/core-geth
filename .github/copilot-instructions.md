@@ -60,7 +60,7 @@ task runner other than `make`, and no command exists that is not listed here or
 printed by `make help`.
 
 ```bash
-make geth            # build cmd/geth into ./build/bin/geth
+make core-geth       # build cmd/core-geth into ./build/bin/core-geth
 make all             # build every executable
 make test            # make all, then build/ci.go test -timeout 20m
 make lint            # build/ci.go lint -> golangci-lint run --config .golangci.yml
@@ -75,7 +75,7 @@ make test-coregeth                      # features + clique consensus + condense
 make test-coregeth-features             # fork/feature/datatype equivalence
 make test-coregeth-consensus            # clique consensus equivalence
 make test-coregeth-chainspecs-coregeth  # CoreGeth JSON chainspec equivalence
-make test-coregeth-regression-condensed # builds geth, imports simulated canonical chains
+make test-coregeth-regression-condensed # builds core-geth, imports simulated chains
 ```
 
 `make test-evmc` builds external EVM interpreters and is not part of the default
@@ -104,7 +104,7 @@ definitions, not what runs today. Leave them alone.
 ## Layout
 
 ```
-cmd/geth              the node binary; cmd/utils/flags.go defines the network flags
+cmd/core-geth         the node binary; cmd/utils/flags.go defines the network flags
 params/               chain configuration - the core of what makes this a fork
 params/config_classic.go   Ethereum Classic mainnet fork schedule
 params/types/         the configuration interfaces that make chain config data-driven
@@ -164,7 +164,7 @@ SHAs is a workflow change and needs confirmation before it is made.
 - **`SECURITY.md` is upstream's and points at the Ethereum Foundation** —
   `bounty@ethereum.org`, the Foundation's PGP key, go-ethereum audit links. It is
   not this project's policy; do not cite it as the reporting path.
-- **`geth version-check` queries go-ethereum's vulnerability feed** and prints
+- **`core-geth version-check` queries go-ethereum's vulnerability feed** and prints
   `No vulnerabilities found` when nothing matches. That feed does not track this
   client.
 

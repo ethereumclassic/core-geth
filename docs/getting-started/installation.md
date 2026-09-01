@@ -7,13 +7,13 @@ title: Installation
 
 ## Pre-built executable
 
-If you just want to download and run `geth` or any of the other tools here, this is the quickest and simplest way.
+If you just want to download and run `core-geth` or any of the other tools here, this is the quickest and simplest way.
 
 Binary archives are published at https://github.com/etclabscore/core-geth/releases. Find the latest one for your OS, download it, (check the SHA sum), unarchive it, and run!
 
 ## With Docker
 
-All runnable examples below are for images limited to `geth`. For images including the full suite of
+All runnable examples below are for images limited to `core-geth`. For images including the full suite of
 tools available from this source, use the Docker Hub tag prefix `alltools.`, like `etclabscore/core-geth:alltools.latest`, or the associated Docker file directly `./Dockerfile.alltools`.
 
 ### `docker run`
@@ -31,12 +31,12 @@ $ docker run -d \
     --http --http.port 8545
 ```
 
-This will start `geth` in fast-sync mode with a DB memory allowance of 1GB just as the
+This will start `core-geth` in fast-sync mode with a DB memory allowance of 1GB just as the
 above command does.  It will also create a persistent volume in your `$LOCAL_DATADIR` for
 saving your blockchain, as well as map the default devp2p and JSON-RPC API ports.
 
 Do not forget `--http.addr 0.0.0.0`, if you want to access RPC from other containers
-and/or hosts. By default, `geth` binds to the local interface and RPC endpoints is not
+and/or hosts. By default, `core-geth` binds to the local interface and RPC endpoints is not
 accessible from the outside.
 
 

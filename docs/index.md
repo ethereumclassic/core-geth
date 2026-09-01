@@ -22,7 +22,7 @@ Upstream development from [ethereum/go-ethereum](https://github.com/ethereum/go-
 
 ## Network/provider comparison
 
-Networks supported by the respective core-geth packaged `geth` program.
+Networks supported by the respective core-geth packaged `core-geth` program.
 
 | Ticker | Consensus         | Network                               | core-geth                                                | ethereum/go-ethereum |
 | ---    | ---               | ---                                   | ---                                                      | ---                  |

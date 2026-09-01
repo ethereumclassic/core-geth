@@ -23,7 +23,7 @@ disagreeing, `AGENTS.md` wins.
   are long, CPU-bound Go builds over a large tree. Do not start a second one
   alongside the first, and do not run them in parallel with other heavy work.
 - **Build before testing.** `make test` depends on `make all`; the CoreGeth
-  regression target builds `geth` first.
+  regression target builds `core-geth` first.
 - **Submodules before tests.** `git submodule update --init --recursive`, or the
   consensus suites fail in ways that look like real failures.
 - **Small batches, then verify.** Change a few things, run the relevant target,

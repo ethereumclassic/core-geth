@@ -2,19 +2,27 @@
 # with Go source code. If you know what GOPATH is then you probably
 # don't need to bother with make.
 
-.PHONY: geth evm mkdocs-serve all test clean
+.PHONY: core-geth geth evm mkdocs-serve all test clean
 
 GOBIN = ./build/bin
 GO ?= latest
 GORUN = go run
 ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-#? geth: Build geth
-geth:
-	$(GORUN) build/ci.go install ./cmd/geth
+#? core-geth: Build core-geth
+core-geth:
+	$(GORUN) build/ci.go install ./cmd/core-geth
 	@echo "Done building."
-	@echo "Run \"$(GOBIN)/geth\" to launch geth."
+	@echo "Run \"$(GOBIN)/core-geth\" to launch core-geth."
 
+#? geth: Deprecated alias for core-geth
+geth: core-geth
+	@echo
+	@echo "NOTE: 'make geth' is a compatibility alias kept so an existing build"
+	@echo "      script does not break on the rename. It builds core-geth; there"
+	@echo "      is no binary named geth. Use 'make core-geth'."
+
+#? evm: Build evm
 evm:
 	$(GORUN) build/ci.go install ./cmd/evm
 	@echo "Done building."
@@ -72,7 +80,7 @@ test-coregeth-chainspecs-coregeth: ## Run tests specific to core-geth using core
 	@echo "Testing CoreGeth JSON chainspec equivalence."
 	env COREGETH_TESTS_CHAINCONFIG_COREGETH_SPECS=on go test -count=1 ./tests
 
-test-coregeth-regression-condensed: geth
+test-coregeth-regression-condensed: core-geth
 	@echo "Running condensed regression tests (imports) against simulated canonical blockchains."
 	./tests/regression/simulated/test.sh ./tests/regression/simulated/classic-condense-state/classic.conf.json ./tests/regression/simulated/classic-condense-state/export.rlp.gz
 	./tests/regression/simulated/test.sh ./tests/regression/simulated/foundation-condense-state/foundation.conf.json ./tests/regression/simulated/foundation-condense-state/export.rlp.gz
@@ -128,6 +136,6 @@ devtools:
 
 #? help: Get more info on make commands.
 help: Makefile
-	@echo " Choose a command run in go-ethereum:"
+	@echo " Choose a command run in core-geth:"
 	@sed -n 's/^#?//p' $< | column -t -s ':' |  sort | sed -e 's/^/ /'
 .PHONY: help

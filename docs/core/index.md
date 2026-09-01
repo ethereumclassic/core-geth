@@ -70,7 +70,7 @@ description of _all_ available methods, their parameters, and results.
   + ECIP1014 (defuse difficulty bomb), etc. :wink:
 
 - Out-of-the-box support for Ethereum Classic.
-  Chain configs are selected as `./build/bin/geth --<chain>`. For a list of supported networks and their CLI options, use `./build/bin/geth --help`.
+  Chain configs are selected as `./build/bin/core-geth --<chain>`. For a list of supported networks and their CLI options, use `./build/bin/core-geth --help`.
 
 ## Divergent Design
 

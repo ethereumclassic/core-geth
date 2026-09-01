@@ -24,9 +24,9 @@ In general, the integrity of the GeneralStateTests to blockchain transactions ar
 A script to finally run these tests would be as follows:
 
 ```
-> make geth
-> ./build/bin/geth --datadir=./tmpdatadir init classic.conf.json
-> ./build/bin/geth --datadir=./tmpdatadir import export.rlp.gz
+> make core-geth
+> ./build/bin/core-geth --datadir=./tmpdatadir init classic.conf.json
+> ./build/bin/core-geth --datadir=./tmpdatadir import export.rlp.gz
 > rm -rf ./tmpdatadir
 ```
 

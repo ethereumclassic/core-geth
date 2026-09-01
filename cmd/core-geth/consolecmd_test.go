@@ -129,7 +129,7 @@ func TestAttachWelcome(t *testing.T) {
 }
 
 func testAttachWelcome(t *testing.T, geth *testgeth, endpoint, apis string) {
-	// Attach to a running geth node and terminate immediately
+	// Attach to a running core-geth node and terminate immediately
 	attach := runGeth(t, "attach", endpoint)
 	defer attach.ExpectExit()
 	attach.CloseStdin()

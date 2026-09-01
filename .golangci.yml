@@ -79,7 +79,7 @@ linters:
       # Build tooling, not the client. runtime.GOROOT and go/parser.ParseDir are
       # deprecated but correct here: this code runs from the source tree during
       # a build, which is the case their replacements do not cover.
-      - path: (internal/build/|cmd/geth/misccmd\.go|accounts/abi/bind/bind_test\.go)
+      - path: (internal/build/|cmd/core-geth/misccmd\.go|accounts/abi/bind/bind_test\.go)
         text: 'SA1019:.*(runtime\.GOROOT|go/parser\.ParseDir).*deprecated'
       - path: (.+)\.go$
         text: 'SA1019: strings.Title is deprecated'

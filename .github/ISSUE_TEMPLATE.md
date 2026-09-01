@@ -6,7 +6,7 @@ For general questions please use [discord](https://discord.gg/nthXNEv) or the Et
 
 #### System information
 
-Geth version: `geth version`
+Core-Geth version: `core-geth version`
 CL client & version: e.g. lighthouse/nimbus/prysm@v1.0.0
 OS & Version: Windows/Linux/OSX
 Commit hash : (if `develop`)

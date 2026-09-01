@@ -67,7 +67,7 @@ task runner other than `make`, and no command exists that is not listed here or
 printed by `make help`.
 
 ```bash
-make geth            # build cmd/geth into ./build/bin/geth
+make core-geth       # build cmd/core-geth into ./build/bin/core-geth
 make all             # build every executable
 make test            # make all, then build/ci.go test -timeout 20m
 make lint            # build/ci.go lint -> golangci-lint run --config .golangci.yml
@@ -82,7 +82,7 @@ make test-coregeth                      # features + clique consensus + condense
 make test-coregeth-features             # fork/feature/datatype equivalence
 make test-coregeth-consensus            # clique consensus equivalence
 make test-coregeth-chainspecs-coregeth  # CoreGeth JSON chainspec equivalence
-make test-coregeth-regression-condensed # builds geth, imports simulated canonical chains
+make test-coregeth-regression-condensed # builds core-geth, imports simulated chains
 ```
 
 `make test-evmc` builds external EVM interpreters (`make hera`, `make evmone`)
@@ -119,7 +119,7 @@ They are historical CI definitions, not what runs today. Leave them alone.
 ## Structure
 
 ```
-cmd/geth              the node binary; cmd/utils/flags.go defines the network flags
+cmd/core-geth         the node binary; cmd/utils/flags.go defines the network flags
 params/               chain configuration - the core of what makes this a fork
 params/config_classic.go   Ethereum Classic mainnet fork schedule
 params/types/         the configuration interfaces that make chain config data-driven
@@ -217,8 +217,8 @@ needs confirmation before it is made.
   are directed to `bounty@ethereum.org` under the Foundation's PGP key, and the
   audit links go to go-ethereum. It is not this project's policy. Do not follow it
   and do not cite it as the reporting path.
-- **`geth version-check` queries go-ethereum's vulnerability feed**
-  (`cmd/geth/misccmd.go`) and prints `No vulnerabilities found` when nothing
+- **`core-geth version-check` queries go-ethereum's vulnerability feed**
+  (`cmd/core-geth/misccmd.go`) and prints `No vulnerabilities found` when nothing
   matches. That feed does not track this client, so a clean result from it says
   nothing about this client.
 

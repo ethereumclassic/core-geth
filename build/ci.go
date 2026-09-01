@@ -61,20 +61,20 @@ import (
 )
 
 var (
-	// Files that end up in the geth*.zip archive.
+	// Files that end up in the core-geth*.zip archive.
 	gethArchiveFiles = []string{
 		"COPYING",
-		executablePath("geth"),
+		executablePath("core-geth"),
 	}
 
-	// Files that end up in the geth-alltools*.zip archive.
+	// Files that end up in the core-geth-alltools*.zip archive.
 	allToolsArchiveFiles = []string{
 		"COPYING",
 		executablePath("abigen"),
 		executablePath("bootnode"),
 		executablePath("echainspec"),
 		executablePath("evm"),
-		executablePath("geth"),
+		executablePath("core-geth"),
 		executablePath("rlpdump"),
 		executablePath("clef"),
 	}
@@ -98,7 +98,7 @@ var (
 			Description: "Developer utility version of the EVM (Ethereum Virtual Machine) that is capable of running bytecode snippets within a configurable environment and execution mode.",
 		},
 		{
-			BinaryName:  "geth",
+			BinaryName:  "core-geth",
 			Description: "Ethereum CLI client.",
 		},
 		{
@@ -436,8 +436,8 @@ func doArchive(cmdline []string) {
 	var (
 		env      = build.Env()
 		basegeth = archiveBasename(*arch, params.ArchiveVersion(env.Commit))
-		geth     = "geth-" + basegeth + ext
-		alltools = "geth-alltools-" + basegeth + ext
+		geth     = "core-geth-" + basegeth + ext
+		alltools = "core-geth-alltools-" + basegeth + ext
 	)
 	maybeSkipArchive(env)
 	if err := build.WriteArchive(geth, gethArchiveFiles); err != nil {
@@ -1005,7 +1005,7 @@ func doWindowsInstaller(cmdline []string) {
 			continue
 		}
 		allTools = append(allTools, filepath.Base(file))
-		if filepath.Base(file) == "geth.exe" {
+		if filepath.Base(file) == "core-geth.exe" {
 			gethTool = file
 		} else {
 			devTools = append(devTools, file)
@@ -1013,13 +1013,13 @@ func doWindowsInstaller(cmdline []string) {
 	}
 
 	// Render NSIS scripts: Installer NSIS contains two installer sections,
-	// first section contains the geth binary, second section holds the dev tools.
+	// first section contains the core-geth binary, second section holds the dev tools.
 	templateData := map[string]interface{}{
 		"License":  "COPYING",
 		"Geth":     gethTool,
 		"DevTools": devTools,
 	}
-	build.Render("build/nsis.geth.nsi", filepath.Join(*workdir, "geth.nsi"), 0644, nil)
+	build.Render("build/nsis.core-geth.nsi", filepath.Join(*workdir, "core-geth.nsi"), 0644, nil)
 	build.Render("build/nsis.install.nsh", filepath.Join(*workdir, "install.nsh"), 0644, templateData)
 	build.Render("build/nsis.uninstall.nsh", filepath.Join(*workdir, "uninstall.nsh"), 0644, allTools)
 	build.Render("build/nsis.pathupdate.nsh", filepath.Join(*workdir, "PathUpdate.nsh"), 0644, nil)
@@ -1037,7 +1037,7 @@ func doWindowsInstaller(cmdline []string) {
 	if env.Commit != "" {
 		version[2] += "-" + env.Commit[:8]
 	}
-	installer, err := filepath.Abs("geth-" + archiveBasename(*arch, params.ArchiveVersion(env.Commit)) + ".exe")
+	installer, err := filepath.Abs("core-geth-" + archiveBasename(*arch, params.ArchiveVersion(env.Commit)) + ".exe")
 	if err != nil {
 		log.Fatalf("Failed to convert installer file path: %v", err)
 	}
@@ -1047,7 +1047,7 @@ func doWindowsInstaller(cmdline []string) {
 		"/DMINORVERSION="+version[1],
 		"/DBUILDVERSION="+version[2],
 		"/DARCH="+*arch,
-		filepath.Join(*workdir, "geth.nsi"),
+		filepath.Join(*workdir, "core-geth.nsi"),
 	)
 	// Sign and publish installer.
 	if err := archiveUpload(installer, *upload, *signify); err != nil {

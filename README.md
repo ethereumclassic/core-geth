@@ -39,7 +39,7 @@ known to have been exploited against this network. Verify your head matches anot
 before concluding otherwise:
 
 ```bash
-geth attach --exec 'eth.blockNumber' <datadir>/geth.ipc
+core-geth attach --exec 'eth.blockNumber' <datadir>/geth.ipc
 ```
 
 Compare against a block explorer or a second client. Resync only if it diverges — and if it
@@ -114,10 +114,10 @@ selection. Do not restore it.
 ## Build
 
 ```bash
-make geth
+make core-geth
 ```
 
-The binary is written to `./build/bin/geth`.
+The binary is written to `./build/bin/core-geth`.
 
 ## Test
 
@@ -137,8 +137,8 @@ before any suite that reads the shared consensus fixtures.
 ## Run a node
 
 ```bash
-./build/bin/geth --classic --datadir <path>     # Ethereum Classic mainnet
-./build/bin/geth --mordor  --datadir <path>     # Mordor testnet
+./build/bin/core-geth --classic --datadir <path>     # Ethereum Classic mainnet
+./build/bin/core-geth --mordor  --datadir <path>     # Mordor testnet
 ```
 
 `--http.addr` defaults to loopback. Do not widen it, enable `--http.corsdomain`, or add
@@ -149,13 +149,13 @@ before any suite that reads the shared consensus fixtures.
 Core-Geth supports Ethash/ETChash proof-of-work mining:
 
 ```bash
-./build/bin/geth --classic --mine --miner.etherbase <address>
+./build/bin/core-geth --classic --mine --miner.etherbase <address>
 ```
 
 For testing with fake PoW, which skips DAG generation:
 
 ```bash
-./build/bin/geth --classic --mine --miner.etherbase <address> --fakepow
+./build/bin/core-geth --classic --mine --miner.etherbase <address> --fakepow
 ```
 
 ## Documentation

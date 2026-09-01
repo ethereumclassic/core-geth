@@ -50,7 +50,7 @@ See https://geth.ethereum.org/docs/interacting-with-geth/javascript-console.`,
 The Geth console is an interactive shell for the JavaScript runtime environment
 which exposes a node admin interface as well as the Ðapp JavaScript API.
 See https://geth.ethereum.org/docs/interacting-with-geth/javascript-console.
-This command allows to open a console on a running geth node.`,
+This command allows to open a console on a running core-geth node.`,
 	}
 
 	javascriptCommand = &cli.Command{
@@ -155,6 +155,6 @@ func ephemeralConsole(ctx *cli.Context) error {
 		b.Write([]byte(fmt.Sprintf("loadScript('%s');", file)))
 	}
 	utils.Fatalf(`The "js" command is deprecated. Please use the following instead:
-geth --exec "%s" console`, b.String())
+core-geth --exec "%s" console`, b.String())
 	return nil
 }

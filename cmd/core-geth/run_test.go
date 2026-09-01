@@ -37,8 +37,8 @@ type testgeth struct {
 }
 
 func init() {
-	// Run the app if we've been exec'd as "geth-test" in runGeth.
-	reexec.Register("geth-test", func() {
+	// Run the app if we've been exec'd as "core-geth-test" in runGeth.
+	reexec.Register("core-geth-test", func() {
 		if err := app.Run(os.Args); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -89,7 +89,7 @@ func runGeth(t *testing.T, args ...string) *testgeth {
 
 	// Boot "geth". This actually runs the test binary but the TestMain
 	// function will prevent any tests from running.
-	tt.Run("geth-test", args...)
+	tt.Run("core-geth-test", args...)
 
 	return tt
 }

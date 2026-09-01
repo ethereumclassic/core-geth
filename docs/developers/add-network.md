@@ -41,15 +41,15 @@ it's time to put the configuration into action.
 We can now pursue two paths:
 
 1. Use the JSON configuration to initialize a chaindata database and start our node(s), and/or
-2. Expose the configuration as a core-geth default through `geth`'s CLI flags via `--abc`.
+2. Expose the configuration as a core-geth default through `core-geth`'s CLI flags via `--abc`.
 
 This tutorial won't cover (2) (yet). 
 
-#### Initialize geth's database from the JSON configuration.
+#### Initialize core-geth's database from the JSON configuration.
 
-Build `geth`.
+Build `core-geth`.
 ```
-> make geth
+> make core-geth
 ```
 
 Create a file containing the JSON encoding of ABC network's configuration (JSON data taken from the example test above).
@@ -107,9 +107,9 @@ EOF
 
 ```
 
-Initialize geth with this configuration (using a custom data directory).
+Initialize core-geth with this configuration (using a custom data directory).
 ```
-./build/bin/geth --datadir=./abc-datadir init abc_genesis.json 
+./build/bin/core-geth --datadir=./abc-datadir init abc_genesis.json 
 INFO [03-10|09:00:25.710] Maximum peer count                       ETH=50 LES=0 total=50
 INFO [03-10|09:00:25.710] Smartcard socket not found, disabling    err="stat /run/pcscd/pcscd.comm: no such file or directory"
 INFO [03-10|09:00:25.711] Set global gas cap                       cap=25000000
@@ -125,11 +125,11 @@ INFO [03-10|09:00:25.748] Wrote custom genesis block OK            config="Netwo
 INFO [03-10|09:00:25.749] Successfully wrote genesis state         database=lightchaindata hash="5f32ce…1fe582"
 ```
 
-Start geth, reusing our initialized database.
-Since geth won't have default bootnodes for this configuration (only available when using CLI flags), we'll need to
-use geth's `--bootnodes` flag.
+Start core-geth, reusing our initialized database.
+Since core-geth won't have default bootnodes for this configuration (only available when using CLI flags), we'll need to
+use core-geth's `--bootnodes` flag.
 ```
-./build/bin/geth --datadir=./abc-datadir --bootnodes=enode://3e12c4c633157ae52e7e05c168f4b1aa91685a36ba33a0901aa8a83cfeb84c3633226e3dd2eaf59bfc83492139e1d68918bf5b60ba93e2deaedb4e6a2ded5d32@42.152.120.98:30303
+./build/bin/core-geth --datadir=./abc-datadir --bootnodes=enode://3e12c4c633157ae52e7e05c168f4b1aa91685a36ba33a0901aa8a83cfeb84c3633226e3dd2eaf59bfc83492139e1d68918bf5b60ba93e2deaedb4e6a2ded5d32@42.152.120.98:30303
 INFO [03-10|09:07:52.762] Starting Geth on Ethereum mainnet... 
 INFO [03-10|09:07:52.762] Bumping default cache on mainnet         provided=1024 updated=4096
 INFO [03-10|09:07:52.763] Maximum peer count                       ETH=50 LES=0 total=50
@@ -170,9 +170,9 @@ available that new nodes coming online can use to query for their peers.
 
 Initialize the bootnode's database and get its self-reported `enode` value. 
 ```
-./build/bin/geth --datadir=./abc-datadir init abc_genesis.json
+./build/bin/core-geth --datadir=./abc-datadir init abc_genesis.json
 
-2>/dev/null ./build/bin/geth --datadir=./abc-datadir --exec 'admin.nodeInfo.enode' console
+2>/dev/null ./build/bin/core-geth --datadir=./abc-datadir --exec 'admin.nodeInfo.enode' console
 "enode://5256dcfe7725a98f38cf15b702847fabcaf59bbaa733a6ae5ea68e1089fdd1d274192e17593dc20df00a45ea91372f7c1ca97c8d186fa9e779167240fde15338@75.134.144.252:30303"
 ```
 
@@ -181,25 +181,25 @@ will be the bootnode `enode` value for the other nodes.
 
 Then turn the bootnode on.
 ```
-./build/bin/geth --datadir=./abc-datadir
+./build/bin/core-geth --datadir=./abc-datadir
 ```
 
 ##### Start up a few nodes.
 
 ```
-./build/bin/geth --datadir=./abc-datadir-1 init abc_genesis.json
-./build/bin/geth --datadir=./abc-datadir-2 init abc_genesis.json
-./build/bin/geth --datadir=./abc-datadir-3 init abc_genesis.json
+./build/bin/core-geth --datadir=./abc-datadir-1 init abc_genesis.json
+./build/bin/core-geth --datadir=./abc-datadir-2 init abc_genesis.json
+./build/bin/core-geth --datadir=./abc-datadir-3 init abc_genesis.json
 ```
 
 ```
-./build/bin/geth --datadir=./abc-datadir-1 --bootnodes=enode://5256dcfe7725a98f38cf15b702847fabcaf59bbaa733a6ae5ea68e1089fdd1d274192e17593dc20df00a45ea91372f7c1ca97c8d186fa9e779167240fde15338@75.134.144.252:30303
+./build/bin/core-geth --datadir=./abc-datadir-1 --bootnodes=enode://5256dcfe7725a98f38cf15b702847fabcaf59bbaa733a6ae5ea68e1089fdd1d274192e17593dc20df00a45ea91372f7c1ca97c8d186fa9e779167240fde15338@75.134.144.252:30303
 ```
 
 ```
-./build/bin/geth --datadir=./abc-datadir-2 --bootnodes=enode://5256dcfe7725a98f38cf15b702847fabcaf59bbaa733a6ae5ea68e1089fdd1d274192e17593dc20df00a45ea91372f7c1ca97c8d186fa9e779167240fde15338@75.134.144.252:30303
+./build/bin/core-geth --datadir=./abc-datadir-2 --bootnodes=enode://5256dcfe7725a98f38cf15b702847fabcaf59bbaa733a6ae5ea68e1089fdd1d274192e17593dc20df00a45ea91372f7c1ca97c8d186fa9e779167240fde15338@75.134.144.252:30303
 ```
 
 ```
-./build/bin/geth --datadir=./abc-datadir-3 --bootnodes=enode://5256dcfe7725a98f38cf15b702847fabcaf59bbaa733a6ae5ea68e1089fdd1d274192e17593dc20df00a45ea91372f7c1ca97c8d186fa9e779167240fde15338@75.134.144.252:30303
+./build/bin/core-geth --datadir=./abc-datadir-3 --bootnodes=enode://5256dcfe7725a98f38cf15b702847fabcaf59bbaa733a6ae5ea68e1089fdd1d274192e17593dc20df00a45ea91372f7c1ca97c8d186fa9e779167240fde15338@75.134.144.252:30303
 ```

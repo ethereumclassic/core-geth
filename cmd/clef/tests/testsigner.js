@@ -22,7 +22,7 @@
 //
 // Start geth with
 //
-// build/bin/geth --nodiscover --maxpeers 0 --signer http://localhost:8550 console --preload=cmd/clef/tests/testsigner.js
+// build/bin/core-geth --nodiscover --maxpeers 0 --signer http://localhost:8550 console --preload=cmd/clef/tests/testsigner.js
 //
 // and in the console simply invoke
 //

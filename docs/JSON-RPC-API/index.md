@@ -5,16 +5,16 @@ hide:
 
 # Using JSON-RPC APIs
 
-## Programmatically interfacing `geth` nodes
+## Programmatically interfacing `core-geth` nodes
 
-As a developer, sooner rather than later you'll want to start interacting with `geth` and the
+As a developer, sooner rather than later you'll want to start interacting with `core-geth` and the
 Ethereum Classic network via your own programs and not manually through the console. To aid
-this, `geth` has built-in support for a JSON-RPC based APIs ([standard APIs](https://eth.wiki/json-rpc/API)
-and [`geth` specific APIs](https://geth.ethereum.org/docs/rpc/server)).
+this, `core-geth` has built-in support for a JSON-RPC based APIs ([standard APIs](https://eth.wiki/json-rpc/API)
+and [`core-geth` specific APIs](https://geth.ethereum.org/docs/rpc/server)).
 These can be exposed via HTTP, WebSockets and IPC (UNIX sockets on UNIX based
 platforms, and named pipes on Windows).
 
-The IPC interface is enabled by default and exposes all the APIs supported by `geth`,
+The IPC interface is enabled by default and exposes all the APIs supported by `core-geth`,
 whereas the HTTP and WS interfaces need to manually be enabled and only expose a
 subset of APIs due to security reasons. These can be turned on/off and configured as
 you'd expect.
@@ -39,7 +39,7 @@ HTTP based JSON-RPC API options:
   * `--ipcpath` Filename for IPC socket/pipe within the datadir (explicit paths escape it)
 
 You'll need to use your own programming environments' capabilities (libraries, tools, etc) to
-connect via HTTP, WS or IPC to a `geth` node configured with the above flags and you'll
+connect via HTTP, WS or IPC to a `core-geth` node configured with the above flags and you'll
 need to speak [JSON-RPC](https://www.jsonrpc.org/specification) on all transports. You
 can reuse the same connection for multiple requests!
 Here you can check the available [JSON-RPC calls](https://playground.open-rpc.org/?schemaUrl=https://gist.githubusercontent.com/ziogaschr/c51916d70ca5304bb3e3abf4dcd518ca/raw/8079eafd8de6436bd3e4ab6c9df0db64c25cd1a6/core-geth_rpc-discovery_1.11.21-unstable.json).

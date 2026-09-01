@@ -41,7 +41,7 @@ the default branch and this document will say so.
 
 ```bash
 git submodule update --init --recursive   # the test suites need the fixture submodules
-make geth                                 # build cmd/geth into ./build/bin/geth
+make core-geth                            # build cmd/core-geth into ./build/bin/core-geth
 make all                                  # build every executable
 make test                                 # make all, then build/ci.go test
 make lint                                 # the linter gate

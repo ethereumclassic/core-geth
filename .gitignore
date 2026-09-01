@@ -28,6 +28,8 @@ build/_vendor/pkg
 /build/bin/
 /build/static/
 /geth*.zip
+/core-geth
+/core-geth*.zip
 
 # travis
 profile.tmp

@@ -51,11 +51,11 @@ the accounts and populate the `alloc` field with their addresses.
 ```
 
 With the genesis state defined in the above JSON file, you'll need to initialize **every**
-`geth` node with it prior to starting it up to ensure all blockchain parameters are correctly
+`core-geth` node with it prior to starting it up to ensure all blockchain parameters are correctly
 set:
 
 ```shell
-$ geth init path/to/genesis.json
+$ core-geth init path/to/genesis.json
 ```
 
 #### Creating the rendezvous point
@@ -76,18 +76,18 @@ accessible IP to get the actual `enode` URL.
 
 !!! Note
 
-    You could also use a full-fledged `geth` node as a bootnode, but it's the less recommended way.
+    You could also use a full-fledged `core-geth` node as a bootnode, but it's the less recommended way.
 
 #### Starting up your member nodes
 
 With the bootnode operational and externally reachable (you can try
-`telnet <ip> <port>` to ensure it's indeed reachable), start every subsequent `geth`
+`telnet <ip> <port>` to ensure it's indeed reachable), start every subsequent `core-geth`
 node pointed to the bootnode for peer discovery via the `--bootnodes` flag. It will
 probably also be desirable to keep the data directory of your private network separated, so
 do also specify a custom `--datadir` flag.
 
 ```shell
-$ geth --datadir=path/to/custom/data/folder --bootnodes=<bootnode-enode-url-from-above>
+$ core-geth --datadir=path/to/custom/data/folder --bootnodes=<bootnode-enode-url-from-above>
 ```
 
 !!! Note
@@ -105,11 +105,11 @@ and the [ethminer](https://github.com/ethereum-mining/ethminer) repository.
 In a private network setting, however a single CPU miner instance is more than enough for
 practical purposes as it can produce a stable stream of blocks at the correct intervals
 without needing heavy resources (consider running on a single thread, no need for multiple
-ones either). To start a `geth` instance for mining, run it with all your usual flags, extended
+ones either). To start a `core-geth` instance for mining, run it with all your usual flags, extended
 by:
 
 ```shell
-$ geth <usual-flags> --mine --miner.threads=1 --etherbase=0x0000000000000000000000000000000000000000
+$ core-geth <usual-flags> --mine --miner.threads=1 --etherbase=0x0000000000000000000000000000000000000000
 ```
 
 Which will start mining blocks and transactions on a single CPU thread, crediting all

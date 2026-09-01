@@ -35,7 +35,7 @@ Once the dependencies have been installed, it's time to clone and build the sour
 $ git clone https://github.com/etclabscore/core-geth.git
 $ cd core-geth
 $ make all
-$ ./build/bin/geth --help
+$ ./build/bin/core-geth --help
 ```
 
 ## Build docker image
