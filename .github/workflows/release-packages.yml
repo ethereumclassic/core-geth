@@ -22,8 +22,17 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: macos-latest
+        # `osx` keeps the architecture every previous release shipped, so an
+        # existing download path does not silently change what it returns.
+        # Apple Silicon is published beside it under its own name rather than
+        # replacing it: `macos-latest` now resolves to an Arm64 image, so
+        # building there under the old name would have handed Intel users a
+        # binary their machine cannot run.
+        - os: macos-26-intel
           BUILD_OS_NAME: osx
+
+        - os: macos-26
+          BUILD_OS_NAME: osx-arm64
 
         - os: ubuntu-24.04
           BUILD_OS_NAME: linux
@@ -31,7 +40,7 @@ jobs:
         - os: ubuntu-24.04
           BUILD_OS_NAME: arm
 
-        - os: windows-latest
+        - os: windows-2025
           BUILD_OS_NAME: win64
 
     steps:
@@ -58,7 +67,7 @@ jobs:
 
       - name: Cache lookup (MacOS)
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
-        if: ${{ matrix.BUILD_OS_NAME == 'osx'}}
+        if: ${{ startsWith(matrix.BUILD_OS_NAME, 'osx') }}
         with:
           path: |
             ~/Library/Caches/go-build
@@ -91,13 +100,13 @@ jobs:
 
           sudo apt install gcc-multilib
 
-          sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install gcc-arm-linux-gnueabi libc6-dev-armel-cross gcc-arm-linux-gnueabihf libc6-dev-armhf-cross gcc-aarch64-linux-gnu libc6-dev-arm64-cross
+          sudo -E apt-get -yq --no-install-suggests --no-install-recommends install gcc-arm-linux-gnueabi libc6-dev-armel-cross gcc-arm-linux-gnueabihf libc6-dev-armhf-cross gcc-aarch64-linux-gnu libc6-dev-arm64-cross
           sudo ln -s /usr/include/asm-generic /usr/include/asm
 
-          echo "arm: This archive filepath is deprecated."
-          echo "     It will be removed, and will cease to be present"
-          echo "     as of the etclabscore/core-geth@v1.12.7 release."
-          echo "     The \*-arm5\* build should be used instead."
+          echo "arm: This archive name is deprecated and is byte-identical to"
+          echo "     the arm5 archive built from the same GOARM=5 invocation."
+          echo "     Use the arm5 archive; this name is kept only so an existing"
+          echo "     download path does not break, and will not be kept forever."
           GOARM=5 go run build/ci.go install -dlgo -arch arm -cc arm-linux-gnueabi-gcc
           env BUILD_OS_NAME=arm ./build/archive-signing.sh
 
@@ -111,7 +120,7 @@ jobs:
           env BUILD_OS_NAME=arm64 ./build/archive-signing.sh
 
       - name: Print Core-Geth version (Linux/MacOS)
-        if: ${{ matrix.BUILD_OS_NAME == 'linux' || matrix.BUILD_OS_NAME == 'osx'}}
+        if: ${{ matrix.BUILD_OS_NAME == 'linux' || startsWith(matrix.BUILD_OS_NAME, 'osx') }}
         run: ./build/bin/core-geth version
 
       - name: Print Core-Geth version (Windows)
@@ -124,7 +133,7 @@ jobs:
         env:
           BUILD_OS_NAME: ${{ matrix.BUILD_OS_NAME }}
 
-      - name: Upload release sssets
+      - name: Upload release assets
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3
         with:
           draft: true
