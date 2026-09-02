@@ -160,8 +160,16 @@ For testing with fake PoW, which skips DAG generation:
 
 ## Documentation
 
-- [Core-Geth docs](https://etclabscore.github.io/core-geth) — general documentation
-- [go-ethereum docs](https://geth.ethereum.org/docs/) — upstream reference
+- Core-Geth documentation is published from this repository at
+  [docs.coregeth.com](https://docs.coregeth.com/).
+  + Getting Started: [Installation](https://docs.coregeth.com/getting-started/installation/) and [CLI](https://docs.coregeth.com/getting-started/run-cli/)
+  + [JSON-RPC API](https://docs.coregeth.com/JSON-RPC-API/)
+  + [Developers](https://docs.coregeth.com/developers/build-from-source/)
+  + [Tutorials](https://docs.coregeth.com/tutorials/private-network/)
+  + The source is `docs/` in this repository. It is built with `mkdocs` and
+    deployed by [`.github/workflows/docs-deploy.yml`](.github/workflows/docs-deploy.yml).
+- Further [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum) documentation about can be found [here](https://geth.ethereum.org/docs/).
+- Documentation about documentation lives [here](./docs/developers/documentation.md).
 
 ## Security
 
