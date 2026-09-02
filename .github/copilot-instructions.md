@@ -41,12 +41,17 @@ and load-bearing:
 
 | Where | Declares | Governs |
 |---|---|---|
-| `go.mod` | `go 1.21` | the language version the module compiles against |
-| `.github/workflows/*.yml` | `go-version: '1.21'` | what CI builds and tests with |
-| `build/checksums.txt` | `# version:golang 1.22.1` | what `build/ci.go install -dlgo` downloads for release builds |
-| `Dockerfile`, `Dockerfile.alltools` | `golang:1.22-alpine` | the container build |
+| `go.mod` | the language version | what the module compiles against |
+| `.github/workflows/*.yml` | `go-version`, a major only | what CI builds and tests with |
+| `build/checksums.txt` | `# version:golang`, an exact patch | what `-dlgo` downloads |
+| `Dockerfile`, `Dockerfile.alltools` | a `golang:` major tag | the container build |
 
-`build/checksums.txt` also pins `# version:golangci 1.55.2`. `make lint`
+Read the current values from those files. The major agrees across all four; the
+patch does not, because two of them float. `make all` carries no `-dlgo`, so most
+release archives use the runner's patch while only the ARM leg uses the pinned
+one.
+
+`build/checksums.txt` also pins the linter release. `make lint`
 downloads that exact linter release rather than using a locally installed copy.
 
 **The Go module path is `github.com/ethereum/go-ethereum`, not a core-geth path.**
@@ -95,8 +100,11 @@ GitHub Actions under `.github/workflows/` is what runs: `test-linux.yml` (lint
 plus both test suites), `evmc.yml`, `go-generate-check.yml`, `bench-*.yml`,
 `docs-deploy.yml`, `release-packages.yml`, `audit-bootnodes.yml`.
 
-`test-linux.yml` triggers on `push` to `master` only, plus every pull request and
-manual dispatch. A push to any other branch runs no workflow.
+Triggers are not uniform and the branch names are mid-transition. `test-linux.yml`
+fires on a push to `main`, every pull request, and dispatch. `docs-deploy.yml`
+fires on `master` or `main`, path-filtered. `evmc.yml` and the three `bench-*.yml`
+still fire on `master` only, so they stop silently when `master` retires. The
+release and image workflows fire on a `v*` tag. Verify against the file.
 
 `.travis.yml`, `circle.yml`, `appveyor.yml` and `Jenkinsfile` are historical CI
 definitions, not what runs today. Leave them alone.
@@ -143,8 +151,10 @@ something this repository holds: `gomod`, `pip`, `docker`, `github-actions` and
 in that file, and a limit of zero does not withhold them. Do not turn the
 disabled config into an active one — its state is a decision.
 
-Actions in the workflows are pinned to mutable tags. Repointing them to commit
-SHAs is a workflow change and needs confirmation before it is made.
+Every `uses:` reference is pinned to a full commit SHA, with the readable version
+in a trailing comment. Bumping one means resolving the new SHA, reading the diff
+at that commit, and updating both — and it is a workflow change, so it needs
+confirmation. The comment can drift from the SHA; trust the SHA.
 
 ## Facts that mislead if you do not know them
 

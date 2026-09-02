@@ -41,19 +41,26 @@ git rev-parse --abbrev-ref HEAD
 
 ## Toolchain
 
-**Three Go versions are declared in this tree and they do not agree.** This is
-real, it is load-bearing, and it is one of the things a modernization pass has
-to reconcile rather than assume:
+**Four places declare a Go version. They agree on the major and not on the
+patch, and that remaining split is worth knowing before you trust a build.**
 
 | Where | Declares | Governs |
 |---|---|---|
-| `go.mod` | `go 1.21` | the language version the module compiles against |
-| `.github/workflows/*.yml` | `go-version: '1.21'` | what CI builds and tests with |
-| `build/checksums.txt` | `# version:golang 1.22.1` | what `build/ci.go install -dlgo` downloads for release builds |
-| `Dockerfile`, `Dockerfile.alltools` | `golang:1.22-alpine` | the container build |
+| `go.mod` | the language version | what the module compiles against |
+| `.github/workflows/*.yml` | `go-version`, a **major** only | what CI builds and tests with; resolves to whatever patch the runner has |
+| `build/checksums.txt` | `# version:golang`, an **exact patch** | what `build/ci.go install -dlgo` downloads |
+| `Dockerfile`, `Dockerfile.alltools` | a `golang:` **major** tag | the container build; the tag is repointed upstream without any change here |
 
-`build/checksums.txt` also pins `# version:golangci 1.55.2`. `make lint` downloads
-that exact linter release; it is not read from any locally installed copy.
+Read the current values from those files rather than from this table; the major
+moves rarely and the patch moves without anyone here acting.
+
+The consequence is concrete: `make all` carries no `-dlgo`, so most release
+archives are built with the runner's floating patch while only the ARM leg uses
+the pinned one. A single release can therefore ship binaries produced by two
+toolchains.
+
+`build/checksums.txt` also pins the linter release. `make lint` downloads that
+exact version; it is never read from a locally installed copy.
 
 **The Go module path is `github.com/ethereum/go-ethereum`, not a core-geth path.**
 Every internal import uses it. That is deliberate downstream compatibility — do
@@ -109,9 +116,22 @@ GitHub Actions under `.github/workflows/` is what actually runs:
 `test-linux.yml` (lint plus both test suites), `evmc.yml`, `go-generate-check.yml`,
 `bench-*.yml`, `docs-deploy.yml`, `release-packages.yml`, `audit-bootnodes.yml`.
 
-**`test-linux.yml` triggers on `push` to `master` only**, plus every pull request
-and manual dispatch. A push to any other branch runs no workflow. Verify against
-the workflow file rather than assuming a push was tested.
+**Which workflow fires on what is not uniform, and the branch names are
+mid-transition.** Verify against the workflow file rather than assuming a push
+was tested:
+
+| Fires on | Workflows |
+|---|---|
+| push to `main`, every pull request, dispatch | `test-linux.yml` — lint plus both suites |
+| push to `master` or `main`, path-filtered to the docs | `docs-deploy.yml` |
+| push to `master` only | `evmc.yml`, and the three `bench-*.yml` |
+| every pull request | `go-generate-check.yml`, `evmc.yml`, `audit-bootnodes.yml` |
+| a `v*` tag | `release-packages.yml`, `docker-publish.yml` |
+| a daily schedule | `audit-bootnodes.yml` |
+
+**The `master`-only row is a trap once `master` retires.** Those four stop firing
+and nothing reports it — the EVMC state tests would simply stop running. Move
+them with the default branch, not after it.
 
 `.travis.yml`, `circle.yml`, `appveyor.yml` and `Jenkinsfile` are also present.
 They are historical CI definitions, not what runs today. Leave them alone.
@@ -167,8 +187,8 @@ string.
 
 - **Five ecosystems name something this repository actually holds** — `gomod`
   (`go.mod`, `go.sum`), `pip` (`requirements-mkdocs.txt`), `docker` (two
-  Dockerfiles on `golang:1.22-alpine` and `alpine:latest`), `github-actions`
-  (nine workflows) and `gitsubmodule` (three submodules).
+  Dockerfiles), `github-actions` (every workflow under `.github/workflows/`) and
+  `gitsubmodule` (the submodules in `.gitmodules`).
 - **The limit is zero because nobody is triaging a standing pull-request queue.**
   A queue nobody reads reports itself as a control while operating as noise.
 - **Dependabot security updates are a repository setting with no key in that
@@ -189,10 +209,14 @@ string.
 
 Do not "fix" the disabled config into an active one. Its state is a decision.
 
-**Actions in the workflows are pinned to mutable tags** (`actions/checkout@v2`,
-`actions/setup-go@v5`, `softprops/action-gh-release@v1` and others). A tag is a
-mutable reference; a commit SHA is not. Repointing them is a workflow change and
-needs confirmation before it is made.
+**Every `uses:` reference in the workflows is pinned to a full commit SHA**, with
+the human-readable version in a trailing comment. A tag is a mutable reference
+and a commit is not, so the comment is a label and the SHA is the contract.
+
+Two things follow. Bumping one means resolving the new SHA, reading the diff at
+that commit, and updating both the SHA and its comment — the pin defends against
+a compromised upstream commit, and skipping the diff gives that up. And the
+comment can drift from the SHA without anything failing, so trust the SHA.
 
 ## Facts that mislead if you do not know them
 

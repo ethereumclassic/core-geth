@@ -21,8 +21,8 @@
 #
 #     gomod           go.mod, go.sum
 #     pip             requirements-mkdocs.txt (documentation site build)
-#     docker          Dockerfile, Dockerfile.alltools (golang:1.22-alpine, alpine:latest)
-#     github-actions  nine workflows under .github/workflows/
+#     docker          Dockerfile, Dockerfile.alltools
+#     github-actions  the workflows under .github/workflows/
 #     gitsubmodule    tests/testdata, tests/evm-benchmarks, tests/testdata-etc
 #
 # WHAT THIS DOES NOT DO
@@ -47,9 +47,9 @@
 #   Writing the latter under those ecosystems adds a key nothing reads.
 #
 # UNAFFECTED BY THIS FILE
-#   Actions in the workflows are pinned to mutable tags rather than commit SHAs.
-#   That is a real exposure and this file does not address it; repointing a tag
-#   is a workflow change, made deliberately and reviewed.
+#   Action pinning. Every `uses:` reference already carries a full commit SHA,
+#   so the mutable-tag exposure this file cannot address does not exist here.
+#   Bumping a pin stays a workflow change, made deliberately and reviewed.
 
 version: 2
 updates:
