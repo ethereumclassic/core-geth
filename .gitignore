@@ -27,7 +27,6 @@ build/_vendor/pkg
 /build/cache/
 /build/bin/
 /build/static/
-/geth
 /geth*.zip
 
 # travis
@@ -62,19 +61,54 @@ les/transactions.rlp
 /manifest.json
 /site
 
-# Secrets & credentials
+# ---------------------------------------------------------------------------
+# Below this line: local development and agent tooling. Everything above is the
+# project's own build and editor output and is unrelated to this section.
+# ---------------------------------------------------------------------------
+
+# Secrets and credentials. Nothing matching these is ever committed; if one was,
+# rotate it first -- removing a file does not un-disclose what was published.
 .env
 .env.*
 !.env.example
 *.pem
 *.key
+*.p12
+*.pfx
+id_rsa
+id_ecdsa
+id_ed25519
 credentials.json
-keystore/
+service-account.json
+secrets/
 
-# Claude internal files
-.claude/SESSION_NOTES.md
-.claude/reports/
-.claude/debug.log
+# Chain keys and wallets. A keystore in a repository is a spent key.
+keystore/
+*.keystore
+wallet.json
+mnemonic.txt
+
+# Package-registry auth
+.npmrc
+.yarnrc
+.yarnrc.yml
+
+# Agent configuration. `.claude/` itself is TRACKED on purpose -- an agent, skill
+# or rule inside an ignored directory never reaches a clone, which is not a
+# stricter form of sharing it. Only machine-local and agent-written state is held
+# back, and `.claude/.gitignore` carries that deny-list beside the directory it
+# governs.
+CLAUDE.local.md
+
+# Private working notes, kept out of a public tree
+.local/
 SESSION_NOTES.md
 PLANNING.md
 SCRATCH.md
+*.scratch.*
+*.draft.*
+
+# Editor and OS
+*.swp
+*.swo
+Thumbs.db
