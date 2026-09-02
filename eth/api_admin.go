@@ -143,6 +143,11 @@ func (api *AdminAPI) ImportChain(file string) (bool, error) {
 	return true, nil
 }
 
+// Ecbp1100 sets the ECBP-1100 (MESS) activation block and reports whether the
+// mechanism is active afterwards.
+//
+// This mutates chain configuration. To read the current state without changing
+// it, use Ecbp1100Status.
 func (api *AdminAPI) Ecbp1100(blockNr rpc.BlockNumber) (bool, error) {
 	i := uint64(blockNr.Int64())
 	err := api.eth.blockchain.Config().SetECBP1100Transition(&i)
@@ -150,6 +155,54 @@ func (api *AdminAPI) Ecbp1100(blockNr rpc.BlockNumber) (bool, error) {
 		api.eth.blockchain.Config().IsEnabled(
 			api.eth.blockchain.Config().GetECBP1100Transition,
 			api.eth.blockchain.CurrentBlock().Number), err
+}
+
+// ECBP1100Status reports whether the ECBP-1100 (MESS) chain-selection defense is
+// enabled at the current head.
+//
+// The vocabulary matters and the code has historically got it wrong. ECBP-1100
+// added MESS and shipped it enabled by default. ECBP-1110 turned the bundled
+// default off at Spiral; it did not remove the mechanism, which remains in the
+// client and available to any operator who enables it. So a height configured
+// under ECBP-1110 disables MESS by default at that block rather than
+// deactivating it, and the two are not the same claim.
+type ECBP1100Status struct {
+	// Enabled reports whether MESS is presently applied to reorganization
+	// decisions. It requires both that the node switch is on and that the head
+	// has reached the activation block.
+	Enabled bool `json:"enabled"`
+	// NodeSwitch reports the node-level setting alone, which --mess=false and
+	// the low-peer-count safeguard both turn off, independent of any height.
+	NodeSwitch bool `json:"nodeSwitch"`
+	// ActivatedAtBlock is the height from which the mechanism is available,
+	// per ECBP-1100. Nil when unset.
+	ActivatedAtBlock *uint64 `json:"activatedAtBlock"`
+	// DefaultDisabledAtBlock is the height from which the bundled default is
+	// off, per ECBP-1110. Nil means the shipped default stays on, which is this
+	// client's configuration; a non-nil value disables MESS by default at that
+	// height without removing it.
+	DefaultDisabledAtBlock *uint64 `json:"defaultDisabledAtBlock"`
+	// Head is the block number the heights above were evaluated against.
+	Head uint64 `json:"head"`
+}
+
+// Ecbp1100Status reports the ECBP-1100 (MESS) state at the current head and
+// changes nothing.
+//
+// Ecbp1100 above answers a similar question by first assigning the activation
+// block it is passed, so it cannot be used to observe a running node. This
+// exists so that state can be read without altering it.
+func (api *AdminAPI) Ecbp1100Status() ECBP1100Status {
+	config := api.eth.blockchain.Config()
+	head := api.eth.blockchain.CurrentBlock().Number
+	nodeSwitch := api.eth.blockchain.IsArtificialFinalityEnabled()
+	return ECBP1100Status{
+		Enabled:                nodeSwitch && config.IsEnabled(config.GetECBP1100Transition, head),
+		NodeSwitch:             nodeSwitch,
+		ActivatedAtBlock:       config.GetECBP1100Transition(),
+		DefaultDisabledAtBlock: config.GetECBP1100DeactivateTransition(),
+		Head:                   head.Uint64(),
+	}
 }
 
 // MaxPeers sets the maximum peer limit for the protocol manager and the p2p server.
