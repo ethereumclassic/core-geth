@@ -93,7 +93,7 @@ type TxPool interface {
 func MakeProtocols(backend Backend, network uint64, protocolVersions []uint, dnsdisc enode.Iterator) []p2p.Protocol {
 	protocols := make([]p2p.Protocol, 0, len(protocolVersions))
 	for _, version := range protocolVersions {
-		version := version // Closure
+		// Closure
 
 		// TODO(meowsbits): FIXME re: Cancun config/time/enabled check
 		// Blob transactions require eth/68 announcements, disable everything else

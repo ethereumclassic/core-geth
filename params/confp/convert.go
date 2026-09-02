@@ -168,7 +168,7 @@ methodsLoop:
 		if !crushZeroValues {
 			allNil := true
 			for _, r := range response {
-				if r.Kind() == reflect.Ptr && !r.IsNil() {
+				if r.Kind() == reflect.Pointer && !r.IsNil() {
 					allNil = false
 					break
 				}
@@ -184,7 +184,7 @@ methodsLoop:
 		if !setResponse[0].IsNil() {
 			err := setResponse[0].Interface().(error)
 			v := response[0].Interface()
-			if !response[0].IsNil() && response[0].Kind() == reflect.Ptr {
+			if !response[0].IsNil() && response[0].Kind() == reflect.Pointer {
 				v = response[0].Elem().Interface()
 			}
 			e := ctypes.UnsupportedConfigError(err, strings.TrimPrefix(method.Name, "Get"), v)

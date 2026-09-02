@@ -157,7 +157,6 @@ func (host *hostContext) SetStorage(evmcAddr evmc.Address, evmcKey evmc.Hash, ev
 	// when they don't specify each other in the spec.
 	hasNetStorageCostEIP := hasEIP2200 && hasEIP1884
 	if !hasNetStorageCostEIP {
-		status = evmc.StorageModified
 		if oldValue.IsZero() {
 			return evmc.StorageAdded
 		} else if value.IsZero() {
@@ -270,7 +269,6 @@ func (host *hostContext) EmitLog(addr evmc.Address, evmcTopics []evmc.Hash, data
 func (host *hostContext) Call(kind evmc.CallKind,
 	evmcDestination evmc.Address, evmcSender evmc.Address, valueBytes evmc.Hash, input []byte, gas int64, depth int,
 	static bool, saltBytes evmc.Hash) (output []byte, gasLeft int64, createAddrEvmc evmc.Address, err error) {
-
 	destination := common.Address(evmcDestination)
 
 	var createAddr common.Address

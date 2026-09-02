@@ -150,7 +150,7 @@ func newOpenRPCDocument() *go_openrpc_reflect.Document {
 		// This causes SubscribeSyncStatus to be rejected.
 		for i := 0; i < method.Func.Type().NumIn(); i++ {
 			in := method.Func.Type().In(i)
-			for in.Kind() == reflect.Ptr {
+			for in.Kind() == reflect.Pointer {
 				in = in.Elem()
 			}
 			if in.Kind() == reflect.Chan {
@@ -413,7 +413,7 @@ func OpenRPCJSONSchemaTypeMapper(ty reflect.Type) *jsonschema.Type {
 		return &js
 	}
 
-	if ty.Kind() == reflect.Ptr {
+	if ty.Kind() == reflect.Pointer {
 		ty = ty.Elem()
 	}
 
@@ -463,7 +463,7 @@ func OpenRPCJSONSchemaTypeMapper(ty reflect.Type) *jsonschema.Type {
 	case reflect.Float32, reflect.Float64:
 	case reflect.Bool:
 	case reflect.String:
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 	default:
 	}
 
@@ -526,7 +526,7 @@ var (
 
 // Is t context.Context or *context.Context?
 func isContextType(t reflect.Type) bool {
-	for t.Kind() == reflect.Ptr {
+	for t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 	return t == contextType
@@ -534,7 +534,7 @@ func isContextType(t reflect.Type) bool {
 
 // Is t Subscription or *Subscription?
 func isSubscriptionType(t reflect.Type) bool {
-	for t.Kind() == reflect.Ptr {
+	for t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 	return t == subscriptionType
@@ -542,7 +542,7 @@ func isSubscriptionType(t reflect.Type) bool {
 
 // Does t satisfy the error interface?
 func isErrorType(t reflect.Type) bool {
-	for t.Kind() == reflect.Ptr {
+	for t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 	return t.Implements(errorType)

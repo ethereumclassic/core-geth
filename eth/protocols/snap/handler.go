@@ -124,7 +124,7 @@ func MakeProtocols(backend Backend, dnsdisc enode.Iterator) []p2p.Protocol {
 
 	protocols := make([]p2p.Protocol, len(ProtocolVersions))
 	for i, version := range ProtocolVersions {
-		version := version // Closure
+		// Closure
 
 		protocols[i] = p2p.Protocol{
 			Name:    ProtocolName,

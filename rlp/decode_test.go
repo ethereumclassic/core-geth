@@ -305,9 +305,7 @@ func TestStreamReadBytes(t *testing.T) {
 		{input: "820102", size: 2},
 		{input: "820102", size: 3, err: "input value has wrong size 2, want 3"},
 	}
-
 	for _, test := range tests {
-		test := test
 		name := fmt.Sprintf("input_%s/size_%d", test.input, test.size)
 		t.Run(name, func(t *testing.T) {
 			s := NewStream(bytes.NewReader(unhex(test.input)), 0)
