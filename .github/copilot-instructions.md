@@ -152,7 +152,6 @@ SHAs is a workflow change and needs confirmation before it is made.
   committed by accident in a 2021 upstream merge and still present in `master`.
   `.dockerignore` does not exclude it, so it is carried into the Docker build
   context. Removing it is a deliberate repository change, not tidying.
-- **`.github/CODEOWNERS` is empty.** No review is auto-requested from it.
 - **`swarm/` is legacy**, retained but not the active networking stack.
 - **`sync-parity-chainspecs` is marked deprecated in the `Makefile` itself.**
 - **`AUTHORS` is generated, not written**, by `build/update-license.go` from

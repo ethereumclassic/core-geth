@@ -201,7 +201,6 @@ needs confirmation before it is made.
   in `master`. Nothing reads it, and `.dockerignore` does not exclude it, so it is
   carried into the Docker build context. Removing it is a deliberate repository
   change, not tidying — ask first.
-- **`.github/CODEOWNERS` is empty.** No review is auto-requested from it.
 - **`swarm/` is legacy.** It is retained; it is not the active networking stack.
 - **The `sync-parity-chainspecs` target is marked deprecated in the `Makefile`
   itself.** Parity configuration support is not maintained past the Istanbul fork.
