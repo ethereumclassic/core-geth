@@ -15,12 +15,12 @@ as the name of my new network.
 
 ### Define the configuration.
 
-A branch [`docs/_tutorial-add-network`](https://github.com/etclabscore/core-geth/tree/docs/_tutorial-add-network) 
+A branch [`docs/_tutorial-add-network`](https://github.com/ethereumclassic/core-geth/tree/docs/_tutorial-add-network) 
 is provided to illustrate the code necessary to define implement basic 
 core-geth support for a new network.
 
 A full diff comparing this branch against its base `v1.11.22` can
-be seen on the Github web UI [here](https://github.com/etclabscore/core-geth/compare/v1.11.22...docs/_tutorial-add-network?expand=1).
+be seen on the Github web UI [here](https://github.com/ethereumclassic/core-geth/compare/v1.11.22...docs/_tutorial-add-network?expand=1).
 
 Overall, the files touched include:
 

@@ -52,14 +52,14 @@ func (c GenericCC) DAOSupport() bool {
 
 // Following vars define sufficient JSON schema keys for configurator type inference.
 var (
-	// Fields known (and unique, if possible) to etclabscore/core-geth.
+	// Fields known (and unique, if possible) to ethereumclassic/core-geth.
 	coregethSchemaSuffice = []string{
 		"networkId", "config.networkId",
 		"requireBlockHashes", "config.requireBlockHashes",
 		"eip2FBlock", "config.eip2FBlock",
 		"supportedProtocolVersions", "config.supportedProtocolVersions",
 	}
-	// Fields unknown for etclabscore/core-geth.
+	// Fields unknown for ethereumclassic/core-geth.
 	coregethSchemaMustNot = []string{
 		"EIP1108FBlock", "config.EIP1108FBlock",
 		"eip158Block", "config.eip158Block",

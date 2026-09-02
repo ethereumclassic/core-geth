@@ -7,7 +7,7 @@
 
 | Entity | Version |
 | --- | --- |
-| Source | <code>1.12.14-unstable/generated-at:2023-09-04T08:02:34-06:00</code> |
+| Source | <code>1.13.0-unstable/generated-at:2026-09-02T12:02:52-06:00</code> |
 | OpenRPC | <code>1.2.6</code> |
 
 ---
@@ -108,7 +108,7 @@ func (s *EthereumAccountAPI) Accounts() [ // Accounts returns the collection of 
 	return s.am.Accounts()
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L271" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L281" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -199,7 +199,7 @@ func (s *BlockChainAPI) BlockNumber() hexutil.Uint64 {
 }// BlockNumber returns the block number of the chain head.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L628" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L644" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -257,10 +257,47 @@ args <code>TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -287,6 +324,11 @@ args <code>TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -301,6 +343,20 @@ args <code>TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -347,10 +403,47 @@ args <code>TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -377,6 +470,11 @@ args <code>TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -391,6 +489,20 @@ args <code>TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -413,7 +525,7 @@ args <code>TransactionArgs</code>
 
 
 __2:__ 
-blockNrOrHash <code>rpc.BlockNumberOrHash</code> 
+blockNrOrHash <code>*rpc.BlockNumberOrHash</code> 
 
   + Required: ✓ Yes
 
@@ -556,6 +668,11 @@ blockOverrides <code>*BlockOverrides</code>
 			- title: `integer`
 			- type: `string`
 
+		- BlobBaseFee: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- Coinbase: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
 			- title: `keccak`
@@ -599,6 +716,11 @@ blockOverrides <code>*BlockOverrides</code>
         "additionalProperties": false,
         "properties": {
             "BaseFee": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
+            "BlobBaseFee": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
@@ -712,13 +834,17 @@ blockOverrides <code>*BlockOverrides</code>
 <details><summary>Source code</summary>
 <p>
 ```go
-func (s *BlockChainAPI) Call(ctx context.Context, args TransactionArgs, blockNrOrHash rpc.BlockNumberOrHash, overrides *StateOverride, blockOverrides *BlockOverrides) (hexutil.Bytes, error) {
-	result, err := DoCall(ctx, s.b, args, blockNrOrHash, overrides, blockOverrides, s.b.RPCEVMTimeout(), s.b.RPCGasCap())
+func (s *BlockChainAPI) Call(ctx context.Context, args TransactionArgs, blockNrOrHash *rpc.BlockNumberOrHash, overrides *StateOverride, blockOverrides *BlockOverrides) (hexutil.Bytes, error) {
+	if blockNrOrHash == nil {
+		latest := rpc.BlockNumberOrHashWithNumber(rpc.LatestBlockNumber)
+		blockNrOrHash = &latest
+	}
+	result, err := DoCall(ctx, s.b, args, *blockNrOrHash, overrides, blockOverrides, s.b.RPCEVMTimeout(), s.b.RPCGasCap())
 	if err != nil {
 		return nil, err
 	}
 	if len(result.Revert()) > 0 {
-		return nil, newRevertError(result)
+		return nil, newRevertError(result.Revert())
 	}
 	return result.Return(), result.Err
 }// Call executes the given transaction on the state for the given block number.
@@ -729,7 +855,7 @@ func (s *BlockChainAPI) Call(ctx context.Context, args TransactionArgs, blockNrO
 // useful to execute and retrieve values.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1126" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1148" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -829,7 +955,7 @@ func (api *BlockChainAPI) ChainId() *hexutil.Big {
 // in CL clients.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L623" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L639" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -919,7 +1045,7 @@ func (api *EthereumAPI) Coinbase() (common.Address, error) {
 }// Coinbase is the address that mining rewards will be sent to (alias for Etherbase).
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api.go#L40" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api.go#L40" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -973,10 +1099,47 @@ args <code>TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -1003,6 +1166,11 @@ args <code>TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -1017,6 +1185,20 @@ args <code>TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -1063,10 +1245,47 @@ args <code>TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -1093,6 +1312,11 @@ args <code>TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -1107,6 +1331,20 @@ args <code>TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -1269,7 +1507,7 @@ blockNrOrHash <code>*rpc.BlockNumberOrHash</code>
 <p>
 ```go
 func (s *BlockChainAPI) CreateAccessList(ctx context.Context, args TransactionArgs, blockNrOrHash *rpc.BlockNumberOrHash) (*accessListResult, error) {
-	bNrOrHash := rpc.BlockNumberOrHashWithNumber(rpc.PendingBlockNumber)
+	bNrOrHash := rpc.BlockNumberOrHashWithNumber(rpc.LatestBlockNumber)
 	if blockNrOrHash != nil {
 		bNrOrHash = *blockNrOrHash
 	}
@@ -1286,7 +1524,7 @@ func (s *BlockChainAPI) CreateAccessList(ctx context.Context, args TransactionAr
 // Reexec and BlockNrOrHash can be specified to create the accessList on top of a certain state.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1645" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1614" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1296,8 +1534,12 @@ func (s *BlockChainAPI) CreateAccessList(ctx context.Context, args TransactionAr
 
 ### eth_estimateGas
 
-EstimateGas returns an estimate of the amount of gas needed to execute the
-given transaction against the current pending block.
+EstimateGas returns the lowest possible gas limit that allows the transaction to run
+successfully at block `blockNrOrHash`, or the latest block if `blockNrOrHash` is unspecified. It
+returns error if the transaction would revert or if there are unexpected failures. The returned
+value is capped by both `args.Gas` (if non-nil & non-zero) and the backend's RPCGasCap
+configuration (if non-zero).
+Note: Required blob gas is not computed in this method.
 
 
 #### Params (3)
@@ -1340,10 +1582,47 @@ args <code>TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -1370,6 +1649,11 @@ args <code>TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -1384,6 +1668,20 @@ args <code>TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -1430,10 +1728,47 @@ args <code>TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -1460,6 +1795,11 @@ args <code>TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -1474,6 +1814,20 @@ args <code>TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -1697,11 +2051,15 @@ func (s *BlockChainAPI) EstimateGas(ctx context.Context, args TransactionArgs, b
 		bNrOrHash = *blockNrOrHash
 	}
 	return DoEstimateGas(ctx, s.b, args, bNrOrHash, overrides, s.b.RPCGasCap())
-}// EstimateGas returns an estimate of the amount of gas needed to execute the
-// given transaction against the current pending block.
+}// EstimateGas returns the lowest possible gas limit that allows the transaction to run
+// successfully at block `blockNrOrHash`, or the latest block if `blockNrOrHash` is unspecified. It
+// returns error if the transaction would revert or if there are unexpected failures. The returned
+// value is capped by both `args.Gas` (if non-nil & non-zero) and the backend's RPCGasCap
+// configuration (if non-zero).
+// Note: Required blob gas is not computed in this method.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1273" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1206" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1791,7 +2149,7 @@ func (api *EthereumAPI) Etherbase() (common.Address, error) {
 }// Etherbase is the address that mining rewards will be sent to.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api.go#L35" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api.go#L35" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2103,7 +2461,7 @@ func (s *EthereumAPI) FeeHistory(ctx context.Context, blockCount math.HexOrDecim
 	return results, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L94" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L102" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2158,10 +2516,47 @@ args <code>TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -2188,6 +2583,11 @@ args <code>TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -2202,6 +2602,20 @@ args <code>TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -2248,10 +2662,47 @@ args <code>TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -2278,6 +2729,11 @@ args <code>TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -2292,6 +2748,20 @@ args <code>TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -2401,7 +2871,8 @@ args <code>TransactionArgs</code>
 <p>
 ```go
 func (s *TransactionAPI) FillTransaction(ctx context.Context, args TransactionArgs) (*SignTransactionResult, error) {
-	if err := args.setDefaults(ctx, s.b); err != nil {
+	args.blobSidecarAllowed = true
+	if err := args.setDefaults(ctx, s.b, false); err != nil {
 		return nil, err
 	}
 	tx := args.toTransaction()
@@ -2415,7 +2886,7 @@ func (s *TransactionAPI) FillTransaction(ctx context.Context, args TransactionAr
 // processing (signing + broadcast).
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1996" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1971" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2512,7 +2983,7 @@ func (s *EthereumAPI) GasPrice(ctx context.Context) (*hexutil.Big, error) {
 }// GasPrice returns a suggestion for a gas price for legacy transactions.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L66" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L74" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2649,13 +3120,14 @@ func (s *BlockChainAPI) GetBalance(ctx context.Context, address common.Address, 
 	if state == nil || err != nil {
 		return nil, err
 	}
-	return (*hexutil.Big)(state.GetBalance(address)), state.Error()
+	b := state.GetBalance(address).ToBig()
+	return (*hexutil.Big)(b), state.Error()
 }// GetBalance returns the amount of wei for the given address in the state of the
 // given block number. The rpc.LatestBlockNumber and rpc.PendingBlockNumber meta
 // block numbers are also allowed.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L636" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L652" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -3102,7 +3574,7 @@ func (s *BlockChainAPI) GetBlockByHash(ctx context.Context, hash common.Hash, fu
 // detail, otherwise only the transaction hash is returned.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L817" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L836" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -3591,7 +4063,140 @@ func (s *BlockChainAPI) GetBlockByNumber(ctx context.Context, number rpc.BlockNu
 //     only the transaction hash is returned.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L802" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L821" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### eth_getBlockReceipts
+
+GetBlockReceipts returns the block receipts for the given block hash or number or tag.
+
+
+#### Params (1)
+
+Parameters must be given _by position_.
+
+
+__1:__ 
+blockNrOrHash <code>rpc.BlockNumberOrHash</code> 
+
+  + Required: ✓ Yes
+
+
+
+
+
+
+#### Result
+
+
+
+mapstringinterface <code>[]map[string]interface{}</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- items: 
+
+			- patternProperties: 
+				- .*: 
+					- additionalProperties: `true`
+
+
+			- type: object
+
+
+	- type: array
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "items": [
+            {
+                "patternProperties": {
+                    ".*": {
+                        "additionalProperties": true
+                    }
+                },
+                "type": [
+                    "object"
+                ]
+            }
+        ],
+        "type": [
+            "array"
+        ]
+    }
+	```
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "eth_getBlockReceipts", "params": [<blockNrOrHash>]}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "eth_getBlockReceipts", "params": [<blockNrOrHash>]}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	eth.getBlockReceipts(blockNrOrHash);
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (s *BlockChainAPI) GetBlockReceipts(ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash) ([ // GetBlockReceipts returns the block receipts for the given block hash or number or tag.
+]map[string]interface{}, error) {
+	block, err := s.b.BlockByNumberOrHash(ctx, blockNrOrHash)
+	if block == nil || err != nil {
+		return nil, nil
+	}
+	receipts, err := s.b.GetReceipts(ctx, block.Hash())
+	if err != nil {
+		return nil, err
+	}
+	txs := block.Transactions()
+	if len(txs) != len(receipts) {
+		return nil, fmt.Errorf("receipts length mismatch: %d vs %d", len(txs), len(receipts))
+	}
+	signer := types.MakeSigner(s.b.ChainConfig(), block.Number(), block.Time())
+	result := make([]map[string]interface{}, len(receipts))
+	for i, receipt := range receipts {
+		result[i] = marshalReceipt(receipt, block.Hash(), block.NumberU64(), signer, txs[i], i)
+	}
+	return result, nil
+}
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L921" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -3721,7 +4326,7 @@ func (s *TransactionAPI) GetBlockTransactionCountByHash(ctx context.Context, blo
 }// GetBlockTransactionCountByHash returns the number of transactions in the block with the given hash.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1757" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1721" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -3879,7 +4484,7 @@ func (s *TransactionAPI) GetBlockTransactionCountByNumber(ctx context.Context, b
 }// GetBlockTransactionCountByNumber returns the number of transactions in the block with the given block number.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1748" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1712" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4019,7 +4624,7 @@ func (s *BlockChainAPI) GetCode(ctx context.Context, address common.Address, blo
 }// GetCode returns the code stored at the given address in the state for the given block number.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L876" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L895" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4161,7 +4766,7 @@ func (api *FilterAPI) GetFilterChanges(id rpc.ID) (interface{}, error) {
 	return []interface{}{}, errFilterNotFound
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L480" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L491" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4416,7 +5021,7 @@ func (api *FilterAPI) GetFilterLogs(ctx context.Context, id rpc.ID) ([ // GetFil
 	return returnLogs(logs), nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L441" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L452" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4506,7 +5111,7 @@ func (api *API) GetHashrate() uint64 {
 }// GetHashrate returns the current hashrate for local CPU miner and remote miner.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/consensus/ethash/api.go#L111" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/consensus/ethash/api.go#L111" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4838,7 +5443,7 @@ func (s *BlockChainAPI) GetHeaderByHash(ctx context.Context, hash common.Hash) *
 }// GetHeaderByHash returns the requested header by hash.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L787" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L806" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5210,7 +5815,7 @@ func (s *BlockChainAPI) GetHeaderByNumber(ctx context.Context, number rpc.BlockN
 //   - When blockNr is -4 the chain safe header is returned.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L773" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L792" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5510,6 +6115,9 @@ typesLog <code>[]*types.Log</code>
 ```go
 func (api *FilterAPI) GetLogs(ctx context.Context, crit FilterCriteria) ([ // GetLogs returns logs matching the given argument that are stored within the state.
 ]*types.Log, error) {
+	if len(crit.Topics) > maxTopics {
+		return nil, errExceedMaxTopics
+	}
 	var filter *Filter
 	if crit.BlockHash != nil {
 		filter = api.sys.NewBlockFilter(*crit.BlockHash, crit.Addresses, crit.Topics)
@@ -5522,6 +6130,9 @@ func (api *FilterAPI) GetLogs(ctx context.Context, crit FilterCriteria) ([ // Ge
 		if crit.ToBlock != nil {
 			end = crit.ToBlock.Int64()
 		}
+		if begin > 0 && end > 0 && begin > end {
+			return nil, errInvalidBlockRange
+		}
 		filter = api.sys.NewRangeFilter(begin, end, crit.Addresses, crit.Topics)
 	}
 	logs, err := filter.Logs(ctx)
@@ -5531,7 +6142,7 @@ func (api *FilterAPI) GetLogs(ctx context.Context, crit FilterCriteria) ([ // Ge
 	return returnLogs(logs), err
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L398" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L403" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5815,9 +6426,6 @@ func (s *BlockChainAPI) GetProof(ctx context.Context, address common.Address, st
 		keys		= make([]common.Hash, len(storageKeys))
 		keyLengths	= make([]int, len(storageKeys))
 		storageProof	= make([]StorageResult, len(storageKeys))
-		storageTrie	state.Trie
-		storageHash	= types.EmptyRootHash
-		codeHash	= types.EmptyCodeHash
 	)
 	for i, hexKey := range storageKeys {
 		var err error
@@ -5826,47 +6434,58 @@ func (s *BlockChainAPI) GetProof(ctx context.Context, address common.Address, st
 			return nil, err
 		}
 	}
-	state, _, err := s.b.StateAndHeaderByNumberOrHash(ctx, blockNrOrHash)
-	if state == nil || err != nil {
+	statedb, header, err := s.b.StateAndHeaderByNumberOrHash(ctx, blockNrOrHash)
+	if statedb == nil || err != nil {
 		return nil, err
 	}
-	if storageTrie, err = state.StorageTrie(address); err != nil {
+	codeHash := statedb.GetCodeHash(address)
+	storageRoot := statedb.GetStorageRoot(address)
+	if len(keys) > 0 {
+		var storageTrie state.Trie
+		if storageRoot != types.EmptyRootHash && storageRoot != (common.Hash{}) {
+			id := trie.StorageTrieID(header.Root, crypto.Keccak256Hash(address.Bytes()), storageRoot)
+			st, err := trie.NewStateTrie(id, statedb.Database().TrieDB())
+			if err != nil {
+				return nil, err
+			}
+			storageTrie = st
+		}
+		for i, key := range keys {
+			var outputKey string
+			if keyLengths[i] != 32 {
+				outputKey = hexutil.EncodeBig(key.Big())
+			} else {
+				outputKey = hexutil.Encode(key[ // Output key encoding is a bit special: if the input was a 32-byte hash, it is
+				// returned as such. Otherwise, we apply the QUANTITY encoding mandated by the
+				// JSON-RPC spec for getProof. This behavior exists to preserve backwards
+				// compatibility with older client versions.
+				:])
+			}
+			if storageTrie == nil {
+				storageProof[i] = StorageResult{outputKey, &hexutil.Big{}, []string{}}
+				continue
+			}
+			var proof proofList
+			if err := storageTrie.Prove(crypto.Keccak256(key.Bytes()), &proof); err != nil {
+				return nil, err
+			}
+			value := (*hexutil.Big)(statedb.GetState(address, key).Big())
+			storageProof[i] = StorageResult{outputKey, value, proof}
+		}
+	}
+	tr, err := trie.NewStateTrie(trie.StateTrieID(header.Root), statedb.Database().TrieDB())
+	if err != nil {
 		return nil, err
 	}
-	if storageTrie != nil {
-		storageHash = storageTrie.Hash()
-		codeHash = state.GetCodeHash(address)
+	var accountProof proofList
+	if err := tr.Prove(crypto.Keccak256(address.Bytes()), &accountProof); err != nil {
+		return nil, err
 	}
-	for i, key := range keys {
-		var outputKey string
-		if keyLengths[i] != 32 {
-			outputKey = hexutil.EncodeBig(key.Big())
-		} else {
-			outputKey = hexutil.Encode(key[ // Output key encoding is a bit special: if the input was a 32-byte hash, it is
-			// returned as such. Otherwise, we apply the QUANTITY encoding mandated by the
-			// JSON-RPC spec for getProof. This behavior exists to preserve backwards
-			// compatibility with older client versions.
-			:])
-		}
-		if storageTrie == nil {
-			storageProof[i] = StorageResult{outputKey, &hexutil.Big{}, []string{}}
-			continue
-		}
-		var proof proofList
-		if err := storageTrie.Prove(crypto.Keccak256(key.Bytes()), &proof); err != nil {
-			return nil, err
-		}
-		value := (*hexutil.Big)(state.GetState(address, key).Big())
-		storageProof[i] = StorageResult{outputKey, value, proof}
-	}
-	accountProof, proofErr := state.GetProof(address)
-	if proofErr != nil {
-		return nil, proofErr
-	}
-	return &AccountResult{Address: address, AccountProof: toHexSlice(accountProof), Balance: (*hexutil.Big)(state.GetBalance(address)), CodeHash: codeHash, Nonce: hexutil.Uint64(state.GetNonce(address)), StorageHash: storageHash, StorageProof: storageProof}, state.Error()
+	balance := statedb.GetBalance(address).ToBig()
+	return &AccountResult{Address: address, AccountProof: accountProof, Balance: (*hexutil.Big)(balance), CodeHash: codeHash, Nonce: hexutil.Uint64(statedb.GetNonce(address)), StorageHash: storageRoot, StorageProof: storageProof}, statedb.Error()
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L675" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L692" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -6029,7 +6648,7 @@ func (s *TransactionAPI) GetRawTransactionByBlockHashAndIndex(ctx context.Contex
 }// GetRawTransactionByBlockHashAndIndex returns the bytes of the transaction for the given block hash and index.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1790" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1754" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -6220,7 +6839,7 @@ func (s *TransactionAPI) GetRawTransactionByBlockNumberAndIndex(ctx context.Cont
 }// GetRawTransactionByBlockNumberAndIndex returns the bytes of the transaction for the given block number and index.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1782" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1746" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -6342,20 +6961,21 @@ hash <code>common.Hash</code>
 <p>
 ```go
 func (s *TransactionAPI) GetRawTransactionByHash(ctx context.Context, hash common.Hash) (hexutil.Bytes, error) {
-	tx, _, _, _, err := s.b.GetTransaction(ctx, hash)
-	if err != nil {
-		return nil, err
-	}
-	if tx == nil {
-		if tx = s.b.GetPoolTransaction(hash); tx == nil {
+	found, tx, _, _, _, err := s.b.GetTransaction(ctx, hash)
+	if !found {
+		if tx = s.b.GetPoolTransaction(hash); tx != nil {
+			return tx.MarshalBinary()
+		}
+		if err == nil {
 			return nil, nil
 		}
+		return nil, NewTxIndexingError()
 	}
 	return tx.MarshalBinary()
 }// GetRawTransactionByHash returns the bytes of the transaction for the given hash.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1840" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1802" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -6512,7 +7132,7 @@ func (s *BlockChainAPI) GetStorageAt(ctx context.Context, address common.Address
 	:], state.Error()
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L888" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L907" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -6638,6 +7258,15 @@ index <code>hexutil.Uint</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
 		- blockHash: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
 			- title: `keccak`
@@ -6676,6 +7305,11 @@ index <code>hexutil.Uint</code>
 		- input: 
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `dataWord`
+			- type: `string`
+
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
 			- type: `string`
 
 		- maxFeePerGas: 
@@ -6768,6 +7402,15 @@ index <code>hexutil.Uint</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
             "blockHash": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
                 "title": "keccak",
@@ -6806,6 +7449,11 @@ index <code>hexutil.Uint</code>
             "input": {
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "dataWord",
+                "type": "string"
+            },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
                 "type": "string"
             },
             "maxFeePerGas": {
@@ -6911,7 +7559,7 @@ func (s *TransactionAPI) GetTransactionByBlockHashAndIndex(ctx context.Context, 
 }// GetTransactionByBlockHashAndIndex returns the transaction for the given block hash and index.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1774" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1738" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -7065,6 +7713,15 @@ index <code>hexutil.Uint</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
 		- blockHash: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
 			- title: `keccak`
@@ -7103,6 +7760,11 @@ index <code>hexutil.Uint</code>
 		- input: 
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `dataWord`
+			- type: `string`
+
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
 			- type: `string`
 
 		- maxFeePerGas: 
@@ -7195,6 +7857,15 @@ index <code>hexutil.Uint</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
             "blockHash": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
                 "title": "keccak",
@@ -7233,6 +7904,11 @@ index <code>hexutil.Uint</code>
             "input": {
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "dataWord",
+                "type": "string"
+            },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
                 "type": "string"
             },
             "maxFeePerGas": {
@@ -7338,7 +8014,7 @@ func (s *TransactionAPI) GetTransactionByBlockNumberAndIndex(ctx context.Context
 }// GetTransactionByBlockNumberAndIndex returns the transaction for the given block number and index.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1766" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1730" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -7430,6 +8106,15 @@ hash <code>common.Hash</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
 		- blockHash: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
 			- title: `keccak`
@@ -7468,6 +8153,11 @@ hash <code>common.Hash</code>
 		- input: 
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `dataWord`
+			- type: `string`
+
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
 			- type: `string`
 
 		- maxFeePerGas: 
@@ -7560,6 +8250,15 @@ hash <code>common.Hash</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
             "blockHash": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
                 "title": "keccak",
@@ -7598,6 +8297,11 @@ hash <code>common.Hash</code>
             "input": {
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "dataWord",
+                "type": "string"
+            },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
                 "type": "string"
             },
             "maxFeePerGas": {
@@ -7696,25 +8400,25 @@ hash <code>common.Hash</code>
 <p>
 ```go
 func (s *TransactionAPI) GetTransactionByHash(ctx context.Context, hash common.Hash) (*RPCTransaction, error) {
-	tx, blockHash, blockNumber, index, err := s.b.GetTransaction(ctx, hash)
+	found, tx, blockHash, blockNumber, index, err := s.b.GetTransaction(ctx, hash)
+	if !found {
+		if tx := s.b.GetPoolTransaction(hash); tx != nil {
+			return NewRPCPendingTransaction(tx, s.b.CurrentHeader(), s.b.ChainConfig()), nil
+		}
+		if err == nil {
+			return nil, nil
+		}
+		return nil, NewTxIndexingError()
+	}
+	header, err := s.b.HeaderByHash(ctx, blockHash)
 	if err != nil {
 		return nil, err
 	}
-	if tx != nil {
-		header, err := s.b.HeaderByHash(ctx, blockHash)
-		if err != nil {
-			return nil, err
-		}
-		return newRPCTransaction(tx, blockHash, blockNumber, header.Time, index, header.BaseFee, s.b.ChainConfig()), nil
-	}
-	if tx := s.b.GetPoolTransaction(hash); tx != nil {
-		return NewRPCPendingTransaction(tx, s.b.CurrentHeader(), s.b.ChainConfig()), nil
-	}
-	return nil, nil
+	return newRPCTransaction(tx, blockHash, blockNumber, header.Time, index, header.BaseFee, s.b.ChainConfig()), nil
 }// GetTransactionByHash returns the transaction for the given hash
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1817" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1781" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -7861,7 +8565,7 @@ func (s *TransactionAPI) GetTransactionCount(ctx context.Context, address common
 }// GetTransactionCount returns the number of transactions the given address has sent for the given block number
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1798" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1762" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -7987,8 +8691,11 @@ mapstringinterface <code>map[string]interface{}</code>
 ```go
 func (s *TransactionAPI) GetTransactionReceipt(ctx context.Context, hash common.Hash) (map // GetTransactionReceipt returns the transaction receipt for the given transaction hash.
 [string]interface{}, error) {
-	tx, blockHash, blockNumber, index, err := s.b.GetTransaction(ctx, hash)
-	if tx == nil || err != nil {
+	found, tx, blockHash, blockNumber, index, err := s.b.GetTransaction(ctx, hash)
+	if err != nil {
+		return nil, NewTxIndexingError()
+	}
+	if !found {
 		return nil, nil
 	}
 	header, err := s.b.HeaderByHash(ctx, blockHash)
@@ -8004,23 +8711,10 @@ func (s *TransactionAPI) GetTransactionReceipt(ctx context.Context, hash common.
 	}
 	receipt := receipts[index]
 	signer := types.MakeSigner(s.b.ChainConfig(), header.Number, header.Time)
-	from, _ := types.Sender(signer, tx)
-	fields := map[string]interface{}{"blockHash": blockHash, "blockNumber": hexutil.Uint64(blockNumber), "transactionHash": hash, "transactionIndex": hexutil.Uint64(index), "from": from, "to": tx.To(), "gasUsed": hexutil.Uint64(receipt.GasUsed), "cumulativeGasUsed": hexutil.Uint64(receipt.CumulativeGasUsed), "contractAddress": nil, "logs": receipt.Logs, "logsBloom": receipt.Bloom, "type": hexutil.Uint(tx.Type()), "effectiveGasPrice": (*hexutil.Big)(receipt.EffectiveGasPrice)}
-	if len(receipt.PostState) > 0 {
-		fields["root"] = hexutil.Bytes(receipt.PostState)
-	} else {
-		fields["status"] = hexutil.Uint(receipt.Status)
-	}
-	if receipt.Logs == nil {
-		fields["logs"] = []*types.Log{}
-	}
-	if receipt.ContractAddress != (common.Address{}) {
-		fields["contractAddress"] = receipt.ContractAddress
-	}
-	return fields, nil
+	return marshalReceipt(receipt, blockHash, blockNumber, signer, tx, int(index)), nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1857" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1818" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -8498,7 +9192,7 @@ func (s *BlockChainAPI) GetUncleByBlockHashAndIndex(ctx context.Context, blockHa
 // all transactions in the block are returned in full detail, otherwise only the transaction hash is returned.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L843" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L862" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9004,7 +9698,7 @@ func (s *BlockChainAPI) GetUncleByBlockNumberAndIndex(ctx context.Context, block
 // all transactions in the block are returned in full detail, otherwise only the transaction hash is returned.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L827" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L846" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9134,7 +9828,7 @@ func (s *BlockChainAPI) GetUncleCountByBlockHash(ctx context.Context, blockHash 
 }// GetUncleCountByBlockHash returns number of uncles in the block for the given block hash
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L867" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L886" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9292,7 +9986,7 @@ func (s *BlockChainAPI) GetUncleCountByBlockNumber(ctx context.Context, blockNr 
 }// GetUncleCountByBlockNumber returns number of uncles in the block for the given block number
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L858" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L877" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9422,7 +10116,7 @@ func (api *API) GetWork() ([4]string, error) {
 //	result[3] - hex encoded block number
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/consensus/ethash/api.go#L42" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/consensus/ethash/api.go#L42" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9512,7 +10206,7 @@ func (api *EthereumAPI) Hashrate() hexutil.Uint64 {
 }// Hashrate returns the POW hashrate.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api.go#L45" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api.go#L45" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9708,18 +10402,16 @@ func (api *FilterAPI) Logs(ctx context.Context, crit FilterCriteria) (*rpc.Subsc
 		return nil, err
 	}
 	go func() {
+		defer logsSub.Unsubscribe()
 		for {
 			select {
 			case logs := <-matchedLogs:
 				for _, log := range logs {
-					log := log
 					notifier.Notify(rpcSub.ID, &log)
 				}
 			case <-rpcSub.Err():
-				logsSub.Unsubscribe()
 				return
 			case <-notifier.Closed():
-				logsSub.Unsubscribe()
 				return
 			}
 		}
@@ -9727,7 +10419,7 @@ func (api *FilterAPI) Logs(ctx context.Context, crit FilterCriteria) (*rpc.Subsc
 	return rpcSub, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L313" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L320" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9821,7 +10513,7 @@ func (s *EthereumAPI) MaxPriorityFeePerGas(ctx context.Context) (*hexutil.Big, e
 }// MaxPriorityFeePerGas returns a suggestion for a gas tip cap for dynamic fee transactions.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L78" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L86" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9886,7 +10578,7 @@ func (api *EthereumAPI) Mining() bool {
 }// Mining returns an indication if this node is currently mining.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api.go#L51" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api.go#L51" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9988,7 +10680,7 @@ func (api *FilterAPI) NewBlockFilter() rpc.ID {
 	return headerSub.ID
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L188" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L196" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -10217,7 +10909,7 @@ func (api *FilterAPI) NewFilter(crit FilterCriteria) (rpc.ID, error) {
 	return logsSub.ID, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L365" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L370" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -10299,15 +10991,14 @@ func (api *FilterAPI) NewHeads(ctx context.Context) (*rpc.Subscription, error) {
 	go func() {
 		headers := make(chan *types.Header)
 		headersSub := api.events.SubscribeNewHeads(headers)
+		defer headersSub.Unsubscribe()
 		for {
 			select {
 			case h := <-headers:
 				notifier.Notify(rpcSub.ID, h)
 			case <-rpcSub.Err():
-				headersSub.Unsubscribe()
 				return
 			case <-notifier.Closed():
-				headersSub.Unsubscribe()
 				return
 			}
 		}
@@ -10316,7 +11007,7 @@ func (api *FilterAPI) NewHeads(ctx context.Context) (*rpc.Subscription, error) {
 }// NewHeads send a notification each time a new (header) block is appended to the chain.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L253" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L261" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -10435,7 +11126,7 @@ func (api *FilterAPI) NewPendingTransactionFilter(fullTx *bool) rpc.ID {
 	return pendingTxSub.ID
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L112" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L120" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -10533,6 +11224,7 @@ func (api *FilterAPI) NewPendingTransactions(ctx context.Context, fullTx *bool) 
 		// sent to the client, otherwise the hash is sent.
 		]*types.Transaction, 128)
 		pendingTxSub := api.events.SubscribePendingTxs(txs)
+		defer pendingTxSub.Unsubscribe()
 		chainConfig := api.sys.backend.ChainConfig()
 		for {
 			select {
@@ -10547,10 +11239,8 @@ func (api *FilterAPI) NewPendingTransactions(ctx context.Context, fullTx *bool) 
 					}
 				}
 			case <-rpcSub.Err():
-				pendingTxSub.Unsubscribe()
 				return
 			case <-notifier.Closed():
-				pendingTxSub.Unsubscribe()
 				return
 			}
 		}
@@ -10558,7 +11248,7 @@ func (api *FilterAPI) NewPendingTransactions(ctx context.Context, fullTx *bool) 
 	return rpcSub, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L146" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L154" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -10660,7 +11350,7 @@ func (api *FilterAPI) NewSideBlockFilter() rpc.ID {
 	return headerSub.ID
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L221" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L229" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -10759,7 +11449,7 @@ func (api *FilterAPI) NewSideHeads(ctx context.Context) (*rpc.Subscription, erro
 }// NewSideHeads send a notification each time a new non-canonical (header) block is written to the database.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L283" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L290" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -10817,6 +11507,15 @@ RPCTransaction <code>[]*RPCTransaction</code>
 
 					- type: `array`
 
+				- blobVersionedHashes: 
+					- items: 
+						- description: `Hex representation of a Keccak 256 hash`
+						- pattern: `^0x[a-fA-F\d]{64}$`
+						- title: `keccak`
+						- type: `string`
+
+					- type: `array`
+
 				- blockHash: 
 					- pattern: `^0x[a-fA-F\d]{64}$`
 					- title: `keccak`
@@ -10855,6 +11554,11 @@ RPCTransaction <code>[]*RPCTransaction</code>
 				- input: 
 					- pattern: `^0x([a-fA-F\d])+$`
 					- title: `dataWord`
+					- type: `string`
+
+				- maxFeePerBlobGas: 
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
 					- type: `string`
 
 				- maxFeePerGas: 
@@ -10952,6 +11656,15 @@ RPCTransaction <code>[]*RPCTransaction</code>
                         },
                         "type": "array"
                     },
+                    "blobVersionedHashes": {
+                        "items": {
+                            "description": "Hex representation of a Keccak 256 hash",
+                            "pattern": "^0x[a-fA-F\\d]{64}$",
+                            "title": "keccak",
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
                     "blockHash": {
                         "pattern": "^0x[a-fA-F\\d]{64}$",
                         "title": "keccak",
@@ -10990,6 +11703,11 @@ RPCTransaction <code>[]*RPCTransaction</code>
                     "input": {
                         "pattern": "^0x([a-fA-F\\d])+$",
                         "title": "dataWord",
+                        "type": "string"
+                    },
+                    "maxFeePerBlobGas": {
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
                         "type": "string"
                     },
                     "maxFeePerGas": {
@@ -11116,7 +11834,7 @@ func (s *TransactionAPI) PendingTransactions() ([ // PendingTransactions returns
 	return transactions, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2085" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2065" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -11170,10 +11888,47 @@ sendArgs <code>TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -11200,6 +11955,11 @@ sendArgs <code>TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -11214,6 +11974,20 @@ sendArgs <code>TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -11260,10 +12034,47 @@ sendArgs <code>TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -11290,6 +12101,11 @@ sendArgs <code>TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -11304,6 +12120,20 @@ sendArgs <code>TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -11466,7 +12296,7 @@ func (s *TransactionAPI) Resend(ctx context.Context, sendArgs TransactionArgs, g
 	if sendArgs.Nonce == nil {
 		return common.Hash{}, errors.New("missing transaction nonce in transaction spec")
 	}
-	if err := sendArgs.setDefaults(ctx, s.b); err != nil {
+	if err := sendArgs.setDefaults(ctx, s.b, false); err != nil {
 		return common.Hash{}, err
 	}
 	matchTx := sendArgs.toTransaction()
@@ -11511,7 +12341,7 @@ func (s *TransactionAPI) Resend(ctx context.Context, sendArgs TransactionArgs, g
 	return common.Hash{}, fmt.Errorf("transaction %#x not found", matchTx.Hash())
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2109" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2089" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -11643,7 +12473,7 @@ func (s *TransactionAPI) SendRawTransaction(ctx context.Context, input hexutil.B
 // The sender is responsible for signing the transaction and using the correct nonce.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2012" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1989" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -11697,10 +12527,47 @@ args <code>TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -11727,6 +12594,11 @@ args <code>TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -11741,6 +12613,20 @@ args <code>TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -11787,10 +12673,47 @@ args <code>TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -11817,6 +12740,11 @@ args <code>TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -11831,6 +12759,20 @@ args <code>TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -11931,7 +12873,10 @@ func (s *TransactionAPI) SendTransaction(ctx context.Context, args TransactionAr
 		s.nonceLock.LockAddr(args.from())
 		defer s.nonceLock.UnlockAddr(args.from())
 	}
-	if err := args.setDefaults(ctx, s.b); err != nil {
+	if args.IsEIP4844() {
+		return common.Hash{}, errBlobTxNotSupported
+	}
+	if err := args.setDefaults(ctx, s.b, false); err != nil {
 		return common.Hash{}, err
 	}
 	tx := args.toTransaction()
@@ -11944,7 +12889,7 @@ func (s *TransactionAPI) SendTransaction(ctx context.Context, args TransactionAr
 // transaction pool.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L1963" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L1935" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -12129,7 +13074,7 @@ func (s *TransactionAPI) Sign(addr common.Address, data hexutil.Bytes) (hexutil.
 // https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2029" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2006" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -12184,10 +13129,47 @@ args <code>TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -12214,6 +13196,11 @@ args <code>TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -12228,6 +13215,20 @@ args <code>TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -12274,10 +13275,47 @@ args <code>TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -12304,6 +13342,11 @@ args <code>TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -12318,6 +13361,20 @@ args <code>TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -12433,10 +13490,13 @@ func (s *TransactionAPI) SignTransaction(ctx context.Context, args TransactionAr
 	if args.GasPrice == nil && (args.MaxPriorityFeePerGas == nil || args.MaxFeePerGas == nil) {
 		return nil, errors.New("missing gasPrice or maxFeePerGas/maxPriorityFeePerGas")
 	}
+	if args.IsEIP4844() {
+		return nil, errBlobTxNotSupported
+	}
 	if args.Nonce == nil {
 		return nil, errors.New("nonce not specified")
 	}
-	if err := args.setDefaults(ctx, s.b); err != nil {
+	if err := args.setDefaults(ctx, s.b, false); err != nil {
 		return nil, err
 	}
 	tx := args.toTransaction()
@@ -12457,7 +13517,7 @@ func (s *TransactionAPI) SignTransaction(ctx context.Context, args TransactionAr
 // the given from address and it needs to be unlocked.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2054" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2031" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -12612,7 +13672,7 @@ func (api *API) SubmitHashrate(rate hexutil.Uint64, id common.Hash) bool {
 // between nodes.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/consensus/ethash/api.go#L93" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/consensus/ethash/api.go#L93" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -12795,7 +13855,7 @@ func (api *API) SubmitWork(nonce types.BlockNonce, hash, digest common.Hash) boo
 // Note either an invalid solution, a stale work a non-existent work will return false.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/consensus/ethash/api.go#L67" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/consensus/ethash/api.go#L67" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -12983,7 +14043,7 @@ func (sub *RPCEthSubscription) Subscribe(subscriptionName RPCEthSubscriptionPara
 // Subscriptions are not available over HTTP; they are only available over WS, IPC, and Process connections.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/openrpc.go#L233" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/openrpc.go#L233" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -13065,15 +14125,14 @@ func (api *DownloaderAPI) Syncing(ctx context.Context) (*rpc.Subscription, error
 	go func() {
 		statuses := make(chan interface{})
 		sub := api.SubscribeSyncStatus(statuses)
+		defer sub.Unsubscribe()
 		for {
 			select {
 			case status := <-statuses:
 				notifier.Notify(rpcSub.ID, status)
 			case <-rpcSub.Err():
-				sub.Unsubscribe()
 				return
 			case <-notifier.Closed():
-				sub.Unsubscribe()
 				return
 			}
 		}
@@ -13082,7 +14141,7 @@ func (api *DownloaderAPI) Syncing(ctx context.Context) (*rpc.Subscription, error
 }// Syncing provides information when this nodes starts synchronising with the Ethereum network and when it's finished.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/downloader/api.go#L93" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/downloader/api.go#L133" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -13149,7 +14208,7 @@ interface <code>interface{}</code>
 ```go
 func (s *EthereumAPI) Syncing() (interface{}, error) {
 	progress := s.b.SyncProgress()
-	if progress.CurrentBlock >= progress.HighestBlock {
+	if progress.Done() {
 		return false, nil
 	}
 	return map // Syncing returns false in case the node is currently not syncing with the network. It can be up-to-date or has not
@@ -13159,10 +14218,10 @@ func (s *EthereumAPI) Syncing() (interface{}, error) {
 	// - highestBlock:  block number of the highest block header this node has received from peers
 	// - pulledStates:  number of state entries processed until now
 	// - knownStates:   number of known state entries that still need to be pulled
-	[string]interface{}{"startingBlock": hexutil.Uint64(progress.StartingBlock), "currentBlock": hexutil.Uint64(progress.CurrentBlock), "highestBlock": hexutil.Uint64(progress.HighestBlock), "syncedAccounts": hexutil.Uint64(progress.SyncedAccounts), "syncedAccountBytes": hexutil.Uint64(progress.SyncedAccountBytes), "syncedBytecodes": hexutil.Uint64(progress.SyncedBytecodes), "syncedBytecodeBytes": hexutil.Uint64(progress.SyncedBytecodeBytes), "syncedStorage": hexutil.Uint64(progress.SyncedStorage), "syncedStorageBytes": hexutil.Uint64(progress.SyncedStorageBytes), "healedTrienodes": hexutil.Uint64(progress.HealedTrienodes), "healedTrienodeBytes": hexutil.Uint64(progress.HealedTrienodeBytes), "healedBytecodes": hexutil.Uint64(progress.HealedBytecodes), "healedBytecodeBytes": hexutil.Uint64(progress.HealedBytecodeBytes), "healingTrienodes": hexutil.Uint64(progress.HealingTrienodes), "healingBytecode": hexutil.Uint64(progress.HealingBytecode)}, nil
+	[string]interface{}{"startingBlock": hexutil.Uint64(progress.StartingBlock), "currentBlock": hexutil.Uint64(progress.CurrentBlock), "highestBlock": hexutil.Uint64(progress.HighestBlock), "syncedAccounts": hexutil.Uint64(progress.SyncedAccounts), "syncedAccountBytes": hexutil.Uint64(progress.SyncedAccountBytes), "syncedBytecodes": hexutil.Uint64(progress.SyncedBytecodes), "syncedBytecodeBytes": hexutil.Uint64(progress.SyncedBytecodeBytes), "syncedStorage": hexutil.Uint64(progress.SyncedStorage), "syncedStorageBytes": hexutil.Uint64(progress.SyncedStorageBytes), "healedTrienodes": hexutil.Uint64(progress.HealedTrienodes), "healedTrienodeBytes": hexutil.Uint64(progress.HealedTrienodeBytes), "healedBytecodes": hexutil.Uint64(progress.HealedBytecodes), "healedBytecodeBytes": hexutil.Uint64(progress.HealedBytecodeBytes), "healingTrienodes": hexutil.Uint64(progress.HealingTrienodes), "healingBytecode": hexutil.Uint64(progress.HealingBytecode), "txIndexFinishedBlocks": hexutil.Uint64(progress.TxIndexFinishedBlocks), "txIndexRemainingBlocks": hexutil.Uint64(progress.TxIndexRemainingBlocks)}, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L128" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L136" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -13270,7 +14329,7 @@ func (api *FilterAPI) UninstallFilter(id rpc.ID) bool {
 }// UninstallFilter removes the filter with the given filter id.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/filters/api.go#L425" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/filters/api.go#L436" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -13361,7 +14420,7 @@ func (sub *RPCEthSubscription) Unsubscribe(id rpc.ID) error {
 }// Unsubscribe terminates an existing subscription by ID.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/openrpc.go#L224" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/openrpc.go#L224" target="_">View on GitHub →</a>
 </p>
 </details>
 

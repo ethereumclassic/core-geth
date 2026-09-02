@@ -59,9 +59,9 @@ var sharedMetaRegisterer = &go_openrpc_reflect.MetaT{
 	},
 	GetExternalDocsFn: func() (exdocs *meta_schema.ExternalDocumentationObject) {
 		exdocs = &meta_schema.ExternalDocumentationObject{}
-		description := "ETC Labs Documentation"
+		description := "Core-Geth Documentation"
 		exdocs.Description = (*meta_schema.ExternalDocumentationObjectDescription)(&description)
-		url := "https://etclabscore.github.io/core-geth/"
+		url := "https://docs.coregeth.com/"
 		exdocs.Url = (*meta_schema.ExternalDocumentationObjectUrl)(&url)
 		return exdocs
 	},
@@ -199,7 +199,7 @@ func newOpenRPCDocument() *go_openrpc_reflect.Document {
 			return got, nil
 		}
 		// Replace links to go-ethereum repo with current core-geth one
-		newLink := meta_schema.ExternalDocumentationObjectUrl(strings.Replace(string(*got.Url), "github.com/ethereum/go-ethereum", "github.com/etclabscore/core-geth", 1))
+		newLink := meta_schema.ExternalDocumentationObjectUrl(strings.Replace(string(*got.Url), "github.com/ethereum/go-ethereum", "github.com/ethereumclassic/core-geth", 1))
 		got.Url = &newLink
 		return got, nil
 	}

@@ -32,7 +32,7 @@ $ sudo apt-get install -y build-essential
 Once the dependencies have been installed, it's time to clone and build the source:
 
 ```shell
-$ git clone https://github.com/etclabscore/core-geth.git
+$ git clone https://github.com/ethereumclassic/core-geth.git
 $ cd core-geth
 $ make all
 $ ./build/bin/core-geth --help
@@ -43,7 +43,7 @@ $ ./build/bin/core-geth --help
 You can build a local docker image directly from the source:
 
 ```shell
-$ git clone https://github.com/etclabscore/core-geth.git
+$ git clone https://github.com/ethereumclassic/core-geth.git
 $ cd core-geth
 $ docker build -t=core-geth .
 ```

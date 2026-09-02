@@ -7,7 +7,7 @@
 
 | Entity | Version |
 | --- | --- |
-| Source | <code>1.12.14-unstable/generated-at:2023-09-04T08:02:34-06:00</code> |
+| Source | <code>1.13.0-unstable/generated-at:2026-09-02T12:02:52-06:00</code> |
 | OpenRPC | <code>1.2.6</code> |
 
 ---
@@ -135,7 +135,7 @@ incompletes <code>bool</code>
 
 
 
-<code>state.IteratorDump</code> 
+<code>state.Dump</code> 
 
   + Required: ✓ Yes
 
@@ -318,12 +318,15 @@ incompletes <code>bool</code>
 <details><summary>Source code</summary>
 <p>
 ```go
-func (api *DebugAPI) AccountRange(blockNrOrHash rpc.BlockNumberOrHash, start hexutil.Bytes, maxResults int, nocode, nostorage, incompletes bool) (state.IteratorDump, error) {
+func (api *DebugAPI) AccountRange(blockNrOrHash rpc.BlockNumberOrHash, start hexutil.Bytes, maxResults int, nocode, nostorage, incompletes bool) (state.Dump, error) {
 	var stateDb *state.StateDB
 	var err error
 	if number, ok := blockNrOrHash.Number(); ok {
 		if number == rpc.PendingBlockNumber {
 			_, stateDb = api.eth.miner.Pending()
+			if stateDb == nil {
+				return state.Dump{}, errors.New("pending state is not available")
+			}
 		} else {
 			var header *types.Header
 			switch number {
@@ -336,109 +339,39 @@ func (api *DebugAPI) AccountRange(blockNrOrHash rpc.BlockNumberOrHash, start hex
 			default:
 				block := api.eth.blockchain.GetBlockByNumber(uint64(number))
 				if block == nil {
-					return state.IteratorDump{}, fmt.Errorf("block #%d not found", number)
+					return state.Dump{}, fmt.Errorf("block #%d not found", number)
 				}
 				header = block.Header()
 			}
 			if header == nil {
-				return state.IteratorDump{}, fmt.Errorf("block #%d not found", number)
+				return state.Dump{}, fmt.Errorf("block #%d not found", number)
 			}
 			stateDb, err = api.eth.BlockChain().StateAt(header.Root)
 			if err != nil {
-				return state.IteratorDump{}, err
+				return state.Dump{}, err
 			}
 		}
 	} else if hash, ok := blockNrOrHash.Hash(); ok {
 		block := api.eth.blockchain.GetBlockByHash(hash)
 		if block == nil {
-			return state.IteratorDump{}, fmt.Errorf("block %s not found", hash.Hex())
+			return state.Dump{}, fmt.Errorf("block %s not found", hash.Hex())
 		}
 		stateDb, err = api.eth.BlockChain().StateAt(block.Root())
 		if err != nil {
-			return state.IteratorDump{}, err
+			return state.Dump{}, err
 		}
 	} else {
-		return state.IteratorDump{}, errors.New("either block number or block hash must be specified")
+		return state.Dump{}, errors.New("either block number or block hash must be specified")
 	}
 	opts := &state.DumpConfig{SkipCode: nocode, SkipStorage: nostorage, OnlyWithAddresses: !incompletes, Start: start, Max: uint64(maxResults)}
 	if maxResults > AccountRangeMaxResults || maxResults <= 0 {
 		opts.Max = AccountRangeMaxResults
 	}
-	return stateDb.IteratorDump(opts), nil
+	return stateDb.RawDump(opts), nil
 }// AccountRange enumerates all accounts in the given block and start point in paging request
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_debug.go#L132" target="_">View on GitHub →</a>
-</p>
-</details>
-
----
-
-
-
-### debug_backtraceAt
-
-BacktraceAt sets the log backtrace location. See package log for details on
-the pattern syntax.
-
-
-#### Params (1)
-
-Parameters must be given _by position_.
-
-
-__1:__ 
-location <code>string</code> 
-
-  + Required: ✓ Yes
-
-
-
-
-
-
-#### Result
-
-_None_
-
-#### Client Method Invocation Examples
-
-
-=== "Shell HTTP"
-
-	``` shell
-	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "debug_backtraceAt", "params": [<location>]}'
-	```
-
-
-
-
-
-=== "Shell WebSocket"
-
-	``` shell
-	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "debug_backtraceAt", "params": [<location>]}'
-	```
-
-
-=== "Javascript Console"
-
-	``` js
-	debug.backtraceAt(location);
-	```
-
-
-
-<details><summary>Source code</summary>
-<p>
-```go
-func (*HandlerT) BacktraceAt(location string) error {
-	return glogger.BacktraceAt(location)
-}// BacktraceAt sets the log backtrace location. See package log for details on
-// the pattern syntax.
-
-```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L70" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L133" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -547,7 +480,7 @@ func (*HandlerT) BlockProfile(file string, nsec uint) error {
 // desired, set the rate and write the profile manually.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L149" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L144" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -601,11 +534,19 @@ _None_
 <p>
 ```go
 func (api *DebugAPI) ChaindbCompact() error {
-	for b := byte(0); b < 255; b++ {
-		log.Info("Compacting chain database", "range", fmt.Sprintf("0x%0.2X-0x%0.2X", b, b+1))
-		if err := api.b.ChainDb().Compact([ // ChaindbCompact flattens the entire key-value database into a single level,
-		// removing all unused slots and merging all keys.
-		]byte{b}, []byte{b + 1}); err != nil {
+	cstart := time.Now()
+	for b := 0; b <= 255; b++ {
+		var (
+			start	= [ // ChaindbCompact flattens the entire key-value database into a single level,
+			// removing all unused slots and merging all keys.
+			]byte{byte(b)}
+			end	= []byte{byte(b + 1)}
+		)
+		if b == 255 {
+			end = nil
+		}
+		log.Info("Compacting database", "range", fmt.Sprintf("%#X-%#X", start, end), "elapsed", common.PrettyDuration(time.Since(cstart)))
+		if err := api.b.ChainDb().Compact(start, end); err != nil {
 			log.Error("Database compaction failed", "err", err)
 			return err
 		}
@@ -613,7 +554,7 @@ func (api *DebugAPI) ChaindbCompact() error {
 	return nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2284" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2259" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -685,16 +626,11 @@ property <code>string</code>
 <p>
 ```go
 func (api *DebugAPI) ChaindbProperty(property string) (string, error) {
-	if property == "" {
-		property = "leveldb.stats"
-	} else if !strings.HasPrefix(property, "leveldb.") {
-		property = "leveldb." + property
-	}
 	return api.b.ChainDb().Stat(property)
 }// ChaindbProperty returns leveldb properties of the key-value database.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2273" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2253" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -803,7 +739,7 @@ func (h *HandlerT) CpuProfile(file string, nsec uint) error {
 // profile data to file.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L90" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L85" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -940,7 +876,7 @@ func (api *DebugAPI) DbAncient(kind string, number uint64) (hexutil.Bytes, error
 // It is a mapping to the `AncientReaderOp.Ancient` method
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/dbapi.go#L35" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/dbapi.go#L35" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1032,7 +968,7 @@ func (api *DebugAPI) DbAncients() (uint64, error) {
 // It is a mapping to the `AncientReaderOp.Ancients` method
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/dbapi.go#L41" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/dbapi.go#L41" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1137,7 +1073,162 @@ func (api *DebugAPI) DbGet(key string) (hexutil.Bytes, error) {
 }// DbGet returns the raw value of a key stored in the database.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/dbapi.go#L25" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/dbapi.go#L25" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### debug_discoveryV4Table
+
+
+
+#### Params (0)
+
+_None_
+
+#### Result
+
+
+
+discoverBucketNode <code>[][]discover.BucketNode</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- items: 
+
+			- items: 
+
+					- additionalProperties: `false`
+					- properties: 
+						- addedToBucket: 
+							- format: `date-time`
+							- type: `string`
+
+						- addedToTable: 
+							- format: `date-time`
+							- type: `string`
+
+						- checks: 
+							- pattern: `^0x[a-fA-F0-9]+$`
+							- title: `integer`
+							- type: `string`
+
+						- live: 
+							- type: `boolean`
+
+						- node: 
+							- additionalProperties: `false`
+							- type: `object`
+
+
+					- type: object
+
+
+			- type: array
+
+
+	- type: array
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "items": [
+            {
+                "items": [
+                    {
+                        "additionalProperties": false,
+                        "properties": {
+                            "addedToBucket": {
+                                "format": "date-time",
+                                "type": "string"
+                            },
+                            "addedToTable": {
+                                "format": "date-time",
+                                "type": "string"
+                            },
+                            "checks": {
+                                "pattern": "^0x[a-fA-F0-9]+$",
+                                "title": "integer",
+                                "type": "string"
+                            },
+                            "live": {
+                                "type": "boolean"
+                            },
+                            "node": {
+                                "additionalProperties": false,
+                                "type": "object"
+                            }
+                        },
+                        "type": [
+                            "object"
+                        ]
+                    }
+                ],
+                "type": [
+                    "array"
+                ]
+            }
+        ],
+        "type": [
+            "array"
+        ]
+    }
+	```
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "debug_discoveryV4Table", "params": []}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "debug_discoveryV4Table", "params": []}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	debug.discoveryV4Table();
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (s *p2pDebugAPI) DiscoveryV4Table() [][]discover.BucketNode {
+	disc := s.stack.server.DiscoveryV4()
+	if disc != nil {
+		return disc.TableBuckets()
+	}
+	return nil
+}
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L348" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1286,6 +1377,11 @@ blockNr <code>rpc.BlockNumber</code>
 
 			- type: `object`
 
+		- next: 
+			- pattern: `^0x([a-fA-F0-9]?)+$`
+			- title: `bytes`
+			- type: `string`
+
 		- root: 
 			- type: `string`
 
@@ -1352,6 +1448,11 @@ blockNr <code>rpc.BlockNumber</code>
                     }
                 },
                 "type": "object"
+            },
+            "next": {
+                "pattern": "^0x([a-fA-F0-9]?)+$",
+                "title": "bytes",
+                "type": "string"
             },
             "root": {
                 "type": "string"
@@ -1428,7 +1529,7 @@ func (api *DebugAPI) DumpBlock(blockNr rpc.BlockNumber) (state.Dump, error) {
 }// DumpBlock retrieves the entire state of the database at a given block.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_debug.go#L49" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L50" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1485,7 +1586,7 @@ func (*HandlerT) FreeOSMemory() {
 }// FreeOSMemory forces a garbage collection.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L236" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L231" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1655,7 +1756,7 @@ func (*HandlerT) GcStats() *debug.GCStats {
 }// GcStats returns GC statistics.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L82" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L77" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1871,6 +1972,9 @@ to <code>rpc.BlockNumber</code>
 <p>
 ```go
 func (api *DebugAPI) GetAccessibleState(from, to rpc.BlockNumber) (uint64, error) {
+	if api.eth.blockchain.TrieDB().Scheme() == rawdb.PathScheme {
+		return 0, errors.New("state history is not yet available in path-based scheme")
+	}
 	db := api.eth.ChainDb()
 	var pivot uint64
 	if p := rawdb.ReadLastPivotNumber(db); p != nil {
@@ -1930,7 +2034,7 @@ func (api *DebugAPI) GetAccessibleState(from, to rpc.BlockNumber) (uint64, error
 	return 0, errors.New("no state found")
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_debug.go#L356" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L361" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2384,7 +2488,7 @@ func (api *DebugAPI) GetBadBlocks(ctx context.Context) ([ // GetBadBlocks return
 	return results, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_debug.go#L103" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L104" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2580,7 +2684,7 @@ func (api *DebugAPI) GetModifiedAccountsByHash(startHash common.Hash, endHash *c
 	return api.getModifiedAccounts(startBlock, endBlock)
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_debug.go#L293" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L298" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2776,7 +2880,7 @@ func (api *DebugAPI) GetModifiedAccountsByNumber(startNum uint64, endNum *uint64
 	return api.getModifiedAccounts(startBlock, endBlock)
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_debug.go#L265" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L270" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2891,7 +2995,7 @@ func (api *DebugAPI) GetRawBlock(ctx context.Context, blockNrOrHash rpc.BlockNum
 }// GetRawBlock retrieves the RLP encoded for a single block.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2190" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2170" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -3006,7 +3110,7 @@ func (api *DebugAPI) GetRawHeader(ctx context.Context, blockNrOrHash rpc.BlockNu
 }// GetRawHeader retrieves the RLP encoding for a single header.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2171" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2151" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -3140,7 +3244,7 @@ func (api *DebugAPI) GetRawReceipts(ctx context.Context, blockNrOrHash rpc.Block
 	return result, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2209" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2189" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -3262,20 +3366,89 @@ hash <code>common.Hash</code>
 <p>
 ```go
 func (s *DebugAPI) GetRawTransaction(ctx context.Context, hash common.Hash) (hexutil.Bytes, error) {
-	tx, _, _, _, err := s.b.GetTransaction(ctx, hash)
-	if err != nil {
-		return nil, err
-	}
-	if tx == nil {
-		if tx = s.b.GetPoolTransaction(hash); tx == nil {
+	found, tx, _, _, _, err := s.b.GetTransaction(ctx, hash)
+	if !found {
+		if tx = s.b.GetPoolTransaction(hash); tx != nil {
+			return tx.MarshalBinary()
+		}
+		if err == nil {
 			return nil, nil
 		}
+		return nil, NewTxIndexingError()
 	}
 	return tx.MarshalBinary()
 }// GetRawTransaction returns the bytes of the transaction for the given hash.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2236" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2216" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### debug_getTrieFlushInterval
+
+GetTrieFlushInterval gets the current value of in-memory trie flush interval
+
+
+#### Params (0)
+
+_None_
+
+#### Result
+
+
+
+
+<code>string</code> 
+
+  + Required: ✓ Yes
+
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "debug_getTrieFlushInterval", "params": []}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "debug_getTrieFlushInterval", "params": []}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	debug.getTrieFlushInterval();
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *DebugAPI) GetTrieFlushInterval() (string, error) {
+	if api.eth.blockchain.TrieDB().Scheme() == rawdb.PathScheme {
+		return "", errors.New("trie flush interval is undefined for path-based scheme")
+	}
+	return api.eth.blockchain.GetTrieFlushInterval().String(), nil
+}// GetTrieFlushInterval gets the current value of in-memory trie flush interval
+
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L437" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -3384,7 +3557,7 @@ func (h *HandlerT) GoTrace(file string, nsec uint) error {
 // trace data to file.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L137" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L132" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -3484,10 +3657,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -3539,10 +3709,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -3689,7 +3856,7 @@ func (api *API) IntermediateRoots(ctx context.Context, hash common.Hash, config 
 	return roots, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L514" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L514" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4155,7 +4322,7 @@ func (*HandlerT) MemStats() *runtime.MemStats {
 }// MemStats returns detailed runtime memory statistics.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L75" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L70" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4264,7 +4431,7 @@ func (*HandlerT) MutexProfile(file string, nsec uint) error {
 // desired, set the rate and write the profile manually.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L170" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L165" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4393,7 +4560,7 @@ func (api *DebugAPI) Preimage(ctx context.Context, hash common.Hash) (hexutil.By
 }// Preimage is a debug API function that returns the preimage for a sha3 hash, if known.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_debug.go#L87" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L88" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4498,7 +4665,7 @@ func (api *DebugAPI) PrintBlock(ctx context.Context, number uint64) (string, err
 }// PrintBlock retrieves a block and returns its pretty printed form.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2252" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2232" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4606,7 +4773,7 @@ func (api *DebugAPI) SeedHash(ctx context.Context, number uint64) (string, error
 }// SeedHash retrieves the seed hash of a block.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2261" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2241" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4701,7 +4868,7 @@ func (*HandlerT) SetBlockProfileRate(rate int) {
 // rate 0 disables block profiling.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L158" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L153" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4829,7 +4996,7 @@ func (*HandlerT) SetGCPercent(v int) int {
 // setting. A negative value disables GC.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L242" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L237" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -4922,7 +5089,7 @@ func (api *DebugAPI) SetHead(number hexutil.Uint64) {
 }// SetHead rewinds the head of the blockchain to a previous block.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L2296" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L2279" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5015,7 +5182,200 @@ func (*HandlerT) SetMutexProfileFraction(rate int) {
 }// SetMutexProfileFraction sets the rate of mutex profiling.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L179" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L174" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### debug_setTrieFlushInterval
+
+SetTrieFlushInterval configures how often in-memory tries are persisted
+to disk. The value is in terms of block processing time, not wall clock.
+If the value is shorter than the block generation time, or even 0 or negative,
+the node will flush trie after processing each block (effectively archive mode).
+
+
+#### Params (1)
+
+Parameters must be given _by position_.
+
+
+__1:__ 
+interval <code>string</code> 
+
+  + Required: ✓ Yes
+
+
+
+
+
+
+#### Result
+
+_None_
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "debug_setTrieFlushInterval", "params": [<interval>]}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "debug_setTrieFlushInterval", "params": [<interval>]}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	debug.setTrieFlushInterval(interval);
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *DebugAPI) SetTrieFlushInterval(interval string) error {
+	if api.eth.blockchain.TrieDB().Scheme() == rawdb.PathScheme {
+		return errors.New("trie flush interval is undefined for path-based scheme")
+	}
+	t, err := time.ParseDuration(interval)
+	if err != nil {
+		return err
+	}
+	api.eth.blockchain.SetTrieFlushInterval(t)
+	return nil
+}// SetTrieFlushInterval configures how often in-memory tries are persisted
+// to disk. The value is in terms of block processing time, not wall clock.
+// If the value is shorter than the block generation time, or even 0 or negative,
+// the node will flush trie after processing each block (effectively archive mode).
+
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L424" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### debug_snapshotGeneratorStatus
+
+SnapshotGeneratorStatus returns the current state of the snapshot generator,
+including whether generation is complete, progress counters, and the current
+marker position. This is useful for monitoring snapshot readiness without
+watching logs.
+
+
+#### Params (0)
+
+_None_
+
+#### Result
+
+
+
+mapstringinterface <code>map[string]interface{}</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- patternProperties: 
+		- .*: 
+			- additionalProperties: `true`
+
+
+	- type: object
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "patternProperties": {
+            ".*": {
+                "additionalProperties": true
+            }
+        },
+        "type": [
+            "object"
+        ]
+    }
+	```
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "debug_snapshotGeneratorStatus", "params": []}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "debug_snapshotGeneratorStatus", "params": []}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	debug.snapshotGeneratorStatus();
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *DebugAPI) SnapshotGeneratorStatus() (map // SnapshotGeneratorStatus returns the current state of the snapshot generator,
+// including whether generation is complete, progress counters, and the current
+// marker position. This is useful for monitoring snapshot readiness without
+// watching logs.
+[string]interface{}, error) {
+	snaps := api.eth.blockchain.Snapshots()
+	if snaps == nil {
+		return nil, errors.New("snapshots not enabled")
+	}
+	done, accounts, slots, storage, marker, err := snaps.GeneratorProgress()
+	if err != nil {
+		return nil, err
+	}
+	result := map[string]interface{}{"done": done, "accounts": accounts, "slots": slots, "storage": storage, "diskRoot": snaps.DiskRoot()}
+	if len(marker) > 0 {
+		result["marker"] = hexutil.Encode(marker)
+	}
+	return result, nil
+}
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L448" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5118,7 +5478,7 @@ func (*HandlerT) Stacks(filter *string) string {
 	return buf.String()
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L197" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L192" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5357,7 +5717,7 @@ func (api *API) StandardTraceBadBlockToFile(ctx context.Context, hash common.Has
 	return api.standardTraceBlockToFile(ctx, block, config)
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L577" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L577" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5596,7 +5956,7 @@ func (api *API) StandardTraceBlockToFile(ctx context.Context, hash common.Hash, 
 	return api.standardTraceBlockToFile(ctx, block, config)
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L504" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L504" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5680,7 +6040,7 @@ func (h *HandlerT) StartCPUProfile(file string) error {
 }// StartCPUProfile turns on CPU profiling, writing to the given file.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L100" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L95" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5764,7 +6124,7 @@ func (h *HandlerT) StartGoTrace(file string) error {
 }// StartGoTrace turns on tracing, writing to the given file.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/trace.go#L31" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/trace.go#L28" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5831,7 +6191,7 @@ func (h *HandlerT) StopCPUProfile() error {
 }// StopCPUProfile stops an ongoing CPU profile.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L121" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L116" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -5898,7 +6258,7 @@ func (h *HandlerT) StopGoTrace() error {
 }// StopGoTrace stops an ongoing trace.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/trace.go#L52" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/trace.go#L49" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -6196,18 +6556,11 @@ func (api *DebugAPI) StorageRangeAt(ctx context.Context, blockNrOrHash rpc.Block
 		return StorageRangeResult{}, err
 	}
 	defer release()
-	st, err := statedb.StorageTrie(contractAddress)
-	if err != nil {
-		return StorageRangeResult{}, err
-	}
-	if st == nil {
-		return StorageRangeResult{}, fmt.Errorf("account %x doesn't exist", contractAddress)
-	}
-	return storageRangeAt(st, keyStart, maxResult)
+	return storageRangeAt(statedb, block.Root(), contractAddress, keyStart, maxResult)
 }// StorageRangeAt returns the storage at the given block height and transaction index.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_debug.go#L206" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_debug.go#L210" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -6339,7 +6692,7 @@ func (sub *RPCDebugSubscription) Subscribe(subscriptionName RPCDebugSubscription
 // Subscriptions are not available over HTTP; they are only available over WS, IPC, and Process connections.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/openrpc.go#L250" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/openrpc.go#L250" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -6440,10 +6793,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -6495,10 +6845,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -6626,7 +6973,7 @@ func (api *API) TraceBadBlock(ctx context.Context, hash common.Hash, config *Tra
 	return api.traceBlock(ctx, block, config)
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L493" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L493" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -6726,10 +7073,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -6781,10 +7125,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -6905,13 +7246,13 @@ func (api *API) TraceBlock(ctx context.Context, blob hexutil.Bytes, config *Trac
 // and returns them as a JSON object.
 ]*txTraceResult, error) {
 	block := new(types.Block)
-	if err := rlp.Decode(bytes.NewReader(blob), block); err != nil {
+	if err := rlp.DecodeBytes(blob, block); err != nil {
 		return nil, fmt.Errorf("could not decode block: %v", err)
 	}
 	return api.traceBlock(ctx, block, config)
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L472" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L472" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -7011,10 +7352,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -7066,10 +7404,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -7196,7 +7531,7 @@ func (api *API) TraceBlockByHash(ctx context.Context, hash common.Hash, config *
 	return api.traceBlock(ctx, block, config)
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L462" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L462" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -7324,10 +7659,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -7379,10 +7711,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -7509,7 +7838,7 @@ func (api *API) TraceBlockByNumber(ctx context.Context, number rpc.BlockNumber, 
 	return api.traceBlock(ctx, block, config)
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L452" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L452" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -7584,10 +7913,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -7639,10 +7965,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -7769,7 +8092,7 @@ func (api *API) TraceBlockFromFile(ctx context.Context, file string, config *Tra
 	return api.TraceBlock(ctx, blob, config)
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L482" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L482" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -7782,6 +8105,10 @@ func (api *API) TraceBlockFromFile(ctx context.Context, file string, config *Tra
 TraceCall lets you trace a given eth_call. It collects the structured logs
 created during the execution of EVM if the given transaction was added on
 top of the provided block and returns them as a JSON object.
+If no transaction index is specified, the trace will be conducted on the state
+after executing the specified block. However, if a transaction index is provided,
+the trace will be conducted on the state after executing the specified transaction
+within the specified block.
 
 
 #### Params (3)
@@ -7824,10 +8151,47 @@ args <code>ethapi.TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -7854,6 +8218,11 @@ args <code>ethapi.TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -7868,6 +8237,20 @@ args <code>ethapi.TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -7914,10 +8297,47 @@ args <code>ethapi.TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -7944,6 +8364,11 @@ args <code>ethapi.TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -7958,6 +8383,20 @@ args <code>ethapi.TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -8004,6 +8443,11 @@ config <code>*TraceCallConfig</code>
 			- additionalProperties: `false`
 			- properties: 
 				- BaseFee: 
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- BlobBaseFee: 
 					- pattern: `^0x[a-fA-F0-9]+$`
 					- title: `integer`
 					- type: `string`
@@ -8124,9 +8568,11 @@ config <code>*TraceCallConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
+			- additionalProperties: `true`
 
+		- TxIndex: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint`
 			- type: `string`
 
 		- overrides: 
@@ -8148,6 +8594,11 @@ config <code>*TraceCallConfig</code>
                 "additionalProperties": false,
                 "properties": {
                     "BaseFee": {
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "BlobBaseFee": {
                         "pattern": "^0x[a-fA-F0-9]+$",
                         "title": "integer",
                         "type": "string"
@@ -8268,9 +8719,11 @@ config <code>*TraceCallConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
+                "additionalProperties": true
+            },
+            "TxIndex": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint",
                 "type": "string"
             },
             "overrides": {
@@ -8333,6 +8786,8 @@ func (api *API) TraceCall(ctx context.Context, args ethapi.TransactionArgs, bloc
 	var (
 		err	error
 		block	*types.Block
+		statedb	*state.StateDB
+		release	StateReleaseFunc
 	)
 	if hash, ok := blockNrOrHash.Hash(); ok {
 		block, err = api.blockByHash(ctx, hash)
@@ -8351,7 +8806,11 @@ func (api *API) TraceCall(ctx context.Context, args ethapi.TransactionArgs, bloc
 	if config != nil && config.Reexec != nil {
 		reexec = *config.Reexec
 	}
-	statedb, release, err := api.backend.StateAtBlock(ctx, block, reexec, nil, true, false)
+	if config != nil && config.TxIndex != nil {
+		_, _, statedb, release, err = api.backend.StateAtTransaction(ctx, block, int(*config.TxIndex), reexec)
+	} else {
+		statedb, release, err = api.backend.StateAtBlock(ctx, block, reexec, nil, true, false)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -8363,7 +8822,7 @@ func (api *API) TraceCall(ctx context.Context, args ethapi.TransactionArgs, bloc
 		}
 		config.BlockOverrides.Apply(&vmctx)
 	}
-	msg, err := args.ToMessage(api.backend.RPCGasCap(), block.BaseFee())
+	msg, err := args.ToMessage(api.backend.RPCGasCap(), vmctx.BaseFee)
 	if err != nil {
 		return nil, err
 	}
@@ -8372,10 +8831,14 @@ func (api *API) TraceCall(ctx context.Context, args ethapi.TransactionArgs, bloc
 }// TraceCall lets you trace a given eth_call. It collects the structured logs
 // created during the execution of EVM if the given transaction was added on
 // top of the provided block and returns them as a JSON object.
+// If no transaction index is specified, the trace will be conducted on the state
+// after executing the specified block. However, if a transaction index is provided,
+// the trace will be conducted on the state after executing the specified transaction
+// within the specified block.
 // Try to retrieve the specified block
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L886" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L890" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -8432,10 +8895,47 @@ txs <code>[]ethapi.TransactionArgs</code>
 
 					- type: `array`
 
+				- blobVersionedHashes: 
+					- items: 
+						- description: `Hex representation of a Keccak 256 hash`
+						- pattern: `^0x[a-fA-F\d]{64}$`
+						- title: `keccak`
+						- type: `string`
+
+					- type: `array`
+
+				- blobs: 
+					- items: 
+						- items: 
+							- description: `Hex representation of the integer`
+							- pattern: `^0x[a-fA-F0-9]+$`
+							- title: `integer`
+							- type: `string`
+
+						- maxItems: `131072`
+						- minItems: `131072`
+						- type: `array`
+
+					- type: `array`
+
 				- chainId: 
 					- pattern: `^0x[a-fA-F0-9]+$`
 					- title: `integer`
 					- type: `string`
+
+				- commitments: 
+					- items: 
+						- items: 
+							- description: `Hex representation of the integer`
+							- pattern: `^0x[a-fA-F0-9]+$`
+							- title: `integer`
+							- type: `string`
+
+						- maxItems: `48`
+						- minItems: `48`
+						- type: `array`
+
+					- type: `array`
 
 				- data: 
 					- pattern: `^0x([a-fA-F\d])+$`
@@ -8462,6 +8962,11 @@ txs <code>[]ethapi.TransactionArgs</code>
 					- title: `dataWord`
 					- type: `string`
 
+				- maxFeePerBlobGas: 
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
 				- maxFeePerGas: 
 					- pattern: `^0x[a-fA-F0-9]+$`
 					- title: `integer`
@@ -8476,6 +8981,20 @@ txs <code>[]ethapi.TransactionArgs</code>
 					- pattern: `^0x([a-fA-F\d])+$`
 					- title: `uint64`
 					- type: `string`
+
+				- proofs: 
+					- items: 
+						- items: 
+							- description: `Hex representation of the integer`
+							- pattern: `^0x[a-fA-F0-9]+$`
+							- title: `integer`
+							- type: `string`
+
+						- maxItems: `48`
+						- minItems: `48`
+						- type: `array`
+
+					- type: `array`
 
 				- to: 
 					- pattern: `^0x[a-fA-F\d]{64}$`
@@ -8527,10 +9046,47 @@ txs <code>[]ethapi.TransactionArgs</code>
                         },
                         "type": "array"
                     },
+                    "blobVersionedHashes": {
+                        "items": {
+                            "description": "Hex representation of a Keccak 256 hash",
+                            "pattern": "^0x[a-fA-F\\d]{64}$",
+                            "title": "keccak",
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "blobs": {
+                        "items": {
+                            "items": {
+                                "description": "Hex representation of the integer",
+                                "pattern": "^0x[a-fA-F0-9]+$",
+                                "title": "integer",
+                                "type": "string"
+                            },
+                            "maxItems": 131072,
+                            "minItems": 131072,
+                            "type": "array"
+                        },
+                        "type": "array"
+                    },
                     "chainId": {
                         "pattern": "^0x[a-fA-F0-9]+$",
                         "title": "integer",
                         "type": "string"
+                    },
+                    "commitments": {
+                        "items": {
+                            "items": {
+                                "description": "Hex representation of the integer",
+                                "pattern": "^0x[a-fA-F0-9]+$",
+                                "title": "integer",
+                                "type": "string"
+                            },
+                            "maxItems": 48,
+                            "minItems": 48,
+                            "type": "array"
+                        },
+                        "type": "array"
                     },
                     "data": {
                         "pattern": "^0x([a-fA-F\\d])+$",
@@ -8557,6 +9113,11 @@ txs <code>[]ethapi.TransactionArgs</code>
                         "title": "dataWord",
                         "type": "string"
                     },
+                    "maxFeePerBlobGas": {
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
                     "maxFeePerGas": {
                         "pattern": "^0x[a-fA-F0-9]+$",
                         "title": "integer",
@@ -8571,6 +9132,20 @@ txs <code>[]ethapi.TransactionArgs</code>
                         "pattern": "^0x([a-fA-F\\d])+$",
                         "title": "uint64",
                         "type": "string"
+                    },
+                    "proofs": {
+                        "items": {
+                            "items": {
+                                "description": "Hex representation of the integer",
+                                "pattern": "^0x[a-fA-F0-9]+$",
+                                "title": "integer",
+                                "type": "string"
+                            },
+                            "maxItems": 48,
+                            "minItems": 48,
+                            "type": "array"
+                        },
+                        "type": "array"
                     },
                     "to": {
                         "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -8622,6 +9197,11 @@ config <code>*TraceCallConfig</code>
 			- additionalProperties: `false`
 			- properties: 
 				- BaseFee: 
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- BlobBaseFee: 
 					- pattern: `^0x[a-fA-F0-9]+$`
 					- title: `integer`
 					- type: `string`
@@ -8742,9 +9322,11 @@ config <code>*TraceCallConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
+			- additionalProperties: `true`
 
+		- TxIndex: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint`
 			- type: `string`
 
 		- overrides: 
@@ -8766,6 +9348,11 @@ config <code>*TraceCallConfig</code>
                 "additionalProperties": false,
                 "properties": {
                     "BaseFee": {
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "BlobBaseFee": {
                         "pattern": "^0x[a-fA-F0-9]+$",
                         "title": "integer",
                         "type": "string"
@@ -8886,9 +9473,11 @@ config <code>*TraceCallConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
+                "additionalProperties": true
+            },
+            "TxIndex": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint",
                 "type": "string"
             },
             "overrides": {
@@ -9003,7 +9592,7 @@ func (api *API) TraceCallMany(ctx context.Context, txs [ // TraceCallMany lets y
 	return results, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L942" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L953" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9193,10 +9782,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -9248,10 +9834,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -9351,7 +9934,7 @@ func (api *API) TraceChain(ctx context.Context, start, end rpc.BlockNumber, conf
 	return sub, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L228" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L228" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9451,10 +10034,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -9506,10 +10086,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -9568,11 +10145,11 @@ interface <code>interface{}</code>
 <p>
 ```go
 func (api *API) TraceTransaction(ctx context.Context, hash common.Hash, config *TraceConfig) (interface{}, error) {
-	tx, blockHash, blockNumber, index, err := api.backend.GetTransaction(ctx, hash)
+	found, _, blockHash, blockNumber, index, err := api.backend.GetTransaction(ctx, hash)
 	if err != nil {
-		return nil, err
+		return nil, ethapi.NewTxIndexingError()
 	}
-	if tx == nil {
+	if !found {
 		return nil, errTxNotFound
 	}
 	if blockNumber == 0 {
@@ -9597,7 +10174,7 @@ func (api *API) TraceTransaction(ctx context.Context, hash common.Hash, config *
 // and returns them as a JSON object.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api.go#L847" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api.go#L847" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9688,7 +10265,7 @@ func (sub *RPCDebugSubscription) Unsubscribe(id rpc.ID) error {
 }// Unsubscribe terminates an existing subscription by ID.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/openrpc.go#L241" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/openrpc.go#L241" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9778,12 +10355,12 @@ _None_
 <p>
 ```go
 func (*HandlerT) Verbosity(level int) {
-	glogger.Verbosity(log.Lvl(level))
+	glogger.Verbosity(slog.Level(level))
 }// Verbosity sets the log verbosity ceiling. The verbosity of individual packages
 // and source files can be raised using Vmodule.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L59" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L60" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9853,7 +10430,7 @@ func (*HandlerT) Vmodule(pattern string) error {
 // pattern syntax.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L64" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L65" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9921,7 +10498,7 @@ func (*HandlerT) WriteBlockProfile(file string) error {
 }// WriteBlockProfile writes a goroutine blocking profile to the given file.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L163" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L158" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -9993,7 +10570,7 @@ func (*HandlerT) WriteMemProfile(file string) error {
 // it must be set on the command line.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L190" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L185" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -10061,7 +10638,7 @@ func (*HandlerT) WriteMutexProfile(file string) error {
 }// WriteMutexProfile writes a goroutine blocking profile to the given file.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/debug/api.go#L183" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/debug/api.go#L178" target="_">View on GitHub →</a>
 </p>
 </details>
 

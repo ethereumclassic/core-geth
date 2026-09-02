@@ -131,7 +131,7 @@ if config.IsEnabled(config.EIP658Transition, blockNumber) {
 
 !!! example "Interface Reference"
     The complete interface pattern for supported feature methods
-    can be found here: https://github.com/etclabscore/core-geth/blob/master/params/types/ctypes/configurator_iface.go
+    can be found here: https://github.com/ethereumclassic/core-geth/blob/master/params/types/ctypes/configurator_iface.go
 
 The implicit feature-group `Byzantium` is deconstructed into its composite features, using EIPs and ECIP specifications as conceptual delineations as well as naming patterns.
 

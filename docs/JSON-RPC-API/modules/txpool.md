@@ -7,7 +7,7 @@
 
 | Entity | Version |
 | --- | --- |
-| Source | <code>1.12.14-unstable/generated-at:2023-09-04T08:02:34-06:00</code> |
+| Source | <code>1.13.0-unstable/generated-at:2026-09-02T12:02:52-06:00</code> |
 | OpenRPC | <code>1.2.6</code> |
 
 ---
@@ -68,6 +68,15 @@ mapstringmapstringmapstringRPCTransaction <code>map[string]map[string]map[string
 
 									- type: `array`
 
+								- blobVersionedHashes: 
+									- items: 
+										- description: `Hex representation of a Keccak 256 hash`
+										- pattern: `^0x[a-fA-F\d]{64}$`
+										- title: `keccak`
+										- type: `string`
+
+									- type: `array`
+
 								- blockHash: 
 									- pattern: `^0x[a-fA-F\d]{64}$`
 									- title: `keccak`
@@ -106,6 +115,11 @@ mapstringmapstringmapstringRPCTransaction <code>map[string]map[string]map[string
 								- input: 
 									- pattern: `^0x([a-fA-F\d])+$`
 									- title: `dataWord`
+									- type: `string`
+
+								- maxFeePerBlobGas: 
+									- pattern: `^0x[a-fA-F0-9]+$`
+									- title: `integer`
 									- type: `string`
 
 								- maxFeePerGas: 
@@ -213,6 +227,15 @@ mapstringmapstringmapstringRPCTransaction <code>map[string]map[string]map[string
                                         },
                                         "type": "array"
                                     },
+                                    "blobVersionedHashes": {
+                                        "items": {
+                                            "description": "Hex representation of a Keccak 256 hash",
+                                            "pattern": "^0x[a-fA-F\\d]{64}$",
+                                            "title": "keccak",
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
                                     "blockHash": {
                                         "pattern": "^0x[a-fA-F\\d]{64}$",
                                         "title": "keccak",
@@ -251,6 +274,11 @@ mapstringmapstringmapstringRPCTransaction <code>map[string]map[string]map[string
                                     "input": {
                                         "pattern": "^0x([a-fA-F\\d])+$",
                                         "title": "dataWord",
+                                        "type": "string"
+                                    },
+                                    "maxFeePerBlobGas": {
+                                        "pattern": "^0x[a-fA-F0-9]+$",
+                                        "title": "integer",
                                         "type": "string"
                                     },
                                     "maxFeePerGas": {
@@ -379,7 +407,7 @@ func (s *TxPoolAPI) Content() map // Content returns the transactions contained 
 	return content
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L166" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L176" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -474,6 +502,15 @@ mapstringmapstringRPCTransaction <code>map[string]map[string]*RPCTransaction</co
 
 							- type: `array`
 
+						- blobVersionedHashes: 
+							- items: 
+								- description: `Hex representation of a Keccak 256 hash`
+								- pattern: `^0x[a-fA-F\d]{64}$`
+								- title: `keccak`
+								- type: `string`
+
+							- type: `array`
+
 						- blockHash: 
 							- pattern: `^0x[a-fA-F\d]{64}$`
 							- title: `keccak`
@@ -512,6 +549,11 @@ mapstringmapstringRPCTransaction <code>map[string]map[string]*RPCTransaction</co
 						- input: 
 							- pattern: `^0x([a-fA-F\d])+$`
 							- title: `dataWord`
+							- type: `string`
+
+						- maxFeePerBlobGas: 
+							- pattern: `^0x[a-fA-F0-9]+$`
+							- title: `integer`
 							- type: `string`
 
 						- maxFeePerGas: 
@@ -614,6 +656,15 @@ mapstringmapstringRPCTransaction <code>map[string]map[string]*RPCTransaction</co
                                 },
                                 "type": "array"
                             },
+                            "blobVersionedHashes": {
+                                "items": {
+                                    "description": "Hex representation of a Keccak 256 hash",
+                                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                                    "title": "keccak",
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
                             "blockHash": {
                                 "pattern": "^0x[a-fA-F\\d]{64}$",
                                 "title": "keccak",
@@ -652,6 +703,11 @@ mapstringmapstringRPCTransaction <code>map[string]map[string]*RPCTransaction</co
                             "input": {
                                 "pattern": "^0x([a-fA-F\\d])+$",
                                 "title": "dataWord",
+                                "type": "string"
+                            },
+                            "maxFeePerBlobGas": {
+                                "pattern": "^0x[a-fA-F0-9]+$",
+                                "title": "integer",
                                 "type": "string"
                             },
                             "maxFeePerGas": {
@@ -773,7 +829,7 @@ func (s *TxPoolAPI) ContentFrom(addr common.Address) map // ContentFrom returns 
 	return content
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L193" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L203" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -911,7 +967,7 @@ func (s *TxPoolAPI) Inspect() map // Inspect retrieves the content of the transa
 	return content
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L226" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L236" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1011,7 +1067,7 @@ func (s *TxPoolAPI) Status() map // Status returns the number of pending and que
 	return map[string]hexutil.Uint{"pending": hexutil.Uint(pending), "queued": hexutil.Uint(queue)}
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L216" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L226" target="_">View on GitHub →</a>
 </p>
 </details>
 

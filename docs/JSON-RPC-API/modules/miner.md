@@ -7,7 +7,7 @@
 
 | Entity | Version |
 | --- | --- |
-| Source | <code>1.12.14-unstable/generated-at:2023-09-04T08:02:34-06:00</code> |
+| Source | <code>1.13.0-unstable/generated-at:2026-09-02T12:02:52-06:00</code> |
 | OpenRPC | <code>1.2.6</code> |
 
 ---
@@ -109,7 +109,7 @@ func (api *MinerAPI) SetEtherbase(etherbase common.Address) bool {
 }// SetEtherbase sets the etherbase of the miner.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_miner.go#L81" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_miner.go#L82" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -188,7 +188,7 @@ func (api *MinerAPI) SetExtra(extra string) (bool, error) {
 	return true, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_miner.go#L57" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_miner.go#L57" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -290,7 +290,7 @@ func (api *MinerAPI) SetGasLimit(gasLimit hexutil.Uint64) bool {
 }// SetGasLimit sets the gaslimit to target towards during mining.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_miner.go#L75" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_miner.go#L76" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -391,11 +391,12 @@ func (api *MinerAPI) SetGasPrice(gasPrice hexutil.Big) bool {
 	api.e.gasPrice = (*big.Int)(&gasPrice)
 	api.e.lock.Unlock()
 	api.e.txPool.SetGasTip((*big.Int)(&gasPrice))
+	api.e.Miner().SetGasTip((*big.Int)(&gasPrice))
 	return true
 }// SetGasPrice sets the minimum accepted gas price for the miner.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_miner.go#L65" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_miner.go#L65" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -488,7 +489,7 @@ func (api *MinerAPI) SetRecommitInterval(interval int) {
 }// SetRecommitInterval updates the interval for miner sealing work recommitting.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_miner.go#L87" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_miner.go#L88" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -592,7 +593,7 @@ func (api *MinerAPI) Start(threads *int) error {
 // transaction pool.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_miner.go#L43" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_miner.go#L43" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -651,7 +652,7 @@ func (api *MinerAPI) Stop() {
 // the block creation level.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_miner.go#L52" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_miner.go#L52" target="_">View on GitHub →</a>
 </p>
 </details>
 

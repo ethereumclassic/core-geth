@@ -7,7 +7,7 @@
 
 | Entity | Version |
 | --- | --- |
-| Source | <code>1.12.14-unstable/generated-at:2023-09-04T08:02:34-06:00</code> |
+| Source | <code>1.13.0-unstable/generated-at:2026-09-02T12:02:52-06:00</code> |
 | OpenRPC | <code>1.2.6</code> |
 
 ---
@@ -94,7 +94,7 @@ func (api *adminAPI) AddPeer(url string) (bool, error) {
 // connection at all times, even reconnecting if it is lost.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L57" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L61" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -179,7 +179,7 @@ func (api *adminAPI) AddTrustedPeer(url string) (bool, error) {
 }// AddTrustedPeer allows a remote node to always connect, even if slots are full
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L89" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L93" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -244,7 +244,7 @@ func (api *adminAPI) Datadir() string {
 }// Datadir retrieves the current data directory the node is using.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L320" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L324" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -254,6 +254,11 @@ func (api *adminAPI) Datadir() string {
 
 ### admin_ecbp1100
 
+Ecbp1100 sets the ECBP-1100 (MESS) activation block and reports whether the
+mechanism is active afterwards.
+
+This mutates chain configuration. To read the current state without changing
+it, use Ecbp1100Status.
 
 
 #### Params (1)
@@ -371,9 +376,159 @@ func (api *AdminAPI) Ecbp1100(blockNr rpc.BlockNumber) (bool, error) {
 	i := uint64(blockNr.Int64())
 	err := api.eth.blockchain.Config().SetECBP1100Transition(&i)
 	return api.eth.blockchain.IsArtificialFinalityEnabled() && api.eth.blockchain.Config().IsEnabled(api.eth.blockchain.Config().GetECBP1100Transition, api.eth.blockchain.CurrentBlock().Number), err
-}
+}// Ecbp1100 sets the ECBP-1100 (MESS) activation block and reports whether the
+// mechanism is active afterwards.
+//
+// This mutates chain configuration. To read the current state without changing
+// it, use Ecbp1100Status.
+
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_admin.go#L142" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_admin.go#L151" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### admin_ecbp1100Status
+
+Ecbp1100Status reports the ECBP-1100 (MESS) state at the current head and
+changes nothing.
+
+Ecbp1100 above answers a similar question by first assigning the activation
+block it is passed, so it cannot be used to observe a running node. This
+exists so that state can be read without altering it.
+
+
+#### Params (0)
+
+_None_
+
+#### Result
+
+
+
+
+<code>ECBP1100Status</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- additionalProperties: `false`
+	- properties: 
+		- activatedAtBlock: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
+		- defaultDisabledAtBlock: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
+		- enabled: 
+			- type: `boolean`
+
+		- head: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
+		- nodeSwitch: 
+			- type: `boolean`
+
+
+	- type: object
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "additionalProperties": false,
+        "properties": {
+            "activatedAtBlock": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
+            "defaultDisabledAtBlock": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
+            "enabled": {
+                "type": "boolean"
+            },
+            "head": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
+            "nodeSwitch": {
+                "type": "boolean"
+            }
+        },
+        "type": [
+            "object"
+        ]
+    }
+	```
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "admin_ecbp1100Status", "params": []}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "admin_ecbp1100Status", "params": []}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	admin.ecbp1100Status();
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *AdminAPI) Ecbp1100Status() ECBP1100Status {
+	config := api.eth.blockchain.Config()
+	head := api.eth.blockchain.CurrentBlock().Number
+	nodeSwitch := api.eth.blockchain.IsArtificialFinalityEnabled()
+	return ECBP1100Status{Enabled: nodeSwitch && config.IsEnabled(config.GetECBP1100Transition, head), NodeSwitch: nodeSwitch, ActivatedAtBlock: config.GetECBP1100Transition(), DefaultDisabledAtBlock: config.GetECBP1100DeactivateTransition(), Head: head.Uint64()}
+}// Ecbp1100Status reports the ECBP-1100 (MESS) state at the current head and
+// changes nothing.
+//
+// Ecbp1100 above answers a similar question by first assigning the activation
+// block it is passed, so it cannot be used to observe a running node. This
+// exists so that state can be read without altering it.
+
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_admin.go#L195" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -546,7 +701,7 @@ func (api *AdminAPI) ExportChain(file string, first *uint64, last *uint64) (bool
 // or a range of blocks if first and last are non-nil.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_admin.go#L46" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_admin.go#L46" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -640,6 +795,9 @@ func (api *AdminAPI) ImportChain(file string) (bool, error) {
 			} else if err != nil {
 				return false, fmt.Errorf("block %d: failed to parse: %v", index, err)
 			}
+			if block.NumberU64() == 0 {
+				continue
+			}
 			blocks = append(blocks, block)
 			index++
 		}
@@ -658,7 +816,7 @@ func (api *AdminAPI) ImportChain(file string) (bool, error) {
 	return true, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_admin.go#L94" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_admin.go#L94" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -768,7 +926,7 @@ func (api *AdminAPI) MaxPeers(n int) (bool, error) {
 }// MaxPeers sets the maximum peer limit for the protocol manager and the p2p server.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/api_admin.go#L152" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/api_admin.go#L209" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -964,7 +1122,7 @@ func (api *adminAPI) NodeInfo() (*p2p.NodeInfo, error) {
 // protocol granularity.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L310" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L314" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1070,7 +1228,7 @@ func (api *adminAPI) PeerEvents(ctx context.Context) (*rpc.Subscription, error) 
 // node's p2p.Server
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L121" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L125" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1297,7 +1455,7 @@ func (api *adminAPI) Peers() ([ // Peers retrieves all the information we know a
 	return server.PeersInfo(), nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L300" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L304" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1382,7 +1540,7 @@ func (api *adminAPI) RemovePeer(url string) (bool, error) {
 }// RemovePeer disconnects from a remote node if the connection exists
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L73" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L77" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1469,7 +1627,7 @@ func (api *adminAPI) RemoveTrustedPeer(url string) (bool, error) {
 // does not disconnect it automatically.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L105" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L109" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1646,7 +1804,7 @@ func (api *adminAPI) StartHTTP(host *string, port *int, cors *string, apis *stri
 	return true, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L158" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L162" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1786,7 +1944,7 @@ func (api *adminAPI) StartRPC(host *string, port *int, cors *string, apis *strin
 // Deprecated: use StartHTTP instead.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L217" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L221" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1951,7 +2109,7 @@ func (api *adminAPI) StartWS(host *string, port *int, allowedOrigins *string, ap
 	return true, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L236" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L240" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2017,7 +2175,7 @@ func (api *adminAPI) StopHTTP() (bool, error) {
 }// StopHTTP shuts down the HTTP server.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L223" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L227" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2085,7 +2243,7 @@ func (api *adminAPI) StopRPC() (bool, error) {
 // Deprecated: use StopHTTP instead.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L230" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L234" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2152,7 +2310,7 @@ func (api *adminAPI) StopWS() (bool, error) {
 }// StopWS terminates all WebSocket servers.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/api.go#L292" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/api.go#L296" target="_">View on GitHub →</a>
 </p>
 </details>
 

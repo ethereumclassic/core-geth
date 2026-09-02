@@ -7,7 +7,7 @@
 
 | Entity | Version |
 | --- | --- |
-| Source | <code>1.12.14-unstable/generated-at:2023-09-04T08:02:34-06:00</code> |
+| Source | <code>1.13.0-unstable/generated-at:2026-09-02T12:02:52-06:00</code> |
 | OpenRPC | <code>1.2.6</code> |
 
 ---
@@ -173,7 +173,7 @@ func (s *PersonalAccountAPI) DeriveAccount(url string, path string, pin *bool) (
 // it for later reuse.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L344" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L354" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -192,7 +192,7 @@ addr = ecrecover(hash, signature)
 Note, the signature must conform to the secp256k1 curve R, S and V values, where
 the V value must be 27 or 28 for legacy reasons.
 
-https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal_ecRecover
+https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-personal#personal-ecrecover
 
 
 #### Params (2)
@@ -359,10 +359,10 @@ func (s *PersonalAccountAPI) EcRecover(ctx context.Context, data, sig hexutil.By
 // Note, the signature must conform to the secp256k1 curve R, S and V values, where
 // the V value must be 27 or 28 for legacy reasons.
 //
-// https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal_ecRecover
+// https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-personal#personal-ecrecover
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L549" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L565" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -483,7 +483,7 @@ func (s *PersonalAccountAPI) ImportRawKey(privkey string, password string) (comm
 // encrypting it with the passphrase.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L386" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L396" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -577,7 +577,7 @@ func (s *PersonalAccountAPI) InitializeWallet(ctx context.Context, url string) (
 	}
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L566" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L582" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -678,7 +678,7 @@ func (s *PersonalAccountAPI) ListAccounts() [ // ListAccounts will return a list
 	return s.am.Accounts()
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L294" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L304" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -858,7 +858,7 @@ func (s *PersonalAccountAPI) ListWallets() [ // ListWallets will return a list o
 	return wallets
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L308" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L318" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -962,7 +962,7 @@ func (s *PersonalAccountAPI) LockAccount(addr common.Address) bool {
 }// LockAccount will lock the account associated with the given address when it's unlocked.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L431" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L441" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1091,7 +1091,7 @@ func (s *PersonalAccountAPI) NewAccount(password string) (common.AddressEIP55, e
 }// NewAccount will create a new account and returns the address for the new account.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L360" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L370" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1182,7 +1182,7 @@ func (s *PersonalAccountAPI) OpenWallet(url string, passphrase *string) error {
 // Trezor PIN matrix challenge).
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L330" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L340" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1237,10 +1237,47 @@ args <code>TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -1267,6 +1304,11 @@ args <code>TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -1281,6 +1323,20 @@ args <code>TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -1327,10 +1383,47 @@ args <code>TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -1357,6 +1450,11 @@ args <code>TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -1371,6 +1469,20 @@ args <code>TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -1475,6 +1587,9 @@ func (s *PersonalAccountAPI) SendTransaction(ctx context.Context, args Transacti
 		s.nonceLock.LockAddr(args.from())
 		defer s.nonceLock.UnlockAddr(args.from())
 	}
+	if args.IsEIP4844() {
+		return common.Hash{}, errBlobTxNotSupported
+	}
 	signed, err := s.signTransaction(ctx, &args, passwd)
 	if err != nil {
 		log.Warn("Failed transaction send attempt", "from", args.from(), "to", args.To, "value", args.Value.ToInt(), "err", err)
@@ -1486,7 +1601,7 @@ func (s *PersonalAccountAPI) SendTransaction(ctx context.Context, args Transacti
 // passwd isn't able to decrypt the key it fails.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L461" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L471" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1504,7 +1619,7 @@ where the V value will be 27 or 28 for legacy reasons.
 
 The key used to calculate the signature is decrypted with the given password.
 
-https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal_sign
+https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-personal#personal-sign
 
 
 #### Params (3)
@@ -1679,10 +1794,10 @@ func (s *PersonalAccountAPI) Sign(ctx context.Context, data hexutil.Bytes, addr 
 //
 // The key used to calculate the signature is decrypted with the given password.
 //
-// https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal_sign
+// https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-personal#personal-sign
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L521" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L537" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1738,10 +1853,47 @@ args <code>TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -1768,6 +1920,11 @@ args <code>TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -1782,6 +1939,20 @@ args <code>TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -1828,10 +1999,47 @@ args <code>TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -1858,6 +2066,11 @@ args <code>TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -1872,6 +2085,20 @@ args <code>TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -1999,6 +2226,9 @@ func (s *PersonalAccountAPI) SignTransaction(ctx context.Context, args Transacti
 	if args.GasPrice == nil && (args.MaxFeePerGas == nil || args.MaxPriorityFeePerGas == nil) {
 		return nil, errors.New("missing gasPrice or maxFeePerGas/maxPriorityFeePerGas")
 	}
+	if args.IsEIP4844() {
+		return nil, errBlobTxNotSupported
+	}
 	if args.Nonce == nil {
 		return nil, errors.New("nonce not specified")
 	}
@@ -2022,7 +2252,7 @@ func (s *PersonalAccountAPI) SignTransaction(ctx context.Context, args Transacti
 // to other nodes
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L480" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L493" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2190,7 +2420,7 @@ func (s *PersonalAccountAPI) UnlockAccount(ctx context.Context, addr common.Addr
 // default of 300 seconds. It returns an indication if the account was unlocked.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L402" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L412" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2276,7 +2506,7 @@ func (s *PersonalAccountAPI) Unpair(ctx context.Context, url string, pin string)
 	}
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/internal/ethapi/api.go#L593" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/internal/ethapi/api.go#L609" target="_">View on GitHub →</a>
 </p>
 </details>
 

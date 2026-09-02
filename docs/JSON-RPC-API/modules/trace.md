@@ -7,7 +7,7 @@
 
 | Entity | Version |
 | --- | --- |
-| Source | <code>1.12.14-unstable/generated-at:2023-09-04T08:02:34-06:00</code> |
+| Source | <code>1.13.0-unstable/generated-at:2026-09-02T12:02:52-06:00</code> |
 | OpenRPC | <code>1.2.6</code> |
 
 ---
@@ -136,10 +136,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -191,10 +188,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -324,7 +318,7 @@ func (api *TraceAPI) Block(ctx context.Context, number rpc.BlockNumber, config *
 	return results, nil
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api_parity.go#L190" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api_parity.go#L190" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -379,10 +373,47 @@ args <code>ethapi.TransactionArgs</code>
 
 			- type: `array`
 
+		- blobVersionedHashes: 
+			- items: 
+				- description: `Hex representation of a Keccak 256 hash`
+				- pattern: `^0x[a-fA-F\d]{64}$`
+				- title: `keccak`
+				- type: `string`
+
+			- type: `array`
+
+		- blobs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `131072`
+				- minItems: `131072`
+				- type: `array`
+
+			- type: `array`
+
 		- chainId: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
 			- type: `string`
+
+		- commitments: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- data: 
 			- pattern: `^0x([a-fA-F\d])+$`
@@ -409,6 +440,11 @@ args <code>ethapi.TransactionArgs</code>
 			- title: `dataWord`
 			- type: `string`
 
+		- maxFeePerBlobGas: 
+			- pattern: `^0x[a-fA-F0-9]+$`
+			- title: `integer`
+			- type: `string`
+
 		- maxFeePerGas: 
 			- pattern: `^0x[a-fA-F0-9]+$`
 			- title: `integer`
@@ -423,6 +459,20 @@ args <code>ethapi.TransactionArgs</code>
 			- pattern: `^0x([a-fA-F\d])+$`
 			- title: `uint64`
 			- type: `string`
+
+		- proofs: 
+			- items: 
+				- items: 
+					- description: `Hex representation of the integer`
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- maxItems: `48`
+				- minItems: `48`
+				- type: `array`
+
+			- type: `array`
 
 		- to: 
 			- pattern: `^0x[a-fA-F\d]{64}$`
@@ -469,10 +519,47 @@ args <code>ethapi.TransactionArgs</code>
                 },
                 "type": "array"
             },
+            "blobVersionedHashes": {
+                "items": {
+                    "description": "Hex representation of a Keccak 256 hash",
+                    "pattern": "^0x[a-fA-F\\d]{64}$",
+                    "title": "keccak",
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            "blobs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 131072,
+                    "minItems": 131072,
+                    "type": "array"
+                },
+                "type": "array"
+            },
             "chainId": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
                 "type": "string"
+            },
+            "commitments": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "data": {
                 "pattern": "^0x([a-fA-F\\d])+$",
@@ -499,6 +586,11 @@ args <code>ethapi.TransactionArgs</code>
                 "title": "dataWord",
                 "type": "string"
             },
+            "maxFeePerBlobGas": {
+                "pattern": "^0x[a-fA-F0-9]+$",
+                "title": "integer",
+                "type": "string"
+            },
             "maxFeePerGas": {
                 "pattern": "^0x[a-fA-F0-9]+$",
                 "title": "integer",
@@ -513,6 +605,20 @@ args <code>ethapi.TransactionArgs</code>
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "proofs": {
+                "items": {
+                    "items": {
+                        "description": "Hex representation of the integer",
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "maxItems": 48,
+                    "minItems": 48,
+                    "type": "array"
+                },
+                "type": "array"
             },
             "to": {
                 "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -559,6 +665,11 @@ config <code>*TraceCallConfig</code>
 			- additionalProperties: `false`
 			- properties: 
 				- BaseFee: 
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- BlobBaseFee: 
 					- pattern: `^0x[a-fA-F0-9]+$`
 					- title: `integer`
 					- type: `string`
@@ -679,9 +790,11 @@ config <code>*TraceCallConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
+			- additionalProperties: `true`
 
+		- TxIndex: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint`
 			- type: `string`
 
 		- overrides: 
@@ -703,6 +816,11 @@ config <code>*TraceCallConfig</code>
                 "additionalProperties": false,
                 "properties": {
                     "BaseFee": {
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "BlobBaseFee": {
                         "pattern": "^0x[a-fA-F0-9]+$",
                         "title": "integer",
                         "type": "string"
@@ -823,9 +941,11 @@ config <code>*TraceCallConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
+                "additionalProperties": true
+            },
+            "TxIndex": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint",
                 "type": "string"
             },
             "overrides": {
@@ -897,7 +1017,7 @@ func (api *TraceAPI) Call(ctx context.Context, args ethapi.TransactionArgs, bloc
 // You can provide -2 as a block number to trace on top of the pending block.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api_parity.go#L262" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api_parity.go#L262" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -954,10 +1074,47 @@ txs <code>[]ethapi.TransactionArgs</code>
 
 					- type: `array`
 
+				- blobVersionedHashes: 
+					- items: 
+						- description: `Hex representation of a Keccak 256 hash`
+						- pattern: `^0x[a-fA-F\d]{64}$`
+						- title: `keccak`
+						- type: `string`
+
+					- type: `array`
+
+				- blobs: 
+					- items: 
+						- items: 
+							- description: `Hex representation of the integer`
+							- pattern: `^0x[a-fA-F0-9]+$`
+							- title: `integer`
+							- type: `string`
+
+						- maxItems: `131072`
+						- minItems: `131072`
+						- type: `array`
+
+					- type: `array`
+
 				- chainId: 
 					- pattern: `^0x[a-fA-F0-9]+$`
 					- title: `integer`
 					- type: `string`
+
+				- commitments: 
+					- items: 
+						- items: 
+							- description: `Hex representation of the integer`
+							- pattern: `^0x[a-fA-F0-9]+$`
+							- title: `integer`
+							- type: `string`
+
+						- maxItems: `48`
+						- minItems: `48`
+						- type: `array`
+
+					- type: `array`
 
 				- data: 
 					- pattern: `^0x([a-fA-F\d])+$`
@@ -984,6 +1141,11 @@ txs <code>[]ethapi.TransactionArgs</code>
 					- title: `dataWord`
 					- type: `string`
 
+				- maxFeePerBlobGas: 
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
 				- maxFeePerGas: 
 					- pattern: `^0x[a-fA-F0-9]+$`
 					- title: `integer`
@@ -998,6 +1160,20 @@ txs <code>[]ethapi.TransactionArgs</code>
 					- pattern: `^0x([a-fA-F\d])+$`
 					- title: `uint64`
 					- type: `string`
+
+				- proofs: 
+					- items: 
+						- items: 
+							- description: `Hex representation of the integer`
+							- pattern: `^0x[a-fA-F0-9]+$`
+							- title: `integer`
+							- type: `string`
+
+						- maxItems: `48`
+						- minItems: `48`
+						- type: `array`
+
+					- type: `array`
 
 				- to: 
 					- pattern: `^0x[a-fA-F\d]{64}$`
@@ -1049,10 +1225,47 @@ txs <code>[]ethapi.TransactionArgs</code>
                         },
                         "type": "array"
                     },
+                    "blobVersionedHashes": {
+                        "items": {
+                            "description": "Hex representation of a Keccak 256 hash",
+                            "pattern": "^0x[a-fA-F\\d]{64}$",
+                            "title": "keccak",
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "blobs": {
+                        "items": {
+                            "items": {
+                                "description": "Hex representation of the integer",
+                                "pattern": "^0x[a-fA-F0-9]+$",
+                                "title": "integer",
+                                "type": "string"
+                            },
+                            "maxItems": 131072,
+                            "minItems": 131072,
+                            "type": "array"
+                        },
+                        "type": "array"
+                    },
                     "chainId": {
                         "pattern": "^0x[a-fA-F0-9]+$",
                         "title": "integer",
                         "type": "string"
+                    },
+                    "commitments": {
+                        "items": {
+                            "items": {
+                                "description": "Hex representation of the integer",
+                                "pattern": "^0x[a-fA-F0-9]+$",
+                                "title": "integer",
+                                "type": "string"
+                            },
+                            "maxItems": 48,
+                            "minItems": 48,
+                            "type": "array"
+                        },
+                        "type": "array"
                     },
                     "data": {
                         "pattern": "^0x([a-fA-F\\d])+$",
@@ -1079,6 +1292,11 @@ txs <code>[]ethapi.TransactionArgs</code>
                         "title": "dataWord",
                         "type": "string"
                     },
+                    "maxFeePerBlobGas": {
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
                     "maxFeePerGas": {
                         "pattern": "^0x[a-fA-F0-9]+$",
                         "title": "integer",
@@ -1093,6 +1311,20 @@ txs <code>[]ethapi.TransactionArgs</code>
                         "pattern": "^0x([a-fA-F\\d])+$",
                         "title": "uint64",
                         "type": "string"
+                    },
+                    "proofs": {
+                        "items": {
+                            "items": {
+                                "description": "Hex representation of the integer",
+                                "pattern": "^0x[a-fA-F0-9]+$",
+                                "title": "integer",
+                                "type": "string"
+                            },
+                            "maxItems": 48,
+                            "minItems": 48,
+                            "type": "array"
+                        },
+                        "type": "array"
                     },
                     "to": {
                         "pattern": "^0x[a-fA-F\\d]{64}$",
@@ -1144,6 +1376,11 @@ config <code>*TraceCallConfig</code>
 			- additionalProperties: `false`
 			- properties: 
 				- BaseFee: 
+					- pattern: `^0x[a-fA-F0-9]+$`
+					- title: `integer`
+					- type: `string`
+
+				- BlobBaseFee: 
 					- pattern: `^0x[a-fA-F0-9]+$`
 					- title: `integer`
 					- type: `string`
@@ -1264,9 +1501,11 @@ config <code>*TraceCallConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
+			- additionalProperties: `true`
 
+		- TxIndex: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint`
 			- type: `string`
 
 		- overrides: 
@@ -1288,6 +1527,11 @@ config <code>*TraceCallConfig</code>
                 "additionalProperties": false,
                 "properties": {
                     "BaseFee": {
+                        "pattern": "^0x[a-fA-F0-9]+$",
+                        "title": "integer",
+                        "type": "string"
+                    },
+                    "BlobBaseFee": {
                         "pattern": "^0x[a-fA-F0-9]+$",
                         "title": "integer",
                         "type": "string"
@@ -1408,9 +1652,11 @@ config <code>*TraceCallConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
+                "additionalProperties": true
+            },
+            "TxIndex": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint",
                 "type": "string"
             },
             "overrides": {
@@ -1477,7 +1723,7 @@ func (api *TraceAPI) CallMany(ctx context.Context, txs [ // CallMany lets you tr
 	return api.debugAPI.TraceCallMany(ctx, txs, blockNrOrHash, config)
 }
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api_parity.go#L275" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api_parity.go#L275" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1638,10 +1884,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -1693,10 +1936,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -1778,7 +2018,7 @@ func (api *TraceAPI) Filter(ctx context.Context, args TraceFilterArgs, config *T
 // per transaction, dependent on the requested tracer.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api_parity.go#L249" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api_parity.go#L249" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1910,7 +2150,7 @@ func (sub *RPCTraceSubscription) Subscribe(subscriptionName RPCTraceSubscription
 // Subscriptions are not available over HTTP; they are only available over WS, IPC, and Process connections.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/openrpc.go#L267" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/openrpc.go#L267" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2010,10 +2250,7 @@ config <code>*TraceConfig</code>
 			- type: `string`
 
 		- TracerConfig: 
-			- media: 
-				- binaryEncoding: `base64`
-
-			- type: `string`
+			- additionalProperties: `true`
 
 		- overrides: 
 			- additionalProperties: `true`
@@ -2065,10 +2302,7 @@ config <code>*TraceConfig</code>
                 "type": "string"
             },
             "TracerConfig": {
-                "media": {
-                    "binaryEncoding": "base64"
-                },
-                "type": "string"
+                "additionalProperties": true
             },
             "overrides": {
                 "additionalProperties": true
@@ -2133,7 +2367,7 @@ func (api *TraceAPI) Transaction(ctx context.Context, hash common.Hash, config *
 // and returns them as a JSON object.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/eth/tracers/api_parity.go#L241" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/eth/tracers/api_parity.go#L241" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -2224,7 +2458,7 @@ func (sub *RPCTraceSubscription) Unsubscribe(id rpc.ID) error {
 }// Unsubscribe terminates an existing subscription by ID.
 
 ```
-<a href="https://github.com/etclabscore/core-geth/blob/master/node/openrpc.go#L258" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/master/node/openrpc.go#L258" target="_">View on GitHub →</a>
 </p>
 </details>
 
