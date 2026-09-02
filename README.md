@@ -205,9 +205,55 @@ Security vulnerabilities are not reported as issues. See [SECURITY.md](SECURITY.
 
 ## License
 
-The core-geth library (outside `cmd/`) is licensed under [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html).
-The core-geth binaries (`cmd/`) are licensed under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).
+```
+Copyright 2013-present The go-ethereum Authors
+Copyright 2019-present The multi-geth Authors
+Copyright 2020-present The core-geth Authors
+```
 
-`COPYING` and `COPYING.LESSER` carry the full texts, and `NOTICE` carries attribution.
-There is deliberately no `LICENSE` file: the split is inherited from go-ethereum, and a
-per-file header states which of the two applies.
+The core-geth library (i.e. all code outside of the `cmd` directory) is licensed under the
+[GNU Lesser General Public License v3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html),
+also included in our repository in the `COPYING.LESSER` file.
+
+The core-geth binaries (i.e. all code inside of the `cmd` directory) is licensed under the
+[GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html), also
+included in our repository in the `COPYING` file.
+
+Each source file carries a header stating which of the two applies to it. Where a
+header and this summary disagree, the header governs. This program is distributed
+in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+**Core-Geth is a modified version of
+[go-ethereum](https://github.com/ethereum/go-ethereum), by way of
+[multi-geth](https://github.com/multi-geth/multi-geth), and is a derivative work
+of both.** Modification began in March 2018 as multi-geth and continues to the
+present. The great majority of this source is upstream's, and each file's
+copyright header records which project it belongs to.
+
+Copyright is held by the individual contributors listed in `AUTHORS` and by the
+authors of every commit in this repository's history. "The core-geth Authors"
+refers to that body collectively, not to any company or organization.
+
+## Project history
+
+The code and the maintaining team have separate lineages, and neither is a
+straight line.
+
+**The code.** go-ethereum began in December 2013.
+[multi-geth](https://github.com/multi-geth/multi-geth) forked it in March 2018 to
+support several networks from a single client, holding chain rules as
+configuration rather than as code branches. multi-geth was renamed Core-Geth in
+February 2020 and kept that model, which is why a further network here is a chain
+configuration rather than a new client.
+
+**The team.** ETC Labs Core formed in December 2018, many of its developers having
+previously been part of ETCDEV, which supported the Classic Geth client. As
+Classic Geth was retired the team supported multi-geth, and then Core-Geth from
+2020. From January 2022 the work was funded by the
+[ETC Cooperative](https://etccooperative.org/posts/2021-12-22-coop-now-funding-core-geth).
+
+**This repository** was created on 2024-12-21 from the preceding repository at
+commit `7ef3ecd7a` (2024-12-16), and has carried Ethereum Classic's Core-Geth
+since. That commit is preserved on the `archive-etclabscore-2024-12` branch and
+tagged `archive/etclabscore-2024-12`.
