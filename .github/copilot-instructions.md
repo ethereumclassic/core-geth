@@ -148,10 +148,6 @@ SHAs is a workflow change and needs confirmation before it is made.
 
 ## Facts that mislead if you do not know them
 
-- **`git.diff` is tracked, not a stray file.** It is a 6.0 MB conflicted diff
-  committed by accident in a 2021 upstream merge and still present in `master`.
-  `.dockerignore` does not exclude it, so it is carried into the Docker build
-  context. Removing it is a deliberate repository change, not tidying.
 - **`swarm/` is legacy**, retained but not the active networking stack.
 - **`sync-parity-chainspecs` is marked deprecated in the `Makefile` itself.**
 - **`AUTHORS` is generated, not written**, by `build/update-license.go` from
@@ -175,7 +171,7 @@ touching `.github/workflows/`; changing any chain configuration — activation
 block, fork schedule, genesis allocation, bootnode list, checkpoint hash;
 changing any dependency — `go.mod`, `go.sum`, `requirements-mkdocs.txt`, a
 Dockerfile base image, a submodule pointer, a pin in `build/checksums.txt`;
-regenerating test fixtures; removing `git.diff`; opening, editing or closing a
+regenerating test fixtures; opening, editing or closing a
 pull request or issue.
 
 Never: change repository settings, branch protection, rulesets or Actions

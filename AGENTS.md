@@ -196,11 +196,6 @@ needs confirmation before it is made.
 
 ## Facts that mislead if you do not know them
 
-- **`git.diff` is tracked, not a stray file.** It is a 6.0 MB conflicted diff
-  committed by accident in a 2021 upstream merge (`d4a8d7365`) and still present
-  in `master`. Nothing reads it, and `.dockerignore` does not exclude it, so it is
-  carried into the Docker build context. Removing it is a deliberate repository
-  change, not tidying — ask first.
 - **`swarm/` is legacy.** It is retained; it is not the active networking stack.
 - **The `sync-parity-chainspecs` target is marked deprecated in the `Makefile`
   itself.** Parity configuration support is not maintained past the Istanbul fork.
@@ -238,7 +233,6 @@ needs confirmation before it is made.
   Dockerfile base image, a submodule pointer, a pinned version in
   `build/checksums.txt`.
 - **Regenerating test fixtures** (`make tests-generate` and its sub-targets).
-- **Removing `git.diff`.**
 - **Opening, editing or closing a pull request or issue.**
 
 ### Never
