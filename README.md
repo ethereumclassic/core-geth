@@ -69,7 +69,13 @@ Core-Geth is a production execution client for the Ethereum Classic network. It 
 | MintMe.com Coin | 24734 | Proof of Work | `--mintme` |
 | Private chains | configurable | PoW / PoA | genesis config |
 
-Sepolia and Holesky are also registered, inherited from upstream go-ethereum.
+Ethereum mainnet, Sepolia and Holesky are also registered, inherited from upstream
+go-ethereum, and `--mainnet` is still what a bare invocation selects.
+
+**They are not maintained here.** This client implements Ethereum through Cancun
+and no further, so a node run on any of them follows the real chain up to the next
+fork it does not know about and then continues on its own rules without reporting
+anything. Use `--classic` or `--mordor` explicitly.
 
 ### ETC consensus history
 
@@ -131,8 +137,10 @@ go test ./consensus/ethash/... -run "TestDifficultyETC|TestDifficultyECIP" -v
 go test -tags live ./tests/live_etc/ -v
 ```
 
-`tests/evm-benchmarks` is a submodule. Run `git submodule update --init --recursive`
-before any suite that reads the shared consensus fixtures.
+The consensus fixtures live in three submodules: `tests/testdata`,
+`tests/testdata-etc` and `tests/evm-benchmarks`. Run
+`git submodule update --init --recursive` before any suite that reads them, or
+the failures look like consensus errors rather than missing files.
 
 ## Run a node
 
