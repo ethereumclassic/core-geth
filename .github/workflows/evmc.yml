@@ -51,7 +51,7 @@ jobs:
           export GOBIN=${HOME}/go/bin
           mkdir -p "${GOBIN}"
           export PATH="${PATH}:${GOBIN}"
-          go install -x golang.org/x/mobile/cmd/gomobile@latest
+          go install -x golang.org/x/mobile/cmd/gomobile@v0.0.0-20260821190718-4776eadac327
           gomobile init
 
       - name: Test EVMC

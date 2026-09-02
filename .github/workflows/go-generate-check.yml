@@ -27,8 +27,14 @@ jobs:
       - name: Install deps
         id: install-deps
         run: |
+          # The version was already pinned; the bytes were not. The hash is the
+          # one Solidity publishes for this build in its own list.json. -f makes
+          # curl fail on an HTTP error rather than saving the error page and
+          # letting the install continue with it.
           SOLC_BIN=solc-linux-amd64-v0.6.0+commit.26b70077
-          curl -OL https://binaries.soliditylang.org/linux-amd64/$SOLC_BIN
+          SOLC_SHA256=5c4b30da18b0fa5f1ae3183127a4dcd64a279fcc15e16a477b0841d576770283
+          curl -fsSLO https://binaries.soliditylang.org/linux-amd64/$SOLC_BIN
+          echo "$SOLC_SHA256  $SOLC_BIN" | sha256sum -c -
           sudo mv $SOLC_BIN /usr/bin/solc
           sudo chmod +x /usr/bin/solc
 

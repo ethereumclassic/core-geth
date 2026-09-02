@@ -126,10 +126,17 @@ docs-generate: ## Generate JSON RPC API documentation from the OpenRPC service d
 # You need to put $GOBIN (or $GOPATH/bin) in your PATH to use 'go generate'.
 
 #? devtools: Install recommended developer tools
+# Tool versions are pinned. An @latest here resolves fresh from the module proxy
+# on every run, including runs triggered by a pull request from a fork, with no
+# pin, no checksum and no release-age gate.
+#
+# protoc-gen-go is pinned to the final release of a module its own go.mod marks
+# deprecated in favour of google.golang.org/protobuf. Migrating regenerates the
+# trezor bindings, which is a code change in its own right and is not made here.
 devtools:
-	env GOBIN= go install golang.org/x/tools/cmd/stringer@latest
-	env GOBIN= go install github.com/fjl/gencodec@latest
-	env GOBIN= go install github.com/golang/protobuf/protoc-gen-go@latest
+	env GOBIN= go install golang.org/x/tools/cmd/stringer@v0.49.0
+	env GOBIN= go install github.com/fjl/gencodec@v0.1.2
+	env GOBIN= go install github.com/golang/protobuf/protoc-gen-go@v1.5.4
 	env GOBIN= go install ./cmd/abigen
 	@type "solc" 2> /dev/null || echo 'Please install solc'
 	@type "protoc" 2> /dev/null || echo 'Please install protoc'
