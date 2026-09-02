@@ -21,7 +21,7 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Benchmark etclabscore/core-geth
+      - name: Benchmark ethereumclassic/core-geth
         id: bench
         run: |
           go test -short ./tests -count 1 -p 1 -timeout 60m -run NONE -bench=VM -v |& tee core-geth.txt

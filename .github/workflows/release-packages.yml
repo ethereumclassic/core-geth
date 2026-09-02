@@ -35,7 +35,7 @@ jobs:
           BUILD_OS_NAME: win64
 
     steps:
-      - name: Checkout etclabscore/core-geth
+      - name: Checkout ethereumclassic/core-geth
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up Go 1.x

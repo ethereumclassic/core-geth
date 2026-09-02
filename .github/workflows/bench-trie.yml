@@ -19,7 +19,7 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Benchmark etclabscore/core-geth
+      - name: Benchmark ethereumclassic/core-geth
         id: bench
         run: |
           go test -short ./trie -count 1 -p 1 -timeout 60m -run NONE -bench=. -v |& tee core-geth.txt
