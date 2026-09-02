@@ -1,6 +1,6 @@
 # "trace" Module Overview
 
-The trace module is for getting a deeper insight into transaction processing. It includes two sets of calls; the transaction trace filtering API and the ad-hoc tracing API. You can find the documentation for the supported methods [here](/JSON-RPC-API/modules/trace/).
+The trace module is for getting a deeper insight into transaction processing. It includes two sets of calls; the transaction trace filtering API and the ad-hoc tracing API. You can find the documentation for the supported methods [here](modules/trace.md).
 
 It's good to mention that `trace_*` methods are nothing more than aliases to some existing `debug_*` methods. The reason for creating those aliases, was to reach compatibility with OpenEthereum's (aka Parity) trace module, which has been requested by the community in order they can fully use core-geth. For achieving this, the `trace_*` methods set the default tracer to `callTracerParity` if none is set.
 

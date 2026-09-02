@@ -6,7 +6,7 @@ title: Command Line Interface (CLI)
 
 !!! tip "Use for Ethereum mainnet"
 
-    While `core-geth` is mainly used for the Ethereum Classic network, you can use it for Ethereum mainnet and other [supported networks](/#networkprovider-comparison) as well.
+    While `core-geth` is mainly used for the Ethereum Classic network, you can use it for Ethereum mainnet and other [supported networks](../index.md#networkprovider-comparison) as well.
 
 ### Fast node on an Ethereum Classic network
 

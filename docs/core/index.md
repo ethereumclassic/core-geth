@@ -25,7 +25,7 @@ Core-Geth features a synthetic build/+runtime service discovery API, allowing yo
 description of _all_ available methods, their parameters, and results.
 
 !!! tip "RPC Service Documentation"
-    For complete documentation of the available JSON RPC APIs, please see the [JSON RPC API page](/core-geth/JSON-RPC-API/modules/eth).
+    For complete documentation of the available JSON RPC APIs, please see the [JSON RPC API page](../JSON-RPC-API/modules/eth.md).
 
 #### Additional methods and options
 
@@ -37,7 +37,7 @@ description of _all_ available methods, their parameters, and results.
 ### EVMCv7 Support
 
 - EVMCv7 support allows use with external EVMs (including EWASM).
-- See [Running Geth with an External VM](./core/evmc) for more information.
+- See [Running Core-Geth with an External VM](evmc.md) for more information.
 
 ### Remote Store for Ancient Chaindata
 
@@ -159,6 +159,6 @@ Things ethereum/go-ethereum can or will do that Core-Geth won't, or doesn't by d
   If ethereum/go-ethereum can build and package for it, then with some elbow grease, Core-Geth can too.
 - The `puppeth` CLI program has been [removed](https://github.com/etclabscore/core-geth/pull/270). This is a "wizard"-style interactive program that helps beginners
   configure chain and network settings.
-- Trim absolute file paths during build. As of a [somewhat-recent](TODO) Go version, `go build` provides a `-trim` flag
+- Trim absolute file paths during build. `go build` provides a `-trimpath` flag
   which reduces the size of the binaries and anonymizes the build environment. This was removed because stripping file paths
   caused automatic service discovery features to break (they depend, in part, on source file path availability for build-time AST and runtime reflection). 
