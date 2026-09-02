@@ -39,7 +39,7 @@ mv <datadir>/core-geth <datadir>/geth
 
 ```bash
 # Confirm which client your current `geth` actually is.
-# Core-Geth prints "Core"; go-ethereum prints "Geth".
+# Core-Geth prints "Core-Geth <version>"; go-ethereum prints "Geth".
 geth version | head -1
 ```
 
@@ -116,7 +116,8 @@ core-geth attach --exec 'eth.blockNumber' <datadir>/geth.ipc
 Two things to confirm, and the second is the one that matters:
 
 ```bash
-# the client identifies as Core
+# the client identifies itself and its version on one line:
+#   Core-Geth 1.13.0-unstable
 core-geth version | head -1
 
 # it resumed from your existing chain data rather than starting over.
@@ -162,7 +163,7 @@ This section is the executable form of the procedure above. Follow it literally.
 **Procedure.**
 
 ```bash
-# 1. Identify. Core-Geth prints "Core"; go-ethereum prints "Geth". Do not touch go-ethereum.
+# 1. Identify. Core-Geth prints "Core-Geth <version>"; go-ethereum prints "Geth". Do not touch go-ethereum.
 geth version | head -1
 
 # 2. Record the pre-migration block height, to prove later that data survived.

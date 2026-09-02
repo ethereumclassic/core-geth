@@ -93,13 +93,13 @@ section rather than editing it, and prefer `core-geth --help` when the two diffe
 ```
 $ core-geth --help
 NAME:
-   core-geth - the go-ethereum command line interface
+   core-geth - the Core-Geth command line interface
 
 USAGE:
    core-geth [global options] command [command options]
 
 VERSION:
-   1.13.0-unstable-5a38e734-20260902
+   1.13.0-unstable-e94c1a60-20260902
 
 COMMANDS:
    account                Manage accounts

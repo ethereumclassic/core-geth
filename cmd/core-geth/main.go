@@ -49,8 +49,23 @@ import (
 )
 
 const (
-	clientIdentifier   = "core" // Client identifier to advertise over the network
-	databaseIdentifier = "geth" // Client identifier to be used by the database
+	// clientIdentifier names the client in the version output and the console
+	// welcome. It does NOT reach the wire: node.Config.NodeName() overrides it
+	// with params.VersionName, which is "CoreGeth" and never empty.
+	clientIdentifier = "core-geth"
+
+	// databaseIdentifier sets node.Config.Name, and node.Config.instanceDir
+	// joins that to the data directory -- so this value, not the name of the
+	// executable, is what puts chain data in <datadir>/geth.
+	//
+	// Do not change it to match the executable. Every existing node would
+	// look in a directory that does not exist, find no chain data, and
+	// resync from genesis; a rollback to an earlier release would then read
+	// a different state again. It was separated from clientIdentifier in
+	// 2020 so that renaming the client would not move anyone's data, and the
+	// migration guide for this release tells operators the instance
+	// directory does not move.
+	databaseIdentifier = "geth"
 )
 
 var (
@@ -226,7 +241,7 @@ var (
 	}
 )
 
-var app = flags.NewApp("the go-ethereum command line interface")
+var app = flags.NewApp("the Core-Geth command line interface")
 
 func init() {
 	// Initialize the CLI app and start Geth
@@ -308,13 +323,13 @@ func checkMainnet(ctx *cli.Context) bool {
 
 	switch {
 	case ctx.IsSet(utils.SepoliaFlag.Name):
-		log.Info("Starting Geth on Sepolia testnet...")
+		log.Info("Starting Core-Geth on Sepolia testnet...")
 
 	case ctx.IsSet(utils.HoleskyFlag.Name):
-		log.Info("Starting Geth on Holesky testnet...")
+		log.Info("Starting Core-Geth on Holesky testnet...")
 
 	case ctx.IsSet(utils.DeveloperFlag.Name):
-		log.Info("Starting Geth in ephemeral proof-of-authority network dev mode...")
+		log.Info("Starting Core-Geth in ephemeral proof-of-authority network dev mode...")
 		log.Warn(`You are running Geth in --dev mode. Please note the following:
 
   1. This mode is only intended for fast, iterative development without assumptions on
@@ -332,7 +347,7 @@ func checkMainnet(ctx *cli.Context) bool {
 `)
 
 	case ctx.IsSet(utils.DeveloperPoWFlag.Name):
-		log.Info("Starting Geth in ephemeral proof-of-work network dev mode...")
+		log.Info("Starting Core-Geth in ephemeral proof-of-work network dev mode...")
 		log.Warn(`You are running Geth in --dev.pow mode. Please note the following:
 
   1. This mode is only intended for fast, iterative development without assumptions on
@@ -349,16 +364,16 @@ func checkMainnet(ctx *cli.Context) bool {
 `)
 
 	case ctx.IsSet(utils.ClassicFlag.Name):
-		log.Info("Starting Geth on Ethereum Classic...")
+		log.Info("Starting Core-Geth on Ethereum Classic...")
 
 	case ctx.IsSet(utils.MordorFlag.Name):
-		log.Info("Starting Geth on Mordor testnet...")
+		log.Info("Starting Core-Geth on Mordor testnet...")
 
 	case ctx.IsSet(utils.MintMeFlag.Name):
-		log.Info("Starting Geth on MintMe.com Coin mainnet...")
+		log.Info("Starting Core-Geth on MintMe.com Coin mainnet...")
 
 	case !ctx.IsSet(utils.NetworkIdFlag.Name):
-		log.Info("Starting Geth on Ethereum mainnet...")
+		log.Info("Starting Core-Geth on Ethereum mainnet...")
 		isMainnet = true
 	}
 
