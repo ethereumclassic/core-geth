@@ -186,6 +186,23 @@ enode ID changes, so update any static-peer or trusted-peer list that names it.
 
 `SECURITY.md` carries the disclosure policy and PGP key.
 
+## Contributing
+
+Contributions are welcome, and fixes of any size are useful. Fork the repository,
+make your change, and open a pull request against `master`. For anything
+substantial, open an issue first so the approach can be discussed.
+
+[CONTRIBUTING.md](.github/CONTRIBUTING.md) has the coding guidelines, the build
+and test commands, and the branch policy.
+
+**If your fix applies to code shared with
+[go-ethereum](https://github.com/ethereum/go-ethereum) rather than to Ethereum
+Classic specifically, please send it upstream as well, or instead.** It reaches
+every client built from that source, and it arrives here through the regular
+merges.
+
+Security vulnerabilities are not reported as issues. See [SECURITY.md](SECURITY.md).
+
 ## License
 
 The core-geth library (outside `cmd/`) is licensed under [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html).

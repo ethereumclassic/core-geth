@@ -1,40 +1,60 @@
 # Contributing
 
-Thank you for considering to help out with the source code! We welcome 
-contributions from anyone on the internet, and are grateful for even the 
-smallest of fixes!
+Thank you for considering a contribution. Fixes of any size are welcome.
 
-If you'd like to contribute to go-ethereum, please fork, fix, commit and send a 
-pull request for the maintainers to review and merge into the main code base. If
-you wish to submit more complex changes though, please check up with the core 
-devs first on [our gitter channel](https://gitter.im/ethereum/go-ethereum) to 
-ensure those changes are in line with the general philosophy of the project 
-and/or get some early feedback which can make both your efforts much lighter as
-well as our review and merge procedures quick and simple.
+Fork the repository, make your change, and open a pull request. For anything
+substantial, open an issue first so the approach can be discussed before you
+spend time on it.
+
+## Send upstream what belongs upstream
+
+Core-Geth is a downstream of
+[go-ethereum](https://github.com/ethereum/go-ethereum). If your fix applies to
+code shared with upstream rather than to Ethereum Classic specifically, please
+send it there as well, or instead — a change that lands upstream reaches every
+client built from it, and it arrives here through the regular merges.
+
+Ethereum Classic chain configuration, the ECIP implementations, and this
+client's own multi-network model belong here.
+
+## Which branch
+
+Pull requests are opened against `master`, this repository's default branch.
+
+A `main` branch exists and carries in-progress modernization work. It is not the
+target for contributions yet. When that work is ready for release, `main` becomes
+the default branch and this document will say so.
 
 ## Coding guidelines
 
-Please make sure your contributions adhere to our coding guidelines:
+- Code is `gofmt`-formatted and documented per the Go
+  [commentary](https://go.dev/doc/effective_go#commentary) conventions.
+- `make lint` is the gate. It runs the linter set enabled in `.golangci.yml`,
+  which is narrower than the golangci-lint defaults — a change that passes
+  `golangci-lint run` with default settings has not been checked against this
+  project's configuration.
+- Commit messages are prefixed with the package or area they modify, for example
+  `eth, rpc: make trace configs optional`.
+- Comments carry reasoning rather than description.
 
- * Code must adhere to the official Go 
-[formatting](https://golang.org/doc/effective_go.html#formatting) guidelines 
-(i.e. uses [gofmt](https://golang.org/cmd/gofmt/)).
- * Code must be documented adhering to the official Go 
-[commentary](https://golang.org/doc/effective_go.html#commentary) guidelines.
- * Pull requests need to be based on and opened against the `master` branch.
- * Commit messages should be prefixed with the package(s) they modify.
-   * E.g. "eth, rpc: make trace configs optional"
+## Building and testing
 
-## Can I have feature X
+```bash
+git submodule update --init --recursive   # the test suites need the fixture submodules
+make geth                                 # build cmd/geth into ./build/bin/geth
+make all                                  # build every executable
+make test                                 # make all, then build/ci.go test
+make lint                                 # the linter gate
+make test-coregeth                        # the Ethereum Classic specific suites
+```
 
-Before you submit a feature request, please check and make sure that it isn't 
-possible through some other means. The JavaScript-enabled console is a powerful 
-feature in the right hands. Please check our 
-[Geth documentation page](https://geth.ethereum.org/docs/) for more info
-and help.
+`make help` lists the annotated targets. `make test-coregeth` is what proves this
+client's chain configuration work and is worth running for any change under
+`params/`, `core/` or `consensus/`.
 
-## Configuration, dependencies, and tests
+Note that `make tests-generate` **overwrites** generated fixtures under
+`tests/testdata-etc/`. Read the target before running it.
 
-Please see the [Developers' Guide](https://geth.ethereum.org/docs/developers/geth-developer/dev-guide)
-for more details on configuring your environment, managing project dependencies
-and testing procedures.
+## Reporting a vulnerability
+
+Do not open a public issue. See [SECURITY.md](../SECURITY.md).
