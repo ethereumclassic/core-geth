@@ -1,0 +1,60 @@
+# Dependency updates for core-geth.
+#
+# VERSION UPDATES ARE OFF, DELIBERATELY. Decided 2026-09-01.
+#
+# `open-pull-requests-limit: 0` is GitHub's documented mechanism for disabling
+# version updates for an ecosystem while keeping the configuration visible. The
+# state below is a decision, not an oversight -- do not "fix" it into an active
+# config.
+#
+# WHY OFF
+#   Nobody is triaging a standing pull-request queue against this repository. A
+#   queue that is not read reports itself as a control while operating as noise.
+#   This is a consensus client: a dependency bump is reviewed against what it
+#   changes in block processing, cryptography and networking, not merged because
+#   a bot proposed it.
+#
+# WHAT THIS REPOSITORY ACTUALLY HOLDS
+#   Five ecosystem keys name something real here. Only `gomod` is written below,
+#   because it is the one a modernization pass would enable first; the others are
+#   recorded here so that decision is not made from scratch later.
+#
+#     gomod           go.mod, go.sum
+#     pip             requirements-mkdocs.txt (documentation site build)
+#     docker          Dockerfile, Dockerfile.alltools (golang:1.22-alpine, alpine:latest)
+#     github-actions  nine workflows under .github/workflows/
+#     gitsubmodule    tests/testdata, tests/evm-benchmarks, tests/testdata-etc
+#
+# WHAT THIS DOES NOT DO
+#   Dependabot SECURITY updates are a repository setting with no key in this
+#   file. Nothing written here turns them on or off, and a limit of zero does not
+#   withhold them -- their pull requests are not subject to this limit and do not
+#   count toward it. Measured 2026-09-01: security updates are enabled but paused,
+#   vulnerability alerts are on, and five security pull requests are open against
+#   the pip surface. So this file being "off" is not a statement that the
+#   repository is quiet. Confirm the repository-level setting's state directly
+#   rather than inferring it from this file; GitHub pauses it on its own for an
+#   inactive repository, and anyone with access can flip it.
+#
+# WHAT WOULD CHANGE IT
+#   Someone taking ownership of the queue. Raising the limit brings a `cooldown:`
+#   block with it. There is no cooldown here on purpose: while the limit is zero
+#   it would gate nothing, and an inert setting reads as a control that is
+#   operating.
+#
+#   Note when adding one: `github-actions`, `docker` and `gitsubmodule` support
+#   `default-days` but not the SemVer-bump keys such as `semver-major-days`.
+#   Writing the latter under those ecosystems adds a key nothing reads.
+#
+# UNAFFECTED BY THIS FILE
+#   Actions in the workflows are pinned to mutable tags rather than commit SHAs.
+#   That is a real exposure and this file does not address it; repointing a tag
+#   is a workflow change, made deliberately and reviewed.
+
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0
