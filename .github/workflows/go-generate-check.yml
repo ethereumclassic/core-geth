@@ -13,7 +13,7 @@ env:
 jobs:
   go-generate-check:
     name: Check if "go generate" has been run
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Set up Go 1.x
         id: go

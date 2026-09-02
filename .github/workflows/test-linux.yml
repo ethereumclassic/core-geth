@@ -15,7 +15,7 @@ jobs:
   # Run linter check. Only test code linters on latest version of Go.
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Set up Go 1.x
         id: go
@@ -32,7 +32,7 @@ jobs:
   # Run core-geth -specific tests, proving regression-safety and config interoperability.
   test-cg:
     name: Tests-CoreGeth
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Set up Go 1.x
         id: go
@@ -49,7 +49,7 @@ jobs:
   # Run build and tests against latest-1 Go version.
   test:
     name: Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Set up Go 1.x
         id: go

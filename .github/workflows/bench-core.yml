@@ -7,7 +7,7 @@ on:
 jobs:
   bench_core_geth:
     name: Benchmark core-geth
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 360
     steps:
       - name: Set up Go 1.x
@@ -31,7 +31,7 @@ jobs:
 
   bench_go_ethereum:
     name: Benchmark go-ethereum
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 360
     steps:
       - name: Set up Go 1.x
@@ -59,7 +59,7 @@ jobs:
   compare:
     name: Compare
     needs: [bench_core_geth, bench_go_ethereum]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Set up Go 1.x
