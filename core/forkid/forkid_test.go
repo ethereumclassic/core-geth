@@ -679,3 +679,80 @@ func TestTimeBasedForkInGenesis(t *testing.T) {
 		}
 	}
 }
+
+// TestECBP1100NotInForkID asserts that ECBP-1100 (MESS) does not enter the fork
+// ID, on either the mainnet or the Mordor configuration.
+//
+// This is the property that lets the client ship the defense on by default. MESS
+// selects between competing chains and never decides whether a block is valid, so
+// a node running it must peer normally with one that is not. The fork ID is what
+// enforces that: if ECBP-1100 reached it, enabling the defense would partition
+// peering along MESS lines rather than protecting the chain.
+//
+// It holds because params/confp filters the "ECBP" and "EBP" naming schemes out
+// of BlockForks. That filter is a string match on a configurator method name, so
+// renaming GetECBP1100Transition or editing compatibleProtocolNameSchemes would
+// silently break it. Nothing else in the tree would notice, which is why this is
+// pinned here rather than left to inspection.
+func TestECBP1100NotInForkID(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		config  ctypes.ChainConfigurator
+		genesis *types.Block
+		heads   []uint64
+	}{
+		{
+			"classic",
+			params.ClassicChainConfig,
+			core.GenesisToBlock(params.DefaultClassicGenesisBlock(), nil),
+			[]uint64{0, 11_380_000, 19_250_000, 30_000_000},
+		},
+		{
+			"mordor",
+			params.MordorChainConfig,
+			core.GenesisToBlock(params.DefaultMordorGenesisBlock(), nil),
+			[]uint64{0, 2_380_000, 9_957_000, 20_000_000},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			activation := tt.config.GetECBP1100Transition()
+			if activation == nil {
+				t.Fatalf("%s does not configure ECBP-1100; this test no longer covers what it claims", tt.name)
+			}
+			deactivation := tt.config.GetECBP1100DeactivateTransition()
+
+			for _, head := range tt.heads {
+				withMESS := NewID(tt.config, tt.genesis, head, 0)
+
+				// Recompute with the defense removed entirely.
+				if err := tt.config.SetECBP1100Transition(nil); err != nil {
+					t.Fatalf("head %d: clearing activation: %v", head, err)
+				}
+				if err := tt.config.SetECBP1100DeactivateTransition(nil); err != nil {
+					t.Fatalf("head %d: clearing deactivation: %v", head, err)
+				}
+				withoutMESS := NewID(tt.config, tt.genesis, head, 0)
+
+				// Restore before asserting, so a failure does not leave the
+				// shared package-level config mutated for later tests.
+				if err := tt.config.SetECBP1100Transition(activation); err != nil {
+					t.Fatalf("head %d: restoring activation: %v", head, err)
+				}
+				if err := tt.config.SetECBP1100DeactivateTransition(deactivation); err != nil {
+					t.Fatalf("head %d: restoring deactivation: %v", head, err)
+				}
+
+				if withMESS != withoutMESS {
+					t.Errorf("head %d: fork ID changes with ECBP-1100 configured: with=%x next=%d without=%x next=%d",
+						head, withMESS.Hash, withMESS.Next, withoutMESS.Hash, withoutMESS.Next)
+				}
+			}
+
+			// The config must be back exactly as it was found.
+			if got := tt.config.GetECBP1100Transition(); (got == nil) != (activation == nil) ||
+				(got != nil && activation != nil && *got != *activation) {
+				t.Errorf("activation block not restored: have %v want %v", got, activation)
+			}
+		})
+	}
+}
