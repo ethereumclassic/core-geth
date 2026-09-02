@@ -225,6 +225,50 @@ not cover.
 
 `make lint` reports zero issues on the resulting tree.
 
+## Build and release pipeline
+
+The dependency work above covers what the client links against. It does not cover
+what builds it, and that surface had drifted further than the module graph had.
+
+**Documentation build.** The requirements set was pinned at 2021-2022 versions and
+the workflow installing it asked for `python-version: 3.x`, which resolves to
+whichever interpreter the runner considers newest. `regex==2021.8.3` publishes no
+binary wheel for CPython 3.12, 3.13 or 3.14, so that install either compiled a
+2021 C extension against a modern header set or failed, decided by an image
+nothing pinned. The workflow is additionally self-triggering: a push touching the
+documentation, its configuration, or the requirements file runs it. The set is
+rebuilt from its five actual direct requirements, twelve packages are gone
+because nothing needs them, and the interpreter is pinned to the version the
+result was verified against.
+
+**Runner images.** Eight workflows selected `ubuntu-latest`, and the release
+matrix selected `macos-latest` and `windows-latest`. A floating label means the
+same commit builds against whatever image the label currently maps to, which is
+the objection that already had every action pinned to a commit rather than a tag.
+
+That label had already moved underneath the release build. `macos-latest` now
+resolves to an Arm64 image, while every macOS archive this project has published
+was x86_64 and the archive name records no architecture. The next release would
+have published an Arm64 binary under the name Intel users download, and it would
+have looked entirely successful. The macOS build is now two entries: `osx` stays
+x86_64, and Apple Silicon publishes beside it as `osx-arm64`.
+
+**Container images.** None were ever published from this repository. `build/ci.go`
+carries a complete implementation, inherited from upstream, that nothing has ever
+called -- not a workflow, and not any of the retired CI configurations. The images
+under the previous namespace were produced by a registry-side integration
+configured outside the source tree, so the capability was absent rather than
+broken, and nothing in the repository looked wrong. Images are now built and
+published from here, per architecture on native runners and merged into a
+manifest list.
+
+**Build context.** The container build sent 2.96 GB, most of it never read:
+fixture submodules, local build output, documentation sources, and untracked
+working directories. It is now 1.38 GB, of which 1.16 GB is `.git`, kept
+deliberately -- `internal/build/env.go` guards its git reads on the directory
+existing, so removing it does not fail the build, it silently produces a binary
+that reports no commit.
+
 ## Verification
 
 Every change was gated on the consensus suites, not on a successful build:
@@ -261,8 +305,15 @@ comparing version strings.
 ## Outstanding
 
 - The vendored `libsecp256k1` resynchronization described above.
-- The `version:ppa-builder` bootstrap chain, which needs a recursive builder rather
-  than a version bump.
+- The Debian source path. `version:ppa-builder` was raised from a version that
+  could no longer bootstrap the current toolchain to the minimum Go states as
+  required, which is what that pin needed. It remains untested: no workflow
+  invokes the Debian source path, which is why its insufficiency surfaced by
+  reading rather than by failing.
+- The container base images are floating tags. The builder resolves a different
+  Go patch version than `build/checksums.txt` pins for the release archives, so
+  one release ships binaries built by two toolchains, and the runtime base is
+  `latest`, which can cross a major version without any change here.
 - The `crypto/ecdh` migration for the deprecated `crypto/ecdsa` and
   `crypto/elliptic` call sites, once a secp256k1 path exists or upstream
   go-ethereum moves first. Scoped per package rather than tree-wide: the keystore
