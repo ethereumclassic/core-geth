@@ -28,6 +28,23 @@ linters:
     # - exhaustive # silly check
     # - makezero # false positives
     # - nilerr # several intentional
+  settings:
+    govet:
+      # The inline analyzer reports where a call could not be inlined. That is a
+      # compiler diagnostic, not a defect, and it fires because the linter is
+      # built against a newer Go than this module targets.
+      disable:
+        - inline
+    staticcheck:
+      # golangci-lint v2 folded gosimple, stylecheck and quickfix into
+      # staticcheck. Only the SA and S families were enabled before that, so ST
+      # and QF are switched back off rather than adopted by accident: they are
+      # style preferences this tree has never been written against, and most of
+      # what they flag is inherited from upstream.
+      checks:
+        - all
+        - -ST*
+        - -QF*
   exclusions:
     generated: lax
     presets:
@@ -40,14 +57,30 @@ linters:
         linters:
           - deadcode
           - staticcheck
+      # staticcheck v2 reports fully-qualified names, so these patterns match
+      # loosely rather than quoting the message verbatim as they did under v1.
       - path: core/vm/contracts.go
-        text: 'SA1019: "golang.org/x/crypto/ripemd160" is deprecated: RIPEMD-160 is a legacy hash and should not be used for new applications.'
-      - path: accounts/usbwallet/trezor.go
-        text: 'SA1019: "github.com/golang/protobuf/proto" is deprecated: Use the "google.golang.org/protobuf/proto" package instead.'
-      - path: accounts/usbwallet/trezor/
-        text: 'SA1019: "github.com/golang/protobuf/proto" is deprecated: Use the "google.golang.org/protobuf/proto" package instead.'
+        text: 'SA1019:.*ripemd160.* is deprecated'
+      - path: accounts/usbwallet/
+        text: 'SA1019:.*protobuf/proto.* is deprecated'
       - path: (.+)\.go$
-        text: 'SA1019: event.TypeMux is deprecated: use Feed'
+        text: 'SA1019:.*event\.TypeMux is deprecated'
+      - path: p2p/(discover|enode)/
+        text: 'SA1019:.*(elliptic|IsOnCurve|Unmarshal).* (is |has been )deprecated'
+      # Go 1.26 deprecated the raw big.Int fields on crypto/ecdsa keys and the
+      # low-level crypto/elliptic operations. This tree uses them deliberately:
+      # the devp2p discovery wire format fixes how a public key is encoded, and
+      # the ECIES handshake operates on curve points directly -- including the
+      # on-curve check that answers CVE-2025-24883 and CVE-2026-26315. crypto/ecdh
+      # covers the NIST curves only, so for secp256k1 there is no replacement to
+      # migrate to.
+      - path: (p2p/(discover|enode)/|crypto/|accounts/(keystore|scwallet)/)
+        text: 'SA1019:.*(crypto/ecdsa|crypto/elliptic).*deprecated'
+      # Build tooling, not the client. runtime.GOROOT and go/parser.ParseDir are
+      # deprecated but correct here: this code runs from the source tree during
+      # a build, which is the case their replacements do not cover.
+      - path: (internal/build/|cmd/geth/misccmd\.go|accounts/abi/bind/bind_test\.go)
+        text: 'SA1019:.*(runtime\.GOROOT|go/parser\.ParseDir).*deprecated'
       - path: (.+)\.go$
         text: 'SA1019: strings.Title is deprecated'
       - path: (.+)\.go$
@@ -55,8 +88,10 @@ linters:
       - path: (.+)\.go$
         text: 'SA1029: should not use built-in type string as key for value'
     paths:
+      - core/genesis_alloc.go
       - params/alloc.go
       - params/alloc_mintme.go
+      - evmc/
       - third_party$
       - builtin$
       - examples$
@@ -70,8 +105,10 @@ formatters:
   exclusions:
     generated: lax
     paths:
+      - core/genesis_alloc.go
       - params/alloc.go
       - params/alloc_mintme.go
+      - evmc/
       - third_party$
       - builtin$
       - examples$
