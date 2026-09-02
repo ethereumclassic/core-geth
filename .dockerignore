@@ -1,5 +1,27 @@
+# Test sources are not needed to build a binary.
 **/*_test.go
 
+# Local build output and workspaces.
 build/_workspace
 build/_bin
+build/bin
+
+# Consensus fixture submodules. Several gigabytes, read only by the test
+# suites, and never by a build.
 tests/testdata
+tests/testdata-etc
+tests/evm-benchmarks
+
+# Not part of any build.
+.github
+docs
+
+# Working notes, which are not tracked and have no business entering a build
+# context or an intermediate layer.
+.local
+
+# .git is deliberately NOT excluded. internal/build/env.go reads the commit,
+# its date and any tag pointing at HEAD from it, guarding each read on the
+# directory existing -- so excluding it does not fail the build, it silently
+# produces a binary that reports no commit. For a consensus client that
+# traceability is worth the build context it costs.
