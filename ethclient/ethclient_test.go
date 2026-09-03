@@ -1147,6 +1147,7 @@ var allRPCMethods = []string{
 	"admin_addTrustedPeer",
 	"admin_datadir",
 	"admin_ecbp1100",
+	"admin_ecbp1100Status",
 	"admin_exportChain",
 	"admin_importChain",
 	"admin_maxPeers",
