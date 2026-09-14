@@ -21,10 +21,10 @@ import (
 )
 
 const (
-	VersionMajor = 1        // Major version component of the current release
-	VersionMinor = 13       // Minor version component of the current release
-	VersionPatch = 0        // Patch version component of the current release
-	VersionMeta  = "stable" // Version metadata to append to the version string
+	VersionMajor = 1          // Major version component of the current release
+	VersionMinor = 13         // Minor version component of the current release
+	VersionPatch = 1          // Patch version component of the current release
+	VersionMeta  = "unstable" // Version metadata to append to the version string
 	// VersionName is the devp2p FAMILY name and must not carry the version.
 	// node.Config.NodeName() appends "/v<VersionWithMeta>" itself, and network
 	// censuses group peers by this first segment -- etcnodes.org counts 512 of
