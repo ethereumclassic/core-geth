@@ -75,6 +75,12 @@ jobs:
           for pattern in ${GENERATE_EXCEPTIONS[@]}; do
             list="$(grep -v "$pattern" <<< "$list")"
           done
+          # An empty list would make `xargs` run `go generate` with no arguments, which generates the
+          # root package only, finds no directives and exits 0: a pass that checked nothing. Fail instead.
+          if [ -z "$list" ]; then
+            echo "🔴 ERROR: the package list is empty, so nothing would be generated"
+            exit 1
+          fi
           xargs go generate <<< "$list"
       - name: Check for modified files
         id: git-check
