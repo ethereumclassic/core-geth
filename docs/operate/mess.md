@@ -1,5 +1,6 @@
 ---
 title: MESS
+description: "MESS (ECBP-1100) in Core-Geth: what it does during a deep chain reorganization, why v1.13.0 ships it on by default, and how to turn it off."
 ---
 
 MESS, Modified Exponential Subjective Scoring (ECBP-1100), makes a node resist deep chain
@@ -13,6 +14,54 @@ MESS is not a consensus rule. It never changes whether a block is valid, only wh
 chains the node prefers. Nodes that must agree on the chain, such as an exchange's deposit and
 withdrawal nodes, should all run with the same MESS setting: during a deep reorganization, a node
 with MESS on and a node with MESS off can prefer different chains.
+
+## Why it is on by default
+
+**MESS exists because of what happened the last time Ethereum Classic's client base thinned.** The record, with
+sources:
+
+- **31 July 2020: a 51% attack that ran for 12 hours.** The
+  [MESS testing report](https://medium.com/etc-core/mess-testing-results-report-4cba96ed92fa), published by ETC
+  Labs and written by OpenRelay, carries Bitquery's estimate that the attack cost about $192,000 to run and double
+  spent about $5.6 million of ETC. The same report calculates that with MESS in place the attacker would have
+  needed **31 times more hashing power** to hold that reorganization, which would have cost more than it took.
+- **25 September 2020:** an entire core developers' call was
+  [given over to 51% attack solutions](https://ethereumclassic.org/blog/2020-09-25-core-devs-call-51-attack-solutions).
+  Seven proposals competed, from merged mining to checkpointing to VeriBlock. MESS is the one that shipped.
+- **28 September and 10 October 2020:** MESS activated on Mordor at block 238,000 and on Ethereum Classic at
+  **block 11,380,000**, shipped in Core-Geth v1.11.15
+  ([release announcement](https://medium.com/etc-core/ethereum-classic-stakeholders-critical-security-release-to-prevent-51-attacks-aa83596a0903),
+  [client upgrade](https://ethereumclassic.org/blog/2020-10-10-mess-client-upgrade)). This client still activates
+  it at that block, in
+  [`params/config_classic.go`](https://github.com/ethereumclassic/core-geth/blob/main/params/config_classic.go).
+- **It existed in exactly one client.** That announcement states it plainly: *"The MESS Security Feature is ONLY
+  AVAILABLE in the Core-Geth client."* Hyperledger Besu did not carry it, and by the
+  [Thanos upgrade in November 2020](https://medium.com/etc-core/ethereum-classic-prepares-for-the-thanos-hard-fork-upgrade-2e1e52633cc)
+  Parity Ethereum, OpenEthereum, Multi-Geth and Geth Classic were deprecated and would no longer follow the chain.
+  That is checkable rather than remembered: the archived OpenEthereum chainspec for Ethereum Classic carries the
+  Phoenix transitions at block 10,500,839 and contains no ECIP-1099 epoch change at all, in
+  `openethereum/openethereum/ethcore/res/ethereum/classic.json` of the
+  [client archive](https://github.com/fukuii-project/archive-reference-material). Those clients kept up through
+  Phoenix in June 2020 and stopped at Thanos.
+- **January 2024:** [ECBP-1110](https://ecips.ethereumclassic.org/ECIPs/ecip-1110) recommended that clients ship
+  MESS off by default. Its reasoning rests on Ethereum Classic holding roughly 85% of apparent compatible hashrate
+  at the time, which is a claim about market conditions rather than about the code.
+
+**What preceded the 2020 attacks was a thinning client base, not a change in the chain's rules.** That is the
+condition Ethereum Classic is in again: maintenance of this client has moved between organizations, the previous
+repository is scheduled to be archived, and operators are receiving conflicting advice about which client to run.
+None of that changes which blocks are valid. It does make the hashrate distribution and client mix that
+ECBP-1110's reasoning depends on harder to predict than when that document was written.
+
+So the default leans the way that costs an operator one flag to undo. Exchanges asked for MESS, and exchanges and
+payment processors are what a deep reorganization is aimed at: the July 2020 attacker took $5.6 million from
+them, not from the protocol. An operator who disagrees runs `--mess=false` and is where ECBP-1110 recommends; an
+operator who does nothing is protected. The reverse default puts the burden on the people with the most to lose,
+during the window when it matters most.
+
+**This is a client default, not a rule.** ECBP-1100 and ECBP-1110 are both Best Practice documents, so each
+client chooses its own. The status of both is open in
+[ECIPs #580](https://github.com/ethereumclassic/ECIPs/pull/580).
 
 ## Where it applies
 
