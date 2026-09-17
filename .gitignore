@@ -31,6 +31,10 @@ build/_vendor/pkg
 /geth*.zip
 /core-geth
 /core-geth*.zip
+# The checksum written beside each release archive. Untracked, it left the next build in the same
+# job stamped vcs.modified=true.
+/geth*.zip.sha256
+/core-geth*.zip.sha256
 
 # travis
 profile.tmp
