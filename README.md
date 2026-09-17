@@ -7,8 +7,9 @@
 ## ⚠️ Node operators: upgrade to v1.13.0, and rotate your node key
 
 **Every release in the v1.12.x line carries at least one unpatched CVE, and the earliest
-carry all six.** They were built on a Go toolchain that reached end of life in August 2024.
-Upgrade, then perform the one cleanup step below.
+carry all six.** Every archive measured was built on a Go version that is no longer supported,
+most recently [Go 1.21 and Go 1.22](docs/audits/2026-09-go-toolchain.md), whose support ended in
+August 2024 and February 2025. Upgrade, then perform the one cleanup step below.
 
 **1. Upgrade, and change where you track releases.** Releases are cut from
 [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth). A node tracking
@@ -51,14 +52,17 @@ issues; account keys are not implicated by any of them. Rotate account keys only
 exposure rather than one of these CVEs.
 
 Full detail: the [March 2026 audit](docs/audits/2026-03-security-audit.md), the
-[August 2026 follow-up](docs/audits/2026-08-security-followup.md), and the
+[August 2026 follow-up](docs/audits/2026-08-security-followup.md), the
+[Go toolchain audit](docs/audits/2026-09-go-toolchain.md), and the
 [v1.13.0 migration guide](docs/tutorials/v1.13.0-migration.md).
 
 **The release artifacts were audited separately**, and that one matters before you
 download rather than after: the published `v1.12.x` Linux and Arm binaries require a
 newer glibc than the systems many operators run, and the macOS archive has contained an
-Apple Silicon binary under an architecture-free name since June 2024. See
-[release artifacts](docs/audits/2026-09-release-pipeline.md) and
+Apple Silicon binary under an architecture-free name since June 2024. Each `v1.12.20`
+to `v1.12.23` archive also carries 55 to 61 Go standard library advisories that `v1.13.0` does not. See
+[release artifacts](docs/audits/2026-09-release-pipeline.md),
+[Go toolchain](docs/audits/2026-09-go-toolchain.md) and
 [dependency and toolchain modernization](docs/audits/2026-08-dependency-modernization.md).
 
 ---
@@ -120,8 +124,11 @@ default.
 That is the client maintainers' decision to make: both documents are Best Practices
 rather than consensus rules, so each client chooses its own default. Centralized exchanges
 requested MESS as a tool for periods of network hashrate instability, and shipping it on
-lets the default lean toward security. Operators can always disable it with
-`--mess=false`. The [MESS confirmation calculator](docs/guides/mess-calculator.md) shows how much hashrate a
+lets the default lean toward security during a period when maintenance of the client is moving
+between organizations, which is the condition that preceded the 2020 reorganizations MESS was
+built for. Operators can always disable it with `--mess=false`.
+[Why it is on by default](docs/operate/mess.md#why-it-is-on-by-default) gives the history, with
+sources and the activation block. The [MESS confirmation calculator](docs/guides/mess-calculator.md) shows how much hashrate a
 reorganization of a given age needs.
 
 **Through Spiral (the head configuration this client implements), Ethereum Classic has
@@ -300,54 +307,42 @@ separate client, in 2020 and kept that model, which is why a further network her
 a chain configuration rather than a new client.
 
 **The team.** ETC Labs Core formed in December 2018, many of its developers having
-previously been part of [ETCDEV](https://web.archive.org/web/20190330063218/https://www.etcdevteam.com/), which supported the Classic Geth client. As
-Classic Geth was retired the team supported multi-geth, and then Core-Geth from
-2020, publishing as [ETC Labs](https://web.archive.org/web/20200425081322/https://etclabs.org/) and
-[ETC Core](https://web.archive.org/web/20200426174445/https://etccore.io/). ETC Labs left the Ethereum Classic ecosystem
-in 2021, and from January 2022 the work was funded by the
-[ETC Cooperative](https://web.archive.org/web/20250205192722/https://etccooperative.org/), as it
-[announced in December 2021](https://web.archive.org/web/20211222232926/https://etccooperative.org/posts/2021-12-22-coop-now-funding-core-geth).
-The Cooperative entered maintenance mode at the end of 2024, as its
-[2024 retrospective](https://etccooperative.org/etc-cooperative-retrospective-2024.pdf)
-states and its [Q1 2025 report](https://web.archive.org/web/20250811083834/https://etccooperative.org/posts/2025-06-24-q1-report-en)
-confirms: *"we are now in maintenance mode and spending has decreased significantly."*
-It stopped developing Core-Geth in 2025 and wound down its team.
-The [Ethereum Classic DAO](https://ethereumclassicdao.org), a Wyoming DAO LLC launched in May 2025,
-succeeds the ETC Cooperative.
+previously been part of [ETCDEV](https://web.archive.org/web/20190330063218/https://www.etcdevteam.com/),
+which supported the Classic Geth client. As Classic Geth was retired the team supported
+multi-geth, and then Core-Geth from 2020, publishing as
+[ETC Labs](https://web.archive.org/web/20200425081322/https://etclabs.org/) and
+[ETC Core](https://web.archive.org/web/20200426174445/https://etccore.io/). ETC Labs left the
+Ethereum Classic ecosystem in 2021, and from January 2022 the work was funded by the
+[ETC Cooperative](https://web.archive.org/web/20250205192722/https://etccooperative.org/),
+which entered maintenance mode at the end of 2024 and stopped developing Core-Geth in 2025.
+The [Ethereum Classic DAO](https://ethereumclassicdao.org), a Wyoming DAO LLC launched in May
+2025, succeeds it. [The ETC Cooperative transition](docs/etc-cooperative-transition.md) lists
+the services moving to the `ethereumclassic` organization as the Cooperative winds down.
 
 **This repository.** Maintenance moved to
 [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth), the Ethereum
-Classic community repository, created on 2024-12-21 from the preceding repository at
-commit `7ef3ecd7a` (2024-12-16). That commit is preserved on the
-`archive-etclabscore-2024-12` branch and tagged
+Classic community repository, created on 2024-12-21 from the preceding repository at commit
+`7ef3ecd7a` (2024-12-16). That commit is preserved on the `archive-etclabscore-2024-12` branch
+and tagged
 [`archive/etclabscore-2024-12`](https://github.com/ethereumclassic/core-geth/releases/tag/archive%2Fetclabscore-2024-12).
-It is maintained by long-time Ethereum Classic core developers, with the network
-since its inception, as a public good for the network.
+It is maintained by long-time Ethereum Classic core developers, with the network since its
+inception, as a public good for the network.
 
-**The dormancy.** After maintenance moved to the community repository, the client went
-unfunded and unmaintained until [White B0x](https://whiteb0x.com) took up its development,
-security work, disclosures and modernization releases. The
-[March 2026 security audit](docs/audits/2026-03-security-audit.md) counts 21 months without
-security maintenance, from the v1.12.20 release in June 2024 to March 2026. The previous
-repository received no commit between January 2025 and March 2026, and security disclosures
-sent to it privately in 2025 went unanswered.
+**2026.** After the move the client went unfunded and unmaintained for 21 months, as the
+[March 2026 security audit](docs/audits/2026-03-security-audit.md) counts, until
+[White B0x](https://whiteb0x.com) took up its development, security work and disclosures for the
+Ethereum Classic DAO in February 2026. That work was reported privately to the ETC Cooperative
+in February and March 2026, a live attack on Ethereum Classic bootnodes in March 2026 confirmed
+the exposure, and the fixes were cut into the emergency v1.12.21 and v1.12.22 releases in the
+previous repository while v1.13 was tested from February to September 2026. The same fixes were
+submitted here as 27 pull requests, [#10](https://github.com/ethereumclassic/core-geth/pull/10)
+through [#36](https://github.com/ethereumclassic/core-geth/pull/36). v1.13.0, published on
+14 September 2026, is the first release from this repository.
 
-**The modernization.** In February 2026 White B0x began modernizing the client here for the
-Ethereum Classic DAO: patching the outstanding CVEs, moving to a supported Go toolchain, and
-rebuilding the release pipeline.
-In February and March 2026 it reported that security work privately to the ETC Cooperative,
-which owns the previous repository and is scheduled to dissolve by the end of 2026. A live
-attack on Ethereum Classic bootnodes in March 2026 then confirmed the exposure. The work
-White B0x had reported was cut into the emergency v1.12.21 and v1.12.22 releases in the
-previous repository, and those releases gave v1.12.x operators immediate relief while v1.13
-was tested, from February to September 2026.
-
-White B0x submitted its fixes here as 27 individually scoped pull requests,
-[#10](https://github.com/ethereumclassic/core-geth/pull/10) through
-[#36](https://github.com/ethereumclassic/core-geth/pull/36), and the
-[March 2026 security audit](docs/audits/2026-03-security-audit.md) records the attack and both
-responses. This repository is the canonical home of Core-Geth from here on, and the v1.13 line
-is the first released from it.
+**The full account** of both lineages, the organizations behind them and the records for each
+step is in [Project history](docs/about/project-history.md). Claims made about the release after
+it shipped are answered from the record in
+[v1.13.0: the record behind the release](docs/release-reports/v1.13.0-record.md).
 
 **What comes next.** v1.13 is the last Core-Geth release line, maintained through the
 transition. Core-Geth is scheduled to sunset gradually in favor of two efforts. Ethereum Classic

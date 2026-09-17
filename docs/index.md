@@ -2,6 +2,7 @@
 hide:
   - navigation # Hide navigation
 title: Core-Geth
+description: "Core-Geth is the Ethereum Classic execution client: install and run an ETC or Mordor node, upgrade from v1.12.x, and read the security audits behind v1.13.0."
 ---
 
 # Core-Geth: the Ethereum Classic execution client
@@ -17,12 +18,16 @@ are maintained here rather than inherited, which is what this client is for.
 
 | If you are | Go to |
 | --- | --- |
+| **Running a node, a pool, an exchange or an RPC endpoint** | [Node operators: start here](operators.md): what to do now, and what to read in what order |
 | **Pages for your role** | [Choose your role](guides/index.md): miners, pools, exchanges, RPC providers and more |
 | **Upgrading from v1.12.x** | [Migration guide](tutorials/v1.13.0-migration.md): read this before you upgrade |
+| Using a service the ETC Cooperative maintained, such as `etc.rivet.link` | [ETC Cooperative transition](etc-cooperative-transition.md): where each one continues |
+| Asking a short question | [Questions and answers](about/faq.md): which repository, which version, node keys, MESS, RPC and verification |
+| Wondering who maintains this client | [Project history](about/project-history.md): the lineage of the code and of the organizations behind it |
 | Running a node for the first time | [Installation](getting-started/installation.md), then [Running a node](getting-started/run-a-node.md): a guide for Linux, macOS, Windows and Docker, and the flags for each kind of node |
 | Trying the Mordor test network | [Choose your network](getting-started/run-a-node.md#choose-your-network) |
 | Building it yourself | [Build from source](developers/build-from-source.md) |
-| Reviewing what was audited | [The four audit reports](#what-was-audited) |
+| Reviewing what was audited | [The five audit reports](#what-was-audited) |
 
 !!! danger "The v1.12.x line is insecure: upgrade to v1.13.0"
     Six CVEs and a GraphQL denial of service are documented against it, one of them
@@ -38,8 +43,10 @@ are maintained here rather than inherited, which is what this client is for.
     | [CVE-2026-22868](audits/2026-03-security-audit.md#cve-2026-22868-kzg-kate-zaverucha-goldberg-blob-proof-verification-dos) | Medium | KZG proof verification denial of service |
     | [GraphQL query depth](audits/2026-03-security-audit.md#graphql-query-depth-dos) | Medium | Unbounded GraphQL query nesting; no CVE identifier assigned |
 
-    Every release in the line is also built on Go 1.21, end of life since August
-    2024. The [migration guide](tutorials/v1.13.0-migration.md) covers the upgrade,
+    Every archive measured in the line was also built on a Go version that is no longer
+    supported, most recently [Go 1.21 and Go 1.22](audits/2026-09-go-toolchain.md), whose
+    support ended in August 2024 and February 2025. The
+    [migration guide](tutorials/v1.13.0-migration.md) covers the upgrade,
     the required node-key rotation, and how to roll back.
 
 ## Supported networks
@@ -93,7 +100,7 @@ source and do not carry the fixes released here.
 
 ## What was audited
 
-Four reports, each measuring a different layer. Together they are the evidence for the
+Five reports, each measuring a different layer. Together they are the evidence for the
 paragraph above. No single one of them answers "what differs".
 
 | Report | What it measures |
@@ -102,9 +109,10 @@ paragraph above. No single one of them answers "what differs".
 | [August 2026 security follow-up](audits/2026-08-security-followup.md) | `v1.12.23` measured at the tag against the advisory records: what it fixed and what it left open |
 | [Dependency and toolchain modernization](audits/2026-08-dependency-modernization.md) | What changed underneath the code between the December 2024 archive and this release: the Go toolchain, 83 modules, the linter |
 | [Release artifacts](audits/2026-09-release-pipeline.md) | What the published archives actually contain: platform floors, architectures, provenance |
+| [Go toolchain](audits/2026-09-go-toolchain.md) | Which Go toolchain built each published archive, and the Go standard library advisories each one carries |
 
-The first three describe the source. **The last one describes the files you download**,
-and the two can disagree: a release is not what the build configuration says it builds.
+The first three describe the source. **The last two describe the files you download**,
+which can disagree with the source: a release is not what the build configuration says it builds.
 
 ## Security reporting
 
