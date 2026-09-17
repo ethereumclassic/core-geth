@@ -2,7 +2,8 @@
 title: Choose your role
 ---
 
-Find the pages for what you run core-geth for.
+Find the pages for what you run core-geth for. If you are upgrading, or deciding whether to, start with
+[Node operators: start here](../operators.md).
 
 | You are | Start with | Then |
 |---|---|---|

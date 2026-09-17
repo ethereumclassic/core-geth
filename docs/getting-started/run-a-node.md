@@ -1,3 +1,7 @@
+---
+description: "Run an Ethereum Classic or Mordor node with Core-Geth, with the flags, ports and service setup each kind of node needs."
+---
+
 # Running a node
 
 This section takes a `geth` you have [installed](installation.md) to a node that syncs, keeps

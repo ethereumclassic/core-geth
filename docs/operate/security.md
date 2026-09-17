@@ -1,5 +1,6 @@
 ---
 title: Security and network exposure
+description: "Securing an Ethereum Classic node: which ports and RPC modules to expose, which to keep closed, and how to set up a host firewall."
 ---
 
 A node needs only its peer-to-peer ports reachable from the internet. Everything else it listens on

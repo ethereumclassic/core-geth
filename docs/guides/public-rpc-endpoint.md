@@ -1,6 +1,10 @@
 ---
 title: Public RPC endpoint
+description: "Serving Ethereum Classic JSON-RPC to other people from your own Core-Geth node: what the client does itself and what has to sit in front of it."
 ---
+
+**Looking for an endpoint to use rather than one to run?**
+[Public JSON-RPC](../etc-cooperative-transition.md#public-json-rpc) lists what to point an application at today.
 
 A node that answers JSON-RPC for other people lets wallets, explorers and applications use Ethereum
 Classic without running a node of their own, and each endpoint run by an independent operator is one

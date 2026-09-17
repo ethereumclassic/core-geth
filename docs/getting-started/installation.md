@@ -1,5 +1,6 @@
 ---
 title: Installation
+description: "Download, verify and install a Core-Geth release on Linux, macOS, Windows or Docker, and check an archive against its published checksum."
 ---
 
 !!! danger "Security advisory: the v1.12.x line"
@@ -20,8 +21,9 @@ title: Installation
     | [CVE-2026-22868](../audits/2026-03-security-audit.md#cve-2026-22868-kzg-kate-zaverucha-goldberg-blob-proof-verification-dos) | Medium | KZG proof verification denial of service |
     | [GraphQL query depth](../audits/2026-03-security-audit.md#graphql-query-depth-dos) | Medium | Unbounded GraphQL query nesting; no CVE identifier assigned |
 
-    Every `v1.12.x` release is additionally built on Go 1.21, which reached end of
-    life in August 2024.
+    Every `v1.12.x` archive measured was also built on a Go version that is no longer
+    supported, most recently [Go 1.21 and Go 1.22](../audits/2026-09-go-toolchain.md),
+    whose support ended in August 2024 and February 2025.
 
     Later releases in the line backport some of these; the
     [March 2026 audit](../audits/2026-03-security-audit.md) records which, and the
@@ -72,8 +74,8 @@ $ geth version
 `sha256sum -c` must print `OK`. If it prints `FAILED`, stop: delete the file and
 download it again rather than running it.
 
-**This archive needs glibc 2.31 or newer**: Debian 11, Ubuntu 20.04, RHEL 9 and
-anything more recent. `ldd --version` prints what you have. On an older distribution
+**This archive needs glibc 2.17 or newer**: RHEL 7, CentOS 7 and anything more
+recent. `ldd --version` prints what you have. On an older distribution
 the binary will not start; [build from source](#build-from-source) there instead.
 
 Before running it on a node that holds value, also
