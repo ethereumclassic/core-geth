@@ -10,7 +10,7 @@ repo_url: https://github.com/ethereumclassic/core-geth
 edit_uri: edit/main/docs/
 
 # Copyright
-copyright: 'Copyright &copy; The go-ethereum Authors, The multi-geth Authors and The core-geth Authors. Licensed under the GNU GPL v3 and LGPL v3; see the <a href="https://github.com/ethereumclassic/core-geth/blob/main/COPYING">COPYING</a> and <a href="https://github.com/ethereumclassic/core-geth/blob/main/COPYING.LESSER">COPYING.LESSER</a> files.<br><a href="https://docs.coregeth.com/#support-this-work">Support this project</a>: <a href="mailto:donations@ethereumclassic.com">donations@ethereumclassic.com</a> &middot; <a href="https://docs.coregeth.com/#security-reporting">Report a security issue</a>: <a href="mailto:security@ethereumclassic.com">security@ethereumclassic.com</a> &middot; Donation address, any EVM chain: <code>0x86FE8d331A4B984B57d3e92C6F4cb9C881eC9B04</code>'
+copyright: 'Copyright &copy; The go-ethereum Authors, The multi-geth Authors and The core-geth Authors. Licensed under the GNU GPL v3 and LGPL v3; see the <a href="https://github.com/ethereumclassic/core-geth/blob/main/COPYING">COPYING</a> and <a href="https://github.com/ethereumclassic/core-geth/blob/main/COPYING.LESSER">COPYING.LESSER</a> files.<br><a href="https://docs.coregeth.com/support/">Support this project</a>: <a href="mailto:donations@ethereumclassic.com">donations@ethereumclassic.com</a> &middot; <a href="https://docs.coregeth.com/#security-reporting">Report a security issue</a>: <a href="mailto:security@ethereumclassic.com">security@ethereumclassic.com</a>'
 
 # Configuration
 # Explicit navigation. Without it mkdocs derives the menu from the file tree,
@@ -23,6 +23,7 @@ nav:
       - Project history: about/project-history.md
       - Questions and answers: about/faq.md
       - ETC Cooperative transition: etc-cooperative-transition.md
+      - Support this work: support.md
   - Getting started:
       - Installation: getting-started/installation.md
       - Hardware requirements: getting-started/hardware-requirements.md

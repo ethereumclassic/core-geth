@@ -75,3 +75,8 @@ this client.
 
 Anything else, including a defect in `v1.13.0`, belongs in
 [the repository's issues](https://github.com/ethereumclassic/core-geth/issues), where it is public and checkable.
+
+To talk to the people who maintain this client, the Ethereum Classic Core Developers run a
+[Discord](https://ethereumclassic.com/discord). It is the place for questions about running a node, an upgrade, or anything on these pages.
+**It is not the place to report a vulnerability**: a public channel discloses it to everyone at once, which is
+what the private routes above exist to avoid.

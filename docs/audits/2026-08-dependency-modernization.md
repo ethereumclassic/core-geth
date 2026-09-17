@@ -367,9 +367,5 @@ The modernization this document records was carried out by [White B0x](https://w
 unfunded public-goods work for Ethereum Classic. Mining pools, centralized exchanges, issuers of
 Ethereum Classic financial products, Etchash mining hardware manufacturers and large holders all
 depend on this client. If your operation relies on Ethereum Classic, please help fund its
-maintenance: contact <donations@ethereumclassic.com>, or donate directly to the address below, which
-receives on any EVM-compatible chain:
-
-``` { .text .copy }
-0x86FE8d331A4B984B57d3e92C6F4cb9C881eC9B04
-```
+maintenance. [Support this work](../support.md) has the routes: sponsorship on GitHub, an invoiced
+agreement for organizations, or a direct transfer.
