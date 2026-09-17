@@ -1,3 +1,7 @@
+---
+description: "What changed underneath Core-Geth between the December 2024 archive point and v1.13.0: the Go toolchain, the module graph and the linter."
+---
+
 # Dependency and toolchain modernization: v1.12.x archive to v1.13.x
 
 This document records the dependency and toolchain changes that take Core-Geth
@@ -10,14 +14,22 @@ source-level CVE remediation; this one covers what changed underneath the code.
 
 **Work carried out by:** [White B0x](https://whiteb0x.com)
 
-**On this page:** [Why this work was necessary](#why-this-work-was-necessary) · [Toolchain](#toolchain) · [Dependency delta](#dependency-delta) · [What deliberately did not move](#what-deliberately-did-not-move) · [Linter](#linter) · [Build and release pipeline](#build-and-release-pipeline) · [Verification](#verification) · [Outstanding](#outstanding) · [Supporting this work](#supporting-this-work)
+**On this page:** [In short](#in-short) · [Why this work was necessary](#why-this-work-was-necessary) · [Toolchain](#toolchain) · [Dependency delta](#dependency-delta) · [What deliberately did not move](#what-deliberately-did-not-move) · [Linter](#linter) · [Build and release pipeline](#build-and-release-pipeline) · [Verification](#verification) · [Outstanding](#outstanding) · [Supporting this work](#supporting-this-work)
+
+## In short
+
+**Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** The archived `v1.12.x` line was pinned to Go toolchains that left
+support in August 2024 and February 2025, and its module graph had not moved since December 2024. `v1.13.0`
+builds on Go 1.26.8, behind it 83 module changes and a current linter. This page records what moved, what
+deliberately did not, and how each version was chosen.
 
 ## Why this work was necessary
 
-The archived line was pinned to Go 1.21 across every build surface. Under Go's
-support policy (*"each major Go release is supported until there are two newer
-major releases"*), Go 1.21 left support in 2024, so every artifact built from that
-line shipped a standard library receiving no security fixes.
+The archived line was pinned to Go 1.21 in `go.mod` and CI, and to Go 1.22 in its
+download path and Docker builder. Under Go's support policy (*"each major Go release
+is supported until there are two newer major releases"*), Go 1.21 left support in
+August 2024 and Go 1.22 in February 2025, so every artifact built from that line runs
+a standard library that no longer receives security fixes.
 
 That failure mode is silent. An end-of-life toolchain still compiles, still passes
 tests, and emits no deprecation warning; nothing in an ordinary build reports it.
@@ -29,7 +41,7 @@ than triggered by an incident.
 
 | Surface | Before | After |
 |---|---|---|
-| `go.mod` directive | `go 1.21` | `go 1.26` |
+| `go.mod` directive | `go 1.21` | `go 1.26.0` |
 | CI workflows | `1.21` | `1.26`; the release workflow `1.26.8` |
 | Docker builder | `golang:1.22-alpine` | `golang:1.26.8-alpine` |
 | `build/checksums.txt` (`version:golang`) | `1.22.1` | `1.26.8` |
@@ -38,12 +50,12 @@ There is no `toolchain` directive; the `go` directive is the whole statement.
 
 Three Go versions were in force simultaneously on the archived line: 1.21 in CI,
 1.22.1 for the `-dlgo` download path, and 1.22 in the Docker builder. They now
-agree.
+agree. [Go toolchain](2026-09-go-toolchain.md) records which of them built each
+published archive, and the Go standard library advisories each archive carries.
 
 **`build/checksums.txt` carries a second Go pin, `version:ppa-builder`, which was
 deliberately left alone.** It is read only by the Debian source-package path,
-which no active workflow invokes. It is documented in `AGENTS.md` as knowingly
-insufficient: bootstrapping a modern Go from source requires a compiler two majors
+which no active workflow invokes. It is knowingly insufficient: bootstrapping a modern Go from source requires a compiler two majors
 back, and closing that gap needs the recursive builder the file's own comment
 anticipates rather than a version bump.
 
@@ -69,9 +81,9 @@ changed, 17 removed, 16 added.** The manifest went from 176 modules (83 direct,
 number worth noting: this was a currency and security pass, not a change in what
 the client depends on.
 
-Seven of the 16 are not new code at all but import-path renames, each pairing with an entry in the
-removed list. Each successor is the choice of the library that requires the module; core-geth imports
-none of them itself:
+Eight of the 16 are not new code at all but import-path renames: they succeed seven entries in the
+removed list, one of which split into two modules. Each successor is the choice of the library that
+requires the module; core-geth imports none of them itself:
 
 | Removed | Successor |
 |---|---|
@@ -89,7 +101,7 @@ account: a `replace` directive builds it from `fukuii-project/archive-reference-
 commit, and the two `etclabscore` OpenRPC modules, `go-openrpc-reflect` and `go-jsonschema-walk`, are
 built from the same archive the same way. The archived source is identical to each pinned version.
 
-The remaining nine arrived transitively behind modules that were updated:
+The remaining eight arrived transitively behind modules that were updated:
 `apapsch/go-jsonmerge/v2`, `cockroachdb/fifo`, `emicklei/dot`, `olekukonko/cat`,
 `olekukonko/errors`, `olekukonko/ll`, `go.mongodb.org/mongo-driver` and
 `go.yaml.in/yaml/v3`.
@@ -100,8 +112,8 @@ The remaining nine arrived transitively behind modules that were updated:
 |---|---|---|
 | `golang.org/x/crypto` | v0.17.0 | v0.55.0 |
 | `golang.org/x/sys` | v0.16.0 | v0.47.0 |
-| `golang.org/x/tools` | v0.15.0 | v0.48.0 |
-| `golang.org/x/text` | v0.14.0 | v0.40.0 |
+| `golang.org/x/tools` | v0.15.0 | v0.49.0 |
+| `golang.org/x/text` | v0.14.0 | v0.41.0 |
 | `golang.org/x/sync` | v0.5.0 | v0.22.0 |
 | `golang.org/x/time` | v0.3.0 | v0.15.0 |
 | `github.com/consensys/gnark-crypto` | v0.12.1 | v0.21.0 |
@@ -113,8 +125,8 @@ The remaining nine arrived transitively behind modules that were updated:
 | `github.com/gorilla/websocket` | v1.5.0 | v1.5.3 |
 | `github.com/golang-jwt/jwt/v4` | v4.5.0 | v4.5.2 |
 | `github.com/golang/protobuf` | v1.5.3 | v1.5.4 |
-| `github.com/stretchr/testify` | v1.8.4 | v1.11.1 |
-| `github.com/tidwall/gjson` | v1.6.0 | v1.18.0 |
+| `github.com/stretchr/testify` | v1.8.4 | v1.12.1 |
+| `github.com/tidwall/gjson` | v1.6.0 | v1.19.0 |
 
 Four of these carry consensus weight: `gnark-crypto`, `go-kzg-4844`, `blst` and
 `uint256`. Each was read before being taken rather than accepted on version number
@@ -130,7 +142,7 @@ tooling, which understates it.
 `bits-and-blooms/bitset` v1.10.0 to v1.24.6 · `cespare/xxhash/v2` v2.2.0 to v2.3.0 ·
 `decred/dcrd/dcrec/secp256k1/v4` v4.0.1 to v4.4.0 · `rogpeppe/go-internal` v1.9.0 to
 v1.12.0 · `tidwall/match` v1.0.1 to v1.1.1 · `tidwall/pretty` v1.0.0 to v1.2.0 ·
-`golang.org/x/mod` v0.14.0 to v0.38.0 · `golang.org/x/net` v0.18.0 to v0.57.0 ·
+`golang.org/x/mod` v0.14.0 to v0.39.0 · `golang.org/x/net` v0.18.0 to v0.58.0 ·
 `google.golang.org/protobuf` v1.31.0 to v1.33.0
 
 ### Modules removed
@@ -145,7 +157,7 @@ The other seven were renames rather than removals; see the table above.
 All ten are unreferenced in source. `bavard`, `addchain` and `tmplfunc` were
 `gnark-crypto`'s code-generation dependencies, which its current release no longer
 requires. **`fjl/memsize` is the one removed for cause rather than by tidy:** it
-reaches into runtime internals through `//go:linkname`, which Go 1.26 tightened,
+reaches into runtime internals through `//go:linkname`, which Go 1.23 restricted,
 and the link failed until it was dropped. The rest fell out of `go mod tidy`
 during the toolchain upgrade. None was removed by hand.
 
@@ -307,8 +319,9 @@ rather than as a single opaque total. Both networks were additionally synchroniz
 from genesis on the resulting build.
 
 `govulncheck` is run in both source and binary mode. A set of advisories is
-reported permanently and has been adjudicated; `AGENTS.md` carries the current set
-and the reasoning. Two properties of that check are worth stating because they
+reported permanently and has been adjudicated;
+[Go toolchain](2026-09-go-toolchain.md#what-a-vulnerability-scanner-reports-against-v1130)
+records the set and the reasoning. Two properties of that check are worth stating because they
 invert the usual reading:
 
 - **An exit status of 0 is a change, not a pass.** Findings are expected here.

@@ -1,3 +1,7 @@
+---
+description: "What the published Core-Geth archives actually contain: platform floors, architectures and provenance, measured from the files themselves."
+---
+
 # Release artifacts: v1.12.x archive to v1.13.0
 
 This document records what the published `v1.12.x` releases actually contain, what
@@ -14,7 +18,14 @@ created from the archived development line; the other three were published in 20
 
 **Work carried out by:** [White B0x](https://whiteb0x.com)
 
-**On this page:** [Why the artifacts needed a pass of their own](#why-the-artifacts-needed-a-pass-of-their-own) · [The platform floor was lost across the v1.12.x releases](#finding-the-platform-floor-was-lost-across-the-v112x-releases) · [The macOS archive contains a binary most of its downloaders cannot run](#finding-the-macos-archive-contains-a-binary-most-of-its-downloaders-cannot-run) · [The v1.12.x line no longer builds against a C23 compiler](#finding-the-v112x-line-no-longer-builds-against-a-c23-compiler) · [The v1.12.x releases were published from outside this organization](#finding-the-v112x-releases-were-published-from-outside-this-organization) · [No container image was ever published from this repository](#finding-no-container-image-was-ever-published-from-this-repository) · [The release files did not identify themselves](#finding-the-release-files-did-not-identify-themselves) · [What a vulnerability scanner will say about these artifacts](#what-a-vulnerability-scanner-will-say-about-these-artifacts) · [How v1.13.0 sets its platform floor](#how-v1130-sets-its-platform-floor) · [What this means if you are upgrading](#what-this-means-if-you-are-upgrading) · [Verification](#verification) · [Outstanding](#outstanding) · [Supporting this work](#supporting-this-work)
+**On this page:** [In short](#in-short) · [Why the artifacts needed a pass of their own](#why-the-artifacts-needed-a-pass-of-their-own) · [The platform floor was lost across the v1.12.x releases](#finding-the-platform-floor-was-lost-across-the-v112x-releases) · [The macOS archive contains a binary most of its downloaders cannot run](#finding-the-macos-archive-contains-a-binary-most-of-its-downloaders-cannot-run) · [The v1.12.x line no longer builds against a C23 compiler](#finding-the-v112x-line-no-longer-builds-against-a-c23-compiler) · [The v1.12.x releases were published from outside this organization](#finding-the-v112x-releases-were-published-from-outside-this-organization) · [No container image was ever published from this repository](#finding-no-container-image-was-ever-published-from-this-repository) · [The release files did not identify themselves](#finding-the-release-files-did-not-identify-themselves) · [What a vulnerability scanner will say about these artifacts](#what-a-vulnerability-scanner-will-say-about-these-artifacts) · [How v1.13.0 sets its platform floor](#how-v1130-sets-its-platform-floor) · [What this means if you are upgrading](#what-this-means-if-you-are-upgrading) · [Verification](#verification) · [Outstanding](#outstanding) · [Supporting this work](#supporting-this-work)
+
+## In short
+
+**Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Measured by downloading them, the published `v1.12.20` to
+`v1.12.23` archives raised the glibc version a Linux host needs without saying so, shipped an Apple Silicon
+binary under a name that does not say so, and carried nothing that identifies what built them. Every `v1.13.0`
+archive and image ships with a checksum and a build attestation, and names its platform.
 
 ## Why the artifacts needed a pass of their own
 
@@ -252,8 +263,8 @@ Two consequences worth holding:
   It means either the adjudication has gone stale or the artifact scanned is not
   the one that was adjudicated.
 - **Each match is confirmed by reading the guard in this tree**, not by comparing
-  version strings. `2026-08-dependency-modernization.md` records the adjudicated
-  set and the reasoning.
+  version strings. [Go toolchain](2026-09-go-toolchain.md#what-a-vulnerability-scanner-reports-against-v1130)
+  records the adjudicated set and the reasoning.
 
 **The client's own `version-check` command is a separate matter and used to be
 wrong in the other direction.** It queries go-ethereum's feed, whose patterns begin

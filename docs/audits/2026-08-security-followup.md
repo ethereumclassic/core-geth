@@ -1,3 +1,7 @@
+---
+description: "Core-Geth v1.12.23 measured at its tag against the advisory records: what it fixed, what it left open, and how its CVE identifiers reconcile."
+---
+
 # Core-Geth Security Follow-Up: August 2026
 
 - **Follows:** [`2026-03-security-audit.md`](./2026-03-security-audit.md)
@@ -14,15 +18,16 @@
 ## What operators need to do
 
 **Track releases at [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth)
-and upgrade to v1.13.0.** Every finding in this document and in the
+and upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Every finding in this document and in the
 [March 2026 audit](./2026-03-security-audit.md) is resolved there.
 
 v1.12.23 is real security work, and it does not close the two findings that matter most to a
 node operator:
 
-- **The Go toolchain is still 1.21**, which reached end of life in August 2024. Every node built
-  from any v1.12.x release, including this one, carries whatever runtime vulnerabilities have
-  accumulated in twenty-four months, independent of the client's own code.
+- **The Go toolchains are still Go 1.21 and, for the Arm archives, Go 1.22**, twenty-four and
+  eighteen months past end of life. Every node built from any v1.12.x release, including this one,
+  carries whatever runtime vulnerabilities have accumulated since, independent of the client's own
+  code. [Go toolchain](./2026-09-go-toolchain.md) lists the standard library advisories.
 - **The `eth_syncing` regression introduced in v1.12.22 is untouched.**
   [#697](https://github.com/etclabscore/core-geth/issues/697) reports `highestBlock` incorrectly
   against the network head, which misleads exchanges, explorers and monitoring that read it to
@@ -30,8 +35,8 @@ node operator:
 - **One response cap in this release can disconnect peers that are answering correctly.** The
   release corrects that class of error for account ranges and leaves it in place for storage
   ranges; see the finding below.
-- **Its release notes carry no advisory identifiers**, and the notes for the two releases before
-  it attach CVE-2026-26315 to work the records assign to CVE-2026-26314.
+- **Its release notes carry no advisory identifiers**, like v1.12.21's, and v1.12.22's notes
+  attach CVE-2026-26315 to work the records assign to CVE-2026-26314.
 
 **The organization that owns the repository has published that it does not expect to continue
 this work.** Its
@@ -41,8 +46,7 @@ this work.** Its
 > minimized, until the funding runs out. At that time, it will be up to other stakeholders to
 > take on any required maintenance of the ETC client, unless a new plan materializes."
 
-**v1.13.0 is that continuation**, developed in the open at `ethereumclassic/core-geth` with
-review before merge. It carries the Go 1.26 toolchain, every CVE fix, the same p2p hardening
+**v1.13.0 is that continuation**, developed in the open at `ethereumclassic/core-geth`. It carries the Go 1.26 toolchain, every CVE fix, the same p2p hardening
 series measured here, and the storage-range correction this release does not make.
 
 ---
@@ -53,8 +57,9 @@ A third release has been cut at `etclabscore/core-geth` since the March 2026 aud
 v1.12.23 is substantive security work: 32 commits carrying a delayed-decoding hardening
 series for the p2p protocols, plus seven go-ethereum backports.
 
-Two findings from the March audit are unchanged by it. The client remains on a Go toolchain
-that reached end-of-life in August 2024, now 24 months. The `eth_syncing` regression
+Two findings from the March audit are unchanged by it. The client remains on end-of-life Go
+toolchains: Go 1.21, now 24 months past, and Go 1.22 for the Arm archives, now 18 months past.
+The `eth_syncing` regression
 introduced in v1.12.22 is not addressed.
 
 This document records what v1.12.23 contains, what it leaves open, and where v1.13.0 stands.
@@ -96,7 +101,7 @@ v1.12.23 shows it can nonetheless be carried across with manual work.
 
 ## What v1.12.23 does not change
 
-**The Go toolchain is unchanged and remains end-of-life.** Measured at tag `v1.12.23`:
+**The Go toolchains are unchanged and remain end-of-life.** Measured at tag `v1.12.23`:
 
 | Location | Value |
 |---|---|
@@ -105,19 +110,21 @@ v1.12.23 shows it can nonetheless be carried across with manual work.
 | `Dockerfile` | `FROM golang:1.22-alpine` |
 | `build/checksums.txt` | `version:golang 1.22.1` |
 
-Go 1.21 reached end-of-life in August 2024 and receives no security patches. Every node
-built from this release inherits whatever unpatched runtime vulnerabilities the toolchain
-carries, independent of the client's own code. This was the March audit's finding and it is
-unchanged across all three 2026 releases.
+The published archives record what built them: go1.21.13 for Linux x86_64, macOS
+and Windows, and go1.22.1, the `build/checksums.txt` pin, for every Arm archive. Go 1.21
+reached end-of-life in August 2024 and Go 1.22 in February 2025, and neither receives security
+patches. Every node built from this release inherits whatever unpatched runtime vulnerabilities
+its toolchain carries, independent of the client's own code. This was the March audit's finding
+and it is unchanged across all three 2026 releases.
 
 **The `eth_syncing` regression is not addressed.** Issue
 [#697](https://github.com/etclabscore/core-geth/issues/697), introduced in v1.12.22, reports
 `highestBlock` as incorrect relative to the network head. No commit in
 `v1.12.22..v1.12.23` touches `internal/ethapi/`.
 
-**The cryptographic fixes from v1.12.22 are present and unchanged.** Verified at tag: the
-ECIES public-key validation in `GenerateShared`, and the field-boundary check in
-`crypto/secp256k1/curve.go`, are both in place and byte-identical to this project's own
+**The cryptographic fixes from v1.12.21 and v1.12.22 are present and unchanged.** Verified at tag: the
+ECIES public-key validation in `GenerateShared`, which v1.12.21 added, and the field-boundary check in
+`crypto/secp256k1/curve.go`, which v1.12.22 added, are both in place and byte-identical to this project's own
 implementation.
 
 ---
@@ -171,10 +178,13 @@ confirmed in a full-history go-ethereum clone:
 
 **`etclabscore/core-geth` labels the secp256k1 issue CVE-2026-26315.** That identifier belongs
 to the ECIES handshake issue. The correct identifier for the coordinate check is
-CVE-2026-26314, which does not appear anywhere in that repository. The label appears in four
-places: commit `46bba8dfc`, a doc comment and the Go test function name
-`TestIsOnCurveRejectsCoordinatesAboveP_CVE_2026_26315` in `crypto/secp256k1/curve_cve_test.go`,
-and the published release notes for v1.12.21 and v1.12.22. v1.12.23's notes carry no CVE
+CVE-2026-26314. The label appears in commit `46bba8dfc`, a doc comment and the Go test function
+name `TestIsOnCurveRejectsCoordinatesAboveP_CVE_2026_26315` in `crypto/secp256k1/curve_cve_test.go`,
+the description of [PR #696](https://github.com/etclabscore/core-geth/pull/696), the published
+release notes for v1.12.22, and a
+[reply on issue #692](https://github.com/etclabscore/core-geth/issues/692#issuecomment-4146498131).
+No commit, source file, pull request description or release note there uses CVE-2026-26314; that
+reply does, giving it to the ECIES fix in v1.12.21. The v1.12.21 and v1.12.23 notes carry no CVE
 identifiers.
 
 **Why this is easy to get wrong, and why it matters.** CVE-2026-26313 and CVE-2026-26314 are
