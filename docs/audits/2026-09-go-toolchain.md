@@ -18,7 +18,7 @@ rather than the configuration that built it. The Linux x86_64 archive of each ea
 
 **Work carried out by:** [White B0x](https://whiteb0x.com)
 
-**On this page:** [In short](#in-short) · [Why the toolchain needed a pass of its own](#why-the-toolchain-needed-a-pass-of-its-own) · [Each release from v1.12.20 to v1.12.23 was built by two toolchains](#finding-each-release-from-v11220-to-v11223-was-built-by-two-toolchains) · [The v1.12.20 to v1.12.23 binaries carry Go standard library advisories](#finding-the-v11220-to-v11223-binaries-carry-go-standard-library-advisories) · [The v1.12.x source does not build on a supported Go](#finding-the-v112x-source-does-not-build-on-a-supported-go) · [Third-party module advisories were cleared alongside](#finding-third-party-module-advisories-were-cleared-alongside) · [What a vulnerability scanner reports against v1.13.0](#what-a-vulnerability-scanner-reports-against-v1130) · [What this means if you are upgrading](#what-this-means-if-you-are-upgrading) · [Verification](#verification) · [After v1.13.0](#after-v1130) · [Supporting this work](#supporting-this-work)
+**On this page:** [In short](#in-short) · [Why the toolchain needed a pass of its own](#why-the-toolchain-needed-a-pass-of-its-own) · [Each release from v1.12.20 to v1.12.23 was built by two toolchains](#finding-each-release-from-v11220-to-v11223-was-built-by-two-toolchains) · [The v1.12.20 to v1.12.23 binaries carry Go standard library advisories](#finding-the-v11220-to-v11223-binaries-carry-go-standard-library-advisories) · [The v1.12.x source does not build on a supported Go](#finding-the-v112x-source-does-not-build-on-a-supported-go) · [Third-party module advisories were cleared alongside](#finding-third-party-module-advisories-were-cleared-alongside) · [What a vulnerability scanner reports against v1.13.0](#what-a-vulnerability-scanner-reports-against-v1130) · [What this means if you are upgrading](#what-this-means-if-you-are-upgrading) · [Verification](#verification) · [After v1.13.0](#after-v1130) · [Disposition of the build finding](#disposition-of-the-build-finding-17-september-2026) · [Supporting this work](#supporting-this-work)
 
 ## In short
 
@@ -512,6 +512,27 @@ behaves.
   reports at module level, although the `__gopclntab` function table it reads next is present. `build/ci.go`
   now links them with `-w`, which strips only the debugging information. A go1.26 macOS test binary linked
   with `-w` keeps `go:func.*` and every Go symbol; one linked with `-s` keeps none.
+
+## Disposition of the build finding, 17 September 2026
+
+**The finding that the `v1.12.x` source does not build on a supported Go now has a proposed remedy in the
+repository that publishes that line.**
+[Pull request #702](https://github.com/etclabscore/core-geth/pull/702) at `etclabscore/core-geth`, opened
+17 September 2026 and unmerged when this was written, makes the three changes this audit measured as necessary:
+it removes `github.com/fjl/memsize`, whose `//go:linkname` use Go 1.23 restricted; it moves
+`github.com/supranational/blst` from v0.3.11, which Go 1.24 rejects for a cgo alias receiver, to v0.3.16; and it
+raises the `go.mod` directive from `go 1.21` to `go 1.24.0`. It also moves the `# version:golang` pin in
+`build/checksums.txt` from 1.22.1 to 1.25.12 and updates `golang.org/x/crypto` from v0.17.0 to v0.48.0.
+
+**Two measurements to repeat rather than assume, if that release ships.** Go 1.24 left support on 10 February
+2026 and Go 1.25 on 19 August 2026, each when two newer major releases existed, so a binary built from either
+would still carry standard library advisories, fewer than Go 1.21 carries. And the advisory count for any such
+release has to be measured from its published archives, the way the counts in this document were, rather than
+inferred from the `go.mod` directive: this audit found two toolchains per release where the configuration
+implied one.
+
+This paragraph records a disposition, which is what an audit finding is supposed to acquire. It is not a claim
+about anyone's reasons.
 
 ## Supporting this work
 
