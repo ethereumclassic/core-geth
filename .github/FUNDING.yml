@@ -1,0 +1,7 @@
+# Renders the Sponsor button on this repository.
+#
+# `custom` points at the one page that publishes this project's funding routes, so an address is
+# verifiable in a single place rather than copied across files. Add `github: [<account>]` here once
+# GitHub Sponsors is enabled for the account that maintains this client; an entry naming an account
+# without Sponsors enabled renders a dead button.
+custom: ["https://docs.coregeth.com/support/"]

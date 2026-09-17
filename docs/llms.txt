@@ -22,6 +22,7 @@ namespace are not built from this source. The ETC Cooperative board has communic
 
 - [Project history](https://docs.coregeth.com/about/project-history/): the lineage of the code, from go-ethereum through multi-geth, and of the organizations that funded and maintained it from 2018 to today.
 - [Questions and answers](https://docs.coregeth.com/about/faq/): which repository publishes releases, which version to run, why node key rotation is required, MESS, public RPC endpoints and how to verify a download.
+- [Support this work](https://docs.coregeth.com/support/): how this client's maintenance is funded, who depends on it, and the routes for sponsoring it.
 
 ## Security and provenance
 

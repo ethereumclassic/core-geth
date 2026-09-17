@@ -252,7 +252,9 @@ make your change, and open a pull request against `main`. For anything
 substantial, open an issue first so the approach can be discussed.
 
 [CONTRIBUTING.md](.github/CONTRIBUTING.md) has the coding guidelines, the build
-and test commands, and the branch policy.
+and test commands, and the branch policy. To discuss a change before writing it, the Ethereum
+Classic Core Developers run a [Discord](https://ethereumclassic.com/discord). Security issues go through the private routes in
+[Security](#security) instead, never a public channel.
 
 **If your fix applies to code shared with
 [go-ethereum](https://github.com/ethereum/go-ethereum) rather than to Ethereum
@@ -359,11 +361,7 @@ inspired by the work of earlier Ethereum Classic development teams: ETCDEV's
 unfunded public-goods work. Mining pools, centralized exchanges, issuers of Ethereum Classic
 financial products, Etchash mining hardware manufacturers and large holders all depend on an
 Ethereum Classic client that follows the network correctly and receives security fixes promptly. If
-your operation relies on Ethereum Classic, please help fund that work with a donation or a
-retroactive grant. Contact <donations@ethereumclassic.com>, or donate on any EVM chain.
-
-**Retroactive Core-Geth Development Donation Address:**
-
-```
-0x86FE8d331A4B984B57d3e92C6F4cb9C881eC9B04
-```
+your operation relies on Ethereum Classic, please help fund that work.
+[Support this work](https://docs.coregeth.com/support/) carries the routes: sponsorship on GitHub,
+an invoiced maintenance agreement for organizations, or a direct transfer, along with how to check
+the address before you use it.
