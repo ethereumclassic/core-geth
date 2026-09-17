@@ -9,6 +9,9 @@ on:
       - mkdocs.yml
       - docs/**
       - requirements-mkdocs.txt
+      # The theme override that emits the link preview metadata. It sits outside docs/,
+      # so without this line an edit to it alone would build nothing.
+      - overrides/**
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
