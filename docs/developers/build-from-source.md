@@ -1,5 +1,6 @@
 ---
 title: Build from Source
+description: "Build Core-Geth from source: the Go version required, the make targets, and the test suites that prove an Ethereum Classic build."
 ---
 
 ## Hardware Requirements
@@ -10,7 +11,7 @@ The disk, memory and time a node needs are measured on
 ## Dependencies
 
 - **Go 1.26 or later.** <https://go.dev/doc/install>. The module declares
-  `go 1.26`, so an older toolchain refuses to build it rather than producing a
+  `go 1.26.0`, so an older toolchain refuses to build it rather than producing a
   broken binary.
 - **A C compiler.** Parts of the client are cgo, so a working toolchain is
   required. On Debian or Ubuntu:
