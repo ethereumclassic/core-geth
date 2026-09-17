@@ -1,0 +1,205 @@
+name: Vulnerability scan
+
+# Scans main against the Go vulnerability database with govulncheck: the source, for anything the code
+# calls, and a geth binary built with the release Go version, for what ships. It keeps one issue current
+# with the result and never changes go.mod, a toolchain pin or a workflow.
+#
+# Six go-ethereum advisories match every build structurally: this module keeps go-ethereum's path, and
+# its version sorts below the upstream releases that fixed them. docs/audits/2026-09-go-toolchain.md
+# records where each is fixed. They are expected here, and one disappearing is reported, because it means
+# that record needs revisiting.
+
+on:
+  schedule:
+    - cron: '23 6 * * 1'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - go.mod
+      - go.sum
+      - build/checksums.txt
+      - .github/workflows/govulncheck.yml
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || 'report' }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: govulncheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      # Full history: the Go version stamp on the binary comes from the nearest tag, and without one the
+      # binary reads as v0.0.0, which every go-ethereum advisory ever published would match.
+      - name: Checkout ethereumclassic/core-geth
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: false
+          fetch-depth: 0
+
+      - name: Read the release Go version
+        id: toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(awk '$1 == "#" && $2 == "version:golang" {print $3}' build/checksums.txt)
+          if [[ -z $version ]]; then
+            echo "::error::build/checksums.txt has no '# version:golang' line"
+            exit 1
+          fi
+          echo "go=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Go ${{ steps.toolchain.outputs.go }}
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version: ${{ steps.toolchain.outputs.go }}
+          cache: false
+
+      - name: Install govulncheck
+        shell: bash
+        env:
+          GOTOOLCHAIN: local
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
+
+      - name: Build geth
+        shell: bash
+        env:
+          GOTOOLCHAIN: local
+        run: go run build/ci.go install ./cmd/geth
+
+      # In JSON mode govulncheck exits 0 whether or not it finds anything, so a non-zero exit here is a
+      # scan that did not run, and fails the job.
+      - name: Scan the source and the binary
+        shell: bash
+        env:
+          GOTOOLCHAIN: local
+        run: |
+          set -euo pipefail
+          govulncheck -format json ./... > source.json
+          govulncheck -mode=binary -format json build/bin/geth > binary.json
+
+      - name: Classify the findings
+        id: classify
+        shell: bash
+        env:
+          GO_VERSION: ${{ steps.toolchain.outputs.go }}
+          ADJUDICATED: GO-2024-2819 GO-2026-4314 GO-2026-4315 GO-2026-4507 GO-2026-4508 GO-2026-4511
+        run: |
+          set -euo pipefail
+          for f in source.json binary.json; do
+            if ! jq -e -s 'any(.[]; has("config"))' "$f" > /dev/null; then
+              echo "::error::$f is not a govulncheck result"
+              exit 1
+            fi
+          done
+          # One row per advisory at its highest level: symbol (a vulnerable function is called in the
+          # source, or present in the binary), then package, then module.
+          levels() {
+            jq -r -s '
+              [ .[] | select(.finding) | .finding
+                | { id: .osv, module: .trace[0].module, fixed: (.fixed_version // ""),
+                    rank: (if (.trace[0].function // "") != "" then 3
+                           elif (.trace[0].package // "") != "" then 2 else 1 end) } ]
+              | group_by(.id) | map(max_by(.rank))
+              | .[] | [ .id, .module, (["", "module", "package", "symbol"][.rank]), .fixed ] | @tsv' "$1"
+          }
+          levels source.json > source.tsv
+          levels binary.json > binary.tsv
+          : > problems.tsv
+          # Source: anything the code calls.
+          awk -F'\t' '$3 == "symbol" { print "source\t" $0 }' source.tsv >> problems.tsv
+          # Binary: the standard library at any level, since a fixed Go release exists, and any other
+          # advisory present at symbol level that is not an adjudicated go-ethereum match.
+          while IFS=$'\t' read -r id module level fixed; do
+            if [[ $module == stdlib ]] || { [[ $level == symbol ]] && [[ " $ADJUDICATED " != *" $id "* ]]; }; then
+              printf 'binary\t%s\t%s\t%s\t%s\n' "$id" "$module" "$level" "$fixed" >> problems.tsv
+            fi
+          done < binary.tsv
+          # An adjudicated match that no longer appears at symbol level.
+          for id in $ADJUDICATED; do
+            if ! awk -F'\t' -v id="$id" '$1 == id && $3 == "symbol" { found = 1 } END { exit !found }' binary.tsv; then
+              printf 'adjudicated\t%s\tgithub.com/ethereum/go-ethereum\tno longer reported\t\n' "$id" >> problems.tsv
+            fi
+          done
+          problems=$(wc -l < problems.tsv | tr -d ' ')
+          {
+            echo "## govulncheck"
+            echo
+            echo "Go ${GO_VERSION}, $(govulncheck -version 2>/dev/null | awk '/^Scanner:/ {print $2}'), $(govulncheck -version 2>/dev/null | awk '/^DB updated:/ {$1=$2=""; sub(/^ +/, ""); print}')."
+            echo
+            if [[ $problems == 0 ]]; then
+              echo "**Nothing needs a maintainer.**"
+            else
+              echo "**${problems} to look at:**"
+              echo
+              echo '| Scan | Advisory | Module | Level | Fixed in |'
+              echo '| --- | --- | --- | --- | --- |'
+              while IFS=$'\t' read -r scan id module level fixed; do
+                echo "| ${scan} | [${id}](https://pkg.go.dev/vuln/${id}) | \`${module}\` | ${level} | ${fixed:-none} |"
+              done < problems.tsv
+            fi
+            echo
+            echo '### Everything the binary scan matched'
+            echo
+            echo '| Advisory | Module | Level | Fixed in |'
+            echo '| --- | --- | --- | --- |'
+            while IFS=$'\t' read -r id module level fixed; do
+              note=''
+              [[ " $ADJUDICATED " == *" $id "* ]] && note=' (adjudicated)'
+              echo "| [${id}](https://pkg.go.dev/vuln/${id})${note} | \`${module}\` | ${level} | ${fixed:-none} |"
+            done < binary.tsv
+          } | tee -a "$GITHUB_STEP_SUMMARY" > report.md
+          echo "problems=${problems}" >> "$GITHUB_OUTPUT"
+
+      - name: Keep the vulnerability issue current
+        if: github.event_name != 'pull_request'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROBLEMS: ${{ steps.classify.outputs.problems }}
+        run: |
+          set -euo pipefail
+          marker='<!-- govulncheck -->'
+          title='govulncheck reports advisories that need a maintainer'
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          # One issue for the life of the workflow, found by the marker in its body.
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state all --limit 200 --json number,state,body \
+            --jq "map(select(.body | contains(\"${marker}\"))) | first | select(. != null) | \"\(.number) \(.state)\"")
+          number=${existing%% *}
+          state=${existing##* }
+          if [[ $PROBLEMS != 0 ]]; then
+            {
+              echo "$marker"
+              echo "The weekly govulncheck scan of \`main\` found advisories that need a maintainer. It never changes a dependency or a toolchain pin: deciding what to do is a maintainer's call."
+              echo
+              echo "The six go-ethereum advisories adjudicated in [Go toolchain](https://github.com/${GITHUB_REPOSITORY}/blob/main/docs/audits/2026-09-go-toolchain.md#what-a-vulnerability-scanner-reports-against-v1130) are expected and listed only if they stop appearing."
+              echo
+              cat report.md
+              echo
+              echo "Last checked $(date -u '+%Y-%m-%d %H:%M UTC') in [run ${GITHUB_RUN_ID}](${run_url}). Each scan edits this issue in place and closes it when nothing needs a maintainer."
+            } > issue.md
+            if [[ -z $existing ]]; then
+              gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file issue.md
+            else
+              if [[ $state == CLOSED ]]; then
+                gh issue reopen "$number" --repo "$GITHUB_REPOSITORY"
+              fi
+              gh issue edit "$number" --repo "$GITHUB_REPOSITORY" --body-file issue.md
+            fi
+          elif [[ $state == OPEN ]]; then
+            gh issue close "$number" --repo "$GITHUB_REPOSITORY" \
+              --comment "Nothing needs a maintainer as of [run ${GITHUB_RUN_ID}](${run_url})."
+          fi
+
+      - name: Fail when the scan needs a maintainer
+        if: steps.classify.outputs.problems != '0'
+        shell: bash
+        run: |
+          echo "::error::govulncheck found ${{ steps.classify.outputs.problems }} advisories that need a maintainer; see the job summary."
+          exit 1
