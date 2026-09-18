@@ -23,8 +23,12 @@ continues.
 
 ## Which version should I run?
 
-`v1.13.0`. Every release in the `v1.12.x` line carries at least one unpatched CVE, and each `v1.12.20` to
-`v1.12.23` archive also carries 55 to 61 Go standard library advisories that `v1.13.0` does not. The
+`v1.13.0`. Every `v1.12.20` to `v1.12.23` archive was built with Go 1.21 or Go 1.22, whose support ended in
+August 2024 and February 2025, and carries 55 to 61 Go standard library advisories that `v1.13.0` does not. That
+is true of the newest release in the line as much as the oldest, and it is the exposure an operator on
+`v1.12.23` still has, along with the GraphQL depth limit and the `eth_syncing` regression. The releases before
+`v1.12.21` also carry all six client CVEs. On 17 September 2026, 71 percent of the Core-Geth nodes on the
+network were running a release older than `v1.12.23`, and 30 percent one older than `v1.12.21`. The
 [migration guide](../tutorials/v1.13.0-migration.md) covers the upgrade and how to roll back, and the
 [Go toolchain audit](../audits/2026-09-go-toolchain.md) lists every advisory.
 
