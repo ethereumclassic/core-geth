@@ -13,6 +13,7 @@ Find the pages for what you run core-geth for. If you are upgrading, or deciding
 | A solo miner | [Mining](mining.md) | [Security](../operate/security.md) |
 | A mining pool operator | [Mining pool node](mining-pool-node.md) | [Production operations](production-operations.md) |
 | An RPC provider | [Public RPC endpoint](public-rpc-endpoint.md) | [Security](../operate/security.md), [Monitoring](../operate/monitoring.md) |
+| Building an application on Ethereum Classic | [Endpoints for your own project](developer-endpoints.md) | [Run a Mordor node](../getting-started/run-mordor-node.md), [JSON-RPC API](../JSON-RPC-API/index.md) |
 | An explorer, indexer or analytics service | [Archive node](archive-node.md) | [Sync modes and data retention](../operate/sync-modes.md) |
 | Testing on Mordor | [Run a Mordor node](../getting-started/run-mordor-node.md) | [Mine on Mordor](mordor-mining.md) |
 | Helping other nodes find peers | [Bootnodes and peer discovery](bootnodes-and-discovery.md) | [Security](../operate/security.md) |

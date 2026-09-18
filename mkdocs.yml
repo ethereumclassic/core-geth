@@ -53,6 +53,7 @@ nav:
       - Choose your role: guides/index.md
       - Production operations: guides/production-operations.md
       - Public RPC endpoint: guides/public-rpc-endpoint.md
+      - Endpoints for your own project: guides/developer-endpoints.md
       - Archive node: guides/archive-node.md
       - Mining: guides/mining.md
       - Mining pool node: guides/mining-pool-node.md

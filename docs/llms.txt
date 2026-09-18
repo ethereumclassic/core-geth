@@ -46,6 +46,7 @@ namespace are not built from this source. The ETC Cooperative board has communic
 - [Sync modes and data retention](https://docs.coregeth.com/operate/sync-modes/): what each sync mode stores and what it costs.
 - [Maintenance, backup and upgrades](https://docs.coregeth.com/operate/maintenance/): keeping a node healthy over time.
 - [Public RPC endpoint](https://docs.coregeth.com/guides/public-rpc-endpoint/): serving JSON-RPC to other people from your own node.
+- [Endpoints for your own project](https://docs.coregeth.com/guides/developer-endpoints/): running your own JSON-RPC and archive endpoints for an application you are building, and getting Mordor test coins by mining rather than from a faucet.
 - [Mining](https://docs.coregeth.com/guides/mining/) and [mining pool node](https://docs.coregeth.com/guides/mining-pool-node/): what a pool's node needs.
 
 ## Building and developing
