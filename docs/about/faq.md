@@ -51,7 +51,9 @@ what has been claimed about it and what the record shows.
 It is the same client, in the Ethereum Classic community's own organization. The repository was created on
 21 December 2024 from `etclabscore/core-geth` at commit `7ef3ecd7a`, holds the full history up to that point on
 the [`archive-etclabscore-2024-12`](https://github.com/ethereumclassic/core-geth/tree/archive-etclabscore-2024-12)
-branch, and carries the `v1.12.23` p2p hardening with its original authorship.
+branch, and carries the `v1.12.23` p2p hardening with its original authorship. The move was named in the
+Cooperative's own published roadmap in July 2024, and [#1678](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1678), a pull request to point the website's
+client entry here, has been open since March 2026.
 [Project history](project-history.md) traces the move, and
 [the record](../release-reports/v1.13.0-record.md) answers the specific claims made about it.
 

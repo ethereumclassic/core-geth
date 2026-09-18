@@ -72,8 +72,13 @@ fall behind or stop. Anything you depend on should run against a node you contro
 
 | When | What |
 | --- | --- |
+| 30 July 2024 | The Cooperative's published roadmap lists moving Core-Geth to the community GitHub repository |
 | End of 2024 | The ETC Cooperative enters maintenance mode |
 | 21 December 2024 | `ethereumclassic/core-geth` is created from `etclabscore/core-geth` at [`7ef3ecd7a`](https://github.com/ethereumclassic/core-geth/commit/7ef3ecd7a716354589c2f27ff8f4b74d7a5edf2e) |
+| 17 March 2026 | The website's footer link to this repository is reverted to the previous organization's GitHub page ([#1676](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1676)) |
+| 18 March 2026 | `v1.12.21` is published from the previous repository |
+| 20 March 2026 | A pull request to point the website's client entry at this repository and remove the previous organization's footer link is opened ([#1678](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1678)); it has not been merged |
+| 2 August 2026 | A draft [migration announcement](https://github.com/ethereumclassic/ethereumclassic.github.io/blob/f6b004e9d3c7325f8d4b7133e47722959be4bf3b/content/blog/2026-08-01-coregeth-repository-migration/index.md) for the website is added to that pull request; it has not been published |
 | 28 August 2026 | `ethereumclassic/discv4-dns-lists` is created |
 | Late August 2026 | `etc.rivet.link` goes offline |
 | 31 August 2026 | `ethereumclassic/public-rpc` and `ethereumclassic/nodes` are created |
@@ -87,8 +92,19 @@ fall behind or stop. Anything you depend on should run against a node you contro
 [ECIPs](https://github.com/ethereumclassic/ECIPs), the
 [website](https://github.com/ethereumclassic/ethereumclassic.github.io) and, since December 2024, Core-Geth. The
 Cooperative's 2024 retrospective reproduces a conference slide by its Senior Editor, Donald McIntyre, proposing
-"Move Core Geth to the Ethereum Classic community repository" (page 24 of the PDF). Moving the services there keeps their code, configuration and history in public repositories
-under the community's name, with more than one maintainer, after the Cooperative closes.
+"Move Core Geth to the Ethereum Classic community repository" (page 24 of the PDF), and the Cooperative's
+published roadmap says the same: [Ethereum Classic Pathways](https://ethereumclassic.org/blog/2024-07-30-ethereum-classic-pathways-by-etc-cooperative-istora-and-donald-mcIntyre),
+30 July 2024, lists *"Move Core Geth to the Ethereum Classic community GitHub repository: This would restore
+sovereignty of the community on the node client software."* Moving the services there keeps their code,
+configuration and history in public repositories under the community's name, with more than one maintainer, after
+the Cooperative closes.
+
+**The website's client entry still points at the previous project.**
+[ethereumclassic.org/development/clients](https://ethereumclassic.org/development/clients) links its documentation
+site, installation guide, releases and support channel, so use the release link on this page rather than the one
+on the website. [#1678](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1678), opened on 20 March 2026 by a member of the
+[Cooperative's board](https://etccooperative.org/people), would point that entry here and remove the previous
+organization's footer link. It has not been merged.
 
 The [project history](https://github.com/ethereumclassic/core-geth#project-history) traces Core-Geth's code and its
 maintainers, and [v1.13.0: the record behind the release](release-reports/v1.13.0-record.md) sets out the record
