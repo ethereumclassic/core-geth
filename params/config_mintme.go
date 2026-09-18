@@ -30,6 +30,8 @@ var (
 		ChainID:   big.NewInt(24734),
 		Lyra2:     new(ctypes.Lyra2Config),
 
+		MLDSAPrecompileBlock: newUint64(0),
+
 		EIP2FBlock: big.NewInt(0),
 		EIP7FBlock: big.NewInt(0),
 
