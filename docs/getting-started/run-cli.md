@@ -92,6 +92,11 @@ whatever either says.
 
     Pass the network flag you dumped with every time you start from that file.
 
+**Static and trusted peers belong in that file, not in `static-nodes.json`.** This client ignores
+`static-nodes.json` and `trusted-nodes.json` and logs an error naming them. Put the peers in
+`StaticNodes` and `TrustedNodes` under `[Node.P2P]` in the configuration file instead
+([why the node ignores `static-nodes.json`](../operate/troubleshooting.md#why-does-the-node-ignore-static-nodesjson)).
+
 To reproduce a network's full chain configuration rather than your runtime settings, use
 `dumpgenesis`, which does include the consensus rules:
 
@@ -134,6 +139,11 @@ are needed.
 
 Generated from `geth --help`. The binary is authoritative; regenerate this
 section rather than editing it, and prefer `geth --help` when the two differ.
+
+**One command in the list below means less than it appears to.** `version-check` queries
+go-ethereum's vulnerability feed, which does not track this client, so a clean result from it says
+nothing about Core-Geth. [Security and network exposure](../operate/security.md) covers what it does
+and does not tell you.
 
 ```
 $ geth --help
