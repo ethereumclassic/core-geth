@@ -95,6 +95,32 @@ explains the log lines.
 of sync or short of peers. Where the node would have switched it off, the log shows
 `Preventing disable artificial finality`.
 
+## Which setting fits which operator
+
+**The choice only matters during a deep reorganization.** In normal operation a node with MESS on and
+a node with MESS off follow the same chain and produce the same blocks. What the setting decides is
+which chain the node keeps when a competing chain arrives that would replace blocks it already
+accepted, which is what a majority-hashrate attack produces.
+
+| If you run | The setting that fits | Why |
+|---|---|---|
+| An exchange, a custodian, a payment processor | On, and the same on every node you operate | A deep reorganization is the attack aimed at you: the July 2020 attacker took about $5.6 million from exchanges rather than from the protocol. Deposit and withdrawal nodes that disagree about MESS can prefer different chains, which is worse than either setting |
+| A mining pool that also credits deposits | On, and the same on every node | You carry the exchange's exposure as well as the miner's |
+| A mining pool or solo miner | Either, deliberately | This is the one case with a cost on both sides. See below |
+| A public RPC endpoint, or your own node | On | You serve, or follow, the chain a deep reorganization would have replaced |
+
+**The miner's trade, stated plainly.** With MESS on, your node refuses a deep reorganization that
+other nodes may accept. If that happens, you keep mining on the chain you had while others move, and
+the blocks you find in that window are orphaned for you and not for them. With MESS off, your node
+follows whichever chain carries the most total difficulty, including a chain an attacker paid to
+produce. Neither is free, and the choice is about which failure you would rather have. What it is
+not is a question about block validity: no block becomes invalid either way.
+
+**Whichever you choose, the mix of settings across the network is a market condition and not a
+property of the code.** ECBP-1110's reasoning rests on Ethereum Classic holding roughly 85% of
+apparent compatible hashrate when it was written. That figure is checkable today, and it is what the
+recommendation depends on.
+
 ## Turn MESS off
 
 ```sh
