@@ -9,8 +9,25 @@
 **Every v1.12.x archive, including the newest, was built on a Go release that is no longer
 supported, and carries 55 to 61 Go standard library advisories that v1.13.0 does not.** The
 toolchains are [Go 1.21 and Go 1.22](docs/audits/2026-09-go-toolchain.md), whose support ended in
-August 2024 and February 2025. The releases before v1.12.21 also carry all six client CVEs, two of which were exploited
-against Ethereum Classic bootnodes in March 2026. Upgrade, then perform the one cleanup step below.
+August 2024 and February 2025. The releases before v1.12.21 also carry all six client CVEs, two of
+which were exploited against Ethereum Classic bootnodes in March 2026. Upgrade, then perform the one
+cleanup step below.
+
+**What the network was running on 17 September 2026**, from [etcnodes.org](https://etcnodes.org),
+524 Core-Geth nodes of 550:
+
+| Running | Nodes | Share | Carries |
+| --- | ---: | ---: | --- |
+| v1.12.20 and older | 158 | 30.2% | all six client CVEs, unpatched. Two were exploited against ETC bootnodes in March 2026 |
+| v1.12.21 | 50 | 9.5% | the ECIES crash and key oracle closed. Still missing two curve checks, the RLP work and the GraphQL limit. Go 1.21 |
+| v1.12.22 | 165 | 31.5% | the rest of the CVE backports, but CVE-2026-26313 only partly mitigated. Introduces the `eth_syncing` regression. Go 1.21 |
+| v1.12.23 | 138 | 26.3% | the delayed decoding series, and nothing else here is fixed: 55 to 61 Go advisories in the binary, no GraphQL depth limit, the `eth_syncing` regression untouched, and a response cap that can disconnect honest peers |
+| v1.13.0 | 9 | 1.7% | **Recommended client:** six CVEs resolved and the GraphQL limit fixed, Go 1.26.8, zero Go advisories |
+
+Four further nodes report `v1.12.24`, which is not a release: it is a development build of the
+previous repository's `master`. The figures move, and
+[the breakdown](docs/release-reports/v1.13.0-record.md#what-the-network-is-running) carries the
+sources for each row.
 
 **1. Upgrade, and change where you track releases.** Releases are cut from
 [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth). A node tracking
