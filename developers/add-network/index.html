@@ -1,0 +1,584 @@
+<!doctype html><html lang=en class=no-js> <head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Documentation for Core-Geth, the Ethereum Classic execution client: install, run and operate an ETC or Mordor node, and the security audits behind each release."><meta name=author content="Core-Geth Team"><link href=https://docs.coregeth.com/developers/add-network/ rel=canonical><link href=../../tutorials/private-network/ rel=prev><link href=../build-from-source/ rel=next><link rel=icon href=../../img/favicon.png><meta name=generator content="mkdocs-1.6.1, mkdocs-material-9.7.7"><title>Add a network - Core-Geth Documentation</title><link rel=stylesheet href=../../assets/stylesheets/main.ec1eaa64.min.css><link rel=stylesheet href=../../assets/stylesheets/palette.ab4e12ef.min.css><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback"><style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style><link rel=stylesheet href=../../css/timeago.css><link rel=stylesheet href=../../assets/css/extra.css><script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script><meta property=og:type content=website><meta property=og:site_name content="Core-Geth Documentation"><meta property=og:title content="Add a network - Core-Geth Documentation"><meta property=og:description content="Documentation for Core-Geth, the Ethereum Classic execution client: install, run and operate an ETC or Mordor node, and the security audits behind each release."><meta content=https://docs.coregeth.com/developers/add-network/ property=og:url><meta property=og:image content=https://docs.coregeth.com/img/social-card.png><meta property=og:image:width content=1200><meta property=og:image:height content=630><meta property=og:image:alt content="Core-Geth, the Ethereum Classic execution client"><meta name=twitter:card content=summary_large_image><meta name=twitter:title content="Add a network - Core-Geth Documentation"><meta name=twitter:description content="Documentation for Core-Geth, the Ethereum Classic execution client: install, run and operate an ETC or Mordor node, and the security audits behind each release."><meta name=twitter:image content=https://docs.coregeth.com/img/social-card.png><meta name=twitter:image:alt content="Core-Geth, the Ethereum Classic execution client"></head> <body dir=ltr data-md-color-scheme=slate data-md-color-primary=black data-md-color-accent=green> <input class=md-toggle data-md-toggle=drawer type=checkbox id=__drawer autocomplete=off> <input class=md-toggle data-md-toggle=search type=checkbox id=__search autocomplete=off> <label class=md-overlay for=__drawer></label> <div data-md-component=skip> <a href=#adding-a-network-to-core-geth class=md-skip> Skip to content </a> </div> <div data-md-component=announce> </div> <header class="md-header md-header--shadow md-header--lifted" data-md-component=header> <nav class="md-header__inner md-grid" aria-label=Header> <a href=../.. title="Core-Geth Documentation" class="md-header__button md-logo" aria-label="Core-Geth Documentation" data-md-component=logo> <img src=../../img/logo.svg alt=logo> </a> <label class="md-header__button md-icon" for=__drawer> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg> </label> <div class=md-header__title data-md-component=header-title> <div class=md-header__ellipsis> <div class=md-header__topic> <span class=md-ellipsis> Core-Geth Documentation </span> </div> <div class=md-header__topic data-md-component=header-topic> <span class=md-ellipsis> Add a network </span> </div> </div> </div> <label class="md-header__button md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg> </label> <div class=md-search data-md-component=search role=dialog> <label class=md-search__overlay for=__search></label> <div class=md-search__inner role=search> <form class=md-search__form name=search> <input type=text class=md-search__input name=query aria-label=Search placeholder=Search autocapitalize=off autocorrect=off autocomplete=off spellcheck=false data-md-component=search-query required> <label class="md-search__icon md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg> </label> <nav class=md-search__options aria-label=Search> <button type=reset class="md-search__icon md-icon" title=Clear aria-label=Clear tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg> </button> </nav> </form> <div class=md-search__output> <div class=md-search__scrollwrap tabindex=0 data-md-scrollfix> <div class=md-search-result data-md-component=search-result> <div class=md-search-result__meta> Initializing search </div> <ol class=md-search-result__list role=presentation></ol> </div> </div> </div> </div> </div> <div class=md-header__source> <a href=https://github.com/ethereumclassic/core-geth title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 512 512"><!-- Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg> </div> <div class=md-source__repository> ethereumclassic/core-geth </div> </a> </div> </nav> <nav class=md-tabs aria-label=Tabs data-md-component=tabs> <div class=md-grid> <ul class=md-tabs__list> <li class=md-tabs__item> <a href=../.. class=md-tabs__link> Home </a> </li> <li class=md-tabs__item> <a href=../../operators/ class=md-tabs__link> Node operators </a> </li> <li class=md-tabs__item> <a href=../../about/project-history/ class=md-tabs__link> About </a> </li> <li class=md-tabs__item> <a href=../../getting-started/installation/ class=md-tabs__link> Getting started </a> </li> <li class=md-tabs__item> <a href=../../tutorials/v1.13.0-migration/ class=md-tabs__link> Upgrading to v1.13.0 </a> </li> <li class=md-tabs__item> <a href=../../operate/sync-modes/ class=md-tabs__link> Operate </a> </li> <li class="md-tabs__item md-tabs__item--active"> <a href=../../guides/ class=md-tabs__link> Guides </a> </li> <li class=md-tabs__item> <a href=../build-from-source/ class=md-tabs__link> Build and develop </a> </li> <li class=md-tabs__item> <a href=../../core/ class=md-tabs__link> Tools </a> </li> <li class=md-tabs__item> <a href=../../JSON-RPC-API/ class=md-tabs__link> JSON-RPC API </a> </li> <li class=md-tabs__item> <a href=../../release-reports/v1.13.0/ class=md-tabs__link> Audits and reports </a> </li> </ul> </div> </nav> </header> <div class=md-container data-md-component=container> <main class=md-main data-md-component=main> <div class="md-main__inner md-grid"> <div class="md-sidebar md-sidebar--primary" data-md-component=sidebar data-md-type=navigation> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--primary md-nav--lifted" aria-label=Navigation data-md-level=0> <label class=md-nav__title for=__drawer> <a href=../.. title="Core-Geth Documentation" class="md-nav__button md-logo" aria-label="Core-Geth Documentation" data-md-component=logo> <img src=../../img/logo.svg alt=logo> </a> Core-Geth Documentation </label> <div class=md-nav__source> <a href=https://github.com/ethereumclassic/core-geth title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 512 512"><!-- Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg> </div> <div class=md-source__repository> ethereumclassic/core-geth </div> </a> </div> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../.. class=md-nav__link> <span class=md-ellipsis> Home </span> </a> </li> <li class=md-nav__item> <a href=../../operators/ class=md-nav__link> <span class=md-ellipsis> Node operators </span> </a> </li> <li class="md-nav__item md-nav__item--nested"> <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type=checkbox id=__nav_3> <label class=md-nav__link for=__nav_3 id=__nav_3_label tabindex=0> <span class=md-ellipsis> About </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_3_label aria-expanded=false> <label class=md-nav__title for=__nav_3> <span class="md-nav__icon md-icon"></span> About </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../about/project-history/ class=md-nav__link> <span class=md-ellipsis> Project history </span> </a> </li> <li class=md-nav__item> <a href=../../about/faq/ class=md-nav__link> <span class=md-ellipsis> Questions and answers </span> </a> </li> <li class=md-nav__item> <a href=../../etc-cooperative-transition/ class=md-nav__link> <span class=md-ellipsis> ETC Cooperative transition </span> </a> </li> <li class=md-nav__item> <a href=../../support/ class=md-nav__link> <span class=md-ellipsis> Support this work </span> </a> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--nested"> <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type=checkbox id=__nav_4> <label class=md-nav__link for=__nav_4 id=__nav_4_label tabindex=0> <span class=md-ellipsis> Getting started </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_4_label aria-expanded=false> <label class=md-nav__title for=__nav_4> <span class="md-nav__icon md-icon"></span> Getting started </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../getting-started/installation/ class=md-nav__link> <span class=md-ellipsis> Installation </span> </a> </li> <li class=md-nav__item> <a href=../../getting-started/hardware-requirements/ class=md-nav__link> <span class=md-ellipsis> Hardware requirements </span> </a> </li> <li class="md-nav__item md-nav__item--nested"> <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type=checkbox id=__nav_4_3> <label class=md-nav__link for=__nav_4_3 id=__nav_4_3_label tabindex=0> <span class=md-ellipsis> Running a node </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=2 aria-labelledby=__nav_4_3_label aria-expanded=false> <label class=md-nav__title for=__nav_4_3> <span class="md-nav__icon md-icon"></span> Running a node </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../getting-started/run-a-node/ class=md-nav__link> <span class=md-ellipsis> Overview </span> </a> </li> <li class=md-nav__item> <a href=../../getting-started/run/linux/ class=md-nav__link> <span class=md-ellipsis> Linux users guide </span> </a> </li> <li class=md-nav__item> <a href=../../getting-started/run/macos/ class=md-nav__link> <span class=md-ellipsis> Mac users guide </span> </a> </li> <li class=md-nav__item> <a href=../../getting-started/run/windows/ class=md-nav__link> <span class=md-ellipsis> Windows users guide </span> </a> </li> <li class=md-nav__item> <a href=../../getting-started/run/docker/ class=md-nav__link> <span class=md-ellipsis> Docker users guide </span> </a> </li> <li class=md-nav__item> <a href=../../getting-started/run-classic-node/ class=md-nav__link> <span class=md-ellipsis> Run an Ethereum Classic node </span> </a> </li> <li class=md-nav__item> <a href=../../getting-started/run-mordor-node/ class=md-nav__link> <span class=md-ellipsis> Run a Mordor node </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=../../getting-started/run-cli/ class=md-nav__link> <span class=md-ellipsis> Command line </span> </a> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--nested"> <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type=checkbox id=__nav_5> <label class=md-nav__link for=__nav_5 id=__nav_5_label tabindex=0> <span class=md-ellipsis> Upgrading to v1.13.0 </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_5_label aria-expanded=false> <label class=md-nav__title for=__nav_5> <span class="md-nav__icon md-icon"></span> Upgrading to v1.13.0 </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../tutorials/v1.13.0-migration/ class=md-nav__link> <span class=md-ellipsis> Overview </span> </a> </li> <li class=md-nav__item> <a href=../../tutorials/migration/linux/ class=md-nav__link> <span class=md-ellipsis> Linux users guide </span> </a> </li> <li class=md-nav__item> <a href=../../tutorials/migration/macos/ class=md-nav__link> <span class=md-ellipsis> Mac users guide </span> </a> </li> <li class=md-nav__item> <a href=../../tutorials/migration/windows/ class=md-nav__link> <span class=md-ellipsis> Windows users guide </span> </a> </li> <li class=md-nav__item> <a href=../../tutorials/migration/docker/ class=md-nav__link> <span class=md-ellipsis> Docker users guide </span> </a> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--nested"> <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type=checkbox id=__nav_6> <label class=md-nav__link for=__nav_6 id=__nav_6_label tabindex=0> <span class=md-ellipsis> Operate </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_6_label aria-expanded=false> <label class=md-nav__title for=__nav_6> <span class="md-nav__icon md-icon"></span> Operate </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../operate/sync-modes/ class=md-nav__link> <span class=md-ellipsis> Sync modes and data retention </span> </a> </li> <li class=md-nav__item> <a href=../../operate/security/ class=md-nav__link> <span class=md-ellipsis> Security and network exposure </span> </a> </li> <li class=md-nav__item> <a href=../../operate/mess/ class=md-nav__link> <span class=md-ellipsis> MESS </span> </a> </li> <li class=md-nav__item> <a href=../../operate/maintenance/ class=md-nav__link> <span class=md-ellipsis> Maintenance, backup and upgrades </span> </a> </li> <li class=md-nav__item> <a href=../../operate/troubleshooting/ class=md-nav__link> <span class=md-ellipsis> Troubleshooting </span> </a> </li> <li class=md-nav__item> <a href=../../operate/monitoring/ class=md-nav__link> <span class=md-ellipsis> Monitoring </span> </a> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested"> <input class="md-nav__toggle md-toggle " type=checkbox id=__nav_7 checked> <label class=md-nav__link for=__nav_7 id=__nav_7_label tabindex> <span class=md-ellipsis> Guides </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_7_label aria-expanded=true> <label class=md-nav__title for=__nav_7> <span class="md-nav__icon md-icon"></span> Guides </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../guides/ class=md-nav__link> <span class=md-ellipsis> Choose your role </span> </a> </li> <li class=md-nav__item> <a href=../../guides/production-operations/ class=md-nav__link> <span class=md-ellipsis> Production operations </span> </a> </li> <li class=md-nav__item> <a href=../../guides/public-rpc-endpoint/ class=md-nav__link> <span class=md-ellipsis> Public RPC endpoint </span> </a> </li> <li class=md-nav__item> <a href=../../guides/developer-endpoints/ class=md-nav__link> <span class=md-ellipsis> Endpoints for your own project </span> </a> </li> <li class=md-nav__item> <a href=../../guides/archive-node/ class=md-nav__link> <span class=md-ellipsis> Archive node </span> </a> </li> <li class=md-nav__item> <a href=../../guides/mining/ class=md-nav__link> <span class=md-ellipsis> Mining </span> </a> </li> <li class=md-nav__item> <a href=../../guides/mining-pool-node/ class=md-nav__link> <span class=md-ellipsis> Mining pool node </span> </a> </li> <li class=md-nav__item> <a href=../../guides/mordor-mining/ class=md-nav__link> <span class=md-ellipsis> Mine on Mordor </span> </a> </li> <li class=md-nav__item> <a href=../../guides/bootnodes-and-discovery/ class=md-nav__link> <span class=md-ellipsis> Bootnodes and peer discovery </span> </a> </li> <li class=md-nav__item> <a href=../../guides/mess-calculator/ class=md-nav__link> <span class=md-ellipsis> MESS confirmation calculator </span> </a> </li> <li class=md-nav__item> <a href=../../tutorials/private-network/ class=md-nav__link> <span class=md-ellipsis> Private network </span> </a> </li> <li class="md-nav__item md-nav__item--active"> <input class="md-nav__toggle md-toggle" type=checkbox id=__toc> <label class="md-nav__link md-nav__link--active" for=__toc> <span class=md-ellipsis> Add a network </span> <span class="md-nav__icon md-icon"></span> </label> <a href=./ class="md-nav__link md-nav__link--active"> <span class=md-ellipsis> Add a network </span> </a> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#define-the-network-in-params class=md-nav__link> <span class=md-ellipsis> Define the network in params/ </span> </a> <nav class=md-nav aria-label="Define the network in params/"> <ul class=md-nav__list> <li class=md-nav__item> <a href=#chain-configuration class=md-nav__link> <span class=md-ellipsis> Chain configuration </span> </a> </li> <li class=md-nav__item> <a href=#genesis-block class=md-nav__link> <span class=md-ellipsis> Genesis block </span> </a> </li> <li class=md-nav__item> <a href=#bootnodes class=md-nav__link> <span class=md-ellipsis> Bootnodes </span> </a> </li> <li class=md-nav__item> <a href=#tests class=md-nav__link> <span class=md-ellipsis> Tests </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#write-the-genesis-as-json class=md-nav__link> <span class=md-ellipsis> Write the genesis as JSON </span> </a> </li> <li class=md-nav__item> <a href=#initialize-a-database class=md-nav__link> <span class=md-ellipsis> Initialize a database </span> </a> </li> <li class=md-nav__item> <a href=#start-a-node class=md-nav__link> <span class=md-ellipsis> Start a node </span> </a> </li> <li class=md-nav__item> <a href=#establish-a-network class=md-nav__link> <span class=md-ellipsis> Establish a network </span> </a> </li> </ul> </nav> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--nested"> <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type=checkbox id=__nav_8> <label class=md-nav__link for=__nav_8 id=__nav_8_label tabindex=0> <span class=md-ellipsis> Build and develop </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_8_label aria-expanded=false> <label class=md-nav__title for=__nav_8> <span class="md-nav__icon md-icon"></span> Build and develop </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../build-from-source/ class=md-nav__link> <span class=md-ellipsis> Build from source </span> </a> </li> <li class=md-nav__item> <a href=../testing/ class=md-nav__link> <span class=md-ellipsis> Testing </span> </a> </li> <li class=md-nav__item> <a href=../versioning/ class=md-nav__link> <span class=md-ellipsis> Versioning </span> </a> </li> <li class=md-nav__item> <a href=../documentation/ class=md-nav__link> <span class=md-ellipsis> Documentation </span> </a> </li> <li class=md-nav__item> <a href=../create-new-release/ class=md-nav__link> <span class=md-ellipsis> Cutting a release </span> </a> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--nested"> <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type=checkbox id=__nav_9> <label class=md-nav__link for=__nav_9 id=__nav_9_label tabindex=0> <span class=md-ellipsis> Tools </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_9_label aria-expanded=false> <label class=md-nav__title for=__nav_9> <span class="md-nav__icon md-icon"></span> Tools </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../core/ class=md-nav__link> <span class=md-ellipsis> Overview </span> </a> </li> <li class=md-nav__item> <a href=../../core/alltools/ class=md-nav__link> <span class=md-ellipsis> All tools </span> </a> </li> <li class=md-nav__item> <a href=../../core/evmc/ class=md-nav__link> <span class=md-ellipsis> EVMC </span> </a> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--nested"> <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type=checkbox id=__nav_10> <label class=md-nav__link for=__nav_10 id=__nav_10_label tabindex=0> <span class=md-ellipsis> JSON-RPC API </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_10_label aria-expanded=false> <label class=md-nav__title for=__nav_10> <span class="md-nav__icon md-icon"></span> JSON-RPC API </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../JSON-RPC-API/ class=md-nav__link> <span class=md-ellipsis> Overview </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/openrpc/ class=md-nav__link> <span class=md-ellipsis> OpenRPC discovery </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/modules/eth/ class=md-nav__link> <span class=md-ellipsis> eth </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/modules/net/ class=md-nav__link> <span class=md-ellipsis> net </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/modules/web3/ class=md-nav__link> <span class=md-ellipsis> web3 </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/modules/admin/ class=md-nav__link> <span class=md-ellipsis> admin </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/modules/debug/ class=md-nav__link> <span class=md-ellipsis> debug </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/modules/miner/ class=md-nav__link> <span class=md-ellipsis> miner </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/modules/txpool/ class=md-nav__link> <span class=md-ellipsis> txpool </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/modules/personal/ class=md-nav__link> <span class=md-ellipsis> personal </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/modules/ethash/ class=md-nav__link> <span class=md-ellipsis> ethash </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/modules/trace/ class=md-nav__link> <span class=md-ellipsis> trace </span> </a> </li> <li class=md-nav__item> <a href=../../JSON-RPC-API/trace-module-overview/ class=md-nav__link> <span class=md-ellipsis> trace overview </span> </a> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--nested"> <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type=checkbox id=__nav_11> <label class=md-nav__link for=__nav_11 id=__nav_11_label tabindex=0> <span class=md-ellipsis> Audits and reports </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_11_label aria-expanded=false> <label class=md-nav__title for=__nav_11> <span class="md-nav__icon md-icon"></span> Audits and reports </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../release-reports/v1.13.0/ class=md-nav__link> <span class=md-ellipsis> v1.13.0 release report </span> </a> </li> <li class=md-nav__item> <a href=../../release-reports/v1.13.0-record/ class=md-nav__link> <span class=md-ellipsis> v1.13.0 record </span> </a> </li> <li class=md-nav__item> <a href=../../audits/2026-03-security-audit/ class=md-nav__link> <span class=md-ellipsis> March 2026 security audit </span> </a> </li> <li class=md-nav__item> <a href=../../audits/2026-08-security-followup/ class=md-nav__link> <span class=md-ellipsis> August 2026 security follow-up </span> </a> </li> <li class=md-nav__item> <a href=../../audits/2026-08-dependency-modernization/ class=md-nav__link> <span class=md-ellipsis> Dependency and toolchain modernization </span> </a> </li> <li class=md-nav__item> <a href=../../audits/2026-09-release-pipeline/ class=md-nav__link> <span class=md-ellipsis> Release artifacts </span> </a> </li> <li class=md-nav__item> <a href=../../audits/2026-09-go-toolchain/ class=md-nav__link> <span class=md-ellipsis> Go toolchain </span> </a> </li> <li class=md-nav__item> <a href=../../postmortems/2021-08-22-split-postmortem/ class=md-nav__link> <span class=md-ellipsis> 2021 chain split postmortem </span> </a> </li> </ul> </nav> </li> </ul> </nav> </div> </div> </div> <div class="md-sidebar md-sidebar--secondary" data-md-component=sidebar data-md-type=toc> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#define-the-network-in-params class=md-nav__link> <span class=md-ellipsis> Define the network in params/ </span> </a> <nav class=md-nav aria-label="Define the network in params/"> <ul class=md-nav__list> <li class=md-nav__item> <a href=#chain-configuration class=md-nav__link> <span class=md-ellipsis> Chain configuration </span> </a> </li> <li class=md-nav__item> <a href=#genesis-block class=md-nav__link> <span class=md-ellipsis> Genesis block </span> </a> </li> <li class=md-nav__item> <a href=#bootnodes class=md-nav__link> <span class=md-ellipsis> Bootnodes </span> </a> </li> <li class=md-nav__item> <a href=#tests class=md-nav__link> <span class=md-ellipsis> Tests </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#write-the-genesis-as-json class=md-nav__link> <span class=md-ellipsis> Write the genesis as JSON </span> </a> </li> <li class=md-nav__item> <a href=#initialize-a-database class=md-nav__link> <span class=md-ellipsis> Initialize a database </span> </a> </li> <li class=md-nav__item> <a href=#start-a-node class=md-nav__link> <span class=md-ellipsis> Start a node </span> </a> </li> <li class=md-nav__item> <a href=#establish-a-network class=md-nav__link> <span class=md-ellipsis> Establish a network </span> </a> </li> </ul> </nav> </div> </div> </div> <div class=md-content data-md-component=content> <article class="md-content__inner md-typeset"> <h1 id=adding-a-network-to-core-geth>Adding a network to Core-Geth<a class=headerlink href=#adding-a-network-to-core-geth title="Permanent link">&para;</a></h1> <p>A network is its chain configuration and its genesis block. This page defines an example network, AlphaBeta Coin (ABC), and starts a node on it:</p> <ul> <li><strong>ABC is proof of work</strong>, with Ethash.</li> <li><strong>Its genesis block allocates 42 wei to one address.</strong></li> <li><strong>Every EIP that <code>ClassicChainConfig</code> in <code>params/config_classic.go</code> sets is active from block 0.</strong> Ethereum Classic&rsquo;s own choices are left out: Etchash, the ECIP-1017 monetary policy and MESS stay off, and the difficulty bomb is disposed of at block 0.</li> </ul> <p>Core-Geth reads a network definition in two forms:</p> <ol> <li><strong>Go values in <code>params/</code></strong>, beside the Ethereum Classic and Mordor presets. A network flag, such as <code>--mordor</code>, selects a preset. The references to <code>MordorFlag</code> in <code>cmd/utils/flags.go</code> and <code>cmd/geth/main.go</code> show where a network flag is wired; adding one is outside this page.</li> <li><strong>A JSON genesis file</strong>, which <code>geth init</code> writes into a new database. A node runs a network from this file alone, with no change to the code.</li> </ol> <h2 id=define-the-network-in-params>Define the network in <code>params/</code><a class=headerlink href=#define-the-network-in-params title="Permanent link">&para;</a></h2> <p>The files follow the Mordor preset, <code>config_mordor.go</code>, <code>genesis_mordor.go</code> and <code>bootnodes_mordor.go</code>, and the MintMe preset&rsquo;s genesis hash test, <code>config_mintme_test.go</code>.</p> <h3 id=chain-configuration>Chain configuration<a class=headerlink href=#chain-configuration title="Permanent link">&para;</a></h3> <p><code>params/config_abc.go</code>:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal> 1</span>
+<span class=normal> 2</span>
+<span class=normal> 3</span>
+<span class=normal> 4</span>
+<span class=normal> 5</span>
+<span class=normal> 6</span>
+<span class=normal> 7</span>
+<span class=normal> 8</span>
+<span class=normal> 9</span>
+<span class=normal>10</span>
+<span class=normal>11</span>
+<span class=normal>12</span>
+<span class=normal>13</span>
+<span class=normal>14</span>
+<span class=normal>15</span>
+<span class=normal>16</span>
+<span class=normal>17</span>
+<span class=normal>18</span>
+<span class=normal>19</span>
+<span class=normal>20</span>
+<span class=normal>21</span>
+<span class=normal>22</span>
+<span class=normal>23</span>
+<span class=normal>24</span>
+<span class=normal>25</span>
+<span class=normal>26</span>
+<span class=normal>27</span>
+<span class=normal>28</span>
+<span class=normal>29</span>
+<span class=normal>30</span>
+<span class=normal>31</span>
+<span class=normal>32</span>
+<span class=normal>33</span>
+<span class=normal>34</span>
+<span class=normal>35</span>
+<span class=normal>36</span>
+<span class=normal>37</span>
+<span class=normal>38</span>
+<span class=normal>39</span>
+<span class=normal>40</span>
+<span class=normal>41</span>
+<span class=normal>42</span>
+<span class=normal>43</span>
+<span class=normal>44</span>
+<span class=normal>45</span>
+<span class=normal>46</span>
+<span class=normal>47</span>
+<span class=normal>48</span>
+<span class=normal>49</span>
+<span class=normal>50</span>
+<span class=normal>51</span>
+<span class=normal>52</span>
+<span class=normal>53</span>
+<span class=normal>54</span>
+<span class=normal>55</span>
+<span class=normal>56</span>
+<span class=normal>57</span>
+<span class=normal>58</span>
+<span class=normal>59</span>
+<span class=normal>60</span>
+<span class=normal>61</span>
+<span class=normal>62</span>
+<span class=normal>63</span>
+<span class=normal>64</span>
+<span class=normal>65</span>
+<span class=normal>66</span>
+<span class=normal>67</span>
+<span class=normal>68</span>
+<span class=normal>69</span>
+<span class=normal>70</span>
+<span class=normal>71</span>
+<span class=normal>72</span>
+<span class=normal>73</span>
+<span class=normal>74</span>
+<span class=normal>75</span>
+<span class=normal>76</span>
+<span class=normal>77</span>
+<span class=normal>78</span>
+<span class=normal>79</span>
+<span class=normal>80</span>
+<span class=normal>81</span>
+<span class=normal>82</span></pre></div></td><td class=code><div><pre><span></span><code><span class=kn>package</span><span class=w> </span><span class=nx>params</span>
+
+<span class=kn>import</span><span class=w> </span><span class=p>(</span>
+<span class=w>    </span><span class=s>"math/big"</span>
+
+<span class=w>    </span><span class=s>"github.com/ethereum/go-ethereum/common"</span>
+<span class=w>    </span><span class=s>"github.com/ethereum/go-ethereum/params/types/coregeth"</span>
+<span class=w>    </span><span class=s>"github.com/ethereum/go-ethereum/params/types/ctypes"</span>
+<span class=w>    </span><span class=s>"github.com/ethereum/go-ethereum/params/vars"</span>
+<span class=p>)</span>
+
+<span class=kd>var</span><span class=w> </span><span class=p>(</span>
+<span class=w>    </span><span class=c1>// ABCChainConfig is the chain parameters to run a node on the AlphaBeta Coin network (PoW).</span>
+<span class=w>    </span><span class=nx>ABCChainConfig</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=o>&amp;</span><span class=nx>coregeth</span><span class=p>.</span><span class=nx>CoreGethChainConfig</span><span class=p>{</span>
+<span class=w>        </span><span class=nx>NetworkID</span><span class=p>:</span><span class=w>                 </span><span class=mi>4269</span><span class=p>,</span>
+<span class=w>        </span><span class=nx>ChainID</span><span class=p>:</span><span class=w>                   </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>4269</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>SupportedProtocolVersions</span><span class=p>:</span><span class=w> </span><span class=nx>vars</span><span class=p>.</span><span class=nx>DefaultProtocolVersions</span><span class=p>,</span>
+<span class=w>        </span><span class=nx>Ethash</span><span class=p>:</span><span class=w>                    </span><span class=nb>new</span><span class=p>(</span><span class=nx>ctypes</span><span class=p>.</span><span class=nx>EthashConfig</span><span class=p>),</span>
+
+<span class=w>        </span><span class=nx>EIP2FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP7FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+
+<span class=w>        </span><span class=nx>EIP150Block</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+
+<span class=w>        </span><span class=nx>EIP155Block</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+
+<span class=w>        </span><span class=c1>// EIP158 eq</span>
+<span class=w>        </span><span class=nx>EIP160FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP161FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP170FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+
+<span class=w>        </span><span class=c1>// Byzantium eq</span>
+<span class=w>        </span><span class=nx>EIP100FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP140FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP198FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP211FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP212FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP213FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP214FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP658FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+
+<span class=w>        </span><span class=c1>// Constantinople eq, aka Agharta</span>
+<span class=w>        </span><span class=nx>EIP145FBlock</span><span class=p>:</span><span class=w>  </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP1014FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP1052FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+
+<span class=w>        </span><span class=c1>// Istanbul eq, aka Phoenix</span>
+<span class=w>        </span><span class=c1>// ECIP-1088</span>
+<span class=w>        </span><span class=nx>EIP152FBlock</span><span class=p>:</span><span class=w>  </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP1108FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP1344FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP1884FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP2028FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP2200FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span><span class=w> </span><span class=c1>// RePetersburg (== re-1283)</span>
+
+<span class=w>        </span><span class=c1>// Berlin eq, aka Magneto</span>
+<span class=w>        </span><span class=nx>EIP2565FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP2718FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP2929FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP2930FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+
+<span class=w>        </span><span class=c1>// London (partially), aka Mystique</span>
+<span class=w>        </span><span class=nx>EIP3529FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>EIP3541FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span>
+
+<span class=w>        </span><span class=c1>// Spiral, aka Shanghai (partially)</span>
+<span class=w>        </span><span class=nx>EIP3651FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span><span class=w> </span><span class=c1>// Warm COINBASE (gas reprice)</span>
+<span class=w>        </span><span class=nx>EIP3855FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span><span class=w> </span><span class=c1>// PUSH0 instruction</span>
+<span class=w>        </span><span class=nx>EIP3860FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span><span class=w> </span><span class=c1>// Limit and meter initcode</span>
+<span class=w>        </span><span class=nx>EIP6049FBlock</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span><span class=w> </span><span class=c1>// Deprecate SELFDESTRUCT (noop)</span>
+
+<span class=w>        </span><span class=nx>ECIP1099FBlock</span><span class=p>:</span><span class=w> </span><span class=kc>nil</span><span class=p>,</span><span class=w> </span><span class=c1>// Etchash</span>
+
+<span class=w>        </span><span class=nx>DisposalBlock</span><span class=p>:</span><span class=w>      </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span><span class=w> </span><span class=c1>// Dispose difficulty bomb</span>
+<span class=w>        </span><span class=nx>ECIP1017FBlock</span><span class=p>:</span><span class=w>     </span><span class=kc>nil</span><span class=p>,</span><span class=w>           </span><span class=c1>// Ethereum Classic's disinflationary monetary policy</span>
+<span class=w>        </span><span class=nx>ECIP1017EraRounds</span><span class=p>:</span><span class=w>  </span><span class=kc>nil</span><span class=p>,</span>
+<span class=w>        </span><span class=nx>ECIP1010PauseBlock</span><span class=p>:</span><span class=w> </span><span class=kc>nil</span><span class=p>,</span><span class=w> </span><span class=c1>// No need to delay difficulty bomb, is defused by default</span>
+<span class=w>        </span><span class=nx>ECIP1010Length</span><span class=p>:</span><span class=w>     </span><span class=kc>nil</span><span class=p>,</span>
+<span class=w>        </span><span class=nx>ECBP1100FBlock</span><span class=p>:</span><span class=w>     </span><span class=kc>nil</span><span class=p>,</span><span class=w> </span><span class=c1>// ECBP1100 (MESS artificial finality)</span>
+<span class=w>        </span><span class=nx>RequireBlockHashes</span><span class=p>:</span><span class=w> </span><span class=kt>map</span><span class=p>[</span><span class=kt>uint64</span><span class=p>]</span><span class=nx>common</span><span class=p>.</span><span class=nx>Hash</span><span class=p>{},</span>
+<span class=w>    </span><span class=p>}</span>
+<span class=p>)</span>
+</code></pre></div></td></tr></table></div> <p>A field left <code>nil</code> is never active. <code>CoreGethChainConfig</code> in <code>params/types/coregeth/chain_config.go</code> defines every field and its JSON name.</p> <h3 id=genesis-block>Genesis block<a class=headerlink href=#genesis-block title="Permanent link">&para;</a></h3> <p><code>params/genesis_abc.go</code>:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal> 1</span>
+<span class=normal> 2</span>
+<span class=normal> 3</span>
+<span class=normal> 4</span>
+<span class=normal> 5</span>
+<span class=normal> 6</span>
+<span class=normal> 7</span>
+<span class=normal> 8</span>
+<span class=normal> 9</span>
+<span class=normal>10</span>
+<span class=normal>11</span>
+<span class=normal>12</span>
+<span class=normal>13</span>
+<span class=normal>14</span>
+<span class=normal>15</span>
+<span class=normal>16</span>
+<span class=normal>17</span>
+<span class=normal>18</span>
+<span class=normal>19</span>
+<span class=normal>20</span>
+<span class=normal>21</span>
+<span class=normal>22</span>
+<span class=normal>23</span>
+<span class=normal>24</span>
+<span class=normal>25</span>
+<span class=normal>26</span>
+<span class=normal>27</span></pre></div></td><td class=code><div><pre><span></span><code><span class=kn>package</span><span class=w> </span><span class=nx>params</span>
+
+<span class=kn>import</span><span class=w> </span><span class=p>(</span>
+<span class=w>    </span><span class=s>"math/big"</span>
+
+<span class=w>    </span><span class=s>"github.com/ethereum/go-ethereum/common"</span>
+<span class=w>    </span><span class=s>"github.com/ethereum/go-ethereum/common/hexutil"</span>
+<span class=w>    </span><span class=s>"github.com/ethereum/go-ethereum/params/types/genesisT"</span>
+<span class=p>)</span>
+
+<span class=kd>var</span><span class=w> </span><span class=nx>ABCGenesisHash</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=nx>common</span><span class=p>.</span><span class=nx>HexToHash</span><span class=p>(</span><span class=s>"0x5f32ce1ed875a04d74361164bcfcc24af721df8e616642486338300a691fe582"</span><span class=p>)</span>
+
+<span class=kd>func</span><span class=w> </span><span class=nx>DefaultABCGenesisBlock</span><span class=p>()</span><span class=w> </span><span class=o>*</span><span class=nx>genesisT</span><span class=p>.</span><span class=nx>Genesis</span><span class=w> </span><span class=p>{</span>
+<span class=w>    </span><span class=k>return</span><span class=w> </span><span class=o>&amp;</span><span class=nx>genesisT</span><span class=p>.</span><span class=nx>Genesis</span><span class=p>{</span>
+<span class=w>        </span><span class=nx>Config</span><span class=p>:</span><span class=w>     </span><span class=nx>ABCChainConfig</span><span class=p>,</span>
+<span class=w>        </span><span class=nx>Nonce</span><span class=p>:</span><span class=w>      </span><span class=nx>hexutil</span><span class=p>.</span><span class=nx>MustDecodeUint64</span><span class=p>(</span><span class=s>"0x0"</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>ExtraData</span><span class=p>:</span><span class=w>  </span><span class=nx>hexutil</span><span class=p>.</span><span class=nx>MustDecode</span><span class=p>(</span><span class=s>"0x42"</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>GasLimit</span><span class=p>:</span><span class=w>   </span><span class=nx>hexutil</span><span class=p>.</span><span class=nx>MustDecodeUint64</span><span class=p>(</span><span class=s>"0x2fefd8"</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>Difficulty</span><span class=p>:</span><span class=w> </span><span class=nx>hexutil</span><span class=p>.</span><span class=nx>MustDecodeBig</span><span class=p>(</span><span class=s>"0x20000"</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>Timestamp</span><span class=p>:</span><span class=w>  </span><span class=nx>hexutil</span><span class=p>.</span><span class=nx>MustDecodeUint64</span><span class=p>(</span><span class=s>"0x6048d57c"</span><span class=p>),</span>
+<span class=w>        </span><span class=nx>Alloc</span><span class=p>:</span><span class=w> </span><span class=nx>genesisT</span><span class=p>.</span><span class=nx>GenesisAlloc</span><span class=p>{</span>
+<span class=w>            </span><span class=nx>common</span><span class=p>.</span><span class=nx>HexToAddress</span><span class=p>(</span><span class=s>"366ae7da62294427c764870bd2a460d7ded29d30"</span><span class=p>):</span><span class=w> </span><span class=nx>genesisT</span><span class=p>.</span><span class=nx>GenesisAccount</span><span class=p>{</span>
+<span class=w>                </span><span class=nx>Balance</span><span class=p>:</span><span class=w> </span><span class=nx>big</span><span class=p>.</span><span class=nx>NewInt</span><span class=p>(</span><span class=mi>42</span><span class=p>),</span>
+<span class=w>            </span><span class=p>},</span>
+<span class=w>        </span><span class=p>},</span>
+<span class=w>    </span><span class=p>}</span>
+<span class=p>}</span>
+</code></pre></div></td></tr></table></div> <h3 id=bootnodes>Bootnodes<a class=headerlink href=#bootnodes title="Permanent link">&para;</a></h3> <p><code>params/bootnodes_abc.go</code>:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>1</span>
+<span class=normal>2</span>
+<span class=normal>3</span>
+<span class=normal>4</span>
+<span class=normal>5</span>
+<span class=normal>6</span>
+<span class=normal>7</span></pre></div></td><td class=code><div><pre><span></span><code><span class=kn>package</span><span class=w> </span><span class=nx>params</span>
+
+<span class=c1>// ABCBootnodes are the enode URLs of the P2P bootstrap nodes running on</span>
+<span class=c1>// the AlphaBeta Coin network.</span>
+<span class=kd>var</span><span class=w> </span><span class=nx>ABCBootnodes</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=p>[]</span><span class=kt>string</span><span class=p>{</span>
+<span class=w>    </span><span class=s>"enode://82ce42238ce90803f2506ae98c433ddb1fa6d35c48786e0f830ce331b170624e2d130fac0dffab6af25e4a6940cbf689766cd0e09e83d295f27c2404f8ec7ac9@203.0.113.10:30303"</span><span class=p>,</span>
+<span class=p>}</span>
+</code></pre></div></td></tr></table></div> <p><code>203.0.113.10</code> is an address reserved for documentation; a real network lists the enode URLs of its own bootnodes. <code>ABCBootnodes</code> is read only once a network flag selects it, in <code>setBootstrapNodes</code> (<code>cmd/utils/flags.go</code>). A node started from the JSON genesis takes its bootnodes from <code>--bootnodes</code>, and without that flag uses Ethereum Classic&rsquo;s, as <a href=#establish-a-network>Establish a network</a> shows.</p> <h3 id=tests>Tests<a class=headerlink href=#tests title="Permanent link">&para;</a></h3> <p><code>params/config_abc_test.go</code> checks the genesis hash, with the <code>genesisToBlock</code> helper in <code>params/config_test.go</code>, and checks that every bootnode entry parses:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal> 1</span>
+<span class=normal> 2</span>
+<span class=normal> 3</span>
+<span class=normal> 4</span>
+<span class=normal> 5</span>
+<span class=normal> 6</span>
+<span class=normal> 7</span>
+<span class=normal> 8</span>
+<span class=normal> 9</span>
+<span class=normal>10</span>
+<span class=normal>11</span>
+<span class=normal>12</span>
+<span class=normal>13</span>
+<span class=normal>14</span>
+<span class=normal>15</span>
+<span class=normal>16</span>
+<span class=normal>17</span>
+<span class=normal>18</span>
+<span class=normal>19</span>
+<span class=normal>20</span>
+<span class=normal>21</span>
+<span class=normal>22</span>
+<span class=normal>23</span>
+<span class=normal>24</span>
+<span class=normal>25</span></pre></div></td><td class=code><div><pre><span></span><code><span class=kn>package</span><span class=w> </span><span class=nx>params</span>
+
+<span class=kn>import</span><span class=w> </span><span class=p>(</span>
+<span class=w>    </span><span class=s>"testing"</span>
+
+<span class=w>    </span><span class=s>"github.com/ethereum/go-ethereum/p2p/enode"</span>
+<span class=p>)</span>
+
+<span class=c1>// TestGenesisHashABC tests that ABCGenesisHash is the correct value for the genesis configuration.</span>
+<span class=kd>func</span><span class=w> </span><span class=nx>TestGenesisHashABC</span><span class=p>(</span><span class=nx>t</span><span class=w> </span><span class=o>*</span><span class=nx>testing</span><span class=p>.</span><span class=nx>T</span><span class=p>)</span><span class=w> </span><span class=p>{</span>
+<span class=w>    </span><span class=nx>genesis</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>DefaultABCGenesisBlock</span><span class=p>()</span>
+<span class=w>    </span><span class=nx>block</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>genesisToBlock</span><span class=p>(</span><span class=nx>genesis</span><span class=p>,</span><span class=w> </span><span class=kc>nil</span><span class=p>)</span>
+<span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>block</span><span class=p>.</span><span class=nx>Hash</span><span class=p>()</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=nx>ABCGenesisHash</span><span class=w> </span><span class=p>{</span>
+<span class=w>        </span><span class=nx>t</span><span class=p>.</span><span class=nx>Errorf</span><span class=p>(</span><span class=s>"want: %s, got: %s"</span><span class=p>,</span><span class=w> </span><span class=nx>ABCGenesisHash</span><span class=p>.</span><span class=nx>Hex</span><span class=p>(),</span><span class=w> </span><span class=nx>block</span><span class=p>.</span><span class=nx>Hash</span><span class=p>().</span><span class=nx>Hex</span><span class=p>())</span>
+<span class=w>    </span><span class=p>}</span>
+<span class=p>}</span>
+
+<span class=c1>// TestABCBootnodes tests that every ABCBootnodes entry parses as an enode URL.</span>
+<span class=kd>func</span><span class=w> </span><span class=nx>TestABCBootnodes</span><span class=p>(</span><span class=nx>t</span><span class=w> </span><span class=o>*</span><span class=nx>testing</span><span class=p>.</span><span class=nx>T</span><span class=p>)</span><span class=w> </span><span class=p>{</span>
+<span class=w>    </span><span class=k>for</span><span class=w> </span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>url</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=nx>ABCBootnodes</span><span class=w> </span><span class=p>{</span>
+<span class=w>        </span><span class=k>if</span><span class=w> </span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>enode</span><span class=p>.</span><span class=nx>Parse</span><span class=p>(</span><span class=nx>enode</span><span class=p>.</span><span class=nx>ValidSchemes</span><span class=p>,</span><span class=w> </span><span class=nx>url</span><span class=p>);</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span>
+<span class=w>            </span><span class=nx>t</span><span class=p>.</span><span class=nx>Errorf</span><span class=p>(</span><span class=s>"%s: %v"</span><span class=p>,</span><span class=w> </span><span class=nx>url</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span>
+<span class=w>        </span><span class=p>}</span>
+<span class=w>    </span><span class=p>}</span>
+<span class=p>}</span>
+</code></pre></div></td></tr></table></div> <p><code>params/example_abc_test.go</code> checks that <code>DefaultABCGenesisBlock()</code> encodes to exactly the JSON in the next section. <code>go test</code> vets example names, so the example is named for the function it documents: an example whose name matches no identifier fails the build.</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal> 1</span>
+<span class=normal> 2</span>
+<span class=normal> 3</span>
+<span class=normal> 4</span>
+<span class=normal> 5</span>
+<span class=normal> 6</span>
+<span class=normal> 7</span>
+<span class=normal> 8</span>
+<span class=normal> 9</span>
+<span class=normal>10</span>
+<span class=normal>11</span>
+<span class=normal>12</span>
+<span class=normal>13</span>
+<span class=normal>14</span>
+<span class=normal>15</span>
+<span class=normal>16</span>
+<span class=normal>17</span>
+<span class=normal>18</span>
+<span class=normal>19</span>
+<span class=normal>20</span>
+<span class=normal>21</span>
+<span class=normal>22</span>
+<span class=normal>23</span>
+<span class=normal>24</span>
+<span class=normal>25</span>
+<span class=normal>26</span>
+<span class=normal>27</span>
+<span class=normal>28</span>
+<span class=normal>29</span>
+<span class=normal>30</span>
+<span class=normal>31</span>
+<span class=normal>32</span>
+<span class=normal>33</span>
+<span class=normal>34</span>
+<span class=normal>35</span>
+<span class=normal>36</span>
+<span class=normal>37</span>
+<span class=normal>38</span>
+<span class=normal>39</span>
+<span class=normal>40</span>
+<span class=normal>41</span>
+<span class=normal>42</span>
+<span class=normal>43</span>
+<span class=normal>44</span>
+<span class=normal>45</span>
+<span class=normal>46</span>
+<span class=normal>47</span>
+<span class=normal>48</span>
+<span class=normal>49</span>
+<span class=normal>50</span>
+<span class=normal>51</span>
+<span class=normal>52</span>
+<span class=normal>53</span>
+<span class=normal>54</span>
+<span class=normal>55</span>
+<span class=normal>56</span>
+<span class=normal>57</span>
+<span class=normal>58</span>
+<span class=normal>59</span>
+<span class=normal>60</span>
+<span class=normal>61</span>
+<span class=normal>62</span>
+<span class=normal>63</span>
+<span class=normal>64</span>
+<span class=normal>65</span>
+<span class=normal>66</span>
+<span class=normal>67</span>
+<span class=normal>68</span>
+<span class=normal>69</span>
+<span class=normal>70</span>
+<span class=normal>71</span>
+<span class=normal>72</span>
+<span class=normal>73</span>
+<span class=normal>74</span>
+<span class=normal>75</span>
+<span class=normal>76</span>
+<span class=normal>77</span>
+<span class=normal>78</span></pre></div></td><td class=code><div><pre><span></span><code><span class=kn>package</span><span class=w> </span><span class=nx>params</span>
+
+<span class=kn>import</span><span class=w> </span><span class=p>(</span>
+<span class=w>    </span><span class=s>"encoding/json"</span>
+<span class=w>    </span><span class=s>"fmt"</span>
+<span class=w>    </span><span class=s>"log"</span>
+<span class=p>)</span>
+
+<span class=kd>func</span><span class=w> </span><span class=nx>ExampleDefaultABCGenesisBlock</span><span class=p>()</span><span class=w> </span><span class=p>{</span>
+<span class=w>    </span><span class=nx>genesis</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>DefaultABCGenesisBlock</span><span class=p>()</span>
+<span class=w>    </span><span class=nx>jsonBytes</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>json</span><span class=p>.</span><span class=nx>MarshalIndent</span><span class=p>(</span><span class=nx>genesis</span><span class=p>,</span><span class=w> </span><span class=s>""</span><span class=p>,</span><span class=w> </span><span class=s>"  "</span><span class=p>)</span>
+<span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span>
+<span class=w>        </span><span class=nx>log</span><span class=p>.</span><span class=nx>Fatalln</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span>
+<span class=w>    </span><span class=p>}</span>
+<span class=w>    </span><span class=nx>fmt</span><span class=p>.</span><span class=nx>Println</span><span class=p>(</span><span class=kt>string</span><span class=p>(</span><span class=nx>jsonBytes</span><span class=p>))</span>
+<span class=w>    </span><span class=c1>// Output:</span>
+<span class=w>    </span><span class=c1>// {</span>
+<span class=w>    </span><span class=c1>//   "config": {</span>
+<span class=w>    </span><span class=c1>//     "networkId": 4269,</span>
+<span class=w>    </span><span class=c1>//     "chainId": 4269,</span>
+<span class=w>    </span><span class=c1>//     "supportedProtocolVersions": [</span>
+<span class=w>    </span><span class=c1>//       68</span>
+<span class=w>    </span><span class=c1>//     ],</span>
+<span class=w>    </span><span class=c1>//     "eip2FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip7FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip150Block": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip155Block": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip160Block": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip161FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip170FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip100FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip140FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip198FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip211FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip212FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip213FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip214FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip658FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip145FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip1014FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip1052FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip152FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip1108FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip1344FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip1884FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip2028FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip2200FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip2565FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip2718FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip2929FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip2930FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip3541FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip3529FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip3651FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip3855FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip3860FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "eip6049FBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "disposalBlock": 0,</span>
+<span class=w>    </span><span class=c1>//     "ethash": {},</span>
+<span class=w>    </span><span class=c1>//     "requireBlockHashes": {}</span>
+<span class=w>    </span><span class=c1>//   },</span>
+<span class=w>    </span><span class=c1>//   "nonce": "0x0",</span>
+<span class=w>    </span><span class=c1>//   "timestamp": "0x6048d57c",</span>
+<span class=w>    </span><span class=c1>//   "extraData": "0x42",</span>
+<span class=w>    </span><span class=c1>//   "gasLimit": "0x2fefd8",</span>
+<span class=w>    </span><span class=c1>//   "difficulty": "0x20000",</span>
+<span class=w>    </span><span class=c1>//   "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",</span>
+<span class=w>    </span><span class=c1>//   "coinbase": "0x0000000000000000000000000000000000000000",</span>
+<span class=w>    </span><span class=c1>//   "alloc": {</span>
+<span class=w>    </span><span class=c1>//     "366ae7da62294427c764870bd2a460d7ded29d30": {</span>
+<span class=w>    </span><span class=c1>//       "balance": "0x2a"</span>
+<span class=w>    </span><span class=c1>//     }</span>
+<span class=w>    </span><span class=c1>//   },</span>
+<span class=w>    </span><span class=c1>//   "number": "0x0",</span>
+<span class=w>    </span><span class=c1>//   "gasUsed": "0x0",</span>
+<span class=w>    </span><span class=c1>//   "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000"</span>
+<span class=w>    </span><span class=c1>// }</span>
+<span class=p>}</span>
+</code></pre></div></td></tr></table></div> <p>From the repository root:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>1</span></pre></div></td><td class=code><div><pre><span></span><code>go<span class=w> </span><span class=nb>test</span><span class=w> </span>./params/<span class=w> </span>-run<span class=w> </span><span class=s1>'TestGenesisHashABC|TestABCBootnodes|ExampleDefaultABCGenesisBlock'</span><span class=w> </span>-count<span class=o>=</span><span class=m>1</span><span class=w> </span>-v
+</code></pre></div></td></tr></table></div> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>1</span>
+<span class=normal>2</span>
+<span class=normal>3</span>
+<span class=normal>4</span>
+<span class=normal>5</span>
+<span class=normal>6</span>
+<span class=normal>7</span>
+<span class=normal>8</span></pre></div></td><td class=code><div><pre><span></span><code>=== RUN   TestGenesisHashABC
+--- PASS: TestGenesisHashABC (0.00s)
+=== RUN   TestABCBootnodes
+--- PASS: TestABCBootnodes (0.00s)
+=== RUN   ExampleDefaultABCGenesisBlock
+--- PASS: ExampleDefaultABCGenesisBlock (0.00s)
+PASS
+ok      github.com/ethereum/go-ethereum/params  0.029s
+</code></pre></div></td></tr></table></div> <h2 id=write-the-genesis-as-json>Write the genesis as JSON<a class=headerlink href=#write-the-genesis-as-json title="Permanent link">&para;</a></h2> <p>Save the example test&rsquo;s output as <code>abc_genesis.json</code>:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal> 1</span>
+<span class=normal> 2</span>
+<span class=normal> 3</span>
+<span class=normal> 4</span>
+<span class=normal> 5</span>
+<span class=normal> 6</span>
+<span class=normal> 7</span>
+<span class=normal> 8</span>
+<span class=normal> 9</span>
+<span class=normal>10</span>
+<span class=normal>11</span>
+<span class=normal>12</span>
+<span class=normal>13</span>
+<span class=normal>14</span>
+<span class=normal>15</span>
+<span class=normal>16</span>
+<span class=normal>17</span>
+<span class=normal>18</span>
+<span class=normal>19</span>
+<span class=normal>20</span>
+<span class=normal>21</span>
+<span class=normal>22</span>
+<span class=normal>23</span>
+<span class=normal>24</span>
+<span class=normal>25</span>
+<span class=normal>26</span>
+<span class=normal>27</span>
+<span class=normal>28</span>
+<span class=normal>29</span>
+<span class=normal>30</span>
+<span class=normal>31</span>
+<span class=normal>32</span>
+<span class=normal>33</span>
+<span class=normal>34</span>
+<span class=normal>35</span>
+<span class=normal>36</span>
+<span class=normal>37</span>
+<span class=normal>38</span>
+<span class=normal>39</span>
+<span class=normal>40</span>
+<span class=normal>41</span>
+<span class=normal>42</span>
+<span class=normal>43</span>
+<span class=normal>44</span>
+<span class=normal>45</span>
+<span class=normal>46</span>
+<span class=normal>47</span>
+<span class=normal>48</span>
+<span class=normal>49</span>
+<span class=normal>50</span>
+<span class=normal>51</span>
+<span class=normal>52</span>
+<span class=normal>53</span>
+<span class=normal>54</span>
+<span class=normal>55</span>
+<span class=normal>56</span>
+<span class=normal>57</span>
+<span class=normal>58</span>
+<span class=normal>59</span>
+<span class=normal>60</span>
+<span class=normal>61</span></pre></div></td><td class=code><div><pre><span></span><code><span class=p>{</span>
+<span class=w>  </span><span class=nt>"config"</span><span class=p>:</span><span class=w> </span><span class=p>{</span>
+<span class=w>    </span><span class=nt>"networkId"</span><span class=p>:</span><span class=w> </span><span class=mi>4269</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"chainId"</span><span class=p>:</span><span class=w> </span><span class=mi>4269</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"supportedProtocolVersions"</span><span class=p>:</span><span class=w> </span><span class=p>[</span>
+<span class=w>      </span><span class=mi>68</span>
+<span class=w>    </span><span class=p>],</span>
+<span class=w>    </span><span class=nt>"eip2FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip7FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip150Block"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip155Block"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip160Block"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip161FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip170FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip100FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip140FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip198FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip211FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip212FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip213FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip214FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip658FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip145FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip1014FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip1052FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip152FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip1108FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip1344FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip1884FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip2028FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip2200FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip2565FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip2718FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip2929FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip2930FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip3541FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip3529FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip3651FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip3855FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip3860FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"eip6049FBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"disposalBlock"</span><span class=p>:</span><span class=w> </span><span class=mi>0</span><span class=p>,</span>
+<span class=w>    </span><span class=nt>"ethash"</span><span class=p>:</span><span class=w> </span><span class=p>{},</span>
+<span class=w>    </span><span class=nt>"requireBlockHashes"</span><span class=p>:</span><span class=w> </span><span class=p>{}</span>
+<span class=w>  </span><span class=p>},</span>
+<span class=w>  </span><span class=nt>"nonce"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x0"</span><span class=p>,</span>
+<span class=w>  </span><span class=nt>"timestamp"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x6048d57c"</span><span class=p>,</span>
+<span class=w>  </span><span class=nt>"extraData"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x42"</span><span class=p>,</span>
+<span class=w>  </span><span class=nt>"gasLimit"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x2fefd8"</span><span class=p>,</span>
+<span class=w>  </span><span class=nt>"difficulty"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x20000"</span><span class=p>,</span>
+<span class=w>  </span><span class=nt>"mixHash"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x0000000000000000000000000000000000000000000000000000000000000000"</span><span class=p>,</span>
+<span class=w>  </span><span class=nt>"coinbase"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x0000000000000000000000000000000000000000"</span><span class=p>,</span>
+<span class=w>  </span><span class=nt>"alloc"</span><span class=p>:</span><span class=w> </span><span class=p>{</span>
+<span class=w>    </span><span class=nt>"366ae7da62294427c764870bd2a460d7ded29d30"</span><span class=p>:</span><span class=w> </span><span class=p>{</span>
+<span class=w>      </span><span class=nt>"balance"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x2a"</span>
+<span class=w>    </span><span class=p>}</span>
+<span class=w>  </span><span class=p>},</span>
+<span class=w>  </span><span class=nt>"number"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x0"</span><span class=p>,</span>
+<span class=w>  </span><span class=nt>"gasUsed"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x0"</span><span class=p>,</span>
+<span class=w>  </span><span class=nt>"parentHash"</span><span class=p>:</span><span class=w> </span><span class=s2>"0x0000000000000000000000000000000000000000000000000000000000000000"</span>
+<span class=p>}</span>
+</code></pre></div></td></tr></table></div> <h2 id=initialize-a-database>Initialize a database<a class=headerlink href=#initialize-a-database title="Permanent link">&para;</a></h2> <p>Build <code>geth</code> as <a href=../build-from-source/ >Build from source</a> describes. Then, from the repository root:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>1</span></pre></div></td><td class=code><div><pre><span></span><code>./build/bin/geth<span class=w> </span>--datadir<span class=w> </span>./abc-datadir<span class=w> </span>init<span class=w> </span>abc_genesis.json
+</code></pre></div></td></tr></table></div> <p>Among its output:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>1</span>
+<span class=normal>2</span>
+<span class=normal>3</span></pre></div></td><td class=code><div><pre><span></span><code>INFO [09-13|02:11:42.995] Writing custom genesis block
+INFO [09-13|02:11:43.086] Wrote genesis block OK                   config="NetworkID: 4269, ChainID: 4269 Engine: ethash EIP1014: 0 EIP1052: 0 EIP1108: 0 EIP1344: 0 EIP140: 0 EIP145: 0 EIP150: 0 EIP152: 0 EIP155: 0 EIP160: 0 EIP161abc: 0 EIP161d: 0 EIP170: 0 EIP1884: 0 EIP198: 0 EIP2028: 0 EIP211: 0 EIP212: 0 EIP213: 0 EIP214: 0 EIP2200: 0 EIP2565: 0 EIP2718: 0 EIP2929: 0 EIP2930: 0 EIP2: 0 EIP3529: 0 EIP3541: 0 EIP3651: 0 EIP3855: 0 EIP3860: 0 EIP6049: 0 EIP658: 0 EIP7: 0 EthashECIP1041: 0 EthashEIP100B: 0 EthashHomestead: 0 "
+INFO [09-13|02:11:43.087] Successfully wrote genesis state         database=chaindata hash=5f32ce..1fe582
+</code></pre></div></td></tr></table></div> <p>The hash is <code>ABCGenesisHash</code>, shortened. To read back what was stored, without starting a node:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>1</span></pre></div></td><td class=code><div><pre><span></span><code>./build/bin/geth<span class=w> </span>--datadir<span class=w> </span>./abc-datadir<span class=w> </span>dumpgenesis
+</code></pre></div></td></tr></table></div> <p>It prints the stored genesis, with the same values as <code>abc_genesis.json</code>.</p> <h2 id=start-a-node>Start a node<a class=headerlink href=#start-a-node title="Permanent link">&para;</a></h2> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>1</span></pre></div></td><td class=code><div><pre><span></span><code>./build/bin/geth<span class=w> </span>--datadir<span class=w> </span>./abc-datadir<span class=w> </span>--networkid<span class=w> </span><span class=m>4269</span><span class=w> </span>--nodiscover<span class=w> </span>--port<span class=w> </span><span class=m>30471</span>
+</code></pre></div></td></tr></table></div> <ul> <li><strong><code>--networkid 4269</code></strong> sets the network ID. Without it, and with no network flag, the node takes its network ID from the genesis <code>chainId</code> rather than its <code>networkId</code>, and its first log line reads <code>Starting Core-Geth on Ethereum Classic...</code>.</li> <li><strong><code>--nodiscover</code></strong> keeps this node from looking for peers.</li> <li><strong><code>--port</code></strong> moves the peer-to-peer listener off its <a href=../../operate/security/#ports-and-listeners>default</a>, so the node can run beside another node on the same host.</li> </ul> <p>Among its output:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>1</span>
+<span class=normal>2</span>
+<span class=normal>3</span></pre></div></td><td class=code><div><pre><span></span><code>INFO [09-13|02:11:43.587] Initialising Ethereum protocol           network=4269 dbversion=&lt;nil&gt;
+INFO [09-13|02:11:43.592] Found stored genesis block               config="NetworkID: 4269, ChainID: 4269 Engine: ethash EIP1014: 0 EIP1052: 0 EIP1108: 0 EIP1344: 0 EIP140: 0 EIP145: 0 EIP150: 0 EIP152: 0 EIP155: 0 EIP160: 0 EIP161abc: 0 EIP161d: 0 EIP170: 0 EIP1884: 0 EIP198: 0 EIP2028: 0 EIP211: 0 EIP212: 0 EIP213: 0 EIP214: 0 EIP2200: 0 EIP2565: 0 EIP2718: 0 EIP2929: 0 EIP2930: 0 EIP2: 0 EIP3529: 0 EIP3541: 0 EIP3651: 0 EIP3855: 0 EIP3860: 0 EIP6049: 0 EIP658: 0 EIP7: 0 EthashECIP1041: 0 EthashEIP100B: 0 EthashHomestead: 0 "
+INFO [09-13|02:11:43.593] Loaded most recent local block           number=0 hash=5f32ce..1fe582 td=131,072 age=5y7mo2d
+</code></pre></div></td></tr></table></div> <p>Stop the node with Ctrl-C.</p> <h2 id=establish-a-network>Establish a network<a class=headerlink href=#establish-a-network title="Permanent link">&para;</a></h2> <p>With no network flag, a node applies Ethereum Classic&rsquo;s peer discovery defaults. <a href=../../tutorials/private-network/#before-you-start>Private network</a> gives the flags that override them; on this network every node also takes <code>--networkid 4269</code>.</p> <p><code>geth dumpconfig</code> with those flags shows the peer settings a node will use, under <code>BootstrapNodes</code> and <code>EthDiscoveryURLs</code>. <a href=../../tutorials/private-network/ >Private network</a> walks through running a bootnode and member nodes.</p> <aside class=md-source-file> <span class=md-source-file__fact> <span class=md-icon title="Last update"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg> </span> <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 18, 2026 19:15:50 UTC"><span class=timeago datetime=2026-09-18T19:15:50+00:00 locale=en></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 18, 2026 19:15:50 UTC">2026-09-18</span> </span> </aside> </article> </div> <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script> </div> <button type=button class="md-top md-icon" data-md-component=top hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg> Back to top </button> </main> <footer class=md-footer> <div class="md-footer-meta md-typeset"> <div class="md-footer-meta__inner md-grid"> <div class=md-copyright> <div class=md-copyright__highlight> Copyright &copy; The go-ethereum Authors, The multi-geth Authors and The core-geth Authors. Licensed under the GNU GPL v3 and LGPL v3; see the <a href=https://github.com/ethereumclassic/core-geth/blob/main/COPYING>COPYING</a> and <a href=https://github.com/ethereumclassic/core-geth/blob/main/COPYING.LESSER>COPYING.LESSER</a> files.<br><a href=https://docs.coregeth.com/support/ >Support this project</a>: <a href=mailto:donations@ethereumclassic.com>donations@ethereumclassic.com</a> &middot; <a href=https://docs.coregeth.com/#security-reporting>Report a security issue</a>: <a href=mailto:security@ethereumclassic.com>security@ethereumclassic.com</a> </div> Made with <a href=https://squidfunk.github.io/mkdocs-material/ target=_blank rel=noopener> Material for MkDocs </a> </div> </div> </div> </footer> </div> <div class=md-dialog data-md-component=dialog> <div class="md-dialog__inner md-typeset"></div> </div> <script id=__config type=application/json>{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.expand", "navigation.sections", "navigation.tracking", "navigation.top", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script> <script src=../../assets/javascripts/bundle.d7400e89.min.js></script> <script src=../../js/timeago.min.js></script> <script src=../../js/timeago_mkdocs_material.js></script> <script src=../../assets/js/mess-calculator.js></script> </body> </html>
