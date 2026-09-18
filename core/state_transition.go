@@ -30,6 +30,17 @@ import (
 	"github.com/holiman/uint256"
 )
 
+var (
+	elysiumSplitDivisor = uint256.NewInt(10)
+
+	// TODO(elysium-poc): Replace placeholder with the deployed logtrees contract address.
+	elysiumLogtreesContractAddress = common.HexToAddress("0x0000000000000000000000000000000000001001")
+	// TODO(elysium-poc): Replace placeholder with the deployed ETC contract address.
+	elysiumEtcContractAddress = common.HexToAddress("0x0000000000000000000000000000000000001002")
+	// TODO(elysium-poc): Replace placeholder with the deployed Rainbow Compute contract address.
+	elysiumRainbowComputeContractAddress = common.HexToAddress("0x0000000000000000000000000000000000001003")
+)
+
 // ExecutionResult includes all output after executing given evm
 // message no matter the execution itself is successful or not.
 type ExecutionResult struct {
@@ -489,6 +500,21 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 		fee := new(uint256.Int).SetUint64(st.gasUsed())
 		fee.Mul(fee, effectiveTipU256)
 		st.state.AddBalance(st.evm.Context.Coinbase, fee)
+
+		if eip1559f {
+			// Elysium POC: route the BASEFEE portion with a fixed 10/10/80 split.
+			baseFeePortion := new(uint256.Int).SetUint64(st.gasUsed())
+			baseFeePortion.Mul(baseFeePortion, uint256.MustFromBig(st.evm.Context.BaseFee))
+
+			logtreesPortion := new(uint256.Int).Div(new(uint256.Int).Set(baseFeePortion), elysiumSplitDivisor)
+			etcPortion := new(uint256.Int).Div(new(uint256.Int).Set(baseFeePortion), elysiumSplitDivisor)
+			rainbowPortion := new(uint256.Int).Sub(new(uint256.Int).Set(baseFeePortion), logtreesPortion)
+			rainbowPortion.Sub(rainbowPortion, etcPortion)
+
+			st.state.AddBalance(elysiumLogtreesContractAddress, logtreesPortion)
+			st.state.AddBalance(elysiumEtcContractAddress, etcPortion)
+			st.state.AddBalance(elysiumRainbowComputeContractAddress, rainbowPortion)
+		}
 	}
 
 	return &ExecutionResult{
