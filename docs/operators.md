@@ -8,7 +8,7 @@ description: "The short path for Ethereum Classic node operators, pools and exch
 path through everything else on this site.** It takes about a minute to read, and it links the rest in the order
 that answers the questions operators actually arrive with.
 
-## Do these three things
+## Do these four things
 
 1. **Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Every published
    `v1.12.20` to `v1.12.23` archive, the newest included, was built on an unsupported Go release and carries 55
@@ -18,11 +18,37 @@ that answers the questions operators actually arrive with.
    `v1.12.23`, and 30 percent were running one older than `v1.12.21`. The
    [migration guide](tutorials/v1.13.0-migration.md) has a guide per platform. Your chain data carries over, and
    the upgrade costs about twenty minutes of downtime.
+
+    **What the network was running on 17 September 2026**, from [etcnodes.org](https://etcnodes.org),
+    524 Core-Geth nodes of 550:
+
+    | Running | Nodes | Share | Carries |
+    | --- | ---: | ---: | --- |
+    | `v1.12.20` and older | 158 | 30.2% | all six client CVEs, unpatched. Two were exploited against ETC bootnodes in March 2026 |
+    | `v1.12.21` | 50 | 9.5% | the ECIES crash and key oracle closed. Still missing two curve checks, the RLP work and the GraphQL limit. Go 1.21 |
+    | `v1.12.22` | 165 | 31.5% | the rest of the CVE backports, but CVE-2026-26313 only partly mitigated. Introduces the `eth_syncing` regression. Go 1.21 |
+    | `v1.12.23` | 138 | 26.3% | the delayed decoding series, and nothing else here is fixed: 55 to 61 Go advisories in the binary, no GraphQL depth limit, the `eth_syncing` regression untouched, and a response cap that can disconnect honest peers |
+    | `v1.12.24` | 4 | 0.8% | a development build of the previous repository's `master`, not a release |
+    | `v1.13.0` | 9 | 1.7% | **Recommended client:** six CVEs resolved and the GraphQL limit fixed, Go 1.26.8, zero Go advisories |
+
+    Each row is measured in the [Go toolchain audit](audits/2026-09-go-toolchain.md) and the
+    [March 2026 security audit](audits/2026-03-security-audit.md). The figures move:
+    `https://api.etcnodes.org/peers` is the instrument.
 2. **Rotate the P2P node key.** This one is required rather than precautionary: one of the fixed issues leaks
    bits of that key across repeated handshakes, and the fix cannot recall what already leaked.
    [How, and which peer lists to update](tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key).
 3. **Track releases at [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases).** A
    node tracking the previous repository will not see `v1.13.0`.
+4. **Decide your MESS setting, and give every node you run the same one.** `v1.13.0` ships MESS on. That is a
+   change from `v1.12.x`, which activates it and then deactivates it again at the Spiral block, so an upgraded
+   node applies it where your old one did not. MESS decides which of two competing chains a node prefers during
+   a deep reorganization and never whether a block is valid, so in normal operation a node with it on and a node
+   with it off follow the same chain. An exchange, a custodian or a pool that credits deposits wants it on: a
+   deep reorganization is the attack aimed at them. A miner carries a cost either way, and that trade is worth
+   reading before deciding rather than after.
+   [Which setting fits which operator](operate/mess.md#which-setting-fits-which-operator) has it per node type,
+   and `--mess=false` turns it off. Whichever you choose, nodes in one fleet that disagree can prefer different
+   chains, which is worse than either setting.
 
 ## Then read, in this order
 
