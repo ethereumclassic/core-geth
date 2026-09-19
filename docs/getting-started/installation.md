@@ -216,11 +216,16 @@ Worth doing once on any binary you are about to run on a node that holds value.
 
 ## Docker
 
-Images are published to the GitHub Container Registry for each tagged release,
-built for `linux/amd64` and `linux/arm64`:
+Images are published to the GitHub Container Registry for each tagged release, built for
+`linux/amd64` and `linux/arm64`.
+
+**The registry copies are not public yet, so a pull is refused.** Until that changes, take the image
+from the release instead, as [Load the image from the release](#load-the-image-from-the-release)
+shows. It is the same image and it keeps its published name, so every command below is the one you
+would use after a pull, and nothing in your setup changes when the registry copy opens.
 
 ```shell
-$ docker pull ghcr.io/ethereumclassic/core-geth:latest
+$ docker pull ghcr.io/ethereumclassic/core-geth:latest   # for when the registry is public
 ```
 
 Tags mirror the release tags. `ghcr.io/ethereumclassic/core-geth:v1.13.0` is a
@@ -233,9 +238,6 @@ node alone, is published under the same name with an `alltools-` prefix, as
     Images published as `etclabscore/core-geth` on Docker Hub are not built from
     this source and receive nothing released here.
 
-!!! note "If the pull returns `unauthorized`"
-    The images are published but not yet public. Until they are, load the image from the
-    release or build it locally, as below. It runs the same way.
 
 ### Load the image from the release
 
