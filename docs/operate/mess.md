@@ -15,6 +15,19 @@ chains the node prefers. Nodes that must agree on the chain, such as an exchange
 withdrawal nodes, should all run with the same MESS setting: during a deep reorganization, a node
 with MESS on and a node with MESS off can prefer different chains.
 
+## What changed, and when
+
+| When | What |
+| --- | --- |
+| 11 October 2020, block 11,380,000 | MESS activates on Ethereum Classic and becomes the default |
+| `v1.12.17`, December 2023 | a deactivation is scheduled at block 19,250,000 |
+| 5 February 2024, block 19,250,000 | the chain reaches Spiral and the default changes: nodes on `v1.12.17` or later stop applying MESS |
+| `v1.13.0`, 14 September 2026 | the deactivation is removed and the activation kept, so MESS applies again |
+
+`v1.12.16` and earlier carry no deactivation, and every version running on the network today carries
+one, so an upgrade to `v1.13.0` restores the behavior that ran for the three years and four months
+between those middle two rows rather than introducing a new one.
+
 ## Why it is on by default
 
 **MESS exists because of what happened the last time Ethereum Classic's client base thinned.** The record, with
