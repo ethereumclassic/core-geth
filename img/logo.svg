@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>core-geth</title>
+  <!--
+    The core-geth logo. This file is the master: PNG renderings such as favicon.png are made
+    from it, and never edited by hand. The command is in docs/developers/documentation.md.
+
+    Six triangles at 50% opacity, mirrored about x = 128: an arrowhead (blue, green), a rhombus
+    (yellow, orange) and a chevron (red, purple). The arrowhead's lower edges run parallel to
+    the rhombus's upper edges, and the chevron's upper edges to the rhombus's lower edges.
+
+    Where the rhombus overlaps the arrowhead, the logo's color is not a plain overlay of the two:
+    it is #B2A26C on the left and #6A9744 on the right, at 75%. So each overlap is the rhombus
+    half clipped to the arrowhead half, filled with the color that composites over the arrowhead
+    to that value. Each "outside" clip path's triangle winds against its rectangle, so nonzero
+    and evenodd give the same region; some renderers ignore clip-rule.
+
+    The left halves reach 0.25 past the center line, so no seam shows between the halves.
+  -->
+  <defs>
+    <clipPath id="arrowhead-left">
+      <path d="M128.25 4L32 163.5L128.25 120Z"/>
+    </clipPath>
+    <clipPath id="outside-arrowhead-left">
+      <path clip-rule="evenodd" d="M0 0H256V256H0Z M128.25 4L32 163.5L128.25 120Z"/>
+    </clipPath>
+    <clipPath id="arrowhead-right">
+      <path d="M128 4L224 163.5L128 120Z"/>
+    </clipPath>
+    <clipPath id="outside-arrowhead-right">
+      <path clip-rule="evenodd" d="M0 0H256V256H0Z M128 120L224 163.5L128 4Z"/>
+    </clipPath>
+  </defs>
+  <g fill-opacity="0.5">
+    <path fill="#2E3192" d="M128.25 4L32 163.5L128.25 120Z"/>
+    <path fill="#FFF200" d="M128.25 73L32 116.5L128.25 173.5Z" clip-path="url(#outside-arrowhead-left)"/>
+    <path fill="#F4DA59" d="M128.25 73L32 116.5L128.25 173.5Z" clip-path="url(#arrowhead-left)"/>
+    <path fill="#ED1C24" d="M64 162L128.25 200L128.25 252Z"/>
+    <path fill="#00A651" d="M128 4L224 163.5L128 120Z"/>
+    <path fill="#F15A29" d="M128 73L224 116.5L128 173.5Z" clip-path="url(#outside-arrowhead-right)"/>
+    <path fill="#9F903E" d="M128 73L224 116.5L128 173.5Z" clip-path="url(#arrowhead-right)"/>
+    <path fill="#662D91" d="M192 162L128 200L128 252Z"/>
+  </g>
+</svg>
