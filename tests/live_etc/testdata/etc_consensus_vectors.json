@@ -1,7 +1,7 @@
 {
   "_comment": "Cross-client ETC consensus test vectors. core-geth checks every value against what the client declares or computes, in params/config_etc_consensus_vectors_test.go.",
-  "_version": "2.0.0",
-  "_date": "2026-09-12",
+  "_version": "2.1.0",
+  "_date": "2026-09-25",
 
   "ecip1017_rewards": {
     "_comment": "ECIP-1017: 80% decay per 5M-block era (mainnet) or 2M-block era (Mordor). Uncle inclusion = 1/32 of era reward.",
@@ -42,9 +42,9 @@
   },
 
   "ecbp1100_windows": {
-    "_comment": "ECBP-1100 (MESS) selects between competing chains and is not a consensus rule. These are the defaults core-geth v1.13.x ships: MESS is enabled from the activation block ECBP-1100 names and stays enabled, so deactivation is null, meaning no deactivation block rather than block 0. core-geth v1.13.x does not adopt ECBP-1110's recommendation to disable MESS by default; that is client maintainer discretion, and operators can still disable it.",
-    "classic": {"activation": 11380000, "deactivation": null},
-    "mordor": {"activation": 2380000, "deactivation": null}
+    "_comment": "ECBP-1100 (MESS) selects between competing chains and is not a consensus rule. These are the defaults the two documents name: MESS activates at the activation block, per ECBP-1100, and is inactive from the deactivation block, per ECBP-1110, so a node on the defaults does not apply MESS past it. A null deactivation would mean no deactivation block rather than block 0. A client may let an operator change either block; the defaults are Best Practice, not consensus.",
+    "classic": {"activation": 11380000, "deactivation": 19250000},
+    "mordor": {"activation": 2380000, "deactivation": 10400000}
   },
 
   "chain_identifiers": {

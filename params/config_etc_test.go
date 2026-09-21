@@ -223,14 +223,14 @@ func TestETCMordorNoBombPause(t *testing.T) {
 	}
 }
 
-// TestETCClassicECBP1100Config verifies MESS (ECBP-1100) ships activated and is
-// not scheduled to switch itself off.
+// TestETCClassicECBP1100Config verifies the bundled MESS (ECBP-1100) window:
+// activated at 11,380,000 and off from the Spiral block, the blocks ECBP-1100
+// and ECBP-1110 name.
 //
-// The deactivation assertion is inverted from what this test held before
-// v1.13.0, when the bundled configuration disabled MESS at the Spiral block.
-// This client ships it on, so a non-nil deactivation block is the regression to
-// catch: it would silently disarm the defense at a block height, and nothing
-// else in the tree would report it.
+// Both blocks are asserted because either one going missing is silent at run
+// time. A missing activation never arms the defense; a missing deactivation
+// keeps it on where nodes with the intended default have it off, so the node
+// could prefer a different chain from theirs during a deep reorganization.
 func TestETCClassicECBP1100Config(t *testing.T) {
 	if ClassicChainConfig.ECBP1100FBlock == nil {
 		t.Fatal("ECBP-1100 activation block is nil")
@@ -238,8 +238,11 @@ func TestETCClassicECBP1100Config(t *testing.T) {
 	if ClassicChainConfig.ECBP1100FBlock.Int64() != 11380000 {
 		t.Errorf("ECBP-1100 activation: got %d, want 11380000", ClassicChainConfig.ECBP1100FBlock.Int64())
 	}
-	if b := ClassicChainConfig.ECBP1100DeactivateFBlock; b != nil {
-		t.Errorf("ECBP-1100 deactivation: got block %v, want nil (MESS stays on)", b)
+	if ClassicChainConfig.ECBP1100DeactivateFBlock == nil {
+		t.Fatal("ECBP-1100 deactivation block is nil, want 19250000 (ECBP-1110)")
+	}
+	if got := ClassicChainConfig.ECBP1100DeactivateFBlock.Int64(); got != 19250000 {
+		t.Errorf("ECBP-1100 deactivation: got %d, want 19250000 (Spiral, ECBP-1110)", got)
 	}
 }
 
@@ -249,7 +252,10 @@ func TestETCMordorECBP1100Config(t *testing.T) {
 	if MordorChainConfig.ECBP1100FBlock == nil {
 		t.Fatal("ECBP-1100 activation block is nil")
 	}
-	if b := MordorChainConfig.ECBP1100DeactivateFBlock; b != nil {
-		t.Errorf("ECBP-1100 deactivation: got block %v, want nil (MESS stays on)", b)
+	if MordorChainConfig.ECBP1100DeactivateFBlock == nil {
+		t.Fatal("ECBP-1100 deactivation block is nil, want 10400000 (ECBP-1110)")
+	}
+	if got := MordorChainConfig.ECBP1100DeactivateFBlock.Int64(); got != 10400000 {
+		t.Errorf("ECBP-1100 deactivation: got %d, want 10400000 (ECBP-1110)", got)
 	}
 }
