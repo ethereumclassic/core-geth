@@ -8,5 +8,5 @@
 	shallow = true
 [submodule "tests-etc"]
 	path = tests/testdata-etc
-	url = https://github.com/fukuii-project/archive-reference-material
+	url = https://github.com/etclabscore/tests
 	shallow = true
