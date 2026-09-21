@@ -219,14 +219,15 @@ Worth doing once on any binary you are about to run on a node that holds value.
 Images are published to the GitHub Container Registry for each tagged release, built for
 `linux/amd64` and `linux/arm64`.
 
-**The registry copies are not public yet, so a pull is refused.** Until that changes, take the image
-from the release instead, as [Load the image from the release](#load-the-image-from-the-release)
-shows. It is the same image and it keeps its published name, so every command below is the one you
-would use after a pull, and nothing in your setup changes when the registry copy opens.
+**Pulling needs no account and no token:**
 
 ```shell
-$ docker pull ghcr.io/ethereumclassic/core-geth:latest   # for when the registry is public
+$ docker pull ghcr.io/ethereumclassic/core-geth:latest
 ```
+
+If you would rather not depend on the registry, or the machine has no route to it, each release
+carries the same image as a file: [Load the image from the release](#load-the-image-from-the-release).
+It keeps its published name, so every command below is the same either way.
 
 Tags mirror the release tags. `ghcr.io/ethereumclassic/core-geth:v1.13.0` is a
 specific release; `latest` follows the most recent non-prerelease. The image

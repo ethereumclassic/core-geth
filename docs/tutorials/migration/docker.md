@@ -17,8 +17,8 @@ shows.
 | [Build an image from the release archive](../../getting-started/installation.md#build-an-image-from-the-release-archive) | the tag you give it, for example `core-geth:v1.13.0` |
 | [Build an image from source](../../getting-started/installation.md#build-an-image-from-source) | the tag you give it, for example `core-geth:local` |
 
-**If the pull returns `unauthorized`, the registry image is not public yet.** Load the release tarball or
-build the image locally instead; it runs the same way.
+The pull needs no account and no token. The other three methods are there for a machine with no
+route to the registry, or if you would rather build what you run.
 
 ## Before you start
 
