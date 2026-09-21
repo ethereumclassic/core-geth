@@ -23,12 +23,13 @@ with MESS on and a node with MESS off can prefer different chains.
 | `v1.12.17`, December 2023 | a deactivation is scheduled at block 19,250,000 |
 | 5 February 2024, block 19,250,000 | the chain reaches Spiral and the default changes: nodes on `v1.12.17` or later stop applying MESS |
 | `v1.13.0`, 14 September 2026 | the deactivation is removed and the activation kept, so MESS applies again |
+| after `v1.13.0` | the deactivation is restored, returning the bundled default to ECIP-1110's |
 
-`v1.12.16` and earlier carry no deactivation, and every version running on the network today carries
-one, so an upgrade to `v1.13.0` restores the behavior that ran for the three years and four months
-between those middle two rows rather than introducing a new one.
+`v1.12.16` and earlier carry no deactivation. Between the middle two rows MESS applied for three years
+and four months; from Spiral onward the published default is that it does not, and `--mess` is how an
+operator chooses otherwise.
 
-## Why it is on by default
+## Why MESS exists
 
 **MESS exists because of what happened the last time Ethereum Classic's client base thinned.** The record, with
 sources:
@@ -60,20 +61,20 @@ sources:
   MESS off by default. Its reasoning rests on Ethereum Classic holding roughly 85% of apparent compatible hashrate
   at the time, which is a claim about market conditions rather than about the code.
 
-**What preceded the 2020 attacks was a thinning client base, not a change in the chain's rules.** That is the
-condition Ethereum Classic is in again: maintenance of this client has moved between organizations, the previous
-repository is scheduled to be archived, and operators are receiving conflicting advice about which client to run.
-None of that changes which blocks are valid. It does make the hashrate distribution and client mix that
-ECBP-1110's reasoning depends on harder to predict than when that document was written.
+**What preceded the 2020 attacks was a thinning client base, not a change in the chain's rules.** That is worth
+knowing when deciding your own setting: the hashrate distribution and client mix ECBP-1110's reasoning depends on
+are not fixed, and the case for MESS is strongest in the troughs.
 
-So the default leans the way that costs an operator one flag to undo. Exchanges asked for MESS, and exchanges and
-payment processors are what a deep reorganization is aimed at: the July 2020 attacker took $5.6 million from
-them, not from the protocol. An operator who disagrees runs `--mess=false` and is where ECBP-1110 recommends; an
-operator who does nothing is protected. The reverse default puts the burden on the people with the most to lose,
-during the window when it matters most.
+**The bundled default follows ECIP-1110, so MESS is inactive from the Spiral block unless you turn it on.**
+`--mess` turns it on. Exchanges, custodians and payment processors are what a deep reorganization is aimed at,
+the July 2020 attacker having taken $5.6 million from them rather than from the protocol, so those operators are
+the ones for whom the flag is worth the thought. [Which setting fits which operator](#which-setting-fits-which-operator)
+has the trade per node type.
 
 **This is a client default, not a rule.** ECBP-1100 and ECBP-1110 are both Best Practice documents, so each
-client chooses its own. The status of both is open in
+client chooses its own, and a client shipping a different default does not fork: it disagrees about which of two
+competing chains to prefer during a deep reorganization. **Give every node in a fleet the same setting**, because
+that disagreement is only visible once it already matters. The status of both documents is open in
 [ECIPs #580](https://github.com/ethereumclassic/ECIPs/pull/580).
 
 ## Where it applies
@@ -148,15 +149,24 @@ file as:
 OverrideECBP1100 = 18446744073709551614
 ```
 
-## Turn MESS back on
+## Turn MESS on
 
-Remove `--mess=false`, or pass `--mess`. `--mess` also overrides that line in a config file, and
-`--mess.nodisable=false` overrides `ECBP1100NoDisable = true`.
+Pass `--mess`.
+
+The bundled configuration activates MESS and then stops applying it at the block ECIP-1110 names,
+so `--mess` moves both ends of that window: it clears an off switch on the activation side and
+pushes the deactivation out of reach. Without the second half the flag would report success and
+leave MESS off past the deactivation block. `--mess` also overrides an off switch written into a
+config file, and `--mess.nodisable=false` overrides `ECBP1100NoDisable = true`.
+
+An explicit `--mess.activate` or `--mess.deactivate` is applied after `--mess` and wins over it,
+so a specific block number is always honored.
 
 ## Flags and config file keys
 
 | Flag | Older spelling, still accepted | Config file key, under `[Eth]` | Effect |
 |---|---|---|---|
+| `--mess` | none | `OverrideECBP1100Deactivate = 18446744073709551614` | Turns MESS on, past the bundled deactivation |
 | `--mess=false` | none | `OverrideECBP1100 = 18446744073709551614` | Turns MESS off |
 | `--mess.activate=<block>` | `--ecbp1100` | `OverrideECBP1100` | Sets the activation block, and wins over `--mess=false` |
 | `--mess.deactivate=<block>` | `--override.ecbp1100.deactivate` | `OverrideECBP1100Deactivate` | Sets a deactivation block |
