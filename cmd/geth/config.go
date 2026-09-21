@@ -255,17 +255,27 @@ func makeFullNode(ctx *cli.Context) (*node.Node, ethapi.Backend) {
 // applyMESSFlags carries the ECBP-1100 (MESS) flags into the Ethereum service
 // configuration, which applies them to the chain configuration when it starts.
 func applyMESSFlags(ctx *cli.Context, cfg *ethconfig.Config) {
-	// --mess=false is the simple off switch. It pushes activation out of reach,
-	// which is the method ECIP-1110 itself documents for disabling MESS on any
-	// version that implements it. An explicit --mess.activate wins over it.
+	// --mess is the simple switch, and it has to reach both ends of the window.
+	// The bundled configuration activates MESS and then deactivates it again at
+	// the block ECIP-1110 names, so moving only the activation would let --mess
+	// report success and leave MESS off past that height.
+	//
+	// Off pushes activation out of reach, which is the method ECIP-1110 itself
+	// documents for disabling MESS on any version that implements it. On pushes
+	// deactivation out of reach, so MESS applies from the bundled activation
+	// onward. An explicit --mess.activate or --mess.deactivate wins over either,
+	// because both are applied after this block.
 	if ctx.IsSet(utils.MESSFlag.Name) {
+		never := uint64(math.MaxUint64 - 1)
 		if !ctx.Bool(utils.MESSFlag.Name) {
-			never := uint64(math.MaxUint64 - 1)
 			cfg.OverrideECBP1100 = &never
-		} else if v := cfg.OverrideECBP1100; v != nil && *v == math.MaxUint64-1 {
-			// An explicit --mess undoes the off switch a config file dumped with
-			// --mess=false carries, so the bundled activation applies again.
-			cfg.OverrideECBP1100 = nil
+		} else {
+			if v := cfg.OverrideECBP1100; v != nil && *v == never {
+				// An explicit --mess undoes the off switch a config file dumped
+				// with --mess=false carries, so the bundled activation applies.
+				cfg.OverrideECBP1100 = nil
+			}
+			cfg.OverrideECBP1100Deactivate = &never
 		}
 	}
 	// Every block number given is applied, math.MaxUint64 included. These flags have no

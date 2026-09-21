@@ -65,14 +65,36 @@ func TestMESSFlags(t *testing.T) {
 	classic := params.ClassicChainConfig
 	activation := *classic.GetECBP1100Transition()
 
-	t.Run("on by default", func(t *testing.T) {
-		for _, args := range [][]string{nil, {"--mess"}, {"--mess=true"}} {
+	// The bundled configuration follows ECIP-1110: MESS activates and then stops applying
+	// at the deactivation block. With no flags the node takes that window as it stands.
+	deactivation := *classic.GetECBP1100DeactivateTransition()
+
+	t.Run("no flags take the bundled window", func(t *testing.T) {
+		cfg := messConfig(t)
+		if cfg.OverrideECBP1100 != nil || cfg.OverrideECBP1100Deactivate != nil || cfg.ECBP1100NoDisable != nil {
+			t.Error("no flags: sets an override")
+		}
+		if messEnabledAt(t, classic, cfg, activation-1) {
+			t.Errorf("no flags: MESS applies before the bundled activation at block %d", activation)
+		}
+		if !messEnabledAt(t, classic, cfg, activation) {
+			t.Errorf("no flags: MESS does not apply at the bundled activation block %d", activation)
+		}
+		if messEnabledAt(t, classic, cfg, deactivation) || messEnabledAt(t, classic, cfg, 23_000_000) {
+			t.Errorf("no flags: MESS still applies at or past the bundled deactivation block %d", deactivation)
+		}
+	})
+
+	// --mess has to reach both ends of that window. Moving only the activation would leave
+	// MESS off past the deactivation block while the flag reported success.
+	t.Run("--mess applies past the bundled deactivation", func(t *testing.T) {
+		for _, args := range [][]string{{"--mess"}, {"--mess=true"}} {
 			cfg := messConfig(t, args...)
-			if cfg.OverrideECBP1100 != nil || cfg.OverrideECBP1100Deactivate != nil || cfg.ECBP1100NoDisable != nil {
-				t.Errorf("%v: sets an override", args)
+			if messEnabledAt(t, classic, cfg, activation-1) {
+				t.Errorf("%v: MESS applies before the bundled activation at block %d", args, activation)
 			}
-			if messEnabledAt(t, classic, cfg, activation-1) ||
-				!messEnabledAt(t, classic, cfg, activation) || !messEnabledAt(t, classic, cfg, 23_000_000) {
+			if !messEnabledAt(t, classic, cfg, activation) ||
+				!messEnabledAt(t, classic, cfg, deactivation) || !messEnabledAt(t, classic, cfg, 23_000_000) {
 				t.Errorf("%v: MESS is not on from the bundled activation at block %d", args, activation)
 			}
 		}
