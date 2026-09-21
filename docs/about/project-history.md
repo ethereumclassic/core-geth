@@ -19,9 +19,11 @@ deliberate downstream compatibility, not a leftover.
 
 ## The maintainers
 
+[Sorpaas](https://github.com/sorpaas) led multi-geth's development from its start in 2018 until 2020.
+
 ETC Labs Core formed in December 2018, many of its developers having previously been part of
 [ETCDEV](https://web.archive.org/web/20190330063218/https://www.etcdevteam.com/), which supported the Classic
-Geth client. As Classic Geth was retired the team supported multi-geth, and then Core-Geth from 2020, publishing
+Geth client. It led development through the fork and rebrand of multi-geth to Core-Geth in 2020, publishing
 as [ETC Labs](https://web.archive.org/web/20200425081322/https://etclabs.org/) and
 [ETC Core](https://web.archive.org/web/20200426174445/https://etccore.io/).
 
@@ -39,11 +41,12 @@ Core-Geth in 2025 and wound down its team.
 | Organization | What it did for Core-Geth | When |
 | --- | --- | --- |
 | ETCDEV | supported Classic Geth, the client whose developers went on to form ETC Labs Core | to 2018 |
-| ETC Labs and ETC Core | developed multi-geth and then Core-Geth | 2018 to 2021 |
+| [Sorpaas](https://github.com/sorpaas) | led multi-geth's development from its start | 2018 to 2020 |
+| ETC Labs and ETC Core | led development through the fork and rebrand of multi-geth to Core-Geth | 2020 to 2021 |
 | ETC Cooperative | funded and maintained Core-Geth at `etclabscore/core-geth`, and maintained other Ethereum Classic services | January 2022 to 2024, then maintenance mode |
 | [Ethereum Classic DAO](https://ethereumclassicdao.org) | a Wyoming DAO LLC launched in May 2025 that succeeds the ETC Cooperative | May 2025 onward |
 | [`ethereumclassic`](https://github.com/ethereumclassic) GitHub organization | holds Ethereum Classic's public goods: the ECIPs, the website, the discovery lists and Core-Geth | 2024 onward |
-| [White B0x](https://whiteb0x.com) | took up development, security work, disclosures and the modernization releases, for the Ethereum Classic DAO | February 2026 onward |
+| [White B0x](https://whiteb0x.com) | took up development, security work, disclosures and the modernization releases | February 2026 onward |
 
 [The ETC Cooperative transition](../etc-cooperative-transition.md) lists which services are moving where as the
 Cooperative winds down.
