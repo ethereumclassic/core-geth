@@ -157,18 +157,12 @@ question after that.
 
 ### Wire protocol
 
-**This client speaks `eth/68`, and that is the version it will serve until it is
-retired.** The v1.13 series exists to close the security gap and carry Ethereum Classic
-on a supported toolchain while the client is sunset, so it takes no new protocol
-version.
+**This client speaks `eth/68`.** The v1.13 series closes the security gap and carries
+Ethereum Classic on a supported toolchain, so it takes no new protocol version.
 
 `eth/69` (EIP-7642) removes Total Difficulty from the handshake, which this client's
-proof-of-work chain selection reads, so adopting it here would mean reworking that path
-in a client already scheduled for retirement. **That is a scoping decision about this
-client, not a limitation of Ethereum Classic.** Later versions are left to the clients that
-succeed it: [Fukuii](https://fukuii.org) is the preferred successor, and the migration guide's
-[Fukuii section](docs/tutorials/v1.13.0-migration.md#migrating-to-fukuii) says when to move to
-it.
+proof-of-work chain selection reads, so adopting it here would mean reworking that path.
+**That is a scoping decision about this client, not a limitation of Ethereum Classic.**
 
 ## Build
 
@@ -363,17 +357,6 @@ through [#36](https://github.com/ethereumclassic/core-geth/pull/36). v1.13.0, pu
 step is in [Project history](docs/about/project-history.md). Claims made about the release after
 it shipped are answered from the record in
 [v1.13.0: the record behind the release](docs/release-reports/v1.13.0-record.md).
-
-**What comes next.** v1.13 is the last Core-Geth release line, maintained through the
-transition. Core-Geth is scheduled to sunset gradually in favor of two efforts. Ethereum Classic
-network extensions, overlays or plugins for Ethereum clients are in development, pending
-release, and none is offered here as an option. [Fukuii](https://fukuii.org), a client native
-to Ethereum Classic, removes upstream, third-party client dependencies from Ethereum Classic's
-core software; moving to it starts with its first release, and the migration guide's
-[Fukuii section](docs/tutorials/v1.13.0-migration.md#migrating-to-fukuii) says when. Fukuii is
-inspired by the work of earlier Ethereum Classic development teams: ETCDEV's
-[Classic Geth](https://github.com/ethereumproject/go-ethereum) and Orbita vision, and
-[IOHK](https://iohk.io/)'s [Mantis](https://web.archive.org/web/20211026113958/https://mantisclient.io/).
 
 **Supporting the work.** Maintaining Core-Geth since it moved to the community repository has been
 unfunded public-goods work. Mining pools, centralized exchanges, issuers of Ethereum Classic

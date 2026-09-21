@@ -63,10 +63,9 @@ client entry here, has been open since March 2026.
 
 ## Which Ethereum Classic client should I run?
 
-Core-Geth `v1.13.x` is what this project maintains and recommends today, and
-[Fukuii](https://fukuii.org) is its intended successor once it releases. A network where most of the hashrate runs
-one client has a single point of failure whatever that client is, so running more than one implementation across
-your fleet is sound practice.
+Core-Geth `v1.13.x` is what this project maintains and recommends today. A network where most of the hashrate
+runs one client has a single point of failure whatever that client is, so running more than one implementation
+across your fleet is sound practice.
 
 ## Is MESS on by default, and should I turn it off?
 

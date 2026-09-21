@@ -137,17 +137,7 @@ repeated here.
 | 14 August 2026 | [`v1.12.23`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.23) is published from the previous repository |
 | 14 September 2026 | [`v1.13.0`](https://github.com/ethereumclassic/core-geth/releases/tag/v1.13.0) is released from this repository |
 
-## What comes next
-
-**`v1.13` is the last Core-Geth release line**, maintained through the transition. Core-Geth is scheduled to
-sunset gradually in favor of two efforts. Ethereum Classic network extensions, overlays or plugins for Ethereum
-clients are in development and none is offered here as an option yet. [Fukuii](https://fukuii.org), a client
-native to Ethereum Classic, removes upstream third-party client dependencies from Ethereum Classic's core
-software; moving to it starts with its first release, and the migration guide's
-[Fukuii section](../tutorials/v1.13.0-migration.md#migrating-to-fukuii) says when. Fukuii is inspired by the work
-of earlier Ethereum Classic development teams: ETCDEV's
-[Classic Geth](https://github.com/ethereumproject/go-ethereum) and Orbita vision, and
-[IOHK](https://iohk.io/)'s [Mantis](https://web.archive.org/web/20211026113958/https://mantisclient.io/).
+## Supporting the work
 
 Maintaining Core-Geth since it moved to the community repository has been unfunded public-goods work.
 [Support this work](../index.md#support-this-work) says how to fund it.

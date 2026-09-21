@@ -79,18 +79,6 @@ MintMe hardfork enabling PUSH0 and MCOPY. It is scheduled for deprecation in a l
 release; it is here so that community has a modernized client to build from rather than
 a fork of an abandoned one.
 
-## How long this client is for
-
-**The v1.13 series is the last for Core-Geth.** It exists to close the security gap and
-carry Ethereum Classic on a supported Go toolchain while the client is retired, not to
-begin a new line of development. Plan on that horizon.
-
-On the wire this client speaks `eth/68`, and that is the version it will serve until it
-is retired. Later versions are left to the clients that succeed it:
-[Fukuii](https://fukuii.org) is the preferred successor,
-and the migration guide's [Fukuii section](tutorials/v1.13.0-migration.md#migrating-to-fukuii)
-says when to move to it.
-
 ## Where releases come from
 
 Releases are published from
