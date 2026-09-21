@@ -4,87 +4,6 @@
 
 ---
 
-## ⚠️ Node operators: upgrade to v1.13.0, and rotate your node key
-
-**Every v1.12.x archive, including the newest, was built on a Go release that is no longer
-supported, and carries 55 to 61 Go standard library advisories that v1.13.0 does not.** The
-toolchains are [Go 1.21 and Go 1.22](docs/audits/2026-09-go-toolchain.md), whose support ended in
-August 2024 and February 2025. The releases before v1.12.21 also carry all six client CVEs, two of
-which were exploited against Ethereum Classic bootnodes in March 2026. Upgrade, then perform the one
-cleanup step below.
-
-**What the network was running on 17 September 2026**, from [etcnodes.org](https://etcnodes.org),
-524 Core-Geth nodes of 550:
-
-| Running | Nodes | Share | Carries |
-| --- | ---: | ---: | --- |
-| v1.12.20 and older | 158 | 30.2% | all six client CVEs, unpatched. Two were exploited against ETC bootnodes in March 2026 |
-| v1.12.21 | 50 | 9.5% | the ECIES crash and key oracle closed. Still missing two curve checks, the RLP work and the GraphQL limit. Go 1.21 |
-| v1.12.22 | 165 | 31.5% | the rest of the CVE backports, but CVE-2026-26313 only partly mitigated. Introduces the `eth_syncing` regression. Go 1.21 |
-| v1.12.23 | 138 | 26.3% | the delayed decoding series, and nothing else here is fixed: 55 to 61 Go advisories in the binary, no GraphQL depth limit, the `eth_syncing` regression untouched, and a response cap that can disconnect honest peers |
-| v1.13.0 | 9 | 1.7% | **Recommended client:** six CVEs resolved and the GraphQL limit fixed, Go 1.26.8, zero Go advisories |
-
-Four further nodes report `v1.12.24`, which is not a release: it is a development build of the
-previous repository's `master`. The figures move, and
-[the breakdown](docs/release-reports/v1.13.0-record.md#what-the-network-is-running) carries the
-sources for each row.
-
-**1. Upgrade, and change where you track releases.** Releases are cut from
-[`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth). A node tracking
-the previous repository will not see v1.13.0.
-
-**2. Rotate the P2P node key. This is required, not precautionary.** CVE-2026-26315 is an
-oracle: an invalid-curve ephemeral key in the RLPx handshake previously reached ECDH and
-failed only at MAC verification, which leaks bits of the node key across repeated
-handshakes. Any key used by an unpatched node should be treated as exposed.
-
-```bash
-# with the node stopped
-mv <datadir>/geth/nodekey <datadir>/geth/nodekey.old-rotated-$(date +%F)
-```
-
-The client generates a fresh key on the next start. **Your enode ID changes**, so update
-every static-peer, trusted-peer or bootnode list that names this node, on your own
-machines and with anyone peering with you. Capture the old enode ID before rotating if you
-need it to find those references; it cannot be re-derived afterwards.
-
-**3. Re-check your RPC exposure while the node is down.** `--http.addr` should be loopback
-unless a trusted proxy sits in front of it, and `admin`, `debug` and `personal` do not
-belong in `--http.api` on any reachable interface. `--http.corsdomain="*"` is not a safe
-default.
-
-**A resync is not required.** No finding in either audit corrupts chain data, and none is
-known to have been exploited against this network. Verify your head matches another source
-before concluding otherwise:
-
-```bash
-geth attach --exec 'eth.blockNumber' <datadir>/geth.ipc
-```
-
-Compare against a block explorer or another node you operate. Resync only if it diverges, and
-if it does, that is a finding worth reporting.
-
-**Nothing here requires touching your keystore.** These are network-layer and handshake
-issues; account keys are not implicated by any of them. Rotate account keys only if your
-`admin` or `personal` RPC was reachable from an untrusted network, which is its own
-exposure rather than one of these CVEs.
-
-Full detail: the [March 2026 audit](docs/audits/2026-03-security-audit.md), the
-[August 2026 follow-up](docs/audits/2026-08-security-followup.md), the
-[Go toolchain audit](docs/audits/2026-09-go-toolchain.md), and the
-[v1.13.0 migration guide](docs/tutorials/v1.13.0-migration.md).
-
-**The release artifacts were audited separately**, and that one matters before you
-download rather than after: the published `v1.12.x` Linux and Arm binaries require a
-newer glibc than the systems many operators run, and the macOS archive has contained an
-Apple Silicon binary under an architecture-free name since June 2024. Each `v1.12.20`
-to `v1.12.23` archive also carries 55 to 61 Go standard library advisories that `v1.13.0` does not. See
-[release artifacts](docs/audits/2026-09-release-pipeline.md),
-[Go toolchain](docs/audits/2026-09-go-toolchain.md) and
-[dependency and toolchain modernization](docs/audits/2026-08-dependency-modernization.md).
-
----
-
 Core-Geth is a production execution client for the Ethereum Classic network. It implements every ETC hard fork from Frontier through Spiral.
 
 **Note:** Upstream go-ethereum has removed support for Ethereum Classic, so ETC consensus rules are maintained here rather than inherited.
@@ -138,15 +57,10 @@ transition, which is why it appears as two rows: the block from which ECBP-1100 
 on by default, and the block from which ECBP-1110 recommends clients ship it off by
 default.
 
-**Core-Geth v1.13.x ships MESS on by default, and does not follow the ECBP-1110 row.**
-That is the client maintainers' decision to make: both documents are Best Practices
-rather than consensus rules, so each client chooses its own default. Centralized exchanges
-requested MESS as a tool for periods of network hashrate instability, and shipping it on
-lets the default lean toward security during a period when maintenance of the client is moving
-between organizations, which is the condition that preceded the 2020 reorganizations MESS was
-built for. Operators can always disable it with `--mess=false`.
-[Why it is on by default](docs/operate/mess.md#why-it-is-on-by-default) gives the history, with
-sources and the activation block. The [MESS confirmation calculator](docs/guides/mess-calculator.md) shows how much hashrate a
+Both are Best Practices rather than consensus rules, so each client sets its own default
+and an operator can override it with `--mess`. [MESS](docs/operate/mess.md) documents this
+client's default, when it has changed, and the trade-off either way. The
+[confirmation calculator](docs/guides/mess-calculator.md) shows how much hashrate a
 reorganization of a given age needs.
 
 **Through Spiral (the head configuration this client implements), Ethereum Classic has
@@ -157,12 +71,10 @@ question after that.
 
 ### Wire protocol
 
-**This client speaks `eth/68`.** The v1.13 series closes the security gap and carries
-Ethereum Classic on a supported toolchain, so it takes no new protocol version.
-
-`eth/69` (EIP-7642) removes Total Difficulty from the handshake, which this client's
-proof-of-work chain selection reads, so adopting it here would mean reworking that path.
-**That is a scoping decision about this client, not a limitation of Ethereum Classic.**
+**This client speaks `eth/68`.** `eth/69` (EIP-7642) removes Total Difficulty from the
+handshake, which this client's proof-of-work chain selection reads, so adopting it would
+mean reworking that path. **That is a scoping decision about this client, not a limitation
+of Ethereum Classic.**
 
 ## Build
 
@@ -215,6 +127,8 @@ For testing with fake PoW, which skips DAG generation:
 
 ## Documentation
 
+- Current release notes and upgrade steps:
+  [`docs/tutorials/v1.13.0-migration.md`](docs/tutorials/v1.13.0-migration.md).
 - Core-Geth documentation is published from this repository at
   [docs.coregeth.com](https://docs.coregeth.com/).
   + Getting Started: [Installation](https://docs.coregeth.com/getting-started/installation/) and [CLI](https://docs.coregeth.com/getting-started/run-cli/)
@@ -228,9 +142,16 @@ For testing with fake PoW, which skips DAG generation:
 
 ## Security
 
-This release backports six CVE fixes from upstream go-ethereum and adds a GraphQL query
-depth limit. Each is a separate commit; run `git log --grep CVE-` for the full detail,
-including the upstream commit every fix derives from.
+**To report a security issue privately**, use a GitHub private advisory or email
+<security@ethereumclassic.com>. [`SECURITY.md`](SECURITY.md) has the disclosure policy and
+the details of each channel. Security issues are never reported as public issues.
+
+Ethereum Classic stakeholders such as mining pools, exchanges and service providers can use
+the same address to reach the core developers who maintain this repository.
+
+The CVEs resolved in this client are below. Each fix is a separate commit; run
+`git log --grep CVE-` for the full detail, including the upstream commit every fix derives
+from, and the [security audits](docs/audits/) for which release carries which issue.
 
 | Identifier | Component | Issue |
 |-----|-----------|-------|
@@ -242,20 +163,11 @@ including the upstream commit every fix derives from.
 | CVE-2025-24883 | `crypto` | `UnmarshalPubkey` accepted off-curve points |
 | — | `graphql` | Unbounded query depth |
 
-**Rotate P2P node keys after upgrading.** CVE-2026-26315 is an oracle against the node key
-itself, so a key used by an unpatched node should be treated as exposed. Stop the node,
-remove `<datadir>/geth/nodekey`, and restart; the client generates a new one. The node's
-enode ID changes, so update any static-peer or trusted-peer list that names it.
-
-**Track the [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases)
-release line.** To subscribe to security updates and releases, or to report a security issue
-privately, use GitHub or email <security@ethereumclassic.com>. [`SECURITY.md`](SECURITY.md) has
-the disclosure policy and the details of each channel.
-
-With the ETC Cooperative's dissolution, Ethereum Classic stakeholders such as mining pools,
-exchanges and service providers should use <security@ethereumclassic.com> as their point of
-contact. A person answers it: one of the core developers who maintain this repository and have
-been with the network since its inception.
+**Releases are cut from
+[`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases)**, which
+is where to watch for security updates. Upgrading from an earlier release can carry required
+operator steps beyond replacing the binary; the release notes and the
+[migration guides](https://docs.coregeth.com/tutorials/) state them per release.
 
 ## Contributing
 
