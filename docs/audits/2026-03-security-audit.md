@@ -15,7 +15,7 @@ description: "Six CVEs and a GraphQL denial of service in Core-Geth v1.12.x, wit
 - **Auditors:** Ethereum Classic Core Developers
 - **Work carried out by:** [White B0x](https://whiteb0x.com)
 
-**On this page:** [What operators need to do](#what-operators-need-to-do) · [Executive Summary](#executive-summary) · [Background](#background) · [Vulnerability Summary](#vulnerability-summary) · [Vulnerability Details](#vulnerability-details) · [Go Toolchain End-of-Life](#go-toolchain-end-of-life) · [Release Timeline](#release-timeline) · [Risk Assessment](#risk-assessment) · [Scope](#scope) · [Methodology](#methodology) · [Network Migration Path](#network-migration-path) · [Recommendations](#recommendations) · [Supporting this work](#supporting-this-work) · [References](#references)
+**On this page:** [What operators need to do](#what-operators-need-to-do) · [Executive Summary](#executive-summary) · [Background](#background) · [Vulnerability Summary](#vulnerability-summary) · [Vulnerability Details](#vulnerability-details) · [Go Toolchain End-of-Life](#go-toolchain-end-of-life) · [Release Timeline](#release-timeline) · [Risk Assessment](#risk-assessment) · [Scope](#scope) · [Methodology](#methodology) · [Upgrade Path](#upgrade-path) · [Recommendations](#recommendations) · [Supporting this work](#supporting-this-work) · [References](#references)
 
 **Findings:** [CVE-2025-24883](#cve-2025-24883-off-curve-public-key-in-unmarshalpubkey) · [CVE-2026-22862](#cve-2026-22862-ecies-elliptic-curve-integrated-encryption-scheme-decrypt-ciphertext-length-undercheck) · [CVE-2026-26315](#cve-2026-26315-ecies-generateshared-accepts-unvalidated-public-key) · [CVE-2026-26314](#cve-2026-26314-secp256k1-isoncurve-field-boundary-bypass) · [CVE-2026-22868](#cve-2026-22868-kzg-kate-zaverucha-goldberg-blob-proof-verification-dos) · [CVE-2026-26313](#cve-2026-26313-p2p-rlp-recursive-length-prefix-item-count-memory-exhaustion) · [GraphQL query depth](#graphql-query-depth-dos)
 
@@ -134,7 +134,7 @@ is the question a reader deciding where to contribute needs answered.
 | March 28, 2026 | [v1.12.22 "Hermes"](https://github.com/etclabscore/core-geth/releases/tag/v1.12.22) released at `etclabscore/core-geth` ([PR #696](https://github.com/etclabscore/core-geth/pull/696)): remaining CVE backports; EOL Go 1.21 and Go 1.22 toolchains unchanged, no ETC-specific modernization |
 | May 2026 | No further activity at `etclabscore/core-geth`; `ethereumclassic/core-geth` continues toward v1.13.0 |
 
-**Note on v1.12.21 and v1.12.22:** Those emergency patches address the CVE backports and are a safer option than v1.12.20 for operators who have not yet migrated. However, they remain on the EOL Go 1.21 and Go 1.22 toolchains and do not include the ETC network tooling or DNS discovery updates in v1.13.0. Operators running v1.12.x should upgrade to v1.13.0, released from [ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth). Plan migration to [Fukuii](https://fukuii.org).
+**Note on v1.12.21 and v1.12.22:** Those emergency patches address the CVE backports and are a safer option than v1.12.20 for operators who have not yet migrated. However, they remain on the EOL Go 1.21 and Go 1.22 toolchains and do not include the ETC network tooling or DNS discovery updates in v1.13.0. Operators running v1.12.x should upgrade to v1.13.0, released from [ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth).
 
 ### Prior Maintainers
 
@@ -469,7 +469,7 @@ s, err := graphql.ParseSchema(schema, &q, graphql.MaxDepth(maxQueryDepth))
 | Remote OOM via RLP (CVE-2026-26313) | High | Any peer can OOM-crash a node with a single crafted P2P message | Patched in v1.13.0 |
 | CPU amplification DoS: CVE-2026-26313 residual (v1.12.22 only) | Medium | v1.12.22 mitigation scans full RLP payload before rejecting oversized messages; ~2,500× more work per attack message than v1.13.0; malicious peers can exhaust CPU without causing OOM | Unmitigated in v1.12.22; patched in v1.13.0 |
 | Go Runtime EOL | High | By March 2026, 19 months on unsupported Go 1.21, and Go 1.22 unsupported since February 2025; standard library CVEs accumulated unpatched | Upgraded to Go 1.26 in v1.13.0 |
-| Unreviewed emergency patches (supply chain risk) | High | v1.12.21 and v1.12.22 were each authored, reviewed, and merged by the same individual with no independent peer review: v1.12.21 in about 70 minutes, v1.12.22 in under 2 minutes. With no second reviewer, a defective or malicious change shipped under cover of an emergency has nothing to catch it. The risk is structural and applies to any future emergency patch cut this way. | v1.13.0 is developed in the open under the `ethereumclassic` org, and its changes are measured in these audits; Fukuii migration eliminates the dependency entirely |
+| Unreviewed emergency patches (supply chain risk) | High | v1.12.21 and v1.12.22 were each authored, reviewed, and merged by the same individual with no independent peer review: v1.12.21 in about 70 minutes, v1.12.22 in under 2 minutes. With no second reviewer, a defective or malicious change shipped under cover of an emergency has nothing to catch it. The risk is structural and applies to any future emergency patch cut this way. | v1.13.0 is developed in the open under the `ethereumclassic` org, and its changes are measured in these audits |
 
 ---
 
@@ -485,7 +485,7 @@ s, err := graphql.ParseSchema(schema, &q, graphql.MaxDepth(maxQueryDepth))
 
 **Out of scope:**
 - Consensus layer correctness and ETC protocol compliance
-- Fukuii client codebase
+- Other client codebases
 - EVM execution correctness
 - Dependencies not listed in the go-ethereum security advisory database
 - Infrastructure (bootnode operators, DNS, CDN)
@@ -506,9 +506,7 @@ The audit was initiated during cross-client interoperability testing. The `etcla
 
 ---
 
-## Network Migration Path
-
-The ETC network is migrating to [Fukuii](https://fukuii.org) ([github.com/fukuii-project/fukuii-cli](https://github.com/fukuii-project/fukuii-cli)) as its ETC-native execution client. Core-Geth is maintained to give that transition a stable path; operators should plan their migration.
+## Upgrade Path
 
 **If you are running any v1.12.x release, upgrade to v1.13.0 immediately.** v1.13.0 (the full Go 1.26 upgrade, ETC-specific modernization and every fix in this audit) is released from [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth).
 
@@ -517,9 +515,9 @@ The ETC network is migrating to [Fukuii](https://fukuii.org) ([github.com/fukuii
 ## Recommendations
 
 - **Node operators (any v1.12.x release):** Upgrade to v1.13.0 from [github.com/ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth) immediately; it patches every CVE in this audit. Nodes on v1.12.20 or earlier are exposed to remote crash and potential key-oracle attacks from any peer.
-- **Infrastructure providers and exchanges:** Treat the upgrade to v1.13.0 as a security-critical update, not a routine version bump. Begin planning migration to Fukuii.
+- **Infrastructure providers and exchanges:** Treat the upgrade to v1.13.0 as a security-critical update, not a routine version bump.
 - **Every node upgrading from v1.12.x:** Rotate the P2P node key (`--nodekey`). This is required, not precautionary: CVE-2026-26315 is an oracle against the node key, so a key used by an unpatched node should be treated as exposed. Any node reachable from the public internet over the 21-month gap was potentially targeted. The [migration guide](../tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key) gives the procedure.
-- **Multi-client operation:** Run at minimum two independent clients for redundancy once a second client is recommended; the [migration guide](../tutorials/v1.13.0-migration.md#migrating-to-fukuii) states which, and when. Multi-client operation is what limits the blast radius of a single client going unmaintained.
+- **Multi-client operation:** Running more than one independent implementation is what limits the blast radius of any single client going unmaintained.
 - **GraphQL endpoint:** If `--graphql` is enabled on public-facing nodes, disable it until the node runs v1.13.0, which adds the query depth limit.
 
 ---

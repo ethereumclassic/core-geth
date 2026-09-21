@@ -207,8 +207,7 @@ records that with the organization in maintenance mode, "it will be up to other 
 take on any required maintenance of the ETC client". Relative to
 v1.12.23 it carries the Go 1.26 toolchain upgrade and the dependency graph that requires, the
 six CVE patches with their tests, ETC network tooling, and the p2p hardening series. It is
-the current release series. The network is migrating to [Fukuii](https://fukuii.org) as its
-ETC-native execution client.
+the current release series.
 
 **Recommendation for operators is unchanged in direction and updated in target.** Nodes on
 any v1.12.x release should upgrade to v1.13.0 from `ethereumclassic/core-geth` immediately.
