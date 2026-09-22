@@ -1,0 +1,54 @@
+# Code owners for ethereumclassic/core-geth.
+#
+# An owner listed here is requested for review automatically, and where the
+# repository ruleset requires code owner review, one of them has to approve
+# before a pull request can merge.
+#
+# The owner is a team rather than an account, for two reasons. GitHub does not
+# let an author approve their own pull request, so a single-account owner has
+# nobody who can satisfy the rule on that account's own changes. And membership
+# then changes in one place, without a commit.
+#
+# The team must exist and hold write access to this repository before code
+# owner review is required. GitHub ignores an owner it cannot resolve, and an
+# unresolvable owner combined with a required code owner review blocks every
+# pull request. The team is org-scoped rather than repository-scoped, so it can
+# own the organization's other client repositories as they need it.
+#
+# The last matching pattern wins, so the specific paths below override the
+# catch-all rather than adding to it.
+
+*                       @ethereumclassic/core-developers
+
+# Consensus and chain configuration. A change here decides which chain a node
+# follows, and a mistake is a split rather than a failing build.
+/params/                @ethereumclassic/core-developers
+/core/                  @ethereumclassic/core-developers
+/consensus/             @ethereumclassic/core-developers
+
+# Networking and the node's exposed surface.
+/eth/                   @ethereumclassic/core-developers
+/p2p/                   @ethereumclassic/core-developers
+/rpc/                   @ethereumclassic/core-developers
+/internal/ethapi/       @ethereumclassic/core-developers
+
+# Consensus fixtures and the suites that read them.
+/tests/                 @ethereumclassic/core-developers
+
+# Anything that runs in CI with the organization's secrets, or that decides
+# what a release contains.
+/.github/               @ethereumclassic/core-developers
+/build/                 @ethereumclassic/core-developers
+/Dockerfile             @ethereumclassic/core-developers
+/Dockerfile.alltools    @ethereumclassic/core-developers
+/go.mod                 @ethereumclassic/core-developers
+/go.sum                 @ethereumclassic/core-developers
+/.gitmodules            @ethereumclassic/core-developers
+
+# Licensing is a legal question before it is a technical one.
+/COPYING                @ethereumclassic/core-developers
+/COPYING.LESSER         @ethereumclassic/core-developers
+/SECURITY.md            @ethereumclassic/core-developers
+
+# Published documentation.
+/docs/                  @ethereumclassic/core-developers
