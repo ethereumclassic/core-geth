@@ -24,6 +24,20 @@ Pull requests are opened against `main`, this repository's default branch.
 `archive-etclabscore-2024-12` preserves the history from before this repository
 was created, and is not a contribution target.
 
+## How a change reaches `main`
+
+Changes reach `main` only through a pull request carrying at least one approving
+review from a human who is not the author, on the commit that merges. Continuous
+integration is required as well and is not a substitute for that review: a green
+run says the tree builds and the suites pass, not that the change is the right
+one. Maintainers hold their own work to this too, and do not push to `main`.
+
+A review approves a specific tree. Pushing to a branch after approval dismisses
+it, and the new commit needs its own review rather than inheriting the old one.
+
+Release tags are cut from a commit that is already on `main` and reached it that
+way. A `v*` tag is never created on a commit that is not on `main`.
+
 ## Coding guidelines
 
 - Code is `gofmt`-formatted and documented per the Go
