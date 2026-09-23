@@ -110,14 +110,19 @@ release such as `v1.13.0` takes the moving tag.
       replace the dump in
       [`run-cli.md`](../getting-started/run-cli.md#command-line-options) with
       this command's output in full, never by hand. `HOME='~'` keeps the
-      builder's real home directory out of the printed defaults:
+      builder's real home directory out of the printed defaults.
+
+      **It is deliberately not kept current between releases.** The dump names a
+      version and a commit, so it has to describe a released binary; a flag added or
+      changed on `main` reaches this page at the tag and not before:
 
     ```shell
     $ HOME='~' build/bin/geth --help
     ```
 
 - [ ] **Regenerate the JSON-RPC module pages** (`docs/JSON-RPC-API/modules/*.md`),
-      from the same checkout, never by hand:
+      from the same checkout, never by hand. They carry the same version stamp as
+      the `--help` dump and lag `main` for the same reason:
 
     ```shell
     $ make docs-generate
@@ -142,6 +147,13 @@ release such as `v1.13.0` takes the moving tag.
 
 ## After publishing
 
+- [ ] **Publish the documentation withheld for this release.** A page drafted for an
+      unreleased version is held back two ways and both have to be undone: remove it
+      from `exclude_docs` in `mkdocs.yml`, and add its entry back to `nav`. Neither
+      alone is enough. Removing only the exclusion publishes a page nothing links to,
+      and removing only the navigation entry publishes it anyway, because a page
+      absent from `nav` is still built, still in the sitemap and still in the site
+      search. Pushing that to `main` is what deploys it.
 - [ ] Set `VersionMeta` to the next stage and push that commit.
 - [ ] For a first-ever image push, confirm the GHCR package visibility. A registry
       creates new packages private by default, so nothing is pullable until it is
