@@ -14,7 +14,7 @@ Instead, please report security vulnerabilities through one of the following met
    - Alternatively use this link to create a [new security advisory](https://github.com/ethereumclassic/core-geth/security/advisories/new) directly 
 
 2. **Email**
-   - Send an email to: **<security@ethereumclassic.com>**
+   - Send an email to: **<security@ethereumclassic.net>**
    - Use PGP encryption if possible (key available on request)
    - Include "SECURITY" in the subject line
 
@@ -24,7 +24,7 @@ reproduction is still worth sending.
 
 With the ETC Cooperative's dissolution, Ethereum Classic stakeholders such as
 mining pools, exchanges and service providers should use
-<security@ethereumclassic.com> as their point of contact. A person answers it:
+<security@ethereumclassic.net> as their point of contact. A person answers it:
 one of the core developers who maintain this repository and have been with the
 network since its inception.
 
@@ -45,7 +45,7 @@ To follow its security updates and releases:
   ([GitHub's documentation](https://docs.github.com/en/subscriptions-and-notifications/get-started/configuring-notifications#configuring-your-watch-settings-for-an-individual-repository)).
   Published security advisories are listed at
   <https://github.com/ethereumclassic/core-geth/security/advisories>.
-- **Email:** write to <security@ethereumclassic.com> to subscribe.
+- **Email:** write to <security@ethereumclassic.net> to subscribe.
 
 ## Automated and AI-assisted review
 
