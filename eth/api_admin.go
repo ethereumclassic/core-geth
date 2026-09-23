@@ -28,6 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params/types/ctypes"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -150,33 +151,126 @@ func (api *AdminAPI) ImportChain(file string) (bool, error) {
 // mechanism is active afterwards. The block is a height, or "latest" or "pending",
 // which both mean the current head; "finalized" and "safe" are refused.
 //
+// It is the runtime counterpart of --mess.activate and sets that end of the window only,
+// so it can report false with the activation set exactly as asked: MESS is a window, and
+// a deactivation block at or below the head closes it whatever the activation says. Mess
+// is the switch that reaches both ends; Ecbp1100Status shows which end is responsible.
+//
 // This mutates chain configuration. To read the current state without changing
 // it, use Ecbp1100Status.
 func (api *AdminAPI) Ecbp1100(blockNr rpc.BlockNumber) (bool, error) {
-	i, err := ecbp1100ActivationBlock(blockNr, api.eth.blockchain.CurrentBlock().Number.Uint64())
+	head := api.eth.blockchain.CurrentBlock().Number
+	i, err := ecbp1100ActivationBlock(blockNr, head.Uint64())
 	if err != nil {
 		return false, err
 	}
-	err = api.eth.blockchain.Config().SetECBP1100Transition(&i)
-	return api.eth.blockchain.IsArtificialFinalityEnabled() &&
-		api.eth.blockchain.Config().IsEnabled(
-			api.eth.blockchain.Config().GetECBP1100Transition,
-			api.eth.blockchain.CurrentBlock().Number), err
+	if err := api.eth.blockchain.Config().SetECBP1100Transition(&i); err != nil {
+		return false, err
+	}
+	status := api.Ecbp1100Status()
+	if !status.Enabled && status.NodeSwitch {
+		// The activation was set as asked and MESS still does not apply. Say which end is
+		// responsible rather than leaving a bare false to be interpreted.
+		if d := api.eth.blockchain.Config().GetECBP1100DeactivateTransition(); d != nil && *d <= head.Uint64() {
+			log.Warn("ECBP1100 (MESS) activation set, but the window is closed at the head",
+				"activation", i, "deactivation", *d, "head", head,
+				"hint", "admin_mess(true) reaches both ends")
+		}
+	}
+	return status.Enabled, nil
 }
 
-// ecbp1100ActivationBlock resolves the block Ecbp1100 was given. A tag such as "latest"
-// arrives as a negative rpc.BlockNumber, and read as a height it lands beyond any chain,
-// which would quietly mean "never". The tags that name the chain head resolve to it; the
-// tags this chain has no height for are refused.
-func ecbp1100ActivationBlock(blockNr rpc.BlockNumber, head uint64) (uint64, error) {
+// Ecbp1100Deactivate sets the ECBP-1100 (MESS) deactivation block and reports whether the
+// mechanism is active afterwards. It is the runtime counterpart of --mess.deactivate, and
+// the other half of the pair Ecbp1100 begins: MESS applies from the activation block up to
+// this one.
+//
+// This mutates chain configuration. To read the current state without changing
+// it, use Ecbp1100Status.
+func (api *AdminAPI) Ecbp1100Deactivate(blockNr rpc.BlockNumber) (bool, error) {
+	head := api.eth.blockchain.CurrentBlock().Number
+	i, err := ecbp1100DeactivationBlock(blockNr, head.Uint64())
+	if err != nil {
+		return false, err
+	}
+	if err := api.eth.blockchain.Config().SetECBP1100DeactivateTransition(&i); err != nil {
+		return false, err
+	}
+	return api.Ecbp1100Status().Enabled, nil
+}
+
+// Mess turns the ECBP-1100 (MESS) chain-selection defense on or off in the running node and
+// reports the state afterwards. It is the runtime counterpart of --mess, and the call an
+// operator wants: MESS is a window with two ends, and this reaches whichever end is holding
+// it shut, so neither the caller nor the documentation has to explain the encoding.
+//
+// On pushes the deactivation out of reach, and drops the activation to block 0 if it sits
+// beyond the head, which is the state --mess=false leaves. Off pushes the activation out of
+// reach, the method ECIP-1110 itself documents for disabling MESS.
+//
+// It does not touch the node-level switch that the low-peer-count and stale-head safeguards
+// turn off, so Enabled can still be false with the window open; NodeSwitch reports that end
+// and --mess.nodisable is what pins it.
+//
+// This mutates chain configuration, and does not persist: the flags and the config file
+// decide again at the next start.
+func (api *AdminAPI) Mess(enable bool) (ECBP1100Status, error) {
+	head := api.eth.blockchain.CurrentBlock().Number
+	if err := applyMESSSwitch(api.eth.blockchain.Config(), head.Uint64(), enable); err != nil {
+		return ECBP1100Status{}, err
+	}
+	return api.Ecbp1100Status(), nil
+}
+
+// applyMESSSwitch moves whichever end of the ECBP-1100 window is holding it shut, which is
+// what makes Mess a switch rather than a block setter. It is separate from Mess so that the
+// decision can be tested against a chain configuration without standing up a node.
+func applyMESSSwitch(config ctypes.ChainConfigurator, head uint64, enable bool) error {
+	never := messNever
+	if !enable {
+		return config.SetECBP1100Transition(&never)
+	}
+	// An activation beyond the head keeps MESS off however the deactivation is set, so that
+	// end has to move. It goes to block 0 rather than to the head, because the head is not a
+	// floor: a reorg puts the local head below where it was, and every site that consults
+	// this window consults it against the local head. An activation pinned at the head a
+	// switch was thrown at would therefore switch MESS off for the depth of any reorg, which
+	// is the event it exists for. Block 0 cannot be dipped below.
+	//
+	// An activation at or below the head is a block the operator chose, and is left alone.
+	if a := config.GetECBP1100Transition(); a == nil || *a > head {
+		from := uint64(0)
+		if err := config.SetECBP1100Transition(&from); err != nil {
+			return err
+		}
+	}
+	return config.SetECBP1100DeactivateTransition(&never)
+}
+
+// ecbp1100Block resolves the block an admin ECBP-1100 call was given. A tag such as
+// "latest" arrives as a negative rpc.BlockNumber, and read as a height it lands beyond any
+// chain, which would quietly mean "never". The tags that name the chain head resolve to it;
+// the tags this chain has no height for are refused. Both ends of the window resolve here,
+// so the trap is handled in one place rather than once per setter.
+func ecbp1100Block(blockNr rpc.BlockNumber, head uint64, verb string) (uint64, error) {
 	switch {
 	case blockNr >= 0:
 		return uint64(blockNr), nil
 	case blockNr == rpc.LatestBlockNumber, blockNr == rpc.PendingBlockNumber:
 		return head, nil
 	default:
-		return 0, fmt.Errorf("ecbp1100: %v does not name a block to activate at", blockNr)
+		return 0, fmt.Errorf("ecbp1100: %v does not name a block to %s at", blockNr, verb)
 	}
+}
+
+// ecbp1100ActivationBlock resolves the block Ecbp1100 was given.
+func ecbp1100ActivationBlock(blockNr rpc.BlockNumber, head uint64) (uint64, error) {
+	return ecbp1100Block(blockNr, head, "activate")
+}
+
+// ecbp1100DeactivationBlock resolves the block Ecbp1100Deactivate was given.
+func ecbp1100DeactivationBlock(blockNr rpc.BlockNumber, head uint64) (uint64, error) {
+	return ecbp1100Block(blockNr, head, "deactivate")
 }
 
 // ECBP1100Status reports whether the ECBP-1100 (MESS) chain-selection defense is
@@ -205,9 +299,10 @@ type ECBP1100Status struct {
 	// per ECBP-1100. Nil when unset.
 	ActivatedAtBlock *hexutil.Uint64 `json:"activatedAtBlock"`
 	// DefaultDisabledAtBlock is the height from which the bundled default is
-	// off, per ECBP-1110. Nil means the shipped default stays on, which is this
-	// client's configuration; a non-nil value disables MESS by default at that
-	// height without removing it.
+	// off, per ECBP-1110, and is what this client ships for Ethereum Classic and
+	// Mordor. A non-nil value disables MESS by default at that height without
+	// removing it; nil means nothing stops it once activated, which is the state
+	// --mess leaves and the one v1.13.0 shipped.
 	DefaultDisabledAtBlock *hexutil.Uint64 `json:"defaultDisabledAtBlock"`
 	// Head is the block number the heights above were evaluated against.
 	Head hexutil.Uint64 `json:"head"`

@@ -165,6 +165,16 @@ web3._extend({
 			params: 1
 		}),
 		new web3._extend.Method({
+			name: 'ecbp1100Deactivate',
+			call: 'admin_ecbp1100Deactivate',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'mess',
+			call: 'admin_mess',
+			params: 1
+		}),
+		new web3._extend.Method({
 			name: 'ecbp1100Status',
 			call: 'admin_ecbp1100Status',
 			params: 0
