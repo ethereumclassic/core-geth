@@ -5,11 +5,18 @@
 **Do not open a public issue for a security vulnerability.**
 
 Report it privately, through either channel:
+Instead, please report security vulnerabilities through one of the following methods:
 
-- **GitHub:** private vulnerability reporting on this repository, at
-  <https://github.com/ethereumclassic/core-geth/security/advisories/new>. It is
-  enabled and reaches this project's maintainers.
-- **Email:** write to <security@ethereumclassic.com>.
+1. **GitHub Security Advisories** (Preferred)
+   - Navigate to the [Security tab](https://github.com/ethereumclassic/core-geth/security/) of our repository
+   - Click "Report a vulnerability"
+   - Provide detailed information about the vulnerability
+   - Alternatively use this link to create a [new security advisory](https://github.com/ethereumclassic/core-geth/security/advisories/new) directly 
+
+2. **Email**
+   - Send an email to: **<security@ethereumclassic.com>**
+   - Use PGP encryption if possible (key available on request)
+   - Include "SECURITY" in the subject line
 
 Include what you can: the affected version or commit, the network, what an
 attacker gains, and a reproduction if you have one. A report without a
