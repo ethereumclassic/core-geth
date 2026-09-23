@@ -437,7 +437,7 @@ func TestMESSFlagsRunningNode(t *testing.T) {
 	for _, c := range []struct {
 		name string
 		args []string
-		want string // the activation and deactivation blocks admin.ecbp1100Status reports
+		want string // the activation and deactivation blocks admin.messStatus reports
 	}{
 		{"bundled", nil, "0x2450e0 0x9eb100"},
 		{"activate", []string{"--mess.activate=15000000"}, "0xe4e1c0 0xfffffffffffffffe"},
@@ -446,7 +446,7 @@ func TestMESSFlagsRunningNode(t *testing.T) {
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			args := append(c.args, "--ipcdisable", "--exec",
-				`var s = admin.ecbp1100Status(); s.activatedAtBlock + " " + s.defaultDisabledAtBlock`, "console")
+				`var s = admin.messStatus(); s.activatedAtBlock + " " + s.defaultDisabledAtBlock`, "console")
 			geth := runMinimalGeth(t, args...)
 			geth.KillTimeout = 20 * time.Second
 			geth.Expect(fmt.Sprintf("%q\n", c.want))

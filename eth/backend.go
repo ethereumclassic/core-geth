@@ -106,6 +106,11 @@ type Ethereum struct {
 	lock sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
 
 	shutdownTracker *shutdowncheck.ShutdownTracker // Tracks if and when the node has shutdown ungracefully
+
+	// messBundledActivation is the ECBP-1100 (MESS) activation block the network ships, read
+	// before any MESS flag or config file line moves it. The admin calls that turn MESS on move
+	// an activation that keeps it off back to this block, as --mess does.
+	messBundledActivation *uint64
 }
 
 // New creates a new Ethereum object (including the
@@ -258,6 +263,7 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 		return nil, err
 	}
 	eth.bloomIndexer.Start(eth.blockchain)
+	eth.messBundledActivation = eth.blockchain.Config().GetECBP1100Transition()
 	// Handle artificial finality config override cases.
 	if n := config.OverrideECBP1100; n != nil {
 		if err := eth.blockchain.Config().SetECBP1100Transition(n); err != nil {
