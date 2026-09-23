@@ -241,6 +241,10 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 			StateScheme:         scheme,
 		}
 	)
+	// Captured before the chain is opened, because opening it writes the current configuration
+	// over the stored one; see readStoredMESSWindow.
+	storedMESS := readStoredMESSWindow(chainDb)
+
 	// Override the chain config with provided settings.
 	var overrides core.ChainOverrides
 	if config.OverrideCancun != nil {
@@ -268,16 +272,14 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 	if config.OverrideECBP1100 != nil || config.OverrideECBP1100Deactivate != nil {
 		// The chain configuration logged while the chain was opened predates these overrides
 		// and still shows the blocks they replaced. Log the ones in force.
-		block := func(n *uint64) interface{} {
-			if n == nil {
-				return "none"
-			}
-			return *n
-		}
 		log.Info("Overrode ECBP1100 (MESS) blocks in the chain configuration",
-			"activation", block(eth.blockchain.Config().GetECBP1100Transition()),
-			"deactivation", block(eth.blockchain.Config().GetECBP1100DeactivateTransition()))
+			"activation", messBlock(eth.blockchain.Config().GetECBP1100Transition()),
+			"deactivation", messBlock(eth.blockchain.Config().GetECBP1100DeactivateTransition()))
 	}
+	// Reported after every override above, so that an operator who asked for a different
+	// setting on the command line is not told their node changed underneath them.
+	logMESSWindowChange(storedMESS, eth.blockchain,
+		config.OverrideECBP1100 != nil || config.OverrideECBP1100Deactivate != nil)
 
 	if config.ECBP1100NoDisable != nil {
 		if *config.ECBP1100NoDisable {
