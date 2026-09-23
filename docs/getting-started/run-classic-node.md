@@ -268,13 +268,11 @@ Keep the endpoint on `127.0.0.1`. Before you open it wider, read
 
 ## MESS on this node
 
-This node runs MESS, Modified Exponential Subjective Scoring
+This client implements MESS, Modified Exponential Subjective Scoring
 ([ECIP-1100](https://ecips.ethereumclassic.org/ECIPs/ecip-1100)), a chain-selection defense
-against deep reorganizations. It ships on by default as the client maintainers' decision, which
-the README's [ETC consensus history](https://github.com/ethereumclassic/core-geth#etc-consensus-history)
-explains. The node switches it on when it finishes syncing: that is the
-`Enabled artificial finality features reason=synced` line. `admin_ecbp1100Status` reports its
-state and changes nothing:
+against deep reorganizations. **Whether your node applies it depends on the release and on the
+flags you pass**, and `admin_ecbp1100Status` answers that without changing anything.
+[MESS](../operate/mess.md) has the timeline per release and the trade either way:
 
 ```shell
 $ geth --classic attach --exec 'admin.ecbp1100Status()' <datadir>/geth.ipc

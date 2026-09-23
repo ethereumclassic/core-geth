@@ -39,8 +39,10 @@ that answers the questions operators actually arrive with.
    [How, and which peer lists to update](tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key).
 3. **Track releases at [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases).** A
    node tracking the previous repository will not see `v1.13.0`.
-4. **Decide your MESS setting, and give every node you run the same one.** The bundled default follows
-   ECIP-1110: MESS is inactive from the Spiral block, and `--mess` turns it on. MESS decides which of two
+4. **Decide your MESS setting, and give every node you run the same one.** Which window your release
+   bundles is in the [MESS timeline](operate/mess.md#what-changed-and-when), and `admin.ecbp1100Status()`
+   reports what a given node is actually doing. `--mess` and `--mess=false` set it explicitly.
+   MESS decides which of two
    competing chains a node prefers during a deep reorganization and never whether a block is valid, so in
    normal operation a node with it on and a node with it off follow the same chain. An exchange, a custodian
    or a pool that credits deposits is the one to think hardest about it: a deep reorganization is the attack

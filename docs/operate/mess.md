@@ -1,6 +1,6 @@
 ---
 title: MESS
-description: "MESS (ECBP-1100) in Core-Geth: what it does during a deep chain reorganization, why v1.13.0 ships it on by default, and how to turn it off."
+description: "MESS (ECBP-1100) in Core-Geth: what it does during a deep chain reorganization, which releases apply it, and how to set it for your node."
 ---
 
 MESS, Modified Exponential Subjective Scoring (ECBP-1100), makes a node resist deep chain
@@ -20,14 +20,17 @@ with MESS on and a node with MESS off can prefer different chains.
 | When | What |
 | --- | --- |
 | 11 October 2020, block 11,380,000 | MESS activates on Ethereum Classic and becomes the default |
-| `v1.12.17`, December 2023 | a deactivation is scheduled at block 19,250,000 |
+| `v1.12.17`, December 2023 | a deactivation is scheduled at block 19,250,000 on Ethereum Classic |
+| `v1.12.18` | the same is scheduled at block 10,400,000 on Mordor, which `v1.12.17` did not carry |
 | 5 February 2024, block 19,250,000 | the chain reaches Spiral and the default changes: nodes on `v1.12.17` or later stop applying MESS |
 | `v1.13.0`, 14 September 2026 | the deactivation is removed and the activation kept, so MESS applies again |
-| after `v1.13.0` | the deactivation is restored, returning the bundled default to ECIP-1110's |
 
-`v1.12.16` and earlier carry no deactivation. Between the middle two rows MESS applied for three years
+`v1.12.16` and earlier carry no deactivation. Between the middle rows MESS applied for three years
 and four months; from Spiral onward the published default is that it does not, and `--mess` is how an
 operator chooses otherwise.
+
+**The table is the answer to "does my node apply MESS".** Find the release you run and read across.
+A release is added here when it ships, so a version absent from the table is one this page predates.
 
 ## Why MESS exists
 
@@ -65,8 +68,10 @@ sources:
 knowing when deciding your own setting: the hashrate distribution and client mix ECBP-1110's reasoning depends on
 are not fixed, and the case for MESS is strongest in the troughs.
 
-**The bundled default follows ECIP-1110, so MESS is inactive from the Spiral block unless you turn it on.**
-`--mess` turns it on. Exchanges, custodians and payment processors are what a deep reorganization is aimed at,
+**Which window your client ships is a release decision, and the timeline above has each one.**
+Whatever it is, `--mess` and `--mess=false` override it, and `admin.ecbp1100Status()` reports what your
+node is actually doing, which is the only answer that accounts for the flags you pass.
+Exchanges, custodians and payment processors are what a deep reorganization is aimed at,
 the July 2020 attacker having taken $5.6 million from them rather than from the protocol, so those operators are
 the ones for whom the flag is worth the thought. [Which setting fits which operator](#which-setting-fits-which-operator)
 has the trade per node type.
@@ -81,11 +86,13 @@ that disagreement is only visible once it already matters. The status of both do
 
 | Network | MESS applies from block | Deactivation block |
 |---|---|---|
-| Ethereum Classic | 11,380,000 | none |
-| Mordor | 2,380,000 | none |
+| Ethereum Classic | 11,380,000 | 19,250,000 |
+| Mordor | 2,380,000 | 10,400,000 |
 
-It is on by default on both networks. [MESS on this node](../getting-started/run-classic-node.md#mess-on-this-node)
-shows how `admin.ecbp1100Status()` reports whether it is in force.
+**Both chains are long past their deactivation blocks**, so on any release that bundles one, MESS is
+not applying there. Whether yours does depends on the release and on the flags you pass;
+[MESS on this node](../getting-started/run-classic-node.md#mess-on-this-node) shows how
+`admin.ecbp1100Status()` answers it for your node.
 
 ## When the node switches it off by itself
 
@@ -141,13 +148,9 @@ recommendation depends on.
 geth --classic --mess=false
 ```
 
-`--mess=false` moves the activation block out of reach. `geth dumpconfig` writes it into a config
-file as:
-
-```toml
-[Eth]
-OverrideECBP1100 = 18446744073709551614
-```
+`--mess=false` moves the activation block out of reach, which is the method ECIP-1110 itself
+documents for disabling MESS. On a release that bundles a deactivation the chain has already passed,
+MESS is not applying anyway and the flag changes nothing.
 
 ## Turn MESS on
 
@@ -166,7 +169,6 @@ so a specific block number is always honored.
 
 | Flag | Older spelling, still accepted | Config file key, under `[Eth]` | Effect |
 |---|---|---|---|
-| `--mess` | none | `OverrideECBP1100Deactivate = 18446744073709551614` | Turns MESS on, past the bundled deactivation |
 | `--mess=false` | none | `OverrideECBP1100 = 18446744073709551614` | Turns MESS off |
 | `--mess.activate=<block>` | `--ecbp1100` | `OverrideECBP1100` | Sets the activation block, and wins over `--mess=false` |
 | `--mess.deactivate=<block>` | `--override.ecbp1100.deactivate` | `OverrideECBP1100Deactivate` | Sets a deactivation block |
