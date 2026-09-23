@@ -159,9 +159,9 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	}
 
 	utils.SetEthConfig(ctx, stack, &cfg.Eth)
-	// Here rather than in makeFullNode, so dumpconfig writes the MESS settings the flags make
-	// and a node started from the dumped file keeps them.
-	applyMESSFlags(ctx, &cfg.Eth)
+	// Only the flags naming a block are applied here, so dumpconfig captures them. The on/off
+	// switch is deliberately not among them; applyMESSToggleFlag in makeFullNode has why.
+	applyMESSBlockFlags(ctx, &cfg.Eth)
 	if ctx.IsSet(utils.EthStatsURLFlag.Name) {
 		cfg.Ethstats.URL = ctx.String(utils.EthStatsURLFlag.Name)
 	}
@@ -173,6 +173,9 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 // makeFullNode loads geth configuration and creates the Ethereum backend.
 func makeFullNode(ctx *cli.Context) (*node.Node, ethapi.Backend) {
 	stack, cfg := makeConfigNode(ctx)
+	// The MESS on/off switch reaches the running node here and not in makeConfigNode, so that
+	// dumpconfig does not write it into a file the operator never meant to set a MESS policy in.
+	applyMESSToggleFlag(ctx, &cfg.Eth)
 	if ctx.IsSet(utils.OverrideShanghai.Name) {
 		v := ctx.Uint64(utils.OverrideShanghai.Name)
 		cfg.Eth.OverrideShanghai = &v
@@ -252,32 +255,16 @@ func makeFullNode(ctx *cli.Context) (*node.Node, ethapi.Backend) {
 	return stack, backend
 }
 
-// applyMESSFlags carries the ECBP-1100 (MESS) flags into the Ethereum service
-// configuration, which applies them to the chain configuration when it starts.
-func applyMESSFlags(ctx *cli.Context, cfg *ethconfig.Config) {
-	// --mess is the simple switch, and it has to reach both ends of the window.
-	// The bundled configuration activates MESS and then deactivates it again at
-	// the block ECIP-1110 names, so moving only the activation would let --mess
-	// report success and leave MESS off past that height.
-	//
-	// Off pushes activation out of reach, which is the method ECIP-1110 itself
-	// documents for disabling MESS on any version that implements it. On pushes
-	// deactivation out of reach, so MESS applies from the bundled activation
-	// onward. An explicit --mess.activate or --mess.deactivate wins over either,
-	// because both are applied after this block.
-	if ctx.IsSet(utils.MESSFlag.Name) {
-		never := uint64(math.MaxUint64 - 1)
-		if !ctx.Bool(utils.MESSFlag.Name) {
-			cfg.OverrideECBP1100 = &never
-		} else {
-			if v := cfg.OverrideECBP1100; v != nil && *v == never {
-				// An explicit --mess undoes the off switch a config file dumped
-				// with --mess=false carries, so the bundled activation applies.
-				cfg.OverrideECBP1100 = nil
-			}
-			cfg.OverrideECBP1100Deactivate = &never
-		}
-	}
+// messNever is the block no chain reaches, used to push one end of the ECBP-1100 (MESS)
+// window out of reach. ECIP-1110 documents that method for disabling MESS on any version
+// that implements it, and --mess uses the deactivation end for the same reason.
+const messNever = uint64(math.MaxUint64 - 1)
+
+// applyMESSBlockFlags carries the ECBP-1100 (MESS) flags that name a block into the
+// Ethereum service configuration. They are settings an operator chose rather than an
+// encoding of on or off, so dumpconfig writes them and a node started from the dumped
+// file keeps them.
+func applyMESSBlockFlags(ctx *cli.Context, cfg *ethconfig.Config) {
 	// Every block number given is applied, math.MaxUint64 included. These flags have no
 	// default, so math.MaxUint64 no longer stands for "not set"; IsSet answers that.
 	if ctx.IsSet(utils.MESSActivateFlag.Name) {
@@ -295,6 +282,62 @@ func applyMESSFlags(ctx *cli.Context, cfg *ethconfig.Config) {
 	if ctx.IsSet(utils.MESSDeactivateFlag.Name) {
 		n := ctx.Uint64(utils.MESSDeactivateFlag.Name)
 		cfg.OverrideECBP1100Deactivate = &n
+	}
+}
+
+// applyMESSToggleFlag carries --mess into the Ethereum service configuration. It reaches
+// the running node and deliberately not dumpconfig, so the switch does not persist: the
+// flags an operator runs with decide MESS, and dropping one returns the node to the
+// bundled default in both directions.
+//
+// A config file carrying either sentinel is still honored on load. This governs what
+// dumpconfig writes, not what a config file means.
+//
+// This is a deliberate reversal of an earlier decision to apply the switch in
+// makeConfigNode so that dumpconfig captured it. That decision was protecting a client
+// whose bundled default was MESS on, where a dump silently dropping --mess=false left a
+// node defenceless. Under the ECIP-1110 default it inverts: dropping the flag yields off,
+// which is the published default and the conservative direction. Re-examine this if the
+// bundled default ever returns to on.
+func applyMESSToggleFlag(ctx *cli.Context, cfg *ethconfig.Config) {
+	if !ctx.IsSet(utils.MESSFlag.Name) {
+		return
+	}
+	// The switch has to reach both ends of the window. The bundled configuration activates
+	// MESS and then deactivates it again at the block ECIP-1110 names, so moving only the
+	// activation would let --mess report success and leave MESS off past that height.
+	//
+	// An explicit --mess.activate or --mess.deactivate wins, so the switch leaves whichever
+	// end that flag already set. Precedence is checked rather than relying on call order,
+	// because these two functions no longer run at the same point.
+	activateSet := ctx.IsSet(utils.MESSActivateFlag.Name)
+	deactivateSet := ctx.IsSet(utils.MESSDeactivateFlag.Name)
+
+	if !ctx.Bool(utils.MESSFlag.Name) {
+		if !activateSet {
+			never := messNever
+			cfg.OverrideECBP1100 = &never
+		}
+		if !deactivateSet {
+			if v := cfg.OverrideECBP1100Deactivate; v != nil && *v == messNever {
+				// The mirror of what --mess does to a stale off switch: clear an on switch a
+				// config file carries, so the file does not end up holding both sentinels and
+				// reading as a contradiction. Only the sentinel is cleared, never a real block.
+				cfg.OverrideECBP1100Deactivate = nil
+			}
+		}
+		return
+	}
+	if !activateSet {
+		if v := cfg.OverrideECBP1100; v != nil && *v == messNever {
+			// An explicit --mess undoes an off switch a config file carries, so the
+			// bundled activation applies again.
+			cfg.OverrideECBP1100 = nil
+		}
+	}
+	if !deactivateSet {
+		never := messNever
+		cfg.OverrideECBP1100Deactivate = &never
 	}
 }
 
