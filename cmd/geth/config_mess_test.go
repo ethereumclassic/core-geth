@@ -587,3 +587,31 @@ func TestMESSEmptyEnvVarIgnored(t *testing.T) {
 		}
 	})
 }
+
+// TestMESSSettingsSetABlock checks that every MESS setting, a flag or a config file line, leaves
+// an activation or a deactivation block set once the flags are applied. eth.New takes exactly
+// that as the operator's own choice, and leaves out its notice about a changed MESS window.
+func TestMESSSettingsSetABlock(t *testing.T) {
+	set := func(cfg *ethconfig.Config) bool {
+		return cfg.OverrideECBP1100 != nil || cfg.OverrideECBP1100Deactivate != nil
+	}
+	if set(messConfig(t)) {
+		t.Fatal("no MESS setting, and a block is set, so the checks below would prove nothing")
+	}
+	for _, args := range [][]string{
+		{"--mess"}, {"--mess=false"}, {"--mess.activate=15000000"}, {"--mess.deactivate=20000000"}, {"--mess.nodisable"},
+	} {
+		if !set(messConfig(t, args...)) {
+			t.Errorf("%v: no MESS block is set", args)
+		}
+	}
+	yes, at := true, uint64(15_000_000)
+	for line, cfg := range map[string]*ethconfig.Config{
+		"ECBP1100NoDisable = true":    {ECBP1100NoDisable: &yes},
+		"OverrideECBP1100 = 15000000": {OverrideECBP1100: &at},
+	} {
+		if !set(messConfigFrom(t, cfg)) {
+			t.Errorf("config file line %s: no MESS block is set", line)
+		}
+	}
+}
