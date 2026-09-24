@@ -102,8 +102,8 @@ reports where they agree and disagree.
 
 ## Who maintains Core-Geth, and where do I report a security issue?
 
-Long-time Ethereum Classic core developers maintain it in the `ethereumclassic` organization, and the work is
-done for the [Ethereum Classic DAO](https://ethereumclassicdao.org). Report a security issue privately through
+Long-time Ethereum Classic core developers and community contributors maintain it in the `ethereumclassic`
+organization. Report a security issue privately through
 this repository's [private advisories](https://github.com/ethereumclassic/core-geth/security/advisories) or by
 email to <security@ethereumclassic.net>, never in a public issue. Mining pools, exchanges and service providers
 should use that address as their point of contact as the ETC Cooperative dissolves. For anything that is not a

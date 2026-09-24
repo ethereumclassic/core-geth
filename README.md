@@ -239,11 +239,10 @@ Classic community repository, created on 2024-12-21 from the preceding repositor
 and tagged
 [`archive/etclabscore-2024-12`](https://github.com/ethereumclassic/core-geth/releases/tag/archive%2Fetclabscore-2024-12).
 
-Development then stayed dormant across every Core-Geth repository for 21 months.
-[White B0x](https://whiteb0x.com) has led it since February 2026, cutting the v1.13.0
-modernization release and clearing years of accumulated technical debt inherited from the
-previous repositories. That leaves a modernized client for community maintenance in the
-[`ethereumclassic`](https://github.com/ethereumclassic) organization going forward.
+Development then stayed dormant across every Core-Geth repository for 21 months. It resumed in
+February 2026 with the v1.13 work, which cleared years of accumulated technical debt inherited
+from the previous repositories. The modernized client is community maintained in the
+[`ethereumclassic`](https://github.com/ethereumclassic) organization.
 
 [Project history](docs/about/project-history.md) has the full account of both lineages, the
 organizations behind them and the records for each step. Claims made about the client are
