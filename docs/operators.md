@@ -39,16 +39,18 @@ that answers the questions operators actually arrive with.
    [How, and which peer lists to update](tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key).
 3. **Track releases at [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases).** A
    node tracking the previous repository will not see `v1.13.0`.
-4. **Decide your MESS setting, and give every node you run the same one.** `v1.13.0` ships MESS on. That is a
-   change from `v1.12.x`, which activates it and then deactivates it again at the Spiral block, so an upgraded
-   node applies it where your old one did not. MESS decides which of two competing chains a node prefers during
-   a deep reorganization and never whether a block is valid, so in normal operation a node with it on and a node
-   with it off follow the same chain. An exchange, a custodian or a pool that credits deposits wants it on: a
-   deep reorganization is the attack aimed at them. A miner carries a cost either way, and that trade is worth
-   reading before deciding rather than after.
-   [Which setting fits which operator](operate/mess.md#which-setting-fits-which-operator) has it per node type,
-   and `--mess=false` turns it off. Whichever you choose, nodes in one fleet that disagree can prefer different
-   chains, which is worse than either setting.
+4. **Decide your MESS setting, and give every node you run the same one.** Which window your release
+   bundles is in the [MESS timeline](operate/mess.md#what-changed-and-when), and `admin.ecbp1100Status()`
+   reports what a given node is actually doing. `--mess` and `--mess=false` set it explicitly.
+   MESS decides which of two
+   competing chains a node prefers during a deep reorganization and never whether a block is valid, so in
+   normal operation a node with it on and a node with it off follow the same chain. An exchange, a custodian
+   or a pool that credits deposits is the one to think hardest about it: a deep reorganization is the attack
+   aimed at them. A miner carries a cost either way, and that trade is worth reading before deciding rather
+   than after.
+   [Which setting fits which operator](operate/mess.md#which-setting-fits-which-operator) has it per node type.
+   Whichever you choose, nodes in one fleet that disagree can prefer different chains, which is worse than
+   either setting.
 
 ## Then read, in this order
 

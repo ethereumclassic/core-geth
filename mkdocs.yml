@@ -134,6 +134,13 @@ extra_javascript:
 
 use_directory_urls: true
 
+# Drafted for an unreleased version. These are in the repository so they can be reviewed with
+# the change that produces them, and out of the build so the published site keeps describing the
+# client people are actually running. Removing an entry here publishes the page, so it is done at
+# the release, together with adding its nav entry back.
+exclude_docs: |
+  audits/2026-09-mess-default.md
+
 plugins:
   - search
   - minify:

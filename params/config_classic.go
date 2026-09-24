@@ -83,25 +83,24 @@ var (
 		EIP2200FBlock: big.NewInt(10_500_839), // RePetersburg (=~ re-1283)
 
 		ECBP1100FBlock: big.NewInt(11_380_000), // ETA 09 Oct 2020
-		// No deactivation block: ECBP-1100 (MESS) stays on. Client decision for
-		// v1.13.0, and it is a client's to make: ECBP-1100 is an Ethereum Classic
-		// Best Practice, not a consensus rule. It changes which of two competing
-		// chains this node prefers, never whether a block is valid.
+		// ECIP-1110 is the network's published default and this configuration
+		// follows it: MESS is inactive from the Spiral block. ECBP-1100 remains
+		// the definition of the algorithm, and the mechanism stays in the client.
 		//
-		// ECBP1100DeactivateFBlock was 19,250,000, the Spiral block, set by
-		// ECIP-1110. That deactivation rested on ETC holding roughly 85% of
-		// apparent compatible hashrate at the time; the reasoning is stated in
-		// ECIP-1110's own Rationale, and it is a claim about market conditions
-		// rather than about the protocol. Under lower and more volatile hashrate
-		// the defense is worth more, not less, so this client ships it on.
+		// Neither document is a consensus rule. Both are Ethereum Classic Best
+		// Practices, which is why the bundled value matters: a client shipping a
+		// different default does not fork, it disagrees about which of two
+		// competing chains to prefer when a deep reorganization appears, and that
+		// disagreement is only visible when it is already too late to discuss.
 		//
-		// Verified rather than assumed: the fork ID is byte-identical with the
-		// deactivation block present and absent, so this cannot fragment peering,
-		// and no block validity rule reads either value.
+		// v1.13.0 shipped with this block removed. Restoring it returns the
+		// bundled default to the published one and leaves the choice with the
+		// operator rather than with this client.
 		//
-		// Operators wanting the previous behavior: --mess=false, or
-		// --mess.deactivate=19250000 to reproduce it exactly.
-		ECIP1099FBlock: big.NewInt(11_700_000), // Etchash (DAG size limit)
+		// Operators wanting MESS on: --mess, or --mess.activate to set the
+		// activation block explicitly.
+		ECBP1100DeactivateFBlock: big.NewInt(19_250_000), // ETA 31 Jan 2023 (== Spiral hard fork)
+		ECIP1099FBlock:           big.NewInt(11_700_000), // Etchash (DAG size limit)
 
 		// Berlin eq, aka Magneto
 		EIP2565FBlock: big.NewInt(13_189_133),

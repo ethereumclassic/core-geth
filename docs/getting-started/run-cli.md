@@ -137,8 +137,10 @@ are needed.
 
 ## Command-line Options
 
-Generated from `geth --help`. The binary is authoritative; regenerate this
-section rather than editing it, and prefer `geth --help` when the two differ.
+Generated from `geth --help` at the release the `VERSION` line below names, so it
+describes that binary rather than the current state of the development branch. The
+binary is authoritative; regenerate this section rather than editing it, and prefer
+`geth --help` when the two differ.
 
 **One command in the list below means less than it appears to.** `version-check` queries
 go-ethereum's vulnerability feed, which does not track this client, so a clean result from it says

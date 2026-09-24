@@ -38,7 +38,7 @@ namespace are not built from this source. The ETC Cooperative board has communic
 
 - [The ETC Cooperative transition](https://docs.coregeth.com/etc-cooperative-transition/): where the services the ETC Cooperative maintained continue as it winds down, including the public JSON-RPC endpoints and the peer discovery lists.
 - [Bootnodes and peer discovery](https://docs.coregeth.com/guides/bootnodes-and-discovery/): how the discovery trees are built from a crawl of the network, and how to point a node at any other list.
-- [MESS](https://docs.coregeth.com/operate/mess/): what ECBP-1100 does, why this release ships it on by default, and how to turn it off.
+- [MESS](https://docs.coregeth.com/operate/mess/): what ECBP-1100 does, which releases apply it, and how to set it for your node.
 
 ## Operating a node
 

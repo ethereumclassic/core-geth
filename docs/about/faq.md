@@ -67,12 +67,15 @@ Core-Geth `v1.13.x` is what this project maintains and recommends today. A netwo
 runs one client has a single point of failure whatever that client is, so running more than one implementation
 across your fleet is sound practice.
 
-## Is MESS on by default, and should I turn it off?
+## Does my node apply MESS, and should it?
 
-`v1.13.0` ships MESS (ECBP-1100) on by default, and `--mess=false` turns it off. MESS changes which of two
-competing chains a node prefers during a deep reorganization and never whether a block is valid. [MESS](../operate/mess.md)
-explains the choice and its trade-offs, and the [confirmation calculator](../guides/mess-calculator.md) shows what
-it means for deposit confirmations.
+Ask the node: `admin.ecbp1100Status()` reports whether MESS (ECBP-1100) is in force, which accounts for your
+release and any flag you pass. `--mess` and `--mess=false` set it explicitly, and which window each release
+bundles is in the [MESS timeline](../operate/mess.md#what-changed-and-when).
+
+MESS changes which of two competing chains a node prefers during a deep reorganization and never
+whether a block is valid. [MESS](../operate/mess.md) explains the trade either way, and the
+[confirmation calculator](../guides/mess-calculator.md) shows what it means for deposit confirmations.
 
 ## What happened to `etc.rivet.link`?
 

@@ -1106,10 +1106,14 @@ Please note that --` + MetricsHTTPFlag.Name + ` must be set to start the server.
 	// but took a block number, --override.ecbp1100.deactivate used a different
 	// prefix for the same kind of value, and --ecbp1100.nodisable was a double
 	// negative.
+	// No Value is set, so --help advertises "(default: false)", which is what the bundled
+	// configuration gives on a chain past its ECIP-1110 deactivation block: every supported
+	// network today. It carried Value: true while the client shipped MESS on, and that was
+	// accurate then. The value never decides behavior either way, because applyMESSToggleFlag
+	// returns unless IsSet reports the flag was actually given.
 	MESSFlag = &cli.BoolFlag{
 		Name:     "mess",
-		Usage:    "Enable the ECBP-1100 (MESS) chain-selection defense against deep reorganizations",
-		Value:    true,
+		Usage:    "Apply the ECBP-1100 (MESS) chain-selection defense past the block ECIP-1110 deactivates it",
 		Category: flags.EthCategory,
 	}
 	MESSActivateFlag = &cli.Uint64Flag{

@@ -42,9 +42,9 @@
   },
 
   "ecbp1100_windows": {
-    "_comment": "ECBP-1100 (MESS) selects between competing chains and is not a consensus rule. These are the defaults core-geth v1.13.x ships: MESS is enabled from the activation block ECBP-1100 names and stays enabled, so deactivation is null, meaning no deactivation block rather than block 0. core-geth v1.13.x does not adopt ECBP-1110's recommendation to disable MESS by default; that is client maintainer discretion, and operators can still disable it.",
-    "classic": {"activation": 11380000, "deactivation": null},
-    "mordor": {"activation": 2380000, "deactivation": null}
+    "_comment": "ECBP-1100 (MESS) selects between competing chains and is not a consensus rule. These are the bundled defaults: MESS activates at the block ECBP-1100 names and deactivates at the block ECBP-1110 names, so a node on the defaults is not applying MESS past those heights. A null deactivation would mean no deactivation block rather than block 0. Operators can turn MESS on with --mess; the bundled value is what this client ships, not a rule.",
+    "classic": {"activation": 11380000, "deactivation": 19250000},
+    "mordor": {"activation": 2380000, "deactivation": 10400000}
   },
 
   "chain_identifiers": {
