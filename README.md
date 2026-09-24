@@ -140,7 +140,7 @@ For testing with fake PoW, which skips DAG generation:
 ## Security
 
 **To report a security issue privately**, use a GitHub private advisory or email
-<security@ethereumclassic.com>. [`SECURITY.md`](SECURITY.md) has the disclosure policy and
+<security@ethereumclassic.net>. [`SECURITY.md`](SECURITY.md) has the disclosure policy and
 the details of each channel. Security issues are never reported as public issues.
 
 Ethereum Classic stakeholders such as mining pools, exchanges and service providers can use
@@ -256,5 +256,5 @@ financial products, Etchash mining hardware manufacturers and large holders all 
 Ethereum Classic client that follows the network correctly and receives security fixes promptly. If
 your operation relies on Ethereum Classic, please help fund that work.
 [Support this work](https://docs.coregeth.com/support/) carries the routes: sponsorship on GitHub,
-an invoiced maintenance agreement for organizations, or a direct transfer, along with how to check
-the address before you use it.
+an invoiced maintenance agreement for organizations, or a direct transfer to an address provided on
+request.

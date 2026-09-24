@@ -105,7 +105,7 @@ reports where they agree and disagree.
 Long-time Ethereum Classic core developers maintain it in the `ethereumclassic` organization, and the work is
 done for the [Ethereum Classic DAO](https://ethereumclassicdao.org). Report a security issue privately through
 this repository's [private advisories](https://github.com/ethereumclassic/core-geth/security/advisories) or by
-email to <security@ethereumclassic.com>, never in a public issue. Mining pools, exchanges and service providers
+email to <security@ethereumclassic.net>, never in a public issue. Mining pools, exchanges and service providers
 should use that address as their point of contact as the ETC Cooperative dissolves. For anything that is not a
 vulnerability, the Ethereum Classic Core Developers' [Discord](https://ethereumclassic.com/discord) reaches the same people, and a vulnerability
 does not belong there because a public channel discloses it to everyone at once.

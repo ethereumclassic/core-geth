@@ -45,4 +45,4 @@ Upgrade them one at a time, and keep them on the same release and MESS setting.
 Follow the [`ethereumclassic/core-geth` releases](https://github.com/ethereumclassic/core-geth/releases),
 and report vulnerabilities privately as
 [SECURITY.md](https://github.com/ethereumclassic/core-geth/blob/main/SECURITY.md) describes. Exchanges,
-pools and service providers can reach the core developers at `security@ethereumclassic.com`.
+pools and service providers can reach the core developers at `security@ethereumclassic.net`.
