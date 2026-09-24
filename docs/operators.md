@@ -98,7 +98,7 @@ underneath the code between the December 2024 archive point and this release.
 
 Report a security issue privately, never in a public issue: through this repository's
 [private advisories](https://github.com/ethereumclassic/core-geth/security/advisories), or by email to
-<security@ethereumclassic.com>. Mining pools, exchanges and service providers should use that address as their
+<security@ethereumclassic.net>. Mining pools, exchanges and service providers should use that address as their
 point of contact as the ETC Cooperative dissolves. A person answers it: one of the core developers who maintain
 this client.
 

@@ -44,9 +44,9 @@ Core-Geth in 2025 and wound down its team.
 | [Sorpaas](https://github.com/sorpaas) | led multi-geth's development from its start | 2018 to 2020 |
 | ETC Labs and ETC Core | led development through the fork and rebrand of multi-geth to Core-Geth | 2020 to 2021 |
 | ETC Cooperative | funded and maintained Core-Geth at `etclabscore/core-geth`, and maintained other Ethereum Classic services | January 2022 to 2024, then maintenance mode |
-| [Ethereum Classic DAO](https://ethereumclassicdao.org) | a Wyoming DAO LLC launched in May 2025 that succeeds the ETC Cooperative | May 2025 onward |
-| [`ethereumclassic`](https://github.com/ethereumclassic) GitHub organization | holds Ethereum Classic's public goods: the ECIPs, the website, the discovery lists and Core-Geth | 2024 onward |
-| [White B0x](https://whiteb0x.com) | took up development, security work, disclosures and the modernization releases | February 2026 onward |
+| [Ethereum Classic DAO](https://ethereumclassicdao.org) | a Wyoming DAO LLC launched in May 2025; the 2026 modernization was carried out for it | 2026 |
+| [`ethereumclassic`](https://github.com/ethereumclassic) GitHub organization | holds Ethereum Classic's public goods: the ECIPs, the website, the discovery lists and Core-Geth, maintained there by Ethereum Classic core developers and community contributors | 2024 onward |
+| [White B0x](https://whiteb0x.com) | carried out the 2026 security work, disclosures and the `v1.13` modernization | 2026 |
 
 [The ETC Cooperative transition](../etc-cooperative-transition.md) lists which services are moving where as the
 Cooperative winds down.
