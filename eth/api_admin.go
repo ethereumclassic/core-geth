@@ -205,9 +205,10 @@ type ECBP1100Status struct {
 	// per ECBP-1100. Nil when unset.
 	ActivatedAtBlock *hexutil.Uint64 `json:"activatedAtBlock"`
 	// DefaultDisabledAtBlock is the height from which the bundled default is
-	// off, per ECBP-1110. Nil means the shipped default stays on, which is this
-	// client's configuration; a non-nil value disables MESS by default at that
-	// height without removing it.
+	// off, per ECBP-1110, and is what this client ships for Ethereum Classic and
+	// Mordor. A non-nil value disables MESS by default at that height without
+	// removing it; nil means nothing stops it once activated, which is the state
+	// --mess leaves and the one v1.13.0 shipped.
 	DefaultDisabledAtBlock *hexutil.Uint64 `json:"defaultDisabledAtBlock"`
 	// Head is the block number the heights above were evaluated against.
 	Head hexutil.Uint64 `json:"head"`

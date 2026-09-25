@@ -193,10 +193,10 @@ adopt them.
 Alongside the EIP schedule the same struct sets the ECIP fields:
 `ECIP1010PauseBlock`/`ECIP1010Length` (difficulty bomb defusal), `ECIP1017FBlock`/
 `ECIP1017EraRounds` (monetary policy), `ECIP1099FBlock` (Etchash), and
-`ECBP1100FBlock`, which activates MESS. **`ECBP1100DeactivateFBlock` is unset for
-both Classic and Mordor as of v1.13.0 — MESS stays on permanently, a client
-decision, and `params/config_etc_test.go` asserts it: a non-nil deactivation
-block is the regression the test catches.** ECBP-1100 is an Ethereum Classic
+`ECBP1100FBlock`, which activates MESS. **`ECBP1100DeactivateFBlock` is 19,250,000
+on Classic and 10,400,000 on Mordor, the default ECBP-1110 recommends: MESS is off
+from those heights unless the operator passes `--mess`. `params/config_etc_test.go`
+asserts both blocks, and a missing or changed block fails it.** ECBP-1100 is an Ethereum Classic
 Best Practice, not a consensus rule — it changes which of two competing chains
 this node prefers, never whether a block is valid. The Istanbul-equivalent set is
 labeled `// ECIP-1088` in a comment rather than carried as its own field.

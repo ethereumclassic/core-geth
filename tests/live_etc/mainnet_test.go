@@ -107,12 +107,13 @@ func TestETCMainnetDAOForkBlock(t *testing.T) {
 	}
 }
 
-// TestETCMainnetECBP1100Historic checks the block at which ECBP-1110 recommended
-// shipping MESS off by default. core-geth v1.13.x ships MESS on with no deactivation
-// block, so the height is a historic marker rather than a behavioral boundary: the
-// test asserts the chain passed it and that the block is well formed, not that any
-// defense stopped there.
-func TestETCMainnetECBP1100Historic(t *testing.T) {
+// TestETCMainnetECBP1100Deactivated checks the block at which the bundled
+// configuration switches MESS off on Ethereum Classic, the Spiral block, per
+// ECBP-1110. The chain is past that height, so a node on the bundled default is
+// no longer applying MESS here. The test asserts the chain passed the block and
+// that the block is well formed; it cannot observe another node's chain-selection
+// preference over RPC.
+func TestETCMainnetECBP1100Deactivated(t *testing.T) {
 	client := dialRPC(t, getETCRPC())
 	defer client.Close()
 
@@ -120,15 +121,15 @@ func TestETCMainnetECBP1100Historic(t *testing.T) {
 	blockNum := latest.Number.ToInt().Int64()
 
 	if blockNum < ClassicECBP1100Deactivate {
-		t.Skipf("ETC mainnet chain height %d has not reached the historic marker (%d)",
+		t.Skipf("ETC mainnet chain height %d has not reached the ECBP-1100 deactivation block (%d)",
 			blockNum, ClassicECBP1100Deactivate)
 	}
 
-	t.Logf("ETC mainnet block %d is past the historic ECBP-1100 marker at %d", blockNum, ClassicECBP1100Deactivate)
+	t.Logf("ETC mainnet block %d is past the ECBP-1100 deactivation block at %d", blockNum, ClassicECBP1100Deactivate)
 
-	marker := getBlockByNumber(t, client, big.NewInt(ClassicECBP1100Deactivate))
-	if marker.Difficulty == nil || marker.Difficulty.ToInt().Sign() <= 0 {
-		t.Error("historic ECBP-1100 marker block has zero difficulty")
+	deactBlock := getBlockByNumber(t, client, big.NewInt(ClassicECBP1100Deactivate))
+	if deactBlock.Difficulty == nil || deactBlock.Difficulty.ToInt().Sign() <= 0 {
+		t.Error("ECBP-1100 deactivation block has zero difficulty")
 	}
 }
 
