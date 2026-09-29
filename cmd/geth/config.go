@@ -139,6 +139,9 @@ func loadBaseConfig(ctx *cli.Context) gethConfig {
 		if err := loadConfig(file, &cfg); err != nil {
 			utils.Fatalf("%v", err)
 		}
+		// A network ID in the file chooses the network's defaults as
+		// --networkid does, so the flags applied below must see it.
+		utils.SetConfigNetworkID(ctx, cfg.Eth.NetworkId)
 	}
 
 	// Apply flags.

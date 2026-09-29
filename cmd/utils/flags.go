@@ -1854,18 +1854,42 @@ func dataDirPathForCtxChainConfig(ctx *cli.Context, baseDataDirPath string) stri
 
 // isClassic reports whether a command runs on Ethereum Classic mainnet: by
 // --classic, by its --mainnet alias, or by giving no network flag at all.
-// A --networkid other than Ethereum Classic's marks a private network, which
-// keeps the defaults a node without a network flag had before Ethereum Classic
-// became the default: no Ethereum Classic bootnodes or discovery trees, the
-// base data directory and the generic gas ceiling.
+// A network ID other than Ethereum Classic's marks a private network, whether
+// --networkid gives it or, without that flag, the configuration file does (see
+// SetConfigNetworkID). A private network keeps the defaults a node without a
+// network flag had before Ethereum Classic became the default: no Ethereum
+// Classic bootnodes or discovery trees, the base data directory and the generic
+// gas ceiling.
 func isClassic(ctx *cli.Context) bool {
 	if ctx.Bool(ClassicFlag.Name) || ctx.Bool(MainnetFlag.Name) {
 		return true
 	}
-	if ctx.IsSet(NetworkIdFlag.Name) && ctx.Uint64(NetworkIdFlag.Name) != params.ClassicChainConfig.NetworkID {
+	id, chosen := ctx.Uint64(NetworkIdFlag.Name), ctx.IsSet(NetworkIdFlag.Name)
+	if !chosen {
+		// A file's 0 chooses no network: it is the default, which takes the
+		// network ID from the chain.
+		id, _ = ctx.Context.Value(configNetworkIDKey{}).(uint64)
+		chosen = id != 0
+	}
+	if chosen && id != params.ClassicChainConfig.NetworkID {
 		return false
 	}
 	return !IsNetworkPreset(ctx) && !ctx.Bool(DeveloperFlag.Name) && !ctx.Bool(DeveloperPoWFlag.Name)
+}
+
+// configNetworkIDKey keys the network ID a configuration file sets on a
+// command's context; see SetConfigNetworkID.
+type configNetworkIDKey struct{}
+
+// SetConfigNetworkID records id, the network ID a command's configuration file
+// sets, on the command's context, so that the defaults which follow the network
+// follow it too: bootnodes, DNS discovery trees, data directory, HD derivation
+// path, gas ceiling and Ethash directories. A network ID other than Ethereum
+// Classic's then marks a private network exactly as --networkid does, and the
+// flag wins when both are given. Call it once the file is loaded, before any
+// flag is applied.
+func SetConfigNetworkID(ctx *cli.Context, id uint64) {
+	ctx.Context = context.WithValue(ctx.Context, configNetworkIDKey{}, id)
 }
 
 // checkUnmaintainedNetwork refuses the Ethereum networks, which this client
