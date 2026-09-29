@@ -4,7 +4,9 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/internal/cmdtest"
@@ -113,6 +115,56 @@ func TestConfigFileNetworkDefaults(t *testing.T) {
 		}
 		if cfg.Eth.Ethash.CacheDir != ethconfig.Defaults.Ethash.CacheDir {
 			t.Errorf("%s, %v: ethash cache dir %q, want %q", name, c.args, cfg.Eth.Ethash.CacheDir, ethconfig.Defaults.Ethash.CacheDir)
+		}
+	}
+}
+
+// TestNetworkBanner checks that the startup banner names the network the node took its defaults
+// for, and only that one: Ethereum Classic exactly when IsClassic says so, a network ID set in a
+// configuration file and a network flag given as false included. The banner once read only the
+// command line, before the file was loaded, and tested whether a network flag was given rather
+// than its value: it announced Ethereum Classic for a private network defined in a file, Mordor
+// for --mordor=false, and nothing for --networkid 1.
+func TestNetworkBanner(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "private.toml")
+	if err := os.WriteFile(file, []byte("[Eth]\nNetworkId = 12345\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range []struct {
+		args    []string
+		network string // the network the banner names, "" for none
+	}{
+		{nil, "Ethereum Classic"},
+		{[]string{"--classic"}, "Ethereum Classic"},
+		{[]string{"--networkid", "1"}, "Ethereum Classic"},
+		{[]string{"--classic=false"}, "Ethereum Classic"},
+		{[]string{"--mainnet=false"}, "Ethereum Classic"},
+		{[]string{"--mordor=false"}, "Ethereum Classic"},
+		{[]string{"--networkid", "12345"}, ""},
+		{[]string{"--config", file}, ""},
+		{[]string{"--mordor=false", "--networkid", "12345"}, ""},
+	} {
+		// With no peers and no listener, the node starts, prints its name and exits.
+		geth := runGeth(t, slices.Concat(c.args, []string{"--nodiscover", "--maxpeers", "0", "--port", "0",
+			"--nat", "none", "--exec", "admin.nodeInfo.name", "console"})...)
+		geth.KillTimeout = 30 * time.Second
+		geth.Output()
+		geth.WaitExit()
+		stderr := geth.StderrText()
+		if status := geth.ExitStatus(); status != 0 {
+			t.Fatalf("%v: exit status %d\n%s", c.args, status, stderr)
+		}
+		var named, want []string
+		for _, line := range strings.Split(stderr, "\n") {
+			if _, network, ok := strings.Cut(line, "Starting Core-Geth on "); ok {
+				named = append(named, strings.TrimSuffix(strings.TrimSpace(network), "..."))
+			}
+		}
+		if c.network != "" {
+			want = []string{c.network}
+		}
+		if !slices.Equal(named, want) {
+			t.Errorf("%v: the banner names %q, want %q", c.args, named, want)
 		}
 	}
 }

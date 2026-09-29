@@ -203,6 +203,8 @@ func TestNetworkMinerDefaults(t *testing.T) {
 // default that follows the network. A network ID set only in a configuration file once went
 // unread, so a private network defined there took all of Ethereum Classic's defaults and
 // announced itself to Ethereum Classic's discovery network.
+// A network flag given as false chooses no network, the same as leaving it out; it once counted
+// as a choice, so --classic=false ran Ethereum Classic's genesis with none of its defaults.
 func TestNetworkDefaults(t *testing.T) {
 	coinType := accounts.BIP0044CoinType
 	t.Cleanup(func() { accounts.SetCoinTypeConfiguration(coinType) })
@@ -266,6 +268,12 @@ func TestNetworkDefaults(t *testing.T) {
 		{"config NetworkId 7, which only --mordor selects", nil, 7, private},
 		{"--networkid 12345", []string{"--networkid", "12345"}, 0, private},
 		{"--networkid 12345 over config NetworkId 1", []string{"--networkid", "12345"}, 1, private},
+		{"--classic=false", []string{"--classic=false"}, 0, classic},
+		{"--mainnet=false", []string{"--mainnet=false"}, 0, classic},
+		{"--mordor=false", []string{"--mordor=false"}, 0, classic},
+		{"--mintme=false", []string{"--mintme=false"}, 0, classic},
+		{"--sepolia=false", []string{"--sepolia=false"}, 0, classic},
+		{"--mordor=false --networkid 12345", []string{"--mordor=false", "--networkid", "12345"}, 0, private},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

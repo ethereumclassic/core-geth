@@ -324,7 +324,10 @@ func main() {
 	}
 }
 
-// logNetwork logs which known network the node is starting on.
+// logNetwork logs which known network the node is starting on. It names
+// Ethereum Classic from utils.IsClassic, the decision that chose the network's
+// defaults, so it runs once the configuration file is loaded: a network ID set
+// there takes part in that decision.
 func logNetwork(ctx *cli.Context) {
 	switch {
 	case ctx.IsSet(utils.DeveloperFlag.Name):
@@ -362,28 +365,20 @@ func logNetwork(ctx *cli.Context) {
      to 0, and discovery is disabled.
 `)
 
-	case ctx.IsSet(utils.ClassicFlag.Name), ctx.IsSet(utils.MainnetFlag.Name):
+	case utils.IsClassic(ctx):
 		log.Info("Starting Core-Geth on Ethereum Classic...")
 
-	case ctx.IsSet(utils.MordorFlag.Name):
+	case ctx.Bool(utils.MordorFlag.Name):
 		log.Info("Starting Core-Geth on Mordor testnet...")
 
-	case ctx.IsSet(utils.MintMeFlag.Name):
+	case ctx.Bool(utils.MintMeFlag.Name):
 		log.Info("Starting Core-Geth on MintMe.com Coin mainnet...")
-
-	case !utils.IsNetworkPreset(ctx) && !ctx.IsSet(utils.NetworkIdFlag.Name):
-		// No network flag runs Ethereum Classic, with the same defaults as
-		// --classic, the cache allowance among them.
-		log.Info("Starting Core-Geth on Ethereum Classic...")
 	}
 }
 
-// prepare logs the network and sets up the metrics system.
+// prepare sets up the metrics system.
 // This function should be called before launching devp2p stack.
 func prepare(ctx *cli.Context) {
-	// If we're running a known preset, log it for convenience.
-	logNetwork(ctx)
-
 	// Start metrics export if enabled
 	utils.SetupMetrics(ctx)
 

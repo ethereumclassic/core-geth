@@ -1337,7 +1337,7 @@ func setNodeUserIdent(ctx *cli.Context, cfg *node.Config) {
 // 4. default to Ethereum Classic mainnet nodes, or none on a private network
 func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 	var urls []string
-	if isClassic(ctx) {
+	if IsClassic(ctx) {
 		urls = params.ClassicBootnodes
 	}
 	if ctx.IsSet(BootnodesFlag.Name) {
@@ -1378,9 +1378,9 @@ func setBootstrapNodesV5(ctx *cli.Context, cfg *p2p.Config) {
 	switch {
 	case ctx.IsSet(BootnodesFlag.Name):
 		urls = SplitAndTrim(ctx.String(BootnodesFlag.Name))
-	case isClassic(ctx):
+	case IsClassic(ctx):
 		urls = params.ClassicBootnodes
-	case ctx.IsSet(MordorFlag.Name):
+	case ctx.Bool(MordorFlag.Name):
 		urls = params.MordorBootnodes
 	case ctx.Bool(MintMeFlag.Name):
 		urls = params.MintMeBootnodes
@@ -1793,7 +1793,7 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 				// This will not conflict with the testnet configuration handling above
 				// because we trust that the network configuration flags are checked to
 				// be exclusive.
-				if isClassic(ctx) {
+				if IsClassic(ctx) {
 					accounts.SetCoinTypeConfiguration(accounts.BIP0044CoinTypeEtherClassic)
 					log.Info("Using Ethereum Classic (ETC) HD derivation path", "basepath", accounts.DefaultBaseDerivationPath)
 				}
@@ -1842,7 +1842,7 @@ func setSmartCard(ctx *cli.Context, cfg *node.Config) {
 
 func dataDirPathForCtxChainConfig(ctx *cli.Context, baseDataDirPath string) string {
 	switch {
-	case isClassic(ctx):
+	case IsClassic(ctx):
 		return filepath.Join(baseDataDirPath, "classic")
 	case ctx.Bool(MordorFlag.Name):
 		return filepath.Join(baseDataDirPath, "mordor")
@@ -1852,15 +1852,16 @@ func dataDirPathForCtxChainConfig(ctx *cli.Context, baseDataDirPath string) stri
 	return baseDataDirPath
 }
 
-// isClassic reports whether a command runs on Ethereum Classic mainnet: by
-// --classic, by its --mainnet alias, or by giving no network flag at all.
+// IsClassic reports whether a command runs on Ethereum Classic mainnet: by
+// --classic, by its --mainnet alias, or by selecting no network, where a
+// network flag given as false selects none (see IsNetworkPreset).
 // A network ID other than Ethereum Classic's marks a private network, whether
 // --networkid gives it or, without that flag, the configuration file does (see
 // SetConfigNetworkID). A private network keeps the defaults a node without a
 // network flag had before Ethereum Classic became the default: no Ethereum
 // Classic bootnodes or discovery trees, the base data directory and the generic
 // gas ceiling.
-func isClassic(ctx *cli.Context) bool {
+func IsClassic(ctx *cli.Context) bool {
 	if ctx.Bool(ClassicFlag.Name) || ctx.Bool(MainnetFlag.Name) {
 		return true
 	}
@@ -2002,7 +2003,7 @@ func setEthashDatasetDir(ctx *cli.Context, cfg *ethconfig.Config) {
 	case ctx.IsSet(EthashDatasetDirFlag.Name):
 		cfg.Ethash.DatasetDir = ctx.String(EthashDatasetDirFlag.Name)
 
-	case (isClassic(ctx) || ctx.Bool(MordorFlag.Name)) && cfg.Ethash.DatasetDir == ethconfig.Defaults.Ethash.DatasetDir:
+	case (IsClassic(ctx) || ctx.Bool(MordorFlag.Name)) && cfg.Ethash.DatasetDir == ethconfig.Defaults.Ethash.DatasetDir:
 		// ECIP-1099 is set, use etchash dir for DAGs instead
 		home := homeDir()
 
@@ -2026,7 +2027,7 @@ func setEthashCacheDir(ctx *cli.Context, cfg *eth.Config) {
 	case ctx.IsSet(EthashCacheDirFlag.Name):
 		cfg.Ethash.CacheDir = ctx.String(EthashCacheDirFlag.Name)
 
-	case (isClassic(ctx) || ctx.Bool(MordorFlag.Name)) && cfg.Ethash.CacheDir == ethconfig.Defaults.Ethash.CacheDir:
+	case (IsClassic(ctx) || ctx.Bool(MordorFlag.Name)) && cfg.Ethash.CacheDir == ethconfig.Defaults.Ethash.CacheDir:
 		// ECIP-1099 is set, use etchash dir for caches instead
 		cfg.Ethash.CacheDir = "etchash"
 	}
@@ -2072,7 +2073,7 @@ func setMiner(ctx *cli.Context, cfg *miner.Config) {
 		cfg.GasCeil = ctx.Uint64(MinerGasLimitFlag.Name)
 	} else {
 		// For classic and mordor chains, maintain the gas limit at 8M
-		if isClassic(ctx) || ctx.Bool(MordorFlag.Name) {
+		if IsClassic(ctx) || ctx.Bool(MordorFlag.Name) {
 			cfg.GasCeil = 8000000
 		}
 	}
@@ -2385,7 +2386,7 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *ethconfig.Config) {
 	// the config, or it'll return the ChainID if the NetworkID is not explicitly set.
 	// This behavior matches practical expectations for how network id and chain id are normally defined.
 	switch {
-	case isClassic(ctx):
+	case IsClassic(ctx):
 		if cfg.EthDiscoveryURLs == nil {
 			cfg.EthDiscoveryURLs = []string{
 				params.ClassicDNSNetwork1, params.ClassicDNSNetwork2, params.ClassicDNSNetwork3,
@@ -2675,10 +2676,13 @@ func tryMakeReadOnlyDatabase(ctx *cli.Context, stack *node.Node) ethdb.Database 
 	return MakeChainDatabase(ctx, stack, readonly)
 }
 
+// IsNetworkPreset reports whether a network flag selects a network. A network
+// flag given as false selects none, the same as leaving it out, so the command
+// runs on the default network, Ethereum Classic.
 func IsNetworkPreset(ctx *cli.Context) bool {
 	for _, flag := range NetworkFlags {
 		bFlag, _ := flag.(*cli.BoolFlag)
-		if ctx.IsSet(bFlag.Name) {
+		if ctx.Bool(bFlag.Name) {
 			return true
 		}
 	}
