@@ -796,9 +796,12 @@ func (c *CoreGethChainConfig) IsEnabled(fn func() *uint64, n *big.Int) bool {
 	// Heights compare unsigned, as setBig stores them; see setBig.
 	fnName := runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name()
 	if strings.Contains(fnName, "ECBP1100Transition") {
-		deactivateTransition := c.GetECBP1100DeactivateTransition()
-		if deactivateTransition != nil {
-			return new(big.Int).SetUint64(*deactivateTransition).Cmp(n) > 0 && new(big.Int).SetUint64(*f).Cmp(n) <= 0
+		// MESS starts at its activation block and stops at its deactivation block, and the
+		// later of the two decides from that block on: an activation after the deactivation
+		// turns MESS on again.
+		if deactivateTransition := c.GetECBP1100DeactivateTransition(); deactivateTransition != nil {
+			activation, deactivation := new(big.Int).SetUint64(*f), new(big.Int).SetUint64(*deactivateTransition)
+			return activation.Cmp(n) <= 0 && (deactivation.Cmp(n) > 0 || activation.Cmp(deactivation) > 0)
 		}
 	}
 	return new(big.Int).SetUint64(*f).Cmp(n) <= 0
