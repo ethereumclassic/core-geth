@@ -279,6 +279,29 @@ func TestMESSFlags(t *testing.T) {
 	})
 }
 
+// TestMESSFlagsLegacyEnvironment checks that the v1.12.x environment variable names of the MESS
+// flags set them, and that the new name wins when both are set.
+func TestMESSFlagsLegacyEnvironment(t *testing.T) {
+	t.Setenv("GETH_ECBP1100", "15000000")
+	t.Setenv("GETH_OVERRIDE_ECBP1100_DEACTIVATE", "20000000")
+	t.Setenv("GETH_ECBP1100_NODISABLE", "true")
+	cfg := messConfig(t)
+	if v := cfg.OverrideECBP1100; v == nil || *v != 15_000_000 {
+		t.Error("GETH_ECBP1100=15000000: the activation is not block 15000000")
+	}
+	if v := cfg.OverrideECBP1100Deactivate; v == nil || *v != 20_000_000 {
+		t.Error("GETH_OVERRIDE_ECBP1100_DEACTIVATE=20000000: the deactivation is not block 20000000")
+	}
+	if v := cfg.ECBP1100NoDisable; v == nil || !*v {
+		t.Error("GETH_ECBP1100_NODISABLE=true: no-disable is not set")
+	}
+	// The new name wins when both are set.
+	t.Setenv("GETH_MESS_ACTIVATE", "16000000")
+	if v := messConfig(t).OverrideECBP1100; v == nil || *v != 16_000_000 {
+		t.Error("GETH_MESS_ACTIVATE=16000000 with GETH_ECBP1100=15000000: the activation is not block 16000000")
+	}
+}
+
 // TestMESSConflicts checks that MESS settings asking for opposite things are reported at startup,
 // and that settings which agree are not.
 func TestMESSConflicts(t *testing.T) {

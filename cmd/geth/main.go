@@ -294,6 +294,12 @@ func init() {
 		metricsFlags,
 	)
 	flags.AutoEnvVars(app.Flags, "GETH")
+	// The environment variables of the v1.12.x MESS flag names. AutoEnvVars names a variable
+	// only after a flag's first name, so aliases get none. These follow the new names, which
+	// win when both are set.
+	utils.MESSActivateFlag.EnvVars = append(utils.MESSActivateFlag.EnvVars, "GETH_ECBP1100")
+	utils.MESSDeactivateFlag.EnvVars = append(utils.MESSDeactivateFlag.EnvVars, "GETH_OVERRIDE_ECBP1100_DEACTIVATE")
+	utils.MESSNoDisableFlag.EnvVars = append(utils.MESSNoDisableFlag.EnvVars, "GETH_ECBP1100_NODISABLE")
 
 	app.Before = func(ctx *cli.Context) error {
 		maxprocs.Set() // Automatically set GOMAXPROCS to match Linux container CPU quota.
