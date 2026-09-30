@@ -57,3 +57,37 @@ func TestEcbp1100StatusEncoding(t *testing.T) {
 		t.Errorf("status encodes as\n%s\nwant\n%s", got, want)
 	}
 }
+
+// On a chain past its MESS deactivation block, admin.ecbp1100 with a block after that
+// deactivation turns MESS on again, since the later block decides.
+func TestEcbp1100AfterTheDeactivation(t *testing.T) {
+	const head = 25_400_000
+	for _, c := range []struct {
+		in   rpc.BlockNumber
+		want bool
+	}{
+		{rpc.LatestBlockNumber, true},        // the head, after the deactivation
+		{rpc.BlockNumber(20_000_000), true},  // after the deactivation
+		{rpc.BlockNumber(19_250_000), false}, // at it, so neither block is later
+		{rpc.EarliestBlockNumber, false},     // before it, so the deactivation ends MESS
+	} {
+		config := &coregeth.CoreGethChainConfig{}
+		activation, deactivation := uint64(11_380_000), uint64(19_250_000)
+		if err := config.SetECBP1100Transition(&activation); err != nil {
+			t.Fatal(err)
+		}
+		if err := config.SetECBP1100DeactivateTransition(&deactivation); err != nil {
+			t.Fatal(err)
+		}
+		block, err := ecbp1100ActivationBlock(c.in, head)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := config.SetECBP1100Transition(&block); err != nil {
+			t.Fatal(err)
+		}
+		if got := ecbp1100Status(config, big.NewInt(head), true).Enabled; got != c.want {
+			t.Errorf("admin.ecbp1100(%v) at head %d, deactivation %d: enabled is %v, want %v", c.in, head, deactivation, got, c.want)
+		}
+	}
+}
