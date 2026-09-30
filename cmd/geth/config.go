@@ -255,28 +255,24 @@ func makeFullNode(ctx *cli.Context) (*node.Node, ethapi.Backend) {
 // applyMESSFlags carries the ECBP-1100 (MESS) flags into the Ethereum service
 // configuration, which applies them to the chain configuration when it starts.
 func applyMESSFlags(ctx *cli.Context, cfg *ethconfig.Config) {
-	// --mess is the simple switch, and it has to reach both ends of the window.
-	// The bundled configuration activates MESS and then deactivates it again at
-	// its deactivation block, so moving only the activation would let --mess
-	// report success and leave MESS off past that height.
-	//
-	// Off pushes the activation out of reach, which turns MESS off on any version
-	// that implements it. On pushes the deactivation out of reach, so MESS applies
-	// from the bundled activation onward. An explicit --mess.activate or
-	// --mess.deactivate wins over either, because both are applied after this
-	// block.
-	if ctx.IsSet(utils.MESSFlag.Name) {
-		never := uint64(math.MaxUint64 - 1)
-		if !ctx.Bool(utils.MESSFlag.Name) {
-			cfg.OverrideECBP1100 = &never
-		} else {
-			if v := cfg.OverrideECBP1100; v != nil && *v == never {
-				// An explicit --mess undoes the off switch a config file dumped
-				// with --mess=false carries, so the bundled activation applies.
-				cfg.OverrideECBP1100 = nil
-			}
-			cfg.OverrideECBP1100Deactivate = &never
+	// --mess, --mess.activate and --mess.nodisable each turn MESS on. The bundled
+	// configuration ends MESS at its deactivation block, so each pushes that block out
+	// of reach unless a deactivation is given. --mess=false pushes the activation out
+	// of reach, which turns MESS off on any version that implements it. An explicit
+	// --mess.activate or --mess.deactivate wins over the switches, because both are
+	// applied after them.
+	never := uint64(math.MaxUint64 - 1)
+	off := ctx.IsSet(utils.MESSFlag.Name) && !ctx.Bool(utils.MESSFlag.Name)
+	noDisable := ctx.IsSet(utils.MESSNoDisableFlag.Name) && ctx.Bool(utils.MESSNoDisableFlag.Name)
+	if off {
+		cfg.OverrideECBP1100 = &never
+	} else if ctx.IsSet(utils.MESSFlag.Name) || noDisable {
+		if v := cfg.OverrideECBP1100; v != nil && *v == never {
+			// Turning MESS on undoes the off switch a config file dumped with
+			// --mess=false carries, so the bundled activation applies.
+			cfg.OverrideECBP1100 = nil
 		}
+		cfg.OverrideECBP1100Deactivate = &never
 	}
 	// Every block number given is applied, math.MaxUint64 included. These flags have no
 	// default, so math.MaxUint64 no longer stands for "not set"; IsSet answers that.
@@ -285,8 +281,8 @@ func applyMESSFlags(ctx *cli.Context, cfg *ethconfig.Config) {
 		cfg.OverrideECBP1100 = &n
 	}
 	if ctx.IsSet(utils.MESSNoDisableFlag.Name) {
-		if enable := ctx.Bool(utils.MESSNoDisableFlag.Name); enable {
-			cfg.ECBP1100NoDisable = &enable
+		if noDisable {
+			cfg.ECBP1100NoDisable = &noDisable
 		} else {
 			// An explicit --mess.nodisable=false undoes a config file's setting.
 			cfg.ECBP1100NoDisable = nil
@@ -296,6 +292,38 @@ func applyMESSFlags(ctx *cli.Context, cfg *ethconfig.Config) {
 		n := ctx.Uint64(utils.MESSDeactivateFlag.Name)
 		cfg.OverrideECBP1100Deactivate = &n
 	}
+	// An activation or no-disable setting turns MESS on with no end unless a deactivation
+	// is given, from a flag or a config file line alike: a config file line means what its
+	// flag means.
+	if cfg.OverrideECBP1100Deactivate == nil {
+		activation := cfg.OverrideECBP1100
+		keepOn := cfg.ECBP1100NoDisable != nil && *cfg.ECBP1100NoDisable
+		if (activation != nil && *activation != never) || (activation == nil && keepOn) {
+			cfg.OverrideECBP1100Deactivate = &never
+		}
+	}
+	for _, conflict := range messConflicts(ctx, cfg) {
+		log.Warn(conflict)
+	}
+}
+
+// messConflicts describes MESS settings that ask for opposite things, and what the node does
+// with them. The settings decide the outcome, as applyMESSFlags describes; this reports it at
+// startup.
+func messConflicts(ctx *cli.Context, cfg *ethconfig.Config) []string {
+	never := uint64(math.MaxUint64 - 1)
+	var conflicts []string
+	off := ctx.IsSet(utils.MESSFlag.Name) && !ctx.Bool(utils.MESSFlag.Name)
+	if n := ctx.Uint64(utils.MESSActivateFlag.Name); off && ctx.IsSet(utils.MESSActivateFlag.Name) && n < never {
+		conflicts = append(conflicts, fmt.Sprintf("MESS flags conflict: --mess=false and --mess.activate=%d; MESS applies from block %d", n, n))
+	}
+	if off && ctx.IsSet(utils.MESSNoDisableFlag.Name) && ctx.Bool(utils.MESSNoDisableFlag.Name) {
+		conflicts = append(conflicts, "MESS flags conflict: --mess=false and --mess.nodisable; MESS is off")
+	}
+	if a, d := cfg.OverrideECBP1100, cfg.OverrideECBP1100Deactivate; a != nil && d != nil && *a == *d && *a < never {
+		conflicts = append(conflicts, fmt.Sprintf("MESS settings conflict: activation and deactivation are both block %d; MESS is off", *a))
+	}
+	return conflicts
 }
 
 // dumpConfig is the dumpconfig command.

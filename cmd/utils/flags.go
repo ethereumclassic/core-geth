@@ -1118,7 +1118,7 @@ Please note that --` + MetricsHTTPFlag.Name + ` must be set to start the server.
 	MESSActivateFlag = &cli.Uint64Flag{
 		Name:     "mess.activate",
 		Aliases:  []string{"ecbp1100"},
-		Usage:    "Block number at which ECBP-1100 (MESS) activates, overriding the bundled setting",
+		Usage:    "Turn ECBP-1100 (MESS) on from this block, overriding the bundled window",
 		Category: flags.EthCategory,
 	}
 	MESSDeactivateFlag = &cli.Uint64Flag{
@@ -1130,7 +1130,7 @@ Please note that --` + MetricsHTTPFlag.Name + ` must be set to start the server.
 	MESSNoDisableFlag = &cli.BoolFlag{
 		Name:     "mess.nodisable",
 		Aliases:  []string{"ecbp1100.nodisable"},
-		Usage:    "Keep ECBP-1100 (MESS) on once activated, bypassing the low-peer-count and stale-head auto-shutoffs",
+		Usage:    "Turn ECBP-1100 (MESS) on and keep it on, bypassing the low-peer-count and stale-head auto-shutoffs",
 		Category: flags.EthCategory,
 	}
 

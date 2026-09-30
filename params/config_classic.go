@@ -89,8 +89,8 @@ var (
 		// decides which of two competing chains the node prefers during a deep
 		// reorganization.
 		//
-		// --mess moves both ends of the window; --mess.activate on its own leaves
-		// this deactivation in place.
+		// --mess, --mess.activate and --mess.nodisable each turn MESS on past this
+		// deactivation.
 		ECBP1100DeactivateFBlock: big.NewInt(19_250_000), // Spiral hard fork
 		ECIP1099FBlock:           big.NewInt(11_700_000), // Etchash (DAG size limit)
 
