@@ -1,0 +1,56 @@
+# Core-Geth
+
+> Core-Geth is the Ethereum Classic execution client, maintained at
+> [github.com/ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth) in the Ethereum Classic
+> community's GitHub organization. It is a go-ethereum downstream that holds chain configuration as data, so one
+> binary serves Ethereum Classic, the Mordor test network, MintMe and private chains. The current release is
+> `v1.13.0`, published 14 September 2026.
+
+Releases are published from `ethereumclassic/core-geth`. Archives published under the previous `etclabscore`
+namespace are not built from this source. The ETC Cooperative board has communicated its intent to archive
+`etclabscore/core-geth`.
+
+## Start here
+
+- [Node operators: start here](https://docs.coregeth.com/operators/): the short path for node, pool, exchange and RPC operators: what to do now, and what to read in what order.
+- [Documentation home](https://docs.coregeth.com/): what this client is, which networks it supports, and where to go first.
+- [Installation](https://docs.coregeth.com/getting-started/installation/): download, checksum and install a release.
+- [Running a node](https://docs.coregeth.com/getting-started/run-a-node/): Linux, macOS, Windows and Docker, with the flags each kind of node needs.
+- [Upgrading to v1.13.0](https://docs.coregeth.com/tutorials/v1.13.0-migration/): the upgrade path from the `v1.12.x` line, including the required node key rotation.
+
+## What this project is
+
+- [Project history](https://docs.coregeth.com/about/project-history/): the lineage of the code, from go-ethereum through multi-geth, and of the organizations that funded and maintained it from 2018 to today.
+- [Questions and answers](https://docs.coregeth.com/about/faq/): which repository publishes releases, which version to run, why node key rotation is required, MESS, public RPC endpoints and how to verify a download.
+- [Support this work](https://docs.coregeth.com/support/): how this client's maintenance is funded, who depends on it, and the routes for sponsoring it.
+
+## Security and provenance
+
+- [v1.13.0 release report](https://docs.coregeth.com/release-reports/v1.13.0/): what the release fixes, what it changes, and how to verify a download.
+- [v1.13.0: the record behind the release](https://docs.coregeth.com/release-reports/v1.13.0-record/): claims made about this release after it shipped, answered from commit metadata, pull requests, release files and advisory records.
+- [March 2026 security audit](https://docs.coregeth.com/audits/2026-03-security-audit/): six CVEs and a GraphQL denial of service in the `v1.12.x` line, with the per-release breakdown and the disclosure timeline.
+- [August 2026 security follow-up](https://docs.coregeth.com/audits/2026-08-security-followup/): `v1.12.23` measured at its tag against the advisory records.
+- [Go toolchain](https://docs.coregeth.com/audits/2026-09-go-toolchain/): which Go toolchain built each published archive, and the standard library advisories each one carries.
+- [Dependency and toolchain modernization](https://docs.coregeth.com/audits/2026-08-dependency-modernization/): what changed underneath the code between the December 2024 archive point and `v1.13.0`.
+- [Release artifacts](https://docs.coregeth.com/audits/2026-09-release-pipeline/): what the published archives actually contain, measured rather than inferred from the build configuration.
+
+## The network and its services
+
+- [The ETC Cooperative transition](https://docs.coregeth.com/etc-cooperative-transition/): where the services the ETC Cooperative maintained continue as it winds down, including the public JSON-RPC endpoints and the peer discovery lists.
+- [Bootnodes and peer discovery](https://docs.coregeth.com/guides/bootnodes-and-discovery/): how the discovery trees are built from a crawl of the network, and how to point a node at any other list.
+- [MESS](https://docs.coregeth.com/operate/mess/): what ECBP-1100 does, why this release ships it on by default, and how to turn it off.
+
+## Operating a node
+
+- [Security and network exposure](https://docs.coregeth.com/operate/security/): which ports and APIs to expose, and which to keep closed.
+- [Sync modes and data retention](https://docs.coregeth.com/operate/sync-modes/): what each sync mode stores and what it costs.
+- [Maintenance, backup and upgrades](https://docs.coregeth.com/operate/maintenance/): keeping a node healthy over time.
+- [Public RPC endpoint](https://docs.coregeth.com/guides/public-rpc-endpoint/): serving JSON-RPC to other people from your own node.
+- [Endpoints for your own project](https://docs.coregeth.com/guides/developer-endpoints/): running your own JSON-RPC and archive endpoints for an application you are building, and getting Mordor test coins by mining rather than from a faucet.
+- [Mining](https://docs.coregeth.com/guides/mining/) and [mining pool node](https://docs.coregeth.com/guides/mining-pool-node/): what a pool's node needs.
+
+## Building and developing
+
+- [Build from source](https://docs.coregeth.com/developers/build-from-source/): the Go version required and the build commands.
+- [JSON-RPC API](https://docs.coregeth.com/JSON-RPC-API/): the methods this client serves, by module.
+- [Cutting a release](https://docs.coregeth.com/developers/create-new-release/): how a release is built and published.
