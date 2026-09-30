@@ -278,9 +278,9 @@ bundles and on the flags it runs with. `admin_ecbp1100Status` reports that and c
 $ geth --classic attach --exec 'admin.ecbp1100Status()' <datadir>/geth.ipc
 ```
 
-`enabled` is `true` while MESS applies. It needs the head inside the window, from
-`activatedAtBlock` up to `defaultDisabledAtBlock` when that is a block number, and `nodeSwitch`
-on, which the node turns on once it is in sync with enough peers. Where MESS applies, the node logs
+`enabled` is `true` while MESS applies. It needs the head at or past `activatedAtBlock`, and short
+of `defaultDisabledAtBlock` unless the activation comes after it, and `nodeSwitch` on, which the
+node turns on once it is in sync with enough peers. Where MESS applies, the node logs
 `Enabled artificial finality features reason=synced` when it turns that switch on.
 [MESS](../operate/mess.md) covers the two defaults, turning MESS on or off, and when the node
 switches it off by itself.

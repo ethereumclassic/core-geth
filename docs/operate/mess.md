@@ -42,12 +42,14 @@ changes nothing. It is in the `admin` namespace, which the node serves over IPC:
 $ geth --classic attach --exec 'admin.ecbp1100Status()' <datadir>/geth.ipc
 ```
 
-- **`activatedAtBlock` and `defaultDisabledAtBlock`** are the two ends of the window.
+- **`activatedAtBlock` and `defaultDisabledAtBlock`** are the blocks where MESS turns on and off.
   `defaultDisabledAtBlock` is `null` on ECBP-1100's window, and a block number on ECBP-1110's or on
-  one set with `--mess.deactivate`. `--mess` sets it to `0xfffffffffffffffe`, a block out of reach,
-  and `--mess=false` sets `activatedAtBlock` to the same value.
-- **`enabled`** says whether MESS applies right now: `nodeSwitch` is on, and the node's `head` is at
-  or past `activatedAtBlock` and short of `defaultDisabledAtBlock`, if that is a block number.
+  one set with `--mess.deactivate`. `--mess`, `--mess.activate` and `--mess.nodisable` set it to
+  `0xfffffffffffffffe`, a block out of reach, when no deactivation is given, and `--mess=false` sets
+  `activatedAtBlock` to the same value.
+- **`enabled`** says whether MESS applies right now: `nodeSwitch` is on, the node's `head` is at or
+  past `activatedAtBlock`, and it is short of `defaultDisabledAtBlock` unless `activatedAtBlock`
+  comes after it. The later of the two blocks decides.
 - **`nodeSwitch`** is the node's own switch. The node turns it on once it is in sync with enough
   peers, whatever the window, and off as
   [When the node switches it off by itself](#when-the-node-switches-it-off-by-itself) describes.
@@ -124,11 +126,11 @@ reorganization. A node in that state follows the chain with the most total diffi
 without MESS. [Troubleshooting](troubleshooting.md#what-do-disabled-artificial-finality-features-and-reorg-disallowed-mean)
 explains the log lines.
 
-`--mess.nodisable` keeps the switch on through both conditions once it is on, so inside the window
-MESS also applies while the node is out of sync or short of peers. It does not move the window: past
-the deactivation block, MESS still does not apply. Where the node would have switched it off, the log
-shows `Preventing disable artificial finality`. `--mess.nodisable=false` undoes
-`ECBP1100NoDisable = true` in a config file.
+`--mess.nodisable` turns MESS on and keeps the switch on through both conditions once it is on, so
+MESS also applies while the node is out of sync or short of peers. A deactivation block given with
+`--mess.deactivate` ends it. Where the node would have switched it off, the log shows
+`Preventing disable artificial finality`. `--mess.nodisable=false` undoes `ECBP1100NoDisable = true`
+in a config file and restores both switch-offs.
 
 ## Which setting fits which operator
 
@@ -181,7 +183,14 @@ config file, and it moves the deactivation block out of reach, so MESS applies f
 block under either default. An activation block set any other way is kept, and an explicit
 `--mess.activate` or `--mess.deactivate` wins over `--mess`.
 
-`geth dumpconfig` run with `--mess` writes that deactivation into the config file, under `[Eth]`:
+`--mess.activate=<block>` turns MESS on from that block, and `--mess.nodisable` turns it on and keeps
+it on. MESS then runs with no end, unless `--mess.deactivate` gives one. When both blocks are given,
+the later one decides: MESS stops at the deactivation and starts at a later activation. A config
+file line does what its flag does: `OverrideECBP1100 = <block>` turns MESS on from that block, and
+`ECBP1100NoDisable = true` turns it on and keeps it on.
+
+`geth dumpconfig` run with `--mess`, or with `--mess.activate` or `--mess.nodisable` and no
+deactivation, writes the unreachable deactivation into the config file, under `[Eth]`:
 
 ```toml
 [Eth]
@@ -197,9 +206,19 @@ is removed.
 |---|---|---|---|
 | `--mess` | none | `OverrideECBP1100Deactivate = 18446744073709551614` | Turns MESS on |
 | `--mess=false` | none | `OverrideECBP1100 = 18446744073709551614` | Turns MESS off |
-| `--mess.activate=<block>` | `--ecbp1100` | `OverrideECBP1100` | Sets the activation block, and wins over `--mess` and `--mess=false` |
-| `--mess.deactivate=<block>` | `--override.ecbp1100.deactivate` | `OverrideECBP1100Deactivate` | Sets the deactivation block, and wins over `--mess` |
-| `--mess.nodisable` | `--ecbp1100.nodisable` | `ECBP1100NoDisable = true` | Keeps the node's switch on once it is on, bypassing both automatic switch-offs |
+| `--mess.activate=<block>` | `--ecbp1100` | `OverrideECBP1100` | Turns MESS on from this block, and wins over `--mess` and `--mess=false` |
+| `--mess.deactivate=<block>` | `--override.ecbp1100.deactivate` | `OverrideECBP1100Deactivate` | Turns MESS off from this block, and wins over `--mess`. A later activation turns it on again |
+| `--mess.nodisable` | `--ecbp1100.nodisable` | `ECBP1100NoDisable = true` | Turns MESS on and keeps it on, bypassing both automatic switch-offs |
+
+Each flag can also be set through an environment variable: `GETH_MESS`, `GETH_MESS_ACTIVATE`,
+`GETH_MESS_DEACTIVATE` and `GETH_MESS_NODISABLE`. The older spellings' variables, `GETH_ECBP1100`,
+`GETH_OVERRIDE_ECBP1100_DEACTIVATE` and `GETH_ECBP1100_NODISABLE`, work too, and the new name wins
+when both are set.
+
+When settings ask for opposite things, the node logs one warning at startup and does this:
+`--mess=false` with `--mess.activate` applies MESS from the activation block, `--mess=false` with
+`--mess.nodisable` leaves MESS off, and an activation and a deactivation at the same block leave
+MESS off.
 
 A negative block number, or one of 2^64 or more, is refused when the flags are parsed.
 
@@ -214,9 +233,9 @@ one parameter is a block number:
 - `earliest` for block 0, or `latest` and `pending` for the current head. `finalized` and `safe` are
   refused.
 
-It moves only the activation block, so it cannot turn MESS on once the head is past the deactivation
-block: on a node running ECBP-1110's default, it returns `false` and MESS stays off. To apply MESS
-there, restart the node with `--mess`.
+The later of the activation and deactivation blocks decides. On a node past its deactivation block,
+a block after that deactivation turns MESS on, `latest` included, and a block before it leaves MESS
+off.
 
 Check the result with `admin.ecbp1100Status()`. The [admin module](../JSON-RPC-API/modules/admin.md)
 lists both methods.
