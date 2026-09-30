@@ -29,19 +29,18 @@ on [the repository](https://github.com/ethereumclassic/core-geth).
 
 **An invoiced agreement, for organizations.** If your business depends on this client, a maintenance sponsorship
 can be invoiced against a purchase order like any other vendor relationship, which is usually what a finance
-department needs. Write to <donations@ethereumclassic.com> with what you run and the period you want to cover.
+department needs. Write to <donations@ethereumclassic.net> with what you run and the period you want to cover.
 
-**A direct transfer.** For anyone who prefers to send funds directly, on any EVM-compatible chain:
+**A direct transfer.** For anyone who prefers to send funds directly, an address is provided on request. Write to
+<donations@ethereumclassic.net>. If a large transfer is planned, send a small one first and confirm receipt at
+the same address.
 
-``` { .text .copy }
-0x86FE8d331A4B984B57d3e92C6F4cb9C881eC9B04
-```
+**This project does not publish a donation address.** An address shown in a screenshot, a fork, a mirror or a
+message did not come from this project unless it arrived in a reply from <donations@ethereumclassic.net>.
 
-**Check that address before you use it.** It is published here, on a page served over TLS from
-`docs.coregeth.com`, which is built from
-[this repository](https://github.com/ethereumclassic/core-geth/blob/main/docs/support.md). An address shown in a
-screenshot, a fork, a mirror or a message is worth nothing until it matches this page. If a large transfer is
-planned, send a small one first and confirm receipt at <donations@ethereumclassic.com>.
+Funding mail goes to `ethereumclassic.net`, the domain for the public goods maintained in the
+[`ethereumclassic`](https://github.com/ethereumclassic) organization, such as the
+[peer discovery lists](https://github.com/ethereumclassic/discv4-dns-lists) that nodes bootstrap from.
 
 ## What funding does not buy
 

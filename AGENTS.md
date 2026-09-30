@@ -284,7 +284,11 @@ comment can drift from the SHA without anything failing, so trust the SHA.
 - **`SECURITY.md` is this project's own policy and is the reporting path.** It was
   upstream's until this release series, directing reports to the Ethereum
   Foundation under the Foundation's PGP key; it now routes them to this
-  repository's private advisories or to `security@ethereumclassic.com`. Cite it.
+  repository's private advisories or to `security@ethereumclassic.net`. Cite it.
+  The project's contact addresses are on `ethereumclassic.net`, the domain for
+  the public goods the `ethereumclassic` organization maintains, such as the
+  discovery lists published from `ethereumclassic/discv4-dns-lists`. Do not move
+  them to another domain.
 - **`geth version-check` queries go-ethereum's vulnerability feed** and prints
   `No vulnerabilities found` when nothing matches. That feed does not track this
   client, so a clean result from it says nothing about this client.

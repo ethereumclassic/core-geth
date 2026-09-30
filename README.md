@@ -140,7 +140,7 @@ For testing with fake PoW, which skips DAG generation:
 ## Security
 
 **To report a security issue privately**, use a GitHub private advisory or email
-<security@ethereumclassic.com>. [`SECURITY.md`](SECURITY.md) has the disclosure policy and
+<security@ethereumclassic.net>. [`SECURITY.md`](SECURITY.md) has the disclosure policy and
 the details of each channel. Security issues are never reported as public issues.
 
 Ethereum Classic stakeholders such as mining pools, exchanges and service providers can use
@@ -239,11 +239,10 @@ Classic community repository, created on 2024-12-21 from the preceding repositor
 and tagged
 [`archive/etclabscore-2024-12`](https://github.com/ethereumclassic/core-geth/releases/tag/archive%2Fetclabscore-2024-12).
 
-Development then stayed dormant across every Core-Geth repository for 21 months.
-[White B0x](https://whiteb0x.com) has led it since February 2026, cutting the v1.13.0
-modernization release and clearing years of accumulated technical debt inherited from the
-previous repositories. That leaves a modernized client for community maintenance in the
-[`ethereumclassic`](https://github.com/ethereumclassic) organization going forward.
+Development then stayed dormant across every Core-Geth repository for 21 months. It resumed in
+February 2026 with the v1.13 work, which cleared years of accumulated technical debt inherited
+from the previous repositories. The modernized client is community maintained in the
+[`ethereumclassic`](https://github.com/ethereumclassic) organization.
 
 [Project history](docs/about/project-history.md) has the full account of both lineages, the
 organizations behind them and the records for each step. Claims made about the client are
@@ -256,5 +255,5 @@ financial products, Etchash mining hardware manufacturers and large holders all 
 Ethereum Classic client that follows the network correctly and receives security fixes promptly. If
 your operation relies on Ethereum Classic, please help fund that work.
 [Support this work](https://docs.coregeth.com/support/) carries the routes: sponsorship on GitHub,
-an invoiced maintenance agreement for organizations, or a direct transfer, along with how to check
-the address before you use it.
+an invoiced maintenance agreement for organizations, or a direct transfer to an address provided on
+request.

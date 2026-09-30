@@ -106,13 +106,13 @@ which can disagree with the source: a release is not what the build configuratio
 
 Report a security issue privately, never in a public issue: through this repository's
 [private advisories](https://github.com/ethereumclassic/core-geth/security/advisories), or by
-email to <security@ethereumclassic.com>. To follow security updates and releases, track the
+email to <security@ethereumclassic.net>. To follow security updates and releases, track the
 [`ethereumclassic/core-geth` release line](https://github.com/ethereumclassic/core-geth/releases).
 [`SECURITY.md`](https://github.com/ethereumclassic/core-geth/blob/main/SECURITY.md) has the
 disclosure policy and the details of each channel.
 
 With the ETC Cooperative's dissolution, Ethereum Classic stakeholders such as mining pools,
-exchanges and service providers should use <security@ethereumclassic.com> as their point of
+exchanges and service providers should use <security@ethereumclassic.net> as their point of
 contact. A person answers it: one of the core developers who maintain this repository and have
 been with the network since its inception.
 
@@ -123,5 +123,5 @@ work. Mining pools, centralized exchanges, issuers of Ethereum Classic financial
 mining hardware manufacturers and large holders all depend on an Ethereum Classic client that
 follows the network correctly and receives security fixes promptly. If your operation relies on
 Ethereum Classic, please help fund that work. The [support page](support.md) carries the routes:
-sponsorship on GitHub, an invoiced maintenance agreement for organizations, or a direct transfer,
-along with how to check the address before you use it.
+sponsorship on GitHub, an invoiced maintenance agreement for organizations, or a direct transfer to
+an address provided on request.
