@@ -1,6 +1,6 @@
 ---
 title: MESS
-description: "MESS (ECBP-1100) in Core-Geth: what it does during a deep chain reorganization, why v1.13.0 ships it on by default, and how to turn it off."
+description: "MESS (ECBP-1100) in Core-Geth: what it does during a deep chain reorganization, the two defaults ECBP-1100 and ECBP-1110 describe, and how to turn it on or off."
 ---
 
 MESS, Modified Exponential Subjective Scoring (ECBP-1100), makes a node resist deep chain
@@ -15,23 +15,64 @@ chains the node prefers. Nodes that must agree on the chain, such as an exchange
 withdrawal nodes, should all run with the same MESS setting: during a deep reorganization, a node
 with MESS on and a node with MESS off can prefer different chains.
 
+## The two defaults
+
+Two Best Practice documents describe when MESS applies, and a release bundles one of their two
+windows for each network:
+
+| Network | MESS applies from block | ECBP-1100's deactivation block | ECBP-1110's deactivation block |
+|---|---|---|---|
+| Ethereum Classic | 11,380,000 | none | 19,250,000 |
+| Mordor | 2,380,000 | none | 10,400,000 |
+
+- **ECBP-1100's default:** MESS applies from the activation block and never stops.
+- **ECBP-1110's default:** MESS applies from the activation block and stops at the deactivation block.
+
+**Both chains are past their deactivation blocks, so the two defaults no longer agree.** A node on
+ECBP-1110's default does not apply MESS, and a node on ECBP-1100's default does. `--mess` turns MESS
+on and `--mess=false` turns it off, whichever default the node would otherwise run.
+[Check your node](#check-your-node) shows which one it runs.
+
+## Check your node
+
+`admin.ecbp1100Status()` reports the window a node has and whether MESS applies at its head, and
+changes nothing. It is in the `admin` namespace, which the node serves over IPC:
+
+```shell
+$ geth --classic attach --exec 'admin.ecbp1100Status()' <datadir>/geth.ipc
+```
+
+- **`activatedAtBlock` and `defaultDisabledAtBlock`** are the two ends of the window.
+  `defaultDisabledAtBlock` is `null` on ECBP-1100's window, and a block number on ECBP-1110's or on
+  one set with `--mess.deactivate`. `--mess` sets it to `0xfffffffffffffffe`, a block out of reach,
+  and `--mess=false` sets `activatedAtBlock` to the same value.
+- **`enabled`** says whether MESS applies right now: `nodeSwitch` is on, and the node's `head` is at
+  or past `activatedAtBlock` and short of `defaultDisabledAtBlock`, if that is a block number.
+- **`nodeSwitch`** is the node's own switch. The node turns it on once it is in sync with enough
+  peers, whatever the window, and off as
+  [When the node switches it off by itself](#when-the-node-switches-it-off-by-itself) describes.
+
+A synced Ethereum Classic node on ECBP-1110's default reports `enabled` as `false` and
+`defaultDisabledAtBlock` as `0x125bb50`, block 19,250,000. On ECBP-1100's default it reports
+`enabled` as `true` and `defaultDisabledAtBlock` as `null`.
+
 ## What changed, and when
 
 | When | What |
 | --- | --- |
-| 11 October 2020, block 11,380,000 | MESS activates on Ethereum Classic and becomes the default |
-| `v1.12.17`, December 2023 | a deactivation is scheduled at block 19,250,000 |
-| 5 February 2024, block 19,250,000 | the chain reaches Spiral and the default changes: nodes on `v1.12.17` or later stop applying MESS |
+| 11 October 2020, block 11,380,000 | MESS activates on Ethereum Classic with no deactivation block, as ECBP-1100 describes |
+| `v1.12.17`, December 2023 | a deactivation is scheduled at block 19,250,000, as ECBP-1110 describes |
+| 5 February 2024, block 19,250,000 | the chain reaches Spiral, and nodes on `v1.12.17` or later stop applying MESS |
 | `v1.13.0`, 14 September 2026 | the deactivation is removed and the activation kept, so MESS applies again |
 
-`v1.12.16` and earlier carry no deactivation, and every version running on the network today carries
-one, so an upgrade to `v1.13.0` restores the behavior that ran for the three years and four months
-between those middle two rows rather than introducing a new one.
+`v1.12.16` and earlier carry no deactivation. The two defaults agree until the deactivation block:
+on Ethereum Classic, a node on either one applied MESS from 11 October 2020 to 5 February 2024, three
+years and four months.
 
-## Why it is on by default
+## Why the two defaults exist
 
-**MESS exists because of what happened the last time Ethereum Classic's client base thinned.** The record, with
-sources:
+**ECBP-1100's default dates from the 2020 attacks, and ECBP-1110's from January 2024.** The record,
+with sources:
 
 - **31 July 2020: a 51% attack that ran for 12 hours.** The
   [MESS testing report](https://medium.com/etc-core/mess-testing-results-report-4cba96ed92fa), published by ETC
@@ -41,7 +82,7 @@ sources:
 - **25 September 2020:** an entire core developers' call was
   [given over to 51% attack solutions](https://ethereumclassic.org/blog/2020-09-25-core-devs-call-51-attack-solutions).
   Seven proposals competed, from merged mining to checkpointing to VeriBlock. MESS is the one that shipped.
-- **28 September and 10 October 2020:** MESS activated on Mordor at block 238,000 and on Ethereum Classic at
+- **28 September and 11 October 2020:** MESS activated on Mordor at block 2,380,000 and on Ethereum Classic at
   **block 11,380,000**, shipped in Core-Geth v1.11.15
   ([release announcement](https://medium.com/etc-core/ethereum-classic-stakeholders-critical-security-release-to-prevent-51-attacks-aa83596a0903),
   [client upgrade](https://ethereumclassic.org/blog/2020-10-10-mess-client-upgrade)). This client still activates
@@ -60,42 +101,21 @@ sources:
   MESS off by default. Its reasoning rests on Ethereum Classic holding roughly 85% of apparent compatible hashrate
   at the time, which is a claim about market conditions rather than about the code.
 
-**What preceded the 2020 attacks was a thinning client base, not a change in the chain's rules.** That is the
-condition Ethereum Classic is in again: maintenance of this client has moved between organizations, the previous
-repository is scheduled to be archived, and operators are receiving conflicting advice about which client to run.
-None of that changes which blocks are valid. It does make the hashrate distribution and client mix that
-ECBP-1110's reasoning depends on harder to predict than when that document was written.
-
-So the default leans the way that costs an operator one flag to undo. Exchanges asked for MESS, and exchanges and
-payment processors are what a deep reorganization is aimed at: the July 2020 attacker took $5.6 million from
-them, not from the protocol. An operator who disagrees runs `--mess=false` and is where ECBP-1110 recommends; an
-operator who does nothing is protected. The reverse default puts the burden on the people with the most to lose,
-during the window when it matters most.
-
-**This is a client default, not a rule.** ECBP-1100 and ECBP-1110 are both Best Practice documents, so each
-client chooses its own. The status of both is open in
+**Neither is a rule.** ECBP-1100 and ECBP-1110 are both Best Practice documents, so each client
+chooses its own default and each operator can override it. The status of both is open in
 [ECIPs #580](https://github.com/ethereumclassic/ECIPs/pull/580).
-
-## Where it applies
-
-| Network | MESS applies from block | Deactivation block |
-|---|---|---|
-| Ethereum Classic | 11,380,000 | none |
-| Mordor | 2,380,000 | none |
-
-It is on by default on both networks. [MESS on this node](../getting-started/run-classic-node.md#mess-on-this-node)
-shows how `admin.ecbp1100Status()` reports whether it is in force.
 
 ## When the node switches it off by itself
 
-MESS is not unconditional. The node switches it off when either of these holds, and logs
-`Disabled artificial finality features` with the reason:
+MESS is not unconditional. Inside its window, it applies only while the node's own switch is on, and
+the node turns that switch off when either of these holds. Where the window is open at the head, it
+logs `Disabled artificial finality features` with the reason:
 
 - **`low peers`:** the node has fewer than five peers.
 - **`stale safety interval`:** the node's newest block is more than 390 seconds old. The node checks
   on the same interval, so this happens roughly 6.5 to 13 minutes after the head stops advancing.
 
-It switches MESS back on once the node is in sync with enough peers and no peer advertises a chain
+It turns the switch back on once the node is in sync with enough peers and no peer advertises a chain
 with more total difficulty.
 
 That is the limit of the defense. An eclipse attack, a network partition or a network-wide stall
@@ -104,9 +124,11 @@ reorganization. A node in that state follows the chain with the most total diffi
 without MESS. [Troubleshooting](troubleshooting.md#what-do-disabled-artificial-finality-features-and-reorg-disallowed-mean)
 explains the log lines.
 
-`--mess.nodisable` keeps MESS on through both conditions, so it also applies while the node is out
-of sync or short of peers. Where the node would have switched it off, the log shows
-`Preventing disable artificial finality`.
+`--mess.nodisable` keeps the switch on through both conditions once it is on, so inside the window
+MESS also applies while the node is out of sync or short of peers. It does not move the window: past
+the deactivation block, MESS still does not apply. Where the node would have switched it off, the log
+shows `Preventing disable artificial finality`. `--mess.nodisable=false` undoes
+`ECBP1100NoDisable = true` in a config file.
 
 ## Which setting fits which operator
 
@@ -140,27 +162,44 @@ recommendation depends on.
 geth --classic --mess=false
 ```
 
-`--mess=false` moves the activation block out of reach. `geth dumpconfig` writes it into a config
-file as:
+`--mess=false` moves the activation block out of reach, so MESS does not apply under either default.
+`geth dumpconfig` writes it into a config file as:
 
 ```toml
 [Eth]
 OverrideECBP1100 = 18446744073709551614
 ```
 
-## Turn MESS back on
+## Turn MESS on
 
-Remove `--mess=false`, or pass `--mess`. `--mess` also overrides that line in a config file, and
-`--mess.nodisable=false` overrides `ECBP1100NoDisable = true`.
+```sh
+geth --classic --mess
+```
+
+`--mess` moves both ends of the window: it clears the off switch that `--mess=false` writes into a
+config file, and it moves the deactivation block out of reach, so MESS applies from the activation
+block under either default. An activation block set any other way is kept, and an explicit
+`--mess.activate` or `--mess.deactivate` wins over `--mess`.
+
+`geth dumpconfig` run with `--mess` writes that deactivation into the config file, under `[Eth]`:
+
+```toml
+[Eth]
+OverrideECBP1100Deactivate = 18446744073709551614
+```
+
+A node started from that file keeps MESS on, whether or not `--mess` is passed again, until the line
+is removed.
 
 ## Flags and config file keys
 
 | Flag | Older spelling, still accepted | Config file key, under `[Eth]` | Effect |
 |---|---|---|---|
+| `--mess` | none | `OverrideECBP1100Deactivate = 18446744073709551614` | Turns MESS on |
 | `--mess=false` | none | `OverrideECBP1100 = 18446744073709551614` | Turns MESS off |
-| `--mess.activate=<block>` | `--ecbp1100` | `OverrideECBP1100` | Sets the activation block, and wins over `--mess=false` |
-| `--mess.deactivate=<block>` | `--override.ecbp1100.deactivate` | `OverrideECBP1100Deactivate` | Sets a deactivation block |
-| `--mess.nodisable` | `--ecbp1100.nodisable` | `ECBP1100NoDisable = true` | Keeps MESS on, bypassing both automatic switch-offs |
+| `--mess.activate=<block>` | `--ecbp1100` | `OverrideECBP1100` | Sets the activation block, and wins over `--mess` and `--mess=false` |
+| `--mess.deactivate=<block>` | `--override.ecbp1100.deactivate` | `OverrideECBP1100Deactivate` | Sets the deactivation block, and wins over `--mess` |
+| `--mess.nodisable` | `--ecbp1100.nodisable` | `ECBP1100NoDisable = true` | Keeps the node's switch on once it is on, bypassing both automatic switch-offs |
 
 A negative block number, or one of 2^64 or more, is refused when the flags are parsed.
 
@@ -174,6 +213,10 @@ one parameter is a block number:
   the `--mess=false` value;
 - `earliest` for block 0, or `latest` and `pending` for the current head. `finalized` and `safe` are
   refused.
+
+It moves only the activation block, so it cannot turn MESS on once the head is past the deactivation
+block: on a node running ECBP-1110's default, it returns `false` and MESS stays off. To apply MESS
+there, restart the node with `--mess`.
 
 Check the result with `admin.ecbp1100Status()`. The [admin module](../JSON-RPC-API/modules/admin.md)
 lists both methods.
