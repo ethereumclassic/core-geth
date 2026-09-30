@@ -216,6 +216,7 @@ func TestMESSFlagsDumpConfig(t *testing.T) {
 		args []string
 		want []string
 	}{
+		{[]string{"--mess"}, []string{"OverrideECBP1100Deactivate = 18446744073709551614"}},
 		{[]string{"--mess=false"}, []string{"OverrideECBP1100 = 18446744073709551614"}},
 		{
 			[]string{"--mess.activate=15000000", "--mess.deactivate=20000000", "--mess.nodisable"},
