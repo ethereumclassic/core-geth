@@ -154,8 +154,12 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 		}
 	}
 	// With no network chosen, settle the genesis now: everything below, the
-	// consensus engine first, is configured from it.
+	// consensus engine first, is configured from it. A database holding one of
+	// the Ethereum networks is refused, as their flags are.
 	if config.Genesis == nil {
+		if err := CheckUnmaintainedChain(chainDb); err != nil {
+			return nil, err
+		}
 		config.Genesis = core.DefaultGenesisFor(chainDb)
 	}
 	// Transfer mining-related config to the ethash config.
@@ -368,6 +372,32 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 	eth.shutdownTracker.MarkStartup()
 
 	return eth, nil
+}
+
+// CheckUnmaintainedChain refuses a database that holds one of the Ethereum
+// networks, which this client follows only through the Cancun upgrade: Ethereum
+// mainnet, Sepolia or Holesky. It is for a command given no network flag, whose
+// chain is whatever its database holds; a network flag chooses the genesis
+// itself. Ethereum mainnet shares Ethereum Classic's genesis, so it is told
+// apart by its stored chain ID, 1 rather than 61, as in core.DefaultGenesisFor.
+func CheckUnmaintainedChain(db ethdb.Database) error {
+	var network string
+	switch stored := rawdb.ReadCanonicalHash(db, 0); stored {
+	case params.SepoliaGenesisHash:
+		network = "Sepolia"
+	case params.HoleskyGenesisHash:
+		network = "Holesky"
+	case params.MainnetGenesisHash:
+		if cfg := rawdb.ReadChainConfig(db, stored); cfg != nil {
+			if id := cfg.GetChainID(); id != nil && id.Cmp(params.MainnetChainConfig.GetChainID()) == 0 {
+				network = "Ethereum mainnet"
+			}
+		}
+	}
+	if network == "" {
+		return nil
+	}
+	return fmt.Errorf("the data directory holds %s's chain: this client implements Ethereum upgrades only through Cancun, so it cannot follow Ethereum or its test networks. Use --datadir to choose a directory for Ethereum Classic, Mordor or a private network", network)
 }
 
 func makeExtraData(extra []byte) []byte {

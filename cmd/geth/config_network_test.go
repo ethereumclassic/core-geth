@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"slices"
@@ -165,6 +166,42 @@ func TestNetworkBanner(t *testing.T) {
 		}
 		if !slices.Equal(named, want) {
 			t.Errorf("%v: the banner names %q, want %q", c.args, named, want)
+		}
+	}
+}
+
+// TestEthereumDatabaseRefused checks that geth refuses a data directory holding Ethereum
+// mainnet's chain when no network flag chooses a genesis, both to start a node and to export
+// blocks, as it refuses --ethereum. Ethereum mainnet shares Ethereum Classic's genesis, so geth
+// once ran Ethereum's rules on such a directory, which this client follows only through the
+// Cancun upgrade, with Ethereum Classic's bootnodes.
+func TestEthereumDatabaseRefused(t *testing.T) {
+	datadir := t.TempDir()
+	genesis := filepath.Join(t.TempDir(), "ethereum.json")
+	b, err := json.Marshal(params.DefaultGenesisBlock())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(genesis, b, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	setup := runGeth(t, "--datadir", datadir, "init", genesis)
+	setup.WaitExit()
+	if status := setup.ExitStatus(); status != 0 {
+		t.Fatalf("init: exit status %d\n%s", status, setup.StderrText())
+	}
+	console := []string{"--nodiscover", "--maxpeers", "0", "--port", "0", "--nat", "none", "--exec", "admin.nodeInfo.name", "console"}
+	for _, args := range [][]string{
+		console,
+		slices.Concat([]string{"--networkid", "12345"}, console),
+		{"export", filepath.Join(t.TempDir(), "chain.rlp")},
+	} {
+		geth := runGeth(t, slices.Concat([]string{"--datadir", datadir}, args)...)
+		geth.KillTimeout = 30 * time.Second
+		geth.Output()
+		geth.WaitExit()
+		if status, stderr := geth.ExitStatus(), geth.StderrText(); status == 0 || !strings.Contains(stderr, "holds Ethereum mainnet's chain") {
+			t.Errorf("%v: exit status %d, want the directory refused\n%s", args, status, stderr)
 		}
 	}
 }

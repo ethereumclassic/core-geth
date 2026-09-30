@@ -2751,6 +2751,9 @@ func MakeChain(ctx *cli.Context, stack *node.Node, readonly bool) (*core.BlockCh
 		chainDb = MakeChainDatabase(ctx, stack, readonly)
 	)
 	if gspec == nil {
+		if err := eth.CheckUnmaintainedChain(chainDb); err != nil {
+			Fatalf("%v", err)
+		}
 		gspec = core.DefaultGenesisFor(chainDb)
 	}
 	cliqueConfig, err := core.LoadCliqueConfig(chainDb, gspec)
