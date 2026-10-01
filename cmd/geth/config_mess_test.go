@@ -454,3 +454,49 @@ func TestMESSFlagsRunningNode(t *testing.T) {
 		})
 	}
 }
+
+// TestMESSFlagsRefused checks that geth refuses a value a MESS flag cannot take: it exits with an
+// error naming the flag and writes no config file, rather than going on with the bundled default.
+func TestMESSFlagsRefused(t *testing.T) {
+	run := func(args ...string) (status int, stderr string, wrote bool) {
+		t.Helper()
+		out := filepath.Join(t.TempDir(), "config.toml")
+		geth := runGeth(t, append(append([]string{"--mordor"}, args...), "dumpconfig", out)...)
+		geth.WaitExit()
+		_, err := os.Stat(out)
+		return geth.ExitStatus(), geth.StderrText(), err == nil
+	}
+	// The control: a value the flag takes is written, so the cases below fail because of their
+	// values and not because this harness cannot pass.
+	if status, stderr, wrote := run("--mess.activate=15000000"); status != 0 || !wrote {
+		t.Fatalf("--mess.activate=15000000: exit status %d, config written %t\n%s", status, wrote, stderr)
+	}
+	for _, c := range []struct {
+		args []string
+		want string // in the error geth prints
+	}{
+		{[]string{"--mess.activate="}, "-mess.activate:"},
+		{[]string{"--mess.activate=abc"}, "-mess.activate:"},
+		{[]string{"--mess.activate=-1"}, "-mess.activate:"},
+		{[]string{"--mess.activate=18446744073709551616"}, "-mess.activate:"},
+		// Without a value, the flag takes the next argument as its value.
+		{[]string{"--mess.activate", "--mess"}, "-mess.activate:"},
+		{[]string{"--mess.deactivate=abc"}, "-mess.deactivate:"},
+		{[]string{"--mess=abc"}, "-mess:"},
+		{[]string{"--mess.nodisable=abc"}, "-mess.nodisable:"},
+	} {
+		status, stderr, wrote := run(c.args...)
+		if status == 0 || wrote {
+			t.Errorf("%v: exit status %d, config written %t, want refused", c.args, status, wrote)
+		}
+		if !strings.Contains(stderr, c.want) {
+			t.Errorf("%v: error %q does not name the flag (%q)", c.args, strings.TrimSpace(stderr), c.want)
+		}
+	}
+	// A value from an environment variable is refused the same way.
+	t.Setenv("GETH_MESS_ACTIVATE", "abc")
+	if status, stderr, wrote := run(); status == 0 || wrote || !strings.Contains(stderr, "mess.activate") {
+		t.Errorf("GETH_MESS_ACTIVATE=abc: exit status %d, config written %t, error %q, want refused naming the flag",
+			status, wrote, strings.TrimSpace(stderr))
+	}
+}
