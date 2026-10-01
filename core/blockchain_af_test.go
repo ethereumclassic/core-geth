@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/big"
 	"math/rand"
+	"strings"
 	"testing"
 	"time"
 
@@ -260,6 +261,36 @@ func TestEcbp1100PolynomialV(t *testing.T) {
 		y.Div(y, ecbp1100PolynomialVCurveFunctionDenominator)
 		if c.ag != y.Int64() {
 			t.Fatal("mismatch", i)
+		}
+	}
+}
+
+// TestECBP1100NoDisableNotice checks that --mess.nodisable's log line says what is true of the MESS
+// window, and never names block 18446744073709551614, which no chain reaches.
+func TestECBP1100NoDisableNotice(t *testing.T) {
+	u := func(n uint64) *uint64 { return &n }
+	const (
+		unreachable = "MESS is set to on, with its deactivation moved to an unreachable block"
+		stops       = "MESS still stops applying at the deactivation block"
+	)
+	for _, c := range []struct {
+		name                     string
+		activation, deactivation *uint64
+		want                     string // a substring, or "" for no notice
+	}{
+		{"no deactivation", u(11_380_000), nil, ""},
+		{"deactivation out of reach", u(11_380_000), u(math.MaxUint64 - 1), unreachable},
+		{"deactivation at math.MaxUint64", u(11_380_000), u(math.MaxUint64), unreachable},
+		{"deactivation after the activation", u(11_380_000), u(19_250_000), stops},
+		{"activation after the deactivation", u(25_000_000), u(20_000_000), ""},
+		{"both at one block", u(20_000_000), u(20_000_000), ""},
+	} {
+		got := ecbp1100NoDisableNotice(c.activation, c.deactivation)
+		if (c.want == "") != (got == "") || !strings.Contains(got, c.want) {
+			t.Errorf("%s: notice %q, want one containing %q", c.name, got, c.want)
+		}
+		if strings.Contains(got, "18446744073709551614") {
+			t.Errorf("%s: notice names the unreachable block: %q", c.name, got)
 		}
 	}
 }

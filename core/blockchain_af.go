@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"fmt"
+	"math"
 	"math/big"
 	"sync/atomic"
 	"time"
@@ -25,23 +26,48 @@ func (bc *BlockChain) ArtificialFinalityNoDisable(n int32) {
 
 	if n == 1 {
 		deactivateTransition := bc.chainConfig.GetECBP1100DeactivateTransition()
-		if deactivateTransition != nil {
+		logActivationBlockRaw := bc.chainConfig.GetECBP1100Transition()
+		if notice := ecbp1100NoDisableNotice(logActivationBlockRaw, deactivateTransition); notice != "" {
 			// Log the activation block as well as the deactivation block.
 			// Context is nice to have for the user.
 			var logActivationBlock uint64
-			logActivationBlockRaw := bc.chainConfig.GetECBP1100Transition()
 			if logActivationBlockRaw == nil {
 				// panic("impossible")
 				logActivationBlock = *deactivateTransition
 			} else {
 				logActivationBlock = *logActivationBlockRaw
 			}
-
-			log.Warn(`An ECBP1100 (MESS) deactivation block is set together with --mess.nodisable.
---mess.nodisable keeps MESS on once enabled, bypassing its low-peer-count and stale-head safeguards, but MESS still stops applying at the deactivation block.
-`, "ECBP1100 activation block", logActivationBlock,
-				"ECBP1100 deactivation block", *deactivateTransition)
+			logCtx := []interface{}{"ECBP1100 activation block", logActivationBlock}
+			if *deactivateTransition < ecbp1100Unreachable {
+				logCtx = append(logCtx, "ECBP1100 deactivation block", *deactivateTransition)
+			}
+			log.Warn(notice, logCtx...)
 		}
+	}
+}
+
+// ecbp1100Unreachable is the block --mess, --mess.activate and --mess.nodisable move the MESS
+// deactivation to when none is given. No chain reaches it.
+const ecbp1100Unreachable = math.MaxUint64 - 1
+
+// ecbp1100NoDisableNotice is what --mess.nodisable adds to the log about the MESS window, or ""
+// when there is nothing to add. A deactivation block after the activation ends the window the
+// flag keeps on; an unreachable one, or one before the activation, does not.
+func ecbp1100NoDisableNotice(activation, deactivation *uint64) string {
+	switch {
+	case deactivation == nil:
+		return ""
+	case *deactivation >= ecbp1100Unreachable:
+		return "MESS is set to on, with its deactivation moved to an unreachable block. " +
+			"--mess.nodisable keeps it on once enabled, bypassing its low-peer-count and stale-head safeguards."
+	case activation != nil && *activation >= *deactivation:
+		// The later block decides, so MESS runs from the activation with no end, or, at the
+		// same block, never runs; the node warns about that case when it reads the flags.
+		return ""
+	default:
+		return `An ECBP1100 (MESS) deactivation block is set together with --mess.nodisable.
+--mess.nodisable keeps MESS on once enabled, bypassing its low-peer-count and stale-head safeguards, but MESS still stops applying at the deactivation block.
+`
 	}
 }
 

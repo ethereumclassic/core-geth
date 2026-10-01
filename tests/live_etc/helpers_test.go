@@ -39,9 +39,8 @@ const (
 	ClassicECIP1099Block = 11_700_000
 	MordorECIP1099Block  = 2_520_000
 
-	// ECBP-1100 (MESS) activation blocks, and the heights at which ECBP-1110
-	// recommended shipping MESS off by default. core-geth v1.13.x keeps MESS on with
-	// no deactivation block, so the *Deactivate heights are historic markers only.
+	// ECBP-1100 (MESS) activation blocks, and the blocks at which the bundled
+	// configuration switches MESS off (the ECBP-1110 default).
 	MordorECBP1100Activate   = 2_380_000
 	MordorECBP1100Deactivate = 10_400_000
 

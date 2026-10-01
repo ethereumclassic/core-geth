@@ -26,10 +26,13 @@ only: the curve, the decision, and the derivation of the decision's inputs from 
 segments.
 
 That split resolved a real framing problem rather than a formatting one. ECBP-1100's window is
-*client configuration* — a client shipping MESS permanently on does not fork from one shipping
-it off — while the arithmetic is not. One file was pinning both, so running it against any
-client mixed a conformance claim with a policy claim. This repository ships MESS enabled and
-therefore diverges from the window layer deliberately; it never diverged on the arithmetic.
+*client configuration*, since a client shipping MESS permanently on does not fork from one
+shipping it off, while the arithmetic is not. One file was pinning both, so running it against
+any client mixed a conformance claim with a policy claim.
+
+**A client's window can change from one release to the next while the arithmetic does not**,
+which is the argument for keeping them apart. A fixture that pinned both would need editing at
+each such change, and each edit would look like a conformance change.
 
 **Do not re-add the window layer here.** If this client's MESS policy needs asserting, that is
 `params/config_etc_test.go`'s job against this repository's own configuration, not a

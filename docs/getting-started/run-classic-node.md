@@ -131,10 +131,10 @@ INFO [09-13|09:23:35.590] Indexed transactions                     blocks=2,350,
 ```
 
 - `Snap sync complete, auto disabling` marks the end of the first sync.
-- `Enabled artificial finality features reason=synced` is MESS switching on
-  ([MESS on this node](#mess-on-this-node)).
+- `Enabled artificial finality features reason=synced` is MESS switching on. It appears only when
+  MESS is on ([MESS on this node](#mess-on-this-node)).
 - From here the node imports new blocks as they arrive, usually one block per
-  `Imported new chain segment` line. `af=true` on those lines means MESS is in force.
+  `Imported new chain segment` line. `af=true` on those lines means MESS is on.
 - The node goes on building its state snapshot in the background, and serves no snapshot data to
   other nodes until that finishes.
 - `Indexed transactions` means the transaction index is built.
@@ -153,8 +153,8 @@ A first sync logs many of these. None of them stops it.
 
 A new node is synced when all four of these hold.
 
-1. **The log shows the sync finishing:** `Snap sync complete, auto disabling`, then
-   `Enabled artificial finality features reason=synced`.
+1. **The log shows the sync finishing:** `Snap sync complete, auto disabling`. When MESS is on, it
+   then logs `Enabled artificial finality features reason=synced`.
 2. **`eth.syncing` returns `false`:**
 
     ```shell
@@ -268,21 +268,14 @@ Keep the endpoint on `127.0.0.1`. Before you open it wider, read
 
 ## MESS on this node
 
-This node runs MESS, Modified Exponential Subjective Scoring
-([ECIP-1100](https://ecips.ethereumclassic.org/ECIPs/ecip-1100)), a chain-selection defense
-against deep reorganizations. It ships on by default as the client maintainers' decision, which
-the README's [ETC consensus history](https://github.com/ethereumclassic/core-geth#etc-consensus-history)
-explains. The node switches it on when it finishes syncing: that is the
-`Enabled artificial finality features reason=synced` line. `admin_ecbp1100Status` reports its
-state and changes nothing:
+MESS ([ECBP-1100](https://ecips.ethereumclassic.org/ECIPs/ecip-1100)) is a defense against deep
+chain reorganizations. Check whether it is on:
 
 ```shell
-$ geth --classic attach --exec 'admin.ecbp1100Status()' <datadir>/geth.ipc
+$ geth --classic attach --exec 'admin.ecbp1100Status().enabled' <datadir>/geth.ipc
 ```
 
-`nodeSwitch` is the switch that log line turns on. `enabled` is `true` when that switch is on and
-the head has reached `activatedAtBlock`, the block MESS applies from.
-[MESS](../operate/mess.md) covers turning it off and back on, and when the node switches it off by itself.
+`true` means MESS is on. [MESS](../operate/mess.md) explains how to turn it on or off.
 
 ## Next steps
 
