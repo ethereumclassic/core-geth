@@ -1,12 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"math/big"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
@@ -30,6 +33,7 @@ func messConfigFrom(t *testing.T, cfg *ethconfig.Config, args ...string) *ethcon
 		Flags: messFlags(),
 		Action: func(ctx *cli.Context) error {
 			applyMESSFlags(ctx, cfg)
+			applyMESSRunSettings(ctx, cfg)
 			return nil
 		},
 	}
@@ -66,8 +70,8 @@ func messEnabledAt(t *testing.T, network *coregeth.CoreGethChainConfig, cfg *eth
 }
 
 // TestMESSFlags follows each MESS flag from the command line to whether MESS applies at a
-// block. It parses the flags with applyMESSFlags and applies the resulting overrides to a
-// bundled chain configuration the way eth.New does, without starting a node. The off switch
+// block. It applies the flags as makeFullNode does, and the resulting overrides to a bundled
+// chain configuration as eth.New does, without starting a node. The off switch
 // once parsed correctly and left MESS enabled from block 2.
 func TestMESSFlags(t *testing.T) {
 	classic := params.ClassicChainConfig
@@ -272,6 +276,9 @@ func TestMESSFlags(t *testing.T) {
 		if cfg := messConfigFrom(t, off(), "--mess.nodisable"); !messEnabledAt(t, classic, cfg, 23_000_000) {
 			t.Error("--mess.nodisable: MESS does not apply at block 23000000 over the config file's off switch")
 		}
+		if cfg := messConfigFrom(t, &ethconfig.Config{OverrideECBP1100Deactivate: &until}, "--mess.nodisable"); !messEnabledAt(t, classic, cfg, 23_000_000) {
+			t.Error("--mess.nodisable: MESS does not apply at block 23000000, past the config file's deactivation at block 20000000")
+		}
 		// Dropping the file's no-disable line returns MESS to the bundled window.
 		if cfg := messConfigFrom(t, &ethconfig.Config{ECBP1100NoDisable: &yes}, "--mess.nodisable=false"); messEnabledAt(t, classic, cfg, 23_000_000) {
 			t.Error("--mess.nodisable=false: MESS applies at block 23000000, past the bundled deactivation")
@@ -313,6 +320,7 @@ func TestMESSConflicts(t *testing.T) {
 			Flags: messFlags(),
 			Action: func(ctx *cli.Context) error {
 				applyMESSFlags(ctx, cfg)
+				applyMESSRunSettings(ctx, cfg)
 				out = messConflicts(ctx, cfg)
 				return nil
 			},
@@ -347,9 +355,12 @@ func TestMESSConflicts(t *testing.T) {
 	}
 }
 
-// TestMESSFlagsDumpConfig checks that dumpconfig writes the MESS settings the flags make, and
-// that they survive being read back from the dumped file. The dump once left --mess=false
-// out, so a node started from it ran with MESS on.
+// TestMESSFlagsDumpConfig checks that dumpconfig writes the line of each MESS flag given and
+// nothing else, and that the lines survive being read back from the dumped file. The end that
+// --mess.activate and --mess.nodisable imply is applied when the node starts instead: written
+// into the file, it would outlive the setting, and deleting the activation line later would
+// leave MESS on. The dump once left --mess=false out, so a node started from it ran with MESS
+// on.
 func TestMESSFlagsDumpConfig(t *testing.T) {
 	dump := func(args ...string) string {
 		t.Helper()
@@ -365,32 +376,81 @@ func TestMESSFlagsDumpConfig(t *testing.T) {
 		}
 		return string(b)
 	}
+	// check compares a dump's MESS lines with want exactly, so a line nobody set fails it.
+	check := func(label, dumped string, want []string) {
+		t.Helper()
+		var got []string
+		for _, line := range strings.Split(dumped, "\n") {
+			if line = strings.TrimSpace(line); strings.Contains(line, "ECBP1100") {
+				got = append(got, line)
+			}
+		}
+		slices.Sort(got)
+		want = slices.Clone(want)
+		slices.Sort(want)
+		if !slices.Equal(got, want) {
+			t.Errorf("%s: MESS lines %q, want %q", label, got, want)
+		}
+	}
+	never := "18446744073709551614"
 	for _, c := range []struct {
 		args []string
 		want []string
 	}{
-		{[]string{"--mess"}, []string{"OverrideECBP1100Deactivate = 18446744073709551614"}},
-		{[]string{"--mess=false"}, []string{"OverrideECBP1100 = 18446744073709551614"}},
-		{[]string{"--mess.activate=15000000"}, []string{"OverrideECBP1100 = 15000000", "OverrideECBP1100Deactivate = 18446744073709551614"}},
-		{[]string{"--mess.nodisable"}, []string{"ECBP1100NoDisable = true", "OverrideECBP1100Deactivate = 18446744073709551614"}},
+		{nil, nil},
+		{[]string{"--mess"}, []string{"OverrideECBP1100Deactivate = " + never}},
+		{[]string{"--mess=false"}, []string{"OverrideECBP1100 = " + never}},
+		{[]string{"--mess.activate=15000000"}, []string{"OverrideECBP1100 = 15000000"}},
+		{[]string{"--mess.nodisable"}, []string{"ECBP1100NoDisable = true"}},
+		{[]string{"--mess=false", "--mess.activate=15000000"}, []string{"OverrideECBP1100 = 15000000"}},
 		{
 			[]string{"--mess.activate=15000000", "--mess.deactivate=20000000", "--mess.nodisable"},
 			[]string{"OverrideECBP1100 = 15000000", "OverrideECBP1100Deactivate = 20000000", "ECBP1100NoDisable = true"},
 		},
 	} {
 		dumped := dump(append([]string{"--mordor"}, c.args...)...)
+		check(fmt.Sprint(c.args), dumped, c.want)
 		file := filepath.Join(t.TempDir(), "dumped.toml")
 		if err := os.WriteFile(file, []byte(dumped), 0o600); err != nil {
 			t.Fatal(err)
 		}
-		readBack := dump("--mordor", "--config", file)
-		for _, want := range c.want {
-			if !strings.Contains(dumped, want) {
-				t.Errorf("%v: dumped config lacks %q", c.args, want)
-			}
-			if !strings.Contains(readBack, want) {
-				t.Errorf("%v: config read back from the dump lacks %q", c.args, want)
-			}
+		check(fmt.Sprint(c.args)+" read back", dump("--mordor", "--config", file), c.want)
+	}
+	// A config file holding only an activation or a no-disable line is dumped as it is.
+	for _, line := range []string{"OverrideECBP1100 = 15000000", "ECBP1100NoDisable = true"} {
+		file := filepath.Join(t.TempDir(), "config.toml")
+		if err := os.WriteFile(file, []byte("[Eth]\n"+line+"\n"), 0o600); err != nil {
+			t.Fatal(err)
 		}
+		check(fmt.Sprintf("file %q", line), dump("--mordor", "--config", file), []string{line})
+	}
+}
+
+// TestMESSFlagsRunningNode starts a Mordor node and reads the MESS window it runs with, so the
+// end that --mess.activate and --mess.nodisable imply, which dumpconfig does not write, is
+// shown to reach the running node.
+func TestMESSFlagsRunningNode(t *testing.T) {
+	config := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(config, []byte("[Eth]\nOverrideECBP1100 = 15000000\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range []struct {
+		name string
+		args []string
+		want string // the activation and deactivation blocks admin.ecbp1100Status reports
+	}{
+		{"bundled", nil, "0x2450e0 0x9eb100"},
+		{"activate", []string{"--mess.activate=15000000"}, "0xe4e1c0 0xfffffffffffffffe"},
+		{"nodisable", []string{"--mess.nodisable"}, "0x2450e0 0xfffffffffffffffe"},
+		{"config file", []string{"--config", config}, "0xe4e1c0 0xfffffffffffffffe"},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			args := append(c.args, "--ipcdisable", "--exec",
+				`var s = admin.ecbp1100Status(); s.activatedAtBlock + " " + s.defaultDisabledAtBlock`, "console")
+			geth := runMinimalGeth(t, args...)
+			geth.KillTimeout = 20 * time.Second
+			geth.Expect(fmt.Sprintf("%q\n", c.want))
+			geth.ExpectExit()
+		})
 	}
 }
