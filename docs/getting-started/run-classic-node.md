@@ -272,7 +272,7 @@ MESS ([ECBP-1100](https://ecips.ethereumclassic.org/ECIPs/ecip-1100)) is a defen
 chain reorganizations. Check whether it is on:
 
 ```shell
-$ geth --classic attach --exec 'admin.ecbp1100Status().enabled' <datadir>/geth.ipc
+$ geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
 ```
 
 `true` means MESS is on. [MESS](../operate/mess.md) explains how to turn it on or off.

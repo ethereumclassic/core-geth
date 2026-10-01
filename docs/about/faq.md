@@ -69,7 +69,7 @@ across your fleet is sound practice.
 
 ## Is MESS on, and should it be?
 
-`admin.ecbp1100Status().enabled` returns `true` when MESS (ECBP-1100) is on. `--mess` turns it on and `--mess=false`
+`admin.messStatus().enabled` returns `true` when MESS (ECBP-1100) is on. `--mess` turns it on and `--mess=false`
 turns it off; without either, the node uses the setting its release ships with. MESS changes which of two competing
 chains a node keeps during a deep reorganization, never whether a block is valid. [MESS](../operate/mess.md) sets out
 what the setting decides for each kind of operator, and the [confirmation calculator](../guides/mess-calculator.md) shows what it

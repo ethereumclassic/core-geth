@@ -29,7 +29,7 @@ Upgrade them one at a time, and keep them on the same release and MESS setting.
 
 - Read confirmations only from a node that is in sync: `eth_syncing` returns `false` and the head is recent.
 - Choose the number of confirmations with the [MESS confirmation calculator](mess-calculator.md), and check
-  that MESS is in force with `admin.ecbp1100Status()` over IPC.
+  that MESS is in force with `admin.messStatus()` over IPC.
 - A node with few peers can be shown a chain the rest of the network does not follow. Alert when the peer
   count drops, and hold credits while it is low.
 
