@@ -38,7 +38,7 @@ func (bc *BlockChain) ArtificialFinalityNoDisable(n int32) {
 				logActivationBlock = *logActivationBlockRaw
 			}
 			logCtx := []interface{}{"ECBP1100 activation block", logActivationBlock}
-			if *deactivateTransition < ecbp1100Unreachable {
+			if *deactivateTransition < ECBP1100Unreachable {
 				logCtx = append(logCtx, "ECBP1100 deactivation block", *deactivateTransition)
 			}
 			log.Warn(notice, logCtx...)
@@ -46,9 +46,10 @@ func (bc *BlockChain) ArtificialFinalityNoDisable(n int32) {
 	}
 }
 
-// ecbp1100Unreachable is the block --mess, --mess.activate and --mess.nodisable move the MESS
-// deactivation to when none is given. No chain reaches it.
-const ecbp1100Unreachable = math.MaxUint64 - 1
+// ECBP1100Unreachable is the block a MESS setting moves one end of the window to, so that end
+// never takes effect: --mess=false moves the activation there, and --mess, --mess.activate and
+// --mess.nodisable move the deactivation there when none is given. No chain reaches it.
+const ECBP1100Unreachable uint64 = math.MaxUint64 - 1
 
 // ecbp1100NoDisableNotice is what --mess.nodisable adds to the log about the MESS window, or ""
 // when there is nothing to add. A deactivation block after the activation ends the window the
@@ -57,7 +58,7 @@ func ecbp1100NoDisableNotice(activation, deactivation *uint64) string {
 	switch {
 	case deactivation == nil:
 		return ""
-	case *deactivation >= ecbp1100Unreachable:
+	case *deactivation >= ECBP1100Unreachable:
 		return "MESS is set to on, with its deactivation moved to an unreachable block. " +
 			"--mess.nodisable keeps it on once enabled, bypassing its low-peer-count and stale-head safeguards."
 	case activation != nil && *activation >= *deactivation:

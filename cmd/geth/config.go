@@ -20,7 +20,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"math"
 	"os"
 	"reflect"
 	"runtime"
@@ -35,6 +34,7 @@ import (
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/eth/catalyst"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/internal/ethapi"
@@ -263,7 +263,7 @@ func applyMESSFlags(ctx *cli.Context, cfg *ethconfig.Config) {
 	// reach, which turns MESS off on any version that implements it. An explicit
 	// --mess.activate or --mess.deactivate wins over either, because both are applied
 	// after them.
-	never := uint64(math.MaxUint64 - 1)
+	never := core.ECBP1100Unreachable
 	off := ctx.IsSet(utils.MESSFlag.Name) && !ctx.Bool(utils.MESSFlag.Name)
 	noDisable := ctx.IsSet(utils.MESSNoDisableFlag.Name) && ctx.Bool(utils.MESSNoDisableFlag.Name)
 	if off {
@@ -312,7 +312,7 @@ func messBlockFlag(ctx *cli.Context, name string) uint64 {
 // reports MESS settings that conflict. It runs where the node is built, after applyMESSFlags,
 // so the end reaches the running node and not a file dumpconfig writes.
 func applyMESSRunSettings(ctx *cli.Context, cfg *ethconfig.Config) {
-	never := uint64(math.MaxUint64 - 1)
+	never := core.ECBP1100Unreachable
 	off := ctx.IsSet(utils.MESSFlag.Name) && !ctx.Bool(utils.MESSFlag.Name)
 	noDisable := ctx.IsSet(utils.MESSNoDisableFlag.Name) && ctx.Bool(utils.MESSNoDisableFlag.Name)
 	// --mess.nodisable turns MESS on and keeps it on, so, like --mess, it pushes the
@@ -339,7 +339,7 @@ func applyMESSRunSettings(ctx *cli.Context, cfg *ethconfig.Config) {
 // with them. The settings decide the outcome, as applyMESSFlags and applyMESSRunSettings
 // describe; this reports it at startup.
 func messConflicts(ctx *cli.Context, cfg *ethconfig.Config) []string {
-	never := uint64(math.MaxUint64 - 1)
+	never := core.ECBP1100Unreachable
 	var conflicts []string
 	off := ctx.IsSet(utils.MESSFlag.Name) && !ctx.Bool(utils.MESSFlag.Name)
 	if off && utils.MESSBlockGiven(ctx, utils.MESSActivateFlag) {
