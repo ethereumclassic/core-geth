@@ -131,11 +131,10 @@ INFO [09-13|09:23:35.590] Indexed transactions                     blocks=2,350,
 ```
 
 - `Snap sync complete, auto disabling` marks the end of the first sync.
-- `Enabled artificial finality features reason=synced` is MESS switching on. It appears only on a
-  node where MESS applies ([MESS on this node](#mess-on-this-node)).
+- `Enabled artificial finality features reason=synced` is MESS switching on. It appears only when
+  MESS is on ([MESS on this node](#mess-on-this-node)).
 - From here the node imports new blocks as they arrive, usually one block per
-  `Imported new chain segment` line. `af=true` on those lines means MESS is in force, and a node
-  where it does not apply leaves it out.
+  `Imported new chain segment` line. `af=true` on those lines means MESS is on.
 - The node goes on building its state snapshot in the background, and serves no snapshot data to
   other nodes until that finishes.
 - `Indexed transactions` means the transaction index is built.
@@ -154,8 +153,8 @@ A first sync logs many of these. None of them stops it.
 
 A new node is synced when all four of these hold.
 
-1. **The log shows the sync finishing:** `Snap sync complete, auto disabling`. A node where MESS
-   applies then logs `Enabled artificial finality features reason=synced`.
+1. **The log shows the sync finishing:** `Snap sync complete, auto disabling`. When MESS is on, it
+   then logs `Enabled artificial finality features reason=synced`.
 2. **`eth.syncing` returns `false`:**
 
     ```shell
@@ -269,21 +268,14 @@ Keep the endpoint on `127.0.0.1`. Before you open it wider, read
 
 ## MESS on this node
 
-MESS, Modified Exponential Subjective Scoring
-([ECBP-1100](https://ecips.ethereumclassic.org/ECIPs/ecip-1100)), is a chain-selection defense
-against deep reorganizations. Whether this node applies it depends on the window its release
-bundles and on the flags it runs with. `admin_ecbp1100Status` reports that and changes nothing:
+MESS ([ECBP-1100](https://ecips.ethereumclassic.org/ECIPs/ecip-1100)) is a defense against deep
+chain reorganizations. Check whether it is on:
 
 ```shell
-$ geth --classic attach --exec 'admin.ecbp1100Status()' <datadir>/geth.ipc
+$ geth --classic attach --exec 'admin.ecbp1100Status().enabled' <datadir>/geth.ipc
 ```
 
-`enabled` is `true` while MESS applies. It needs the head at or past `activatedAtBlock`, and short
-of `defaultDisabledAtBlock` unless the activation comes after it, and `nodeSwitch` on, which the
-node turns on once it is in sync with enough peers. Where MESS applies, the node logs
-`Enabled artificial finality features reason=synced` when it turns that switch on.
-[MESS](../operate/mess.md) covers the two defaults, turning MESS on or off, and when the node
-switches it off by itself.
+`true` means MESS is on. [MESS](../operate/mess.md) explains how to turn it on or off.
 
 ## Next steps
 

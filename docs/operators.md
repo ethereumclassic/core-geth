@@ -40,16 +40,13 @@ that answers the questions operators actually arrive with.
 3. **Track releases at [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases).** A
    node tracking the previous repository will not see `v1.13.0`.
 4. **Decide your MESS setting, and give every node you run the same one.** `--mess` turns MESS on and
-   `--mess=false` turns it off. Without either flag, a node runs one of
-   [two defaults](operate/mess.md#the-two-defaults): MESS applies and never stops, or it stops at the Spiral
-   block. `admin.ecbp1100Status()` shows which. MESS decides which of two competing chains a node prefers during
-   a deep reorganization and never whether a block is valid, so in normal operation a node with it on and a node
-   with it off follow the same chain. An exchange, a custodian or a pool that credits deposits wants it on: a
-   deep reorganization is the attack aimed at them. A miner carries a cost either way, and that trade is worth
-   reading before deciding rather than after.
-   [Which setting fits which operator](operate/mess.md#which-setting-fits-which-operator) has it per node type.
-   Whichever you choose, nodes in one fleet that disagree can prefer different chains, which is worse than
-   either setting.
+   `--mess=false` turns it off; without either, the node uses the setting its release ships with, and
+   `admin.ecbp1100Status().enabled` shows whether MESS is on. MESS decides which of two competing
+   chains a node prefers during a deep reorganization and never whether a block is valid, so in normal
+   operation a node with it on and a node with it off follow the same chain.
+   [Which setting fits which operator](operate/mess.md#which-setting-fits-which-operator) sets out what
+   the setting decides for each kind of node. Nodes in one fleet that disagree can prefer different
+   chains, which is worse than either setting.
 
 ## Then read, in this order
 

@@ -69,7 +69,7 @@ INFO [09-13|01:45:24.101] Snap sync complete, auto disabling
 INFO [09-13|01:45:24.101] Enabled artificial finality features     reason=synced peers=13
 ```
 
-As on Ethereum Classic, the second line appears only on a node where MESS applies
+As on Ethereum Classic, the second line appears only when MESS is on
 ([MESS on this node](run-classic-node.md#mess-on-this-node)).
 
 The warnings explained for
