@@ -226,3 +226,68 @@ func Test_SplitTagsFlag(t *testing.T) {
 		})
 	}
 }
+
+// TestParseMESSBlock checks how a MESS block flag reads its value. A leading zero is refused,
+// because Go would read the number as octal: 010400000 would be block 2,228,224.
+func TestParseMESSBlock(t *testing.T) {
+	for _, c := range []struct {
+		in   string
+		want uint64
+		err  string // a substring of the error, or "" for none
+	}{
+		{"0", 0, ""},
+		{"15000000", 15_000_000, ""},
+		{"0x9eb100", 10_400_000, ""},
+		{"18446744073709551615", 18446744073709551615, ""},
+		{"010400000", 0, "cannot start with 0"},
+		{"00", 0, "cannot start with 0"},
+		{"0_1", 0, "cannot start with 0"},
+		{"", 0, "parse error"},
+		{"abc", 0, "parse error"},
+		{"-1", 0, "parse error"},
+		{"18446744073709551616", 0, "out of range"},
+	} {
+		got, err := parseMESSBlock(c.in)
+		switch {
+		case c.err == "" && err != nil:
+			t.Errorf("%q: %v, want %d", c.in, err, c.want)
+		case c.err == "" && got != c.want:
+			t.Errorf("%q: read as %d, want %d", c.in, got, c.want)
+		case c.err != "" && (err == nil || !strings.Contains(err.Error(), c.err)):
+			t.Errorf("%q: read as %d with error %v, want an error containing %q", c.in, got, err, c.err)
+		}
+	}
+}
+
+// TestMESSDefaultText checks the default --help gives for --mess: whether the bundled
+// configuration leaves MESS on past its MESS blocks, then the release.
+func TestMESSDefaultText(t *testing.T) {
+	block := func(n uint64) *uint64 { return &n }
+	for _, c := range []struct {
+		name                     string
+		activation, deactivation *uint64
+		want                     string
+	}{
+		{"a deactivation after the activation", block(11_380_000), block(19_250_000), "off in Core-Geth 1.2.3-stable"},
+		{"no deactivation", block(11_380_000), nil, "on in Core-Geth 1.2.3-stable"},
+		{"an activation after the deactivation", block(20_000_000), block(19_250_000), "on in Core-Geth 1.2.3-stable"},
+		{"no activation", nil, nil, "off in Core-Geth 1.2.3-stable"},
+	} {
+		config := *params.ClassicChainConfig
+		config.SetECBP1100Transition(c.activation)
+		config.SetECBP1100DeactivateTransition(c.deactivation)
+		if got := messDefaultText(&config, "1.2.3-stable"); got != c.want {
+			t.Errorf("%s: %q, want %q", c.name, got, c.want)
+		}
+	}
+
+	// --help gives one default for --mess on every network, so the two bundled networks that
+	// carry MESS have to agree on it.
+	want := messDefaultText(params.ClassicChainConfig, params.VersionWithMeta)
+	if got := messDefaultText(params.MordorChainConfig, params.VersionWithMeta); got != want {
+		t.Errorf("Mordor gives %q and Classic %q, so no one default is true of both", got, want)
+	}
+	if MESSFlag.DefaultText != want {
+		t.Errorf("--help gives %q, want %q", MESSFlag.DefaultText, want)
+	}
+}

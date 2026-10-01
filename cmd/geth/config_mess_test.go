@@ -484,6 +484,9 @@ func TestMESSFlagsRefused(t *testing.T) {
 		{[]string{"--mess.deactivate=abc"}, "-mess.deactivate:"},
 		{[]string{"--mess=abc"}, "-mess:"},
 		{[]string{"--mess.nodisable=abc"}, "-mess.nodisable:"},
+		// Go would read a leading zero as octal, a different block, so it is refused.
+		{[]string{"--mess.activate=010400000"}, "-mess.activate: a block number cannot start with 0"},
+		{[]string{"--mess.deactivate=010400000"}, "-mess.deactivate: a block number cannot start with 0"},
 	} {
 		status, stderr, wrote := run(c.args...)
 		if status == 0 || wrote {
@@ -499,4 +502,88 @@ func TestMESSFlagsRefused(t *testing.T) {
 		t.Errorf("GETH_MESS_ACTIVATE=abc: exit status %d, config written %t, error %q, want refused naming the flag",
 			status, wrote, strings.TrimSpace(stderr))
 	}
+	// A value refused from an environment variable names the variable as well, under either name,
+	// and a leading zero is refused there too.
+	for _, c := range []struct{ name, value, want string }{
+		{"GETH_MESS_ACTIVATE", "abc", "parse error"},
+		{"GETH_MESS_ACTIVATE", "010400000", "cannot start with 0"},
+		{"GETH_ECBP1100", "010400000", "cannot start with 0"},
+	} {
+		os.Unsetenv("GETH_MESS_ACTIVATE")
+		t.Setenv(c.name, c.value)
+		if status, stderr, wrote := run(); status == 0 || wrote || !strings.Contains(stderr, c.want) ||
+			!strings.Contains(stderr, "(from "+c.name+")") {
+			t.Errorf("%s=%s: exit status %d, config written %t, error %q, want refused naming %s",
+				c.name, c.value, status, wrote, strings.TrimSpace(stderr), c.name)
+		}
+	}
+	// A value given on the command line names no variable, even beside one that holds another.
+	os.Unsetenv("GETH_ECBP1100")
+	t.Setenv("GETH_MESS_ACTIVATE", "15000000")
+	if status, stderr, _ := run("--mess.activate=010400000"); status == 0 || strings.Contains(stderr, "(from") {
+		t.Errorf("--mess.activate=010400000 beside GETH_MESS_ACTIVATE=15000000: exit status %d, error %q, want refused naming no variable",
+			status, strings.TrimSpace(stderr))
+	}
+}
+
+// TestMESSBlockRefusedBeforeStart checks that geth refuses a MESS block value before any command
+// runs: the data directory stays empty, rather than being opened and then abandoned.
+func TestMESSBlockRefusedBeforeStart(t *testing.T) {
+	for _, arg := range []string{"--mess.activate=010400000", "--mess.deactivate=abc"} {
+		out := filepath.Join(t.TempDir(), "config.toml")
+		geth := runGeth(t, "--mordor", arg, "dumpconfig", out)
+		geth.WaitExit()
+		if status := geth.ExitStatus(); status == 0 {
+			t.Errorf("%s: exit status 0, want refused", arg)
+		}
+		if entries, err := os.ReadDir(geth.Datadir); err != nil || len(entries) != 0 {
+			t.Errorf("%s: the data directory holds %d entries (err %v), want none", arg, len(entries), err)
+		}
+	}
+}
+
+// TestMESSEmptyEnvVarIgnored checks that a MESS block variable set to the empty string gives no
+// block, as an empty variable does for every numeric flag: geth runs as if it were unset, and
+// writes no MESS line. A block on the command line still applies beside one, and an empty value
+// on the command line is still refused, as TestMESSFlagsRefused checks.
+func TestMESSEmptyEnvVarIgnored(t *testing.T) {
+	dump := func(t *testing.T, args ...string) string {
+		t.Helper()
+		out := filepath.Join(t.TempDir(), "config.toml")
+		geth := runGeth(t, append(append([]string{"--mordor"}, args...), "dumpconfig", out)...)
+		geth.WaitExit()
+		if status := geth.ExitStatus(); status != 0 {
+			t.Fatalf("exit status %d, want 0: %s", status, strings.TrimSpace(geth.StderrText()))
+		}
+		data, err := os.ReadFile(out)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return string(data)
+	}
+	// messLines returns the dump's MESS keys. The data directory's path names the test, and so
+	// can contain ECBP1100 too, so only a line that starts with a MESS key counts.
+	messLines := func(dump string) []string {
+		var keys []string
+		for _, line := range strings.Split(dump, "\n") {
+			if strings.HasPrefix(line, "OverrideECBP1100") || strings.HasPrefix(line, "ECBP1100NoDisable") {
+				keys = append(keys, line)
+			}
+		}
+		return keys
+	}
+	for _, name := range []string{"GETH_MESS_ACTIVATE", "GETH_ECBP1100", "GETH_MESS_DEACTIVATE", "GETH_OVERRIDE_ECBP1100_DEACTIVATE"} {
+		t.Run(name, func(t *testing.T) {
+			t.Setenv(name, "")
+			if keys := messLines(dump(t)); len(keys) != 0 {
+				t.Errorf("%s set to the empty string: the dump carries %q", name, keys)
+			}
+		})
+	}
+	t.Run("a block on the command line beside it", func(t *testing.T) {
+		t.Setenv("GETH_MESS_ACTIVATE", "")
+		if keys := messLines(dump(t, "--mess.activate=15000000")); !slices.Equal(keys, []string{"OverrideECBP1100 = 15000000"}) {
+			t.Errorf("GETH_MESS_ACTIVATE empty with --mess.activate=15000000: the dump carries %q, want the activation only", keys)
+		}
+	})
 }
