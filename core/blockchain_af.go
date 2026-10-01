@@ -19,12 +19,14 @@ var errReorgFinality = errors.New("finality-enforced invalid new chain")
 // ArtificialFinalityNoDisable overrides toggling of AF features, forcing it on.
 // n  = 1 : ON
 // n != 1 : OFF
+//
+// It can be called while the chain runs, as the admin API does, since the setting is read
+// atomically wherever the node would switch MESS off.
 func (bc *BlockChain) ArtificialFinalityNoDisable(n int32) {
-	log.Warn("Deactivating ECBP1100 (MESS) safety mechanisms", "always on", true)
-	bc.artificialFinalityNoDisable = new(int32)
-	atomic.StoreInt32(bc.artificialFinalityNoDisable, n)
+	bc.artificialFinalityNoDisable.Store(n)
 
 	if n == 1 {
+		log.Warn("Deactivating ECBP1100 (MESS) safety mechanisms", "always on", true)
 		deactivateTransition := bc.chainConfig.GetECBP1100DeactivateTransition()
 		logActivationBlockRaw := bc.chainConfig.GetECBP1100Transition()
 		if notice := ecbp1100NoDisableNotice(logActivationBlockRaw, deactivateTransition); notice != "" {
@@ -43,7 +45,15 @@ func (bc *BlockChain) ArtificialFinalityNoDisable(n int32) {
 			}
 			log.Warn(notice, logCtx...)
 		}
+	} else {
+		log.Info("ECBP1100 (MESS) safety mechanisms apply again")
 	}
+}
+
+// IsArtificialFinalityNoDisable reports whether the setting ArtificialFinalityNoDisable sets is
+// on: once MESS is on, the low-peer-count and stale-head safeguards no longer switch it off.
+func (bc *BlockChain) IsArtificialFinalityNoDisable() bool {
+	return bc.artificialFinalityNoDisable.Load() == 1
 }
 
 // ECBP1100Unreachable is the block a MESS setting moves one end of the window to, so that end
@@ -82,8 +92,7 @@ func ecbp1100NoDisableNotice(activation, deactivation *uint64) string {
 // The method is idempotent.
 func (bc *BlockChain) EnableArtificialFinality(enable bool, logValues ...interface{}) {
 	// Short circuit if AF state is enabled and nodisable=true.
-	if bc.artificialFinalityNoDisable != nil && atomic.LoadInt32(bc.artificialFinalityNoDisable) == 1 &&
-		bc.IsArtificialFinalityEnabled() && !enable {
+	if bc.IsArtificialFinalityNoDisable() && bc.IsArtificialFinalityEnabled() && !enable {
 		log.Warn("Preventing disable artificial finality", "enabled", true, "nodisable", true)
 		return
 	}
