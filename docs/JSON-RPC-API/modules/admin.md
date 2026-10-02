@@ -254,12 +254,7 @@ func (api *adminAPI) Datadir() string {
 
 ### admin_ecbp1100
 
-Ecbp1100 sets the ECBP-1100 (MESS) activation block and reports whether the
-mechanism is active afterwards. The block is a height, or "latest" or "pending",
-which both mean the current head; "finalized" and "safe" are refused.
-
-This mutates chain configuration. To read the current state without changing
-it, use Ecbp1100Status.
+Ecbp1100 is MessActivate under its ECBP-1100 name, which it had first.
 
 
 #### Params (1)
@@ -374,21 +369,289 @@ blockNr <code>rpc.BlockNumber</code>
 <p>
 ```go
 func (api *AdminAPI) Ecbp1100(blockNr rpc.BlockNumber) (bool, error) {
-	i, err := ecbp1100ActivationBlock(blockNr, api.eth.blockchain.CurrentBlock().Number.Uint64())
-	if err != nil {
-		return false, err
-	}
-	err = api.eth.blockchain.Config().SetECBP1100Transition(&i)
-	return api.eth.blockchain.IsArtificialFinalityEnabled() && api.eth.blockchain.Config().IsEnabled(api.eth.blockchain.Config().GetECBP1100Transition, api.eth.blockchain.CurrentBlock().Number), err
-}// Ecbp1100 sets the ECBP-1100 (MESS) activation block and reports whether the
-// mechanism is active afterwards. The block is a height, or "latest" or "pending",
-// which both mean the current head; "finalized" and "safe" are refused.
-//
-// This mutates chain configuration. To read the current state without changing
-// it, use Ecbp1100Status.
+	return api.MessActivate(blockNr)
+}// Ecbp1100 is MessActivate under its ECBP-1100 name, which it had first.
 
 ```
-<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L155" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L437" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### admin_ecbp1100Deactivate
+
+Ecbp1100Deactivate is MessDeactivate under its ECBP-1100 name.
+
+
+#### Params (1)
+
+Parameters must be given _by position_.
+
+
+__1:__ 
+blockNr <code>rpc.BlockNumber</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- oneOf: 
+
+			- description: `The block height description`
+			- enum: earliest, latest, pending
+			- title: `blockNumberTag`
+			- type: string
+
+
+			- description: `Hex representation of a uint64`
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: string
+
+
+	- title: `blockNumberIdentifier`
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "oneOf": [
+            {
+                "description": "The block height description",
+                "enum": [
+                    "earliest",
+                    "latest",
+                    "pending"
+                ],
+                "title": "blockNumberTag",
+                "type": [
+                    "string"
+                ]
+            },
+            {
+                "description": "Hex representation of a uint64",
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": [
+                    "string"
+                ]
+            }
+        ],
+        "title": "blockNumberIdentifier"
+    }
+	```
+
+
+
+
+
+#### Result
+
+
+
+
+<code>bool</code> 
+
+  + Required: ✓ Yes
+
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "admin_ecbp1100Deactivate", "params": [<blockNr>]}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "admin_ecbp1100Deactivate", "params": [<blockNr>]}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	admin.ecbp1100Deactivate(blockNr);
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *AdminAPI) Ecbp1100Deactivate(blockNr rpc.BlockNumber) (bool, error) {
+	return api.MessDeactivate(blockNr)
+}// Ecbp1100Deactivate is MessDeactivate under its ECBP-1100 name.
+
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L442" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### admin_ecbp1100NoDisable
+
+Ecbp1100NoDisable is MessNoDisable under its ECBP-1100 name.
+
+
+#### Params (1)
+
+Parameters must be given _by position_.
+
+
+__1:__ 
+enable <code>bool</code> 
+
+  + Required: ✓ Yes
+
+
+
+
+
+
+#### Result
+
+
+
+
+<code>ECBP1100Status</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- additionalProperties: `false`
+	- properties: 
+		- activatedAtBlock: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- defaultDisabledAtBlock: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- enabled: 
+			- type: `boolean`
+
+		- head: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- noDisable: 
+			- type: `boolean`
+
+		- nodeSwitch: 
+			- type: `boolean`
+
+
+	- type: object
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "additionalProperties": false,
+        "properties": {
+            "activatedAtBlock": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "defaultDisabledAtBlock": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "enabled": {
+                "type": "boolean"
+            },
+            "head": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "noDisable": {
+                "type": "boolean"
+            },
+            "nodeSwitch": {
+                "type": "boolean"
+            }
+        },
+        "type": [
+            "object"
+        ]
+    }
+	```
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "admin_ecbp1100NoDisable", "params": [<enable>]}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "admin_ecbp1100NoDisable", "params": [<enable>]}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	admin.ecbp1100NoDisable(enable);
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *AdminAPI) Ecbp1100NoDisable(enable bool) (ECBP1100Status, error) {
+	return api.MessNoDisable(enable)
+}// Ecbp1100NoDisable is MessNoDisable under its ECBP-1100 name.
+
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L447" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -398,12 +661,7 @@ func (api *AdminAPI) Ecbp1100(blockNr rpc.BlockNumber) (bool, error) {
 
 ### admin_ecbp1100Status
 
-Ecbp1100Status reports the ECBP-1100 (MESS) state at the current head and
-changes nothing.
-
-Ecbp1100 above answers a similar question by first assigning the activation
-block it is passed, so it cannot be used to observe a running node. This
-exists so that state can be read without altering it.
+Ecbp1100Status is MessStatus under its ECBP-1100 name, which it had first.
 
 
 #### Params (0)
@@ -444,6 +702,9 @@ _None_
 			- title: `uint64`
 			- type: `string`
 
+		- noDisable: 
+			- type: `boolean`
+
 		- nodeSwitch: 
 			- type: `boolean`
 
@@ -476,6 +737,9 @@ _None_
                 "pattern": "^0x([a-fA-F\\d])+$",
                 "title": "uint64",
                 "type": "string"
+            },
+            "noDisable": {
+                "type": "boolean"
             },
             "nodeSwitch": {
                 "type": "boolean"
@@ -521,16 +785,11 @@ _None_
 <p>
 ```go
 func (api *AdminAPI) Ecbp1100Status() ECBP1100Status {
-	return ecbp1100Status(api.eth.blockchain.Config(), api.eth.blockchain.CurrentBlock().Number, api.eth.blockchain.IsArtificialFinalityEnabled())
-}// Ecbp1100Status reports the ECBP-1100 (MESS) state at the current head and
-// changes nothing.
-//
-// Ecbp1100 above answers a similar question by first assigning the activation
-// block it is passed, so it cannot be used to observe a running node. This
-// exists so that state can be read without altering it.
+	return api.MessStatus()
+}// Ecbp1100Status is MessStatus under its ECBP-1100 name, which it had first.
 
 ```
-<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L222" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L452" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -929,6 +1188,841 @@ func (api *AdminAPI) MaxPeers(n int) (bool, error) {
 
 ```
 <a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L238" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### admin_mess
+
+Mess turns the ECBP-1100 (MESS) chain-selection defense on or off in the running node and
+reports the state afterwards. It is the runtime counterpart of --mess and --mess=false, and
+it works whatever the two blocks are, so the caller does not have to know which one keeps
+MESS off.
+
+On pushes the deactivation out of reach and, if the activation is unset or sits beyond the
+head, as --mess=false leaves it, moves it back to the network's own activation block, as
+--mess does, or to block 0 where the network ships none or the head has not reached it. Off
+pushes the activation out of reach, so MESS does not apply whatever the deactivation block is.
+
+It does not touch the node-level switch that the low-peer-count and stale-head safeguards
+turn off, so Enabled can still be false with the window open. NodeSwitch reports that switch,
+and MessNoDisable or --mess.nodisable keeps it on.
+
+This mutates chain configuration, and does not persist: the flags and the config file
+decide again at the next start.
+
+
+#### Params (1)
+
+Parameters must be given _by position_.
+
+
+__1:__ 
+enable <code>bool</code> 
+
+  + Required: ✓ Yes
+
+
+
+
+
+
+#### Result
+
+
+
+
+<code>ECBP1100Status</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- additionalProperties: `false`
+	- properties: 
+		- activatedAtBlock: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- defaultDisabledAtBlock: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- enabled: 
+			- type: `boolean`
+
+		- head: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- noDisable: 
+			- type: `boolean`
+
+		- nodeSwitch: 
+			- type: `boolean`
+
+
+	- type: object
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "additionalProperties": false,
+        "properties": {
+            "activatedAtBlock": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "defaultDisabledAtBlock": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "enabled": {
+                "type": "boolean"
+            },
+            "head": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "noDisable": {
+                "type": "boolean"
+            },
+            "nodeSwitch": {
+                "type": "boolean"
+            }
+        },
+        "type": [
+            "object"
+        ]
+    }
+	```
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "admin_mess", "params": [<enable>]}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "admin_mess", "params": [<enable>]}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	admin.mess(enable);
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *AdminAPI) Mess(enable bool) (ECBP1100Status, error) {
+	head := api.eth.blockchain.CurrentBlock().Number
+	if err := applyMESSSwitch(api.eth.blockchain.Config(), head.Uint64(), api.eth.messBundledActivation, enable); err != nil {
+		return ECBP1100Status{}, err
+	}
+	return api.MessStatus(), nil
+}// Mess turns the ECBP-1100 (MESS) chain-selection defense on or off in the running node and
+// reports the state afterwards. It is the runtime counterpart of --mess and --mess=false, and
+// it works whatever the two blocks are, so the caller does not have to know which one keeps
+// MESS off.
+//
+// On pushes the deactivation out of reach and, if the activation is unset or sits beyond the
+// head, as --mess=false leaves it, moves it back to the network's own activation block, as
+// --mess does, or to block 0 where the network ships none or the head has not reached it. Off
+// pushes the activation out of reach, so MESS does not apply whatever the deactivation block is.
+//
+// It does not touch the node-level switch that the low-peer-count and stale-head safeguards
+// turn off, so Enabled can still be false with the window open. NodeSwitch reports that switch,
+// and MessNoDisable or --mess.nodisable keeps it on.
+//
+// This mutates chain configuration, and does not persist: the flags and the config file
+// decide again at the next start.
+
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L257" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### admin_messActivate
+
+MessActivate sets the ECBP-1100 (MESS) activation block and reports whether MESS applies
+afterwards. The block is a height, or "latest" or "pending", which both mean the current head;
+"finalized" and "safe" are refused.
+
+It is the runtime counterpart of --mess.activate, and does what the flag does: MESS applies
+from the block with no end, unless a deactivation block was given, with --mess.deactivate, a
+config file line or MessDeactivate. Then the later of the two blocks decides: an activation
+after the deactivation block turns MESS on, and one at or before it leaves MESS off once the
+head reaches the deactivation block, which the node then logs. Mess turns MESS on or off
+whatever the two blocks are.
+
+This mutates chain configuration, and does not persist. To read the current state without
+changing it, use MessStatus.
+
+
+#### Params (1)
+
+Parameters must be given _by position_.
+
+
+__1:__ 
+blockNr <code>rpc.BlockNumber</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- oneOf: 
+
+			- description: `The block height description`
+			- enum: earliest, latest, pending
+			- title: `blockNumberTag`
+			- type: string
+
+
+			- description: `Hex representation of a uint64`
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: string
+
+
+	- title: `blockNumberIdentifier`
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "oneOf": [
+            {
+                "description": "The block height description",
+                "enum": [
+                    "earliest",
+                    "latest",
+                    "pending"
+                ],
+                "title": "blockNumberTag",
+                "type": [
+                    "string"
+                ]
+            },
+            {
+                "description": "Hex representation of a uint64",
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": [
+                    "string"
+                ]
+            }
+        ],
+        "title": "blockNumberIdentifier"
+    }
+	```
+
+
+
+
+
+#### Result
+
+
+
+
+<code>bool</code> 
+
+  + Required: ✓ Yes
+
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "admin_messActivate", "params": [<blockNr>]}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "admin_messActivate", "params": [<blockNr>]}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	admin.messActivate(blockNr);
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *AdminAPI) MessActivate(blockNr rpc.BlockNumber) (bool, error) {
+	head := api.eth.blockchain.CurrentBlock().Number
+	i, err := ecbp1100ActivationBlock(blockNr, head.Uint64())
+	if err != nil {
+		return false, err
+	}
+	if err := applyMESSActivation(api.eth.blockchain.Config(), i, api.messDeactivationGiven.Load()); err != nil {
+		return false, err
+	}
+	status := api.MessStatus()
+	if !status.Enabled && status.NodeSwitch {
+		if d := api.eth.blockchain.Config().GetECBP1100DeactivateTransition(); messKeptOffBy(i, d, head.Uint64()) {
+			log.Warn("ECBP1100 (MESS) stays off: the deactivation block is at or after the activation block set, and the chain has reached it", "activation", i, "deactivation", *d, "head", head, "hint", "admin_mess(true) turns MESS on")
+		}
+	}
+	return status.Enabled, nil
+}// MessActivate sets the ECBP-1100 (MESS) activation block and reports whether MESS applies
+// afterwards. The block is a height, or "latest" or "pending", which both mean the current head;
+// "finalized" and "safe" are refused.
+//
+// It is the runtime counterpart of --mess.activate, and does what the flag does: MESS applies
+// from the block with no end, unless a deactivation block was given, with --mess.deactivate, a
+// config file line or MessDeactivate. Then the later of the two blocks decides: an activation
+// after the deactivation block turns MESS on, and one at or before it leaves MESS off once the
+// head reaches the deactivation block, which the node then logs. Mess turns MESS on or off
+// whatever the two blocks are.
+//
+// This mutates chain configuration, and does not persist. To read the current state without
+// changing it, use MessStatus.
+
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L172" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### admin_messDeactivate
+
+MessDeactivate sets the ECBP-1100 (MESS) deactivation block and reports whether MESS applies
+afterwards. The block is read as for MessActivate.
+
+It is the runtime counterpart of --mess.deactivate. Of the activation and the deactivation
+block, the later one decides: a deactivation at or after the activation turns MESS off from
+that block, and one before the activation does not turn it off. MessActivate and MessNoDisable
+keep a deactivation set here, as --mess.activate keeps one given with --mess.deactivate.
+
+This mutates chain configuration, and does not persist. To read the current state without
+changing it, use MessStatus.
+
+
+#### Params (1)
+
+Parameters must be given _by position_.
+
+
+__1:__ 
+blockNr <code>rpc.BlockNumber</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- oneOf: 
+
+			- description: `The block height description`
+			- enum: earliest, latest, pending
+			- title: `blockNumberTag`
+			- type: string
+
+
+			- description: `Hex representation of a uint64`
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: string
+
+
+	- title: `blockNumberIdentifier`
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "oneOf": [
+            {
+                "description": "The block height description",
+                "enum": [
+                    "earliest",
+                    "latest",
+                    "pending"
+                ],
+                "title": "blockNumberTag",
+                "type": [
+                    "string"
+                ]
+            },
+            {
+                "description": "Hex representation of a uint64",
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": [
+                    "string"
+                ]
+            }
+        ],
+        "title": "blockNumberIdentifier"
+    }
+	```
+
+
+
+
+
+#### Result
+
+
+
+
+<code>bool</code> 
+
+  + Required: ✓ Yes
+
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "admin_messDeactivate", "params": [<blockNr>]}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "admin_messDeactivate", "params": [<blockNr>]}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	admin.messDeactivate(blockNr);
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *AdminAPI) MessDeactivate(blockNr rpc.BlockNumber) (bool, error) {
+	head := api.eth.blockchain.CurrentBlock().Number
+	i, err := ecbp1100DeactivationBlock(blockNr, head.Uint64())
+	if err != nil {
+		return false, err
+	}
+	if err := api.eth.blockchain.Config().SetECBP1100DeactivateTransition(&i); err != nil {
+		return false, err
+	}
+	api.messDeactivationGiven.Store(true)
+	return api.MessStatus().Enabled, nil
+}// MessDeactivate sets the ECBP-1100 (MESS) deactivation block and reports whether MESS applies
+// afterwards. The block is read as for MessActivate.
+//
+// It is the runtime counterpart of --mess.deactivate. Of the activation and the deactivation
+// block, the later one decides: a deactivation at or after the activation turns MESS off from
+// that block, and one before the activation does not turn it off. MessActivate and MessNoDisable
+// keep a deactivation set here, as --mess.activate keeps one given with --mess.deactivate.
+//
+// This mutates chain configuration, and does not persist. To read the current state without
+// changing it, use MessStatus.
+
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L228" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### admin_messNoDisable
+
+MessNoDisable is the runtime counterpart of --mess.nodisable, and reports the state afterwards.
+
+True does what the flag does. It turns MESS on: an activation that keeps MESS off moves as Mess
+moves it, and the deactivation moves out of reach unless one was given. And it keeps MESS on
+once it is on: the low-peer-count and stale-head safeguards no longer switch it off. Like the
+flag, it does not switch MESS on while those safeguards hold it off; MESS comes on at the next
+sync, and then stays on.
+
+False lets the safeguards switch MESS off again, as --mess.nodisable=false does, and leaves the
+two blocks alone.
+
+This mutates chain configuration, and does not persist: the flags and the config file
+decide again at the next start.
+
+
+#### Params (1)
+
+Parameters must be given _by position_.
+
+
+__1:__ 
+enable <code>bool</code> 
+
+  + Required: ✓ Yes
+
+
+
+
+
+
+#### Result
+
+
+
+
+<code>ECBP1100Status</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- additionalProperties: `false`
+	- properties: 
+		- activatedAtBlock: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- defaultDisabledAtBlock: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- enabled: 
+			- type: `boolean`
+
+		- head: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- noDisable: 
+			- type: `boolean`
+
+		- nodeSwitch: 
+			- type: `boolean`
+
+
+	- type: object
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "additionalProperties": false,
+        "properties": {
+            "activatedAtBlock": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "defaultDisabledAtBlock": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "enabled": {
+                "type": "boolean"
+            },
+            "head": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "noDisable": {
+                "type": "boolean"
+            },
+            "nodeSwitch": {
+                "type": "boolean"
+            }
+        },
+        "type": [
+            "object"
+        ]
+    }
+	```
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "admin_messNoDisable", "params": [<enable>]}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "admin_messNoDisable", "params": [<enable>]}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	admin.messNoDisable(enable);
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *AdminAPI) MessNoDisable(enable bool) (ECBP1100Status, error) {
+	if !enable {
+		api.eth.blockchain.ArtificialFinalityNoDisable(0)
+		return api.MessStatus(), nil
+	}
+	head := api.eth.blockchain.CurrentBlock().Number.Uint64()
+	if err := applyMESSNoDisable(api.eth.blockchain.Config(), head, api.eth.messBundledActivation, api.messDeactivationGiven.Load()); err != nil {
+		return ECBP1100Status{}, err
+	}
+	api.eth.blockchain.ArtificialFinalityNoDisable(1)
+	return api.MessStatus(), nil
+}// MessNoDisable is the runtime counterpart of --mess.nodisable, and reports the state afterwards.
+//
+// True does what the flag does. It turns MESS on: an activation that keeps MESS off moves as Mess
+// moves it, and the deactivation moves out of reach unless one was given. And it keeps MESS on
+// once it is on: the low-peer-count and stale-head safeguards no longer switch it off. Like the
+// flag, it does not switch MESS on while those safeguards hold it off; MESS comes on at the next
+// sync, and then stays on.
+//
+// False lets the safeguards switch MESS off again, as --mess.nodisable=false does, and leaves the
+// two blocks alone.
+//
+// This mutates chain configuration, and does not persist: the flags and the config file
+// decide again at the next start.
+
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L316" target="_">View on GitHub →</a>
+</p>
+</details>
+
+---
+
+
+
+### admin_messStatus
+
+MessStatus reports the ECBP-1100 (MESS) state at the current head and changes nothing.
+
+MessActivate answers a similar question by first assigning the activation block it is
+passed, so it cannot be used to observe a running node. This exists so that state can be read
+without altering it.
+
+
+#### Params (0)
+
+_None_
+
+#### Result
+
+
+
+
+<code>ECBP1100Status</code> 
+
+  + Required: ✓ Yes
+
+
+=== "Schema"
+
+	``` Schema
+	
+	- additionalProperties: `false`
+	- properties: 
+		- activatedAtBlock: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- defaultDisabledAtBlock: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- enabled: 
+			- type: `boolean`
+
+		- head: 
+			- pattern: `^0x([a-fA-F\d])+$`
+			- title: `uint64`
+			- type: `string`
+
+		- noDisable: 
+			- type: `boolean`
+
+		- nodeSwitch: 
+			- type: `boolean`
+
+
+	- type: object
+
+
+	```
+
+=== "Raw"
+
+	``` Raw
+	{
+        "additionalProperties": false,
+        "properties": {
+            "activatedAtBlock": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "defaultDisabledAtBlock": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "enabled": {
+                "type": "boolean"
+            },
+            "head": {
+                "pattern": "^0x([a-fA-F\\d])+$",
+                "title": "uint64",
+                "type": "string"
+            },
+            "noDisable": {
+                "type": "boolean"
+            },
+            "nodeSwitch": {
+                "type": "boolean"
+            }
+        },
+        "type": [
+            "object"
+        ]
+    }
+	```
+
+
+
+#### Client Method Invocation Examples
+
+
+=== "Shell HTTP"
+
+	``` shell
+	curl -X POST -H "Content-Type: application/json" http://localhost:8545 --data '{"jsonrpc": "2.0", "id": 42, "method": "admin_messStatus", "params": []}'
+	```
+
+
+
+
+
+=== "Shell WebSocket"
+
+	``` shell
+	wscat -c ws://localhost:8546 -x '{"jsonrpc": "2.0", "id": 1, "method": "admin_messStatus", "params": []}'
+	```
+
+
+=== "Javascript Console"
+
+	``` js
+	admin.messStatus();
+	```
+
+
+
+<details><summary>Source code</summary>
+<p>
+```go
+func (api *AdminAPI) MessStatus() ECBP1100Status {
+	bc := api.eth.blockchain
+	return ecbp1100Status(bc.Config(), bc.CurrentBlock().Number, bc.IsArtificialFinalityEnabled(), bc.IsArtificialFinalityNoDisable())
+}// MessStatus reports the ECBP-1100 (MESS) state at the current head and changes nothing.
+//
+// MessActivate answers a similar question by first assigning the activation block it is
+// passed, so it cannot be used to observe a running node. This exists so that state can be read
+// without altering it.
+
+```
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L415" target="_">View on GitHub →</a>
 </p>
 </details>
 

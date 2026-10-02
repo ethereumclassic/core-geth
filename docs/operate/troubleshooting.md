@@ -317,7 +317,7 @@ off. The line's `reason` gives the cause: `low peers` when the node has fewer pe
 and `stale safety interval` when the node's newest block is older than MESS allows.
 `Reorg disallowed` means MESS refused a reorganization to another chain.
 
-- **Check:** while MESS is off, `admin.ecbp1100Status()` reports `nodeSwitch` as `false`.
+- **Check:** while MESS is off, `admin.messStatus()` reports `nodeSwitch` as `false`.
 - **Fix:** bring back the node's [peers](#why-does-the-node-have-no-peers) or its
   [sync](#is-the-sync-stuck). MESS switches itself back on once the node is in sync with enough peers.
   [MESS](mess.md) describes both conditions.

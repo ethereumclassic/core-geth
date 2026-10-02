@@ -106,6 +106,11 @@ type Ethereum struct {
 	lock sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
 
 	shutdownTracker *shutdowncheck.ShutdownTracker // Tracks if and when the node has shutdown ungracefully
+
+	// messBundledActivation is the ECBP-1100 (MESS) activation block the network ships, read
+	// before any MESS flag or config file line moves it. The admin calls that turn MESS on move
+	// an activation that keeps it off back to this block, as --mess does.
+	messBundledActivation *uint64
 }
 
 // New creates a new Ethereum object (including the
@@ -241,6 +246,10 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 			StateScheme:         scheme,
 		}
 	)
+	// Captured before the chain is opened, because opening it writes the current configuration
+	// over the stored one; see readStoredMESSWindow.
+	storedMESS := readStoredMESSWindow(chainDb)
+
 	// Override the chain config with provided settings.
 	var overrides core.ChainOverrides
 	if config.OverrideCancun != nil {
@@ -254,6 +263,7 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 		return nil, err
 	}
 	eth.bloomIndexer.Start(eth.blockchain)
+	eth.messBundledActivation = eth.blockchain.Config().GetECBP1100Transition()
 	// Handle artificial finality config override cases.
 	if n := config.OverrideECBP1100; n != nil {
 		if err := eth.blockchain.Config().SetECBP1100Transition(n); err != nil {
@@ -268,16 +278,14 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 	if config.OverrideECBP1100 != nil || config.OverrideECBP1100Deactivate != nil {
 		// The chain configuration logged while the chain was opened predates these overrides
 		// and still shows the blocks they replaced. Log the ones in force.
-		block := func(n *uint64) interface{} {
-			if n == nil {
-				return "none"
-			}
-			return *n
-		}
 		log.Info("Overrode ECBP1100 (MESS) blocks in the chain configuration",
-			"activation", block(eth.blockchain.Config().GetECBP1100Transition()),
-			"deactivation", block(eth.blockchain.Config().GetECBP1100DeactivateTransition()))
+			"activation", messBlock(eth.blockchain.Config().GetECBP1100Transition()),
+			"deactivation", messBlock(eth.blockchain.Config().GetECBP1100DeactivateTransition()))
 	}
+	// Reported after every override above, so that an operator who set MESS with a flag or a
+	// config file is not told their node changed underneath them.
+	logMESSWindowChange(storedMESS, eth.blockchain,
+		config.OverrideECBP1100 != nil || config.OverrideECBP1100Deactivate != nil)
 
 	if config.ECBP1100NoDisable != nil {
 		if *config.ECBP1100NoDisable {
