@@ -194,8 +194,9 @@ func ecbp1100ActivationBlock(blockNr rpc.BlockNumber, head uint64) (uint64, erro
 // 18446744073709551614, as 18446744073709552000.
 type ECBP1100Status struct {
 	// Enabled reports whether MESS is presently applied to reorganization
-	// decisions. It requires both that the node switch is on and that the head
-	// has reached the activation block.
+	// decisions. It requires that the node switch is on and that the head has
+	// reached the activation block, and has not reached the deactivation block
+	// unless the activation comes after it.
 	Enabled bool `json:"enabled"`
 	// NodeSwitch reports the node-level setting alone, which the low-peer-count and
 	// stale-head safeguards turn off, independent of any height. --mess=false does not
@@ -204,10 +205,12 @@ type ECBP1100Status struct {
 	// ActivatedAtBlock is the height from which the mechanism is available,
 	// per ECBP-1100. Nil when unset.
 	ActivatedAtBlock *hexutil.Uint64 `json:"activatedAtBlock"`
-	// DefaultDisabledAtBlock is the height from which the bundled default is
-	// off, per ECBP-1110. Nil means the shipped default stays on, which is this
-	// client's configuration; a non-nil value disables MESS by default at that
-	// height without removing it.
+	// DefaultDisabledAtBlock is the height from which MESS stops applying: the
+	// deactivation block of ECBP-1110's default, or one the operator set. It
+	// disables MESS at that height without removing it, and an activation after it
+	// turns MESS on again. Nil means nothing stops MESS once activated, as with
+	// ECBP-1100's default; --mess, --mess.activate and --mess.nodisable set
+	// 0xfffffffffffffffe instead, a block no chain reaches.
 	DefaultDisabledAtBlock *hexutil.Uint64 `json:"defaultDisabledAtBlock"`
 	// Head is the block number the heights above were evaluated against.
 	Head hexutil.Uint64 `json:"head"`

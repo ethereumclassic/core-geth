@@ -1106,16 +1106,19 @@ Please note that --` + MetricsHTTPFlag.Name + ` must be set to start the server.
 	// but took a block number, --override.ecbp1100.deactivate used a different
 	// prefix for the same kind of value, and --ecbp1100.nodisable was a double
 	// negative.
+	// No Value is set, so --help advertises "(default: false)", which is what the bundled
+	// configuration gives on a chain past its deactivation block. The value never decides
+	// behavior, because applyMESSFlags reads it only when IsSet reports the flag was
+	// actually given.
 	MESSFlag = &cli.BoolFlag{
 		Name:     "mess",
-		Usage:    "Enable the ECBP-1100 (MESS) chain-selection defense against deep reorganizations",
-		Value:    true,
+		Usage:    "Turn the ECBP-1100 (MESS) chain-selection defense on or off, overriding the bundled window",
 		Category: flags.EthCategory,
 	}
 	MESSActivateFlag = &cli.Uint64Flag{
 		Name:     "mess.activate",
 		Aliases:  []string{"ecbp1100"},
-		Usage:    "Block number at which ECBP-1100 (MESS) activates, overriding the bundled setting",
+		Usage:    "Turn ECBP-1100 (MESS) on from this block, overriding the bundled window",
 		Category: flags.EthCategory,
 	}
 	MESSDeactivateFlag = &cli.Uint64Flag{
@@ -1127,7 +1130,7 @@ Please note that --` + MetricsHTTPFlag.Name + ` must be set to start the server.
 	MESSNoDisableFlag = &cli.BoolFlag{
 		Name:     "mess.nodisable",
 		Aliases:  []string{"ecbp1100.nodisable"},
-		Usage:    "Keep ECBP-1100 (MESS) on once activated, bypassing the low-peer-count and stale-head auto-shutoffs",
+		Usage:    "Turn ECBP-1100 (MESS) on and keep it on, bypassing the low-peer-count and stale-head auto-shutoffs",
 		Category: flags.EthCategory,
 	}
 

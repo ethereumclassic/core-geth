@@ -98,12 +98,12 @@ func TestMordorNetVersion(t *testing.T) {
 	}
 }
 
-// TestMordorECBP1100Historic checks the block at which the previous bundled
-// configuration switched MESS off. This client ships MESS on with no
-// deactivation block, so the height is a historic marker rather than a
-// behavioral boundary: the test asserts the chain passed it and that the block
-// is well formed, not that any defense stopped there.
-func TestMordorECBP1100Historic(t *testing.T) {
+// TestMordorECBP1100Deactivated checks the block at which the bundled
+// configuration switches MESS off on Mordor, per ECBP-1110. The chain is past
+// that height, so a node on the bundled default is no longer applying MESS
+// here. The test asserts the chain passed the block and that the block is well
+// formed; it cannot observe another node's chain-selection preference over RPC.
+func TestMordorECBP1100Deactivated(t *testing.T) {
 	client := dialRPC(t, getMordorRPC())
 	defer client.Close()
 
@@ -111,16 +111,16 @@ func TestMordorECBP1100Historic(t *testing.T) {
 	blockNum := latest.Number.ToInt().Int64()
 
 	if blockNum < MordorECBP1100Deactivate {
-		t.Skipf("Mordor chain height %d has not reached the historic marker (%d)",
+		t.Skipf("Mordor chain height %d has not reached the ECBP-1100 deactivation block (%d)",
 			blockNum, MordorECBP1100Deactivate)
 	}
 
-	t.Logf("Mordor block %d is past the historic ECBP-1100 marker at %d", blockNum, MordorECBP1100Deactivate)
+	t.Logf("Mordor block %d is past the ECBP-1100 deactivation block at %d", blockNum, MordorECBP1100Deactivate)
 
 	// Verify the deactivation block exists and is valid
 	deactBlock := getBlockByNumber(t, client, big.NewInt(MordorECBP1100Deactivate))
 	if deactBlock.Difficulty == nil || deactBlock.Difficulty.ToInt().Sign() <= 0 {
-		t.Error("historic ECBP-1100 marker block has zero difficulty")
+		t.Error("ECBP-1100 deactivation block has zero difficulty")
 	}
 }
 

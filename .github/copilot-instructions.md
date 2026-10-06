@@ -142,9 +142,9 @@ Spiral**, Spiral being the head configuration at block 19,250,000 —
 Ethereum Classic is proof of work and does not adopt them. The same struct sets
 `ECIP1010PauseBlock`/`ECIP1010Length`, `ECIP1017FBlock`/`ECIP1017EraRounds`,
 `ECIP1099FBlock` (Etchash), and `ECBP1100FBlock`, which activates MESS.
-**`ECBP1100DeactivateFBlock` is unset for both Classic and Mordor as of
-v1.13.0 — MESS stays on permanently (a client decision), and
-`params/config_etc_test.go` asserts it.** ECBP-1100 is an Ethereum Classic Best
+**`ECBP1100DeactivateFBlock` is 19,250,000 on Classic and 10,400,000 on Mordor,
+the default ECBP-1110 recommends: MESS is off from those heights unless the
+operator passes `--mess`. `params/config_etc_test.go` asserts both blocks.** ECBP-1100 is an Ethereum Classic Best
 Practice, not a consensus rule: it changes which of two competing chains this
 node prefers, never whether a block is valid.
 

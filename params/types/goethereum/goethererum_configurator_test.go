@@ -181,3 +181,36 @@ func TestChainConfig_BlockNumbersOutsideUint64(t *testing.T) {
 		t.Error("byzantiumBlock above math.MaxUint64: enabled at block 23000000")
 	}
 }
+
+// TestChainConfig_ECBP1100LaterBlockWins pins how the MESS activation and deactivation blocks
+// combine: the later of the two decides from that block on, so an activation after the deactivation
+// turns MESS on again.
+func TestChainConfig_ECBP1100LaterBlockWins(t *testing.T) {
+	for _, c := range []struct {
+		name                     string
+		activation, deactivation uint64
+		want                     map[uint64]bool
+	}{
+		{"activation first", 15_000_000, 20_000_000,
+			map[uint64]bool{14_999_999: false, 15_000_000: true, 19_999_999: true, 20_000_000: false, 25_000_000: false}},
+		{"activation after the deactivation", 25_000_000, 20_000_000,
+			map[uint64]bool{15_000_000: false, 20_000_000: false, 24_999_999: false, 25_000_000: true, 30_000_000: true}},
+		{"both at one block", 20_000_000, 20_000_000,
+			map[uint64]bool{19_999_999: false, 20_000_000: false, 25_000_000: false}},
+	} {
+		var cfg ChainConfig
+		activation, deactivation := c.activation, c.deactivation
+		if err := cfg.SetECBP1100Transition(&activation); err != nil {
+			t.Fatal(err)
+		}
+		if err := cfg.SetECBP1100DeactivateTransition(&deactivation); err != nil {
+			t.Fatal(err)
+		}
+		for h, want := range c.want {
+			if got := cfg.IsEnabled(cfg.GetECBP1100Transition, new(big.Int).SetUint64(h)); got != want {
+				t.Errorf("%s (activation %d, deactivation %d): enabled at block %d is %v, want %v",
+					c.name, activation, deactivation, h, got, want)
+			}
+		}
+	}
+}
