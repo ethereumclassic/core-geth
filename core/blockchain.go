@@ -262,8 +262,8 @@ type BlockChain struct {
 	forker     *ForkChoice
 	vmConfig   vm.Config
 
-	artificialFinalityNoDisable     *int32 // manual override prevents disabling artificial finality feature activation
-	artificialFinalityEnabledStatus int32  // toggles artificial finality features; will be always 1 if artificialFinalityForce=1
+	artificialFinalityNoDisable     atomic.Int32 // manual override prevents disabling artificial finality feature activation
+	artificialFinalityEnabledStatus int32        // toggles artificial finality features; will be always 1 if artificialFinalityForce=1
 }
 
 // NewBlockChain returns a fully initialised block chain using information

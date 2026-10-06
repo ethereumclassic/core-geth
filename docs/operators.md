@@ -41,7 +41,7 @@ that answers the questions operators actually arrive with.
    node tracking the previous repository will not see `v1.13.0`.
 4. **Decide your MESS setting, and give every node you run the same one.** `--mess` turns MESS on and
    `--mess=false` turns it off; without either, the node uses the setting its release ships with, and
-   `admin.ecbp1100Status().enabled` shows whether MESS is on. MESS decides which of two competing
+   `admin.messStatus().enabled` shows whether MESS is on. MESS decides which of two competing
    chains a node prefers during a deep reorganization and never whether a block is valid, so in normal
    operation a node with it on and a node with it off follow the same chain.
    [Which setting fits which operator](operate/mess.md#which-setting-fits-which-operator) sets out what

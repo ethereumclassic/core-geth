@@ -165,6 +165,41 @@ web3._extend({
 			params: 1
 		}),
 		new web3._extend.Method({
+			name: 'ecbp1100Deactivate',
+			call: 'admin_ecbp1100Deactivate',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'ecbp1100NoDisable',
+			call: 'admin_ecbp1100NoDisable',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'mess',
+			call: 'admin_mess',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'messActivate',
+			call: 'admin_messActivate',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'messDeactivate',
+			call: 'admin_messDeactivate',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'messNoDisable',
+			call: 'admin_messNoDisable',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'messStatus',
+			call: 'admin_messStatus',
+			params: 0
+		}),
+		new web3._extend.Method({
 			name: 'ecbp1100Status',
 			call: 'admin_ecbp1100Status',
 			params: 0
