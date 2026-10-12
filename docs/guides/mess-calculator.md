@@ -54,7 +54,7 @@ to replace blocks that old on nodes running MESS. Without MESS, any chain with m
 
 - It applies only where MESS is in force. A node switches MESS off when it has fewer than five peers or its
   head goes stale: [When the node switches it off by itself](../operate/mess.md#when-the-node-switches-it-off-by-itself).
-  `admin.ecbp1100Status()` shows whether it is on.
+  `admin.messStatus()` shows whether it is on.
 - The time comes from block timestamps, which miners set, not from your clock.
 - The hashrate reading is an approximation. Difficulty adjusts block by block, so a chain's difficulty
   tracks its hashrate only over many blocks.

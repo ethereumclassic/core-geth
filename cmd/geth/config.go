@@ -20,7 +20,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"math"
 	"os"
 	"reflect"
 	"runtime"
@@ -35,6 +34,7 @@ import (
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/eth/catalyst"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/internal/ethapi"
@@ -263,7 +263,7 @@ func applyMESSFlags(ctx *cli.Context, cfg *ethconfig.Config) {
 	// reach, which turns MESS off on any version that implements it. An explicit
 	// --mess.activate or --mess.deactivate wins over either, because both are applied
 	// after them.
-	never := uint64(math.MaxUint64 - 1)
+	never := core.ECBP1100Unreachable
 	off := ctx.IsSet(utils.MESSFlag.Name) && !ctx.Bool(utils.MESSFlag.Name)
 	noDisable := ctx.IsSet(utils.MESSNoDisableFlag.Name) && ctx.Bool(utils.MESSNoDisableFlag.Name)
 	if off {
@@ -279,9 +279,9 @@ func applyMESSFlags(ctx *cli.Context, cfg *ethconfig.Config) {
 		}
 	}
 	// Every block number given is applied, math.MaxUint64 included. These flags have no
-	// default, so math.MaxUint64 no longer stands for "not set"; IsSet answers that.
-	if ctx.IsSet(utils.MESSActivateFlag.Name) {
-		n := ctx.Uint64(utils.MESSActivateFlag.Name)
+	// default, so math.MaxUint64 no longer stands for "not set"; MESSBlockGiven answers that.
+	if utils.MESSBlockGiven(ctx, utils.MESSActivateFlag) {
+		n := messBlockFlag(ctx, utils.MESSActivateFlag.Name)
 		cfg.OverrideECBP1100 = &n
 	}
 	if ctx.IsSet(utils.MESSNoDisableFlag.Name) {
@@ -292,22 +292,32 @@ func applyMESSFlags(ctx *cli.Context, cfg *ethconfig.Config) {
 			cfg.ECBP1100NoDisable = nil
 		}
 	}
-	if ctx.IsSet(utils.MESSDeactivateFlag.Name) {
-		n := ctx.Uint64(utils.MESSDeactivateFlag.Name)
+	if utils.MESSBlockGiven(ctx, utils.MESSDeactivateFlag) {
+		n := messBlockFlag(ctx, utils.MESSDeactivateFlag.Name)
 		cfg.OverrideECBP1100Deactivate = &n
 	}
+}
+
+// messBlockFlag reads a MESS block flag. The flag's Action refuses any value utils.MESSBlock
+// cannot read before a command runs, so an error here means that check was bypassed.
+func messBlockFlag(ctx *cli.Context, name string) uint64 {
+	n, err := utils.MESSBlock(ctx, name)
+	if err != nil {
+		utils.Fatalf("Invalid value for --%s: %v", name, err)
+	}
+	return n
 }
 
 // applyMESSRunSettings applies the end that --mess.activate and --mess.nodisable imply, and
 // reports MESS settings that conflict. It runs where the node is built, after applyMESSFlags,
 // so the end reaches the running node and not a file dumpconfig writes.
 func applyMESSRunSettings(ctx *cli.Context, cfg *ethconfig.Config) {
-	never := uint64(math.MaxUint64 - 1)
+	never := core.ECBP1100Unreachable
 	off := ctx.IsSet(utils.MESSFlag.Name) && !ctx.Bool(utils.MESSFlag.Name)
 	noDisable := ctx.IsSet(utils.MESSNoDisableFlag.Name) && ctx.Bool(utils.MESSNoDisableFlag.Name)
 	// --mess.nodisable turns MESS on and keeps it on, so, like --mess, it pushes the
 	// deactivation block out of reach unless --mess.deactivate gives one.
-	if noDisable && !off && !ctx.IsSet(utils.MESSDeactivateFlag.Name) {
+	if noDisable && !off && !utils.MESSBlockGiven(ctx, utils.MESSDeactivateFlag) {
 		cfg.OverrideECBP1100Deactivate = &never
 	}
 	// An activation or no-disable setting turns MESS on with no end unless a deactivation
@@ -329,11 +339,13 @@ func applyMESSRunSettings(ctx *cli.Context, cfg *ethconfig.Config) {
 // with them. The settings decide the outcome, as applyMESSFlags and applyMESSRunSettings
 // describe; this reports it at startup.
 func messConflicts(ctx *cli.Context, cfg *ethconfig.Config) []string {
-	never := uint64(math.MaxUint64 - 1)
+	never := core.ECBP1100Unreachable
 	var conflicts []string
 	off := ctx.IsSet(utils.MESSFlag.Name) && !ctx.Bool(utils.MESSFlag.Name)
-	if n := ctx.Uint64(utils.MESSActivateFlag.Name); off && ctx.IsSet(utils.MESSActivateFlag.Name) && n < never {
-		conflicts = append(conflicts, fmt.Sprintf("MESS flags conflict: --mess=false and --mess.activate=%d; MESS applies from block %d", n, n))
+	if off && utils.MESSBlockGiven(ctx, utils.MESSActivateFlag) {
+		if n := messBlockFlag(ctx, utils.MESSActivateFlag.Name); n < never {
+			conflicts = append(conflicts, fmt.Sprintf("MESS flags conflict: --mess=false and --mess.activate=%d; MESS applies from block %d", n, n))
+		}
 	}
 	if off && ctx.IsSet(utils.MESSNoDisableFlag.Name) && ctx.Bool(utils.MESSNoDisableFlag.Name) {
 		conflicts = append(conflicts, "MESS flags conflict: --mess=false and --mess.nodisable; MESS is off")

@@ -73,6 +73,7 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/nat"
 	"github.com/ethereum/go-ethereum/p2p/netutil"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/params/types/ctypes"
 	"github.com/ethereum/go-ethereum/params/types/genesisT"
 	"github.com/ethereum/go-ethereum/params/vars"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -1106,22 +1107,27 @@ Please note that --` + MetricsHTTPFlag.Name + ` must be set to start the server.
 	// but took a block number, --override.ecbp1100.deactivate used a different
 	// prefix for the same kind of value, and --ecbp1100.nodisable was a double
 	// negative.
-	// No Value is set, so --help advertises "(default: false)", which is what the bundled
-	// configuration gives on a chain past its deactivation block. The value never decides
-	// behavior, because applyMESSFlags reads it only when IsSet reports the flag was
-	// actually given.
+	// No Value is set: the value never decides behavior, because applyMESSFlags reads it only
+	// when IsSet reports the flag was actually given.
 	MESSFlag = &cli.BoolFlag{
 		Name:     "mess",
 		Usage:    "Turn the ECBP-1100 (MESS) chain-selection defense on or off, overriding the bundled window",
 		Category: flags.EthCategory,
+
+		// Without the flag, the release's bundled setting applies, so --help gives that setting
+		// rather than the zero value, false.
+		DefaultText: messDefaultText(params.ClassicChainConfig, params.VersionWithMeta),
 	}
-	MESSActivateFlag = &cli.Uint64Flag{
+	// The two block flags take their value as a string, so that MESSBlock reads it rather than
+	// Go's flag parsing, which reads a number starting with 0 as octal. Their Actions, set in
+	// init below, refuse a value MESSBlock cannot read before any command runs.
+	MESSActivateFlag = &cli.StringFlag{
 		Name:     "mess.activate",
 		Aliases:  []string{"ecbp1100"},
 		Usage:    "Turn ECBP-1100 (MESS) on from this block, overriding the bundled window",
 		Category: flags.EthCategory,
 	}
-	MESSDeactivateFlag = &cli.Uint64Flag{
+	MESSDeactivateFlag = &cli.StringFlag{
 		Name:     "mess.deactivate",
 		Aliases:  []string{"override.ecbp1100.deactivate"},
 		Usage:    "Block number at which ECBP-1100 (MESS) deactivates, overriding the bundled setting",
@@ -1161,6 +1167,94 @@ Please note that --` + MetricsHTTPFlag.Name + ` must be set to start the server.
 		Category: flags.MetricsCategory,
 	}
 )
+
+// messDefaultText gives the default --help shows for --mess: "on" or "off", as config, a bundled
+// chain configuration, leaves MESS once a chain is past its MESS blocks, then "in Core-Geth" and
+// the version as geth version prints it. It asks IsEnabled, the rule a node follows, at the
+// highest block.
+func messDefaultText(config ctypes.ChainConfigurator, version string) string {
+	state := "off"
+	if config.IsEnabled(config.GetECBP1100Transition, new(big.Int).SetUint64(math.MaxUint64)) {
+		state = "on"
+	}
+	return state + " in Core-Geth " + version
+}
+
+// MESSBlock reads the block number given to a MESS block flag, --mess.activate or
+// --mess.deactivate, from the command line or its environment variable. A number that starts
+// with 0, such as 010400000, is refused: Go would read it as octal, block 2,228,224 there, and an
+// operator who typed it would not notice. Every other number is read as Go reads it, so 0x hex
+// still works.
+func MESSBlock(ctx *cli.Context, name string) (uint64, error) {
+	return parseMESSBlock(ctx.String(name))
+}
+
+func parseMESSBlock(s string) (uint64, error) {
+	if len(s) > 1 && s[0] == '0' && (s[1] == '_' || ('0' <= s[1] && s[1] <= '9')) {
+		return 0, errors.New("a block number cannot start with 0")
+	}
+	n, err := strconv.ParseUint(s, 0, 64)
+	if errors.Is(err, strconv.ErrRange) {
+		return 0, errors.New("value out of range")
+	}
+	if err != nil {
+		return 0, errors.New("parse error")
+	}
+	return n, nil
+}
+
+// MESSBlockGiven reports whether a block number was given to f, --mess.activate or
+// --mess.deactivate. An environment variable set to the empty string gives none: geth ignores an
+// empty variable for every numeric flag, while urfave/cli counts one as set for a string flag
+// such as these. An empty value on the command line is still given, and MESSBlock refuses it.
+func MESSBlockGiven(ctx *cli.Context, f *cli.StringFlag) bool {
+	if !ctx.IsSet(f.Name) {
+		return false
+	}
+	if ctx.String(f.Name) != "" {
+		return true
+	}
+	_, v, ok := firstEnvVar(f.EnvVars)
+	return !ok || v != ""
+}
+
+// firstEnvVar returns the first of names that is set, which is the one urfave/cli reads.
+func firstEnvVar(names []string) (name, value string, ok bool) {
+	for _, name := range names {
+		name = strings.TrimSpace(name)
+		if v, ok := os.LookupEnv(name); ok {
+			return name, v, true
+		}
+	}
+	return "", "", false
+}
+
+// checkMESSBlock is the Action of a MESS block flag. It refuses a value parseMESSBlock cannot
+// read, in the form Go's flag parsing uses for its own errors, so geth stops with the flag named
+// rather than going on with the bundled default. A value read from an environment variable names
+// the variable as well.
+func checkMESSBlock(f *cli.StringFlag) func(*cli.Context, string) error {
+	return func(ctx *cli.Context, s string) error {
+		if !MESSBlockGiven(ctx, f) {
+			return nil
+		}
+		if _, err := parseMESSBlock(s); err != nil {
+			from := ""
+			if name, v, ok := firstEnvVar(f.EnvVars); ok && v == s {
+				from = " (from " + name + ")"
+			}
+			return fmt.Errorf("invalid value %q for flag -%s%s: %v", s, f.Name, from, err)
+		}
+		return nil
+	}
+}
+
+func init() {
+	// Each block flag's Action reads that flag's environment variables, which the flag's own
+	// literal cannot refer to.
+	MESSActivateFlag.Action = checkMESSBlock(MESSActivateFlag)
+	MESSDeactivateFlag.Action = checkMESSBlock(MESSDeactivateFlag)
+}
 
 var (
 	// TestnetFlags is the flag group of all built-in supported testnets.

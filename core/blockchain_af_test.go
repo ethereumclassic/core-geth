@@ -294,3 +294,48 @@ func TestECBP1100NoDisableNotice(t *testing.T) {
 		}
 	}
 }
+
+// TestArtificialFinalityNoDisable checks the no-disable setting on a running chain. On, the
+// safeguards no longer switch MESS off once it is on, and the setting does not switch it on
+// either; off, they switch it off again. It is changed from one goroutine while another switches
+// MESS, as the admin API and the sync loop do, which the race detector checks.
+func TestArtificialFinalityNoDisable(t *testing.T) {
+	chain, err := NewBlockChain(rawdb.NewMemoryDatabase(), nil, params.DefaultMessNetGenesisBlock(), nil, ethash.NewFaker(), vm.Config{}, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer chain.Stop()
+
+	chain.ArtificialFinalityNoDisable(1)
+	if !chain.IsArtificialFinalityNoDisable() {
+		t.Fatal("no-disable is off after ArtificialFinalityNoDisable(1)")
+	}
+	if chain.IsArtificialFinalityEnabled() {
+		t.Fatal("no-disable switched MESS on by itself")
+	}
+	chain.EnableArtificialFinality(true)
+	chain.EnableArtificialFinality(false, "reason", "low peers")
+	if !chain.IsArtificialFinalityEnabled() {
+		t.Error("no-disable on: a safeguard switched MESS off")
+	}
+	chain.ArtificialFinalityNoDisable(0)
+	if chain.IsArtificialFinalityNoDisable() {
+		t.Error("no-disable is on after ArtificialFinalityNoDisable(0)")
+	}
+	chain.EnableArtificialFinality(false, "reason", "low peers")
+	if chain.IsArtificialFinalityEnabled() {
+		t.Error("no-disable off: a safeguard did not switch MESS off")
+	}
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for i := 0; i < 1000; i++ {
+			chain.EnableArtificialFinality(i%2 == 0, "reason", "test")
+		}
+	}()
+	for i := 0; i < 1000; i++ {
+		chain.ArtificialFinalityNoDisable(int32(i % 2))
+	}
+	<-done
+}

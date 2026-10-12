@@ -437,7 +437,7 @@ func TestMESSFlagsRunningNode(t *testing.T) {
 	for _, c := range []struct {
 		name string
 		args []string
-		want string // the activation and deactivation blocks admin.ecbp1100Status reports
+		want string // the activation and deactivation blocks admin.messStatus reports
 	}{
 		{"bundled", nil, "0x2450e0 0x9eb100"},
 		{"activate", []string{"--mess.activate=15000000"}, "0xe4e1c0 0xfffffffffffffffe"},
@@ -446,11 +446,172 @@ func TestMESSFlagsRunningNode(t *testing.T) {
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			args := append(c.args, "--ipcdisable", "--exec",
-				`var s = admin.ecbp1100Status(); s.activatedAtBlock + " " + s.defaultDisabledAtBlock`, "console")
+				`var s = admin.messStatus(); s.activatedAtBlock + " " + s.defaultDisabledAtBlock`, "console")
 			geth := runMinimalGeth(t, args...)
 			geth.KillTimeout = 20 * time.Second
 			geth.Expect(fmt.Sprintf("%q\n", c.want))
 			geth.ExpectExit()
 		})
+	}
+}
+
+// TestMESSFlagsRefused checks that geth refuses a value a MESS flag cannot take: it exits with an
+// error naming the flag and writes no config file, rather than going on with the bundled default.
+func TestMESSFlagsRefused(t *testing.T) {
+	run := func(args ...string) (status int, stderr string, wrote bool) {
+		t.Helper()
+		out := filepath.Join(t.TempDir(), "config.toml")
+		geth := runGeth(t, append(append([]string{"--mordor"}, args...), "dumpconfig", out)...)
+		geth.WaitExit()
+		_, err := os.Stat(out)
+		return geth.ExitStatus(), geth.StderrText(), err == nil
+	}
+	// The control: a value the flag takes is written, so the cases below fail because of their
+	// values and not because this harness cannot pass.
+	if status, stderr, wrote := run("--mess.activate=15000000"); status != 0 || !wrote {
+		t.Fatalf("--mess.activate=15000000: exit status %d, config written %t\n%s", status, wrote, stderr)
+	}
+	for _, c := range []struct {
+		args []string
+		want string // in the error geth prints
+	}{
+		{[]string{"--mess.activate="}, "-mess.activate:"},
+		{[]string{"--mess.activate=abc"}, "-mess.activate:"},
+		{[]string{"--mess.activate=-1"}, "-mess.activate:"},
+		{[]string{"--mess.activate=18446744073709551616"}, "-mess.activate:"},
+		// Without a value, the flag takes the next argument as its value.
+		{[]string{"--mess.activate", "--mess"}, "-mess.activate:"},
+		{[]string{"--mess.deactivate=abc"}, "-mess.deactivate:"},
+		{[]string{"--mess=abc"}, "-mess:"},
+		{[]string{"--mess.nodisable=abc"}, "-mess.nodisable:"},
+		// Go would read a leading zero as octal, a different block, so it is refused.
+		{[]string{"--mess.activate=010400000"}, "-mess.activate: a block number cannot start with 0"},
+		{[]string{"--mess.deactivate=010400000"}, "-mess.deactivate: a block number cannot start with 0"},
+	} {
+		status, stderr, wrote := run(c.args...)
+		if status == 0 || wrote {
+			t.Errorf("%v: exit status %d, config written %t, want refused", c.args, status, wrote)
+		}
+		if !strings.Contains(stderr, c.want) {
+			t.Errorf("%v: error %q does not name the flag (%q)", c.args, strings.TrimSpace(stderr), c.want)
+		}
+	}
+	// A value from an environment variable is refused the same way.
+	t.Setenv("GETH_MESS_ACTIVATE", "abc")
+	if status, stderr, wrote := run(); status == 0 || wrote || !strings.Contains(stderr, "mess.activate") {
+		t.Errorf("GETH_MESS_ACTIVATE=abc: exit status %d, config written %t, error %q, want refused naming the flag",
+			status, wrote, strings.TrimSpace(stderr))
+	}
+	// A value refused from an environment variable names the variable as well, under either name,
+	// and a leading zero is refused there too.
+	for _, c := range []struct{ name, value, want string }{
+		{"GETH_MESS_ACTIVATE", "abc", "parse error"},
+		{"GETH_MESS_ACTIVATE", "010400000", "cannot start with 0"},
+		{"GETH_ECBP1100", "010400000", "cannot start with 0"},
+	} {
+		os.Unsetenv("GETH_MESS_ACTIVATE")
+		t.Setenv(c.name, c.value)
+		if status, stderr, wrote := run(); status == 0 || wrote || !strings.Contains(stderr, c.want) ||
+			!strings.Contains(stderr, "(from "+c.name+")") {
+			t.Errorf("%s=%s: exit status %d, config written %t, error %q, want refused naming %s",
+				c.name, c.value, status, wrote, strings.TrimSpace(stderr), c.name)
+		}
+	}
+	// A value given on the command line names no variable, even beside one that holds another.
+	os.Unsetenv("GETH_ECBP1100")
+	t.Setenv("GETH_MESS_ACTIVATE", "15000000")
+	if status, stderr, _ := run("--mess.activate=010400000"); status == 0 || strings.Contains(stderr, "(from") {
+		t.Errorf("--mess.activate=010400000 beside GETH_MESS_ACTIVATE=15000000: exit status %d, error %q, want refused naming no variable",
+			status, strings.TrimSpace(stderr))
+	}
+}
+
+// TestMESSBlockRefusedBeforeStart checks that geth refuses a MESS block value before any command
+// runs: the data directory stays empty, rather than being opened and then abandoned.
+func TestMESSBlockRefusedBeforeStart(t *testing.T) {
+	for _, arg := range []string{"--mess.activate=010400000", "--mess.deactivate=abc"} {
+		out := filepath.Join(t.TempDir(), "config.toml")
+		geth := runGeth(t, "--mordor", arg, "dumpconfig", out)
+		geth.WaitExit()
+		if status := geth.ExitStatus(); status == 0 {
+			t.Errorf("%s: exit status 0, want refused", arg)
+		}
+		if entries, err := os.ReadDir(geth.Datadir); err != nil || len(entries) != 0 {
+			t.Errorf("%s: the data directory holds %d entries (err %v), want none", arg, len(entries), err)
+		}
+	}
+}
+
+// TestMESSEmptyEnvVarIgnored checks that a MESS block variable set to the empty string gives no
+// block, as an empty variable does for every numeric flag: geth runs as if it were unset, and
+// writes no MESS line. A block on the command line still applies beside one, and an empty value
+// on the command line is still refused, as TestMESSFlagsRefused checks.
+func TestMESSEmptyEnvVarIgnored(t *testing.T) {
+	dump := func(t *testing.T, args ...string) string {
+		t.Helper()
+		out := filepath.Join(t.TempDir(), "config.toml")
+		geth := runGeth(t, append(append([]string{"--mordor"}, args...), "dumpconfig", out)...)
+		geth.WaitExit()
+		if status := geth.ExitStatus(); status != 0 {
+			t.Fatalf("exit status %d, want 0: %s", status, strings.TrimSpace(geth.StderrText()))
+		}
+		data, err := os.ReadFile(out)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return string(data)
+	}
+	// messLines returns the dump's MESS keys. The data directory's path names the test, and so
+	// can contain ECBP1100 too, so only a line that starts with a MESS key counts.
+	messLines := func(dump string) []string {
+		var keys []string
+		for _, line := range strings.Split(dump, "\n") {
+			if strings.HasPrefix(line, "OverrideECBP1100") || strings.HasPrefix(line, "ECBP1100NoDisable") {
+				keys = append(keys, line)
+			}
+		}
+		return keys
+	}
+	for _, name := range []string{"GETH_MESS_ACTIVATE", "GETH_ECBP1100", "GETH_MESS_DEACTIVATE", "GETH_OVERRIDE_ECBP1100_DEACTIVATE"} {
+		t.Run(name, func(t *testing.T) {
+			t.Setenv(name, "")
+			if keys := messLines(dump(t)); len(keys) != 0 {
+				t.Errorf("%s set to the empty string: the dump carries %q", name, keys)
+			}
+		})
+	}
+	t.Run("a block on the command line beside it", func(t *testing.T) {
+		t.Setenv("GETH_MESS_ACTIVATE", "")
+		if keys := messLines(dump(t, "--mess.activate=15000000")); !slices.Equal(keys, []string{"OverrideECBP1100 = 15000000"}) {
+			t.Errorf("GETH_MESS_ACTIVATE empty with --mess.activate=15000000: the dump carries %q, want the activation only", keys)
+		}
+	})
+}
+
+// TestMESSSettingsSetABlock checks that every MESS setting, a flag or a config file line, leaves
+// an activation or a deactivation block set once the flags are applied. eth.New takes exactly
+// that as the operator's own choice, and leaves out its notice about a changed MESS window.
+func TestMESSSettingsSetABlock(t *testing.T) {
+	set := func(cfg *ethconfig.Config) bool {
+		return cfg.OverrideECBP1100 != nil || cfg.OverrideECBP1100Deactivate != nil
+	}
+	if set(messConfig(t)) {
+		t.Fatal("no MESS setting, and a block is set, so the checks below would prove nothing")
+	}
+	for _, args := range [][]string{
+		{"--mess"}, {"--mess=false"}, {"--mess.activate=15000000"}, {"--mess.deactivate=20000000"}, {"--mess.nodisable"},
+	} {
+		if !set(messConfig(t, args...)) {
+			t.Errorf("%v: no MESS block is set", args)
+		}
+	}
+	yes, at := true, uint64(15_000_000)
+	for line, cfg := range map[string]*ethconfig.Config{
+		"ECBP1100NoDisable = true":    {ECBP1100NoDisable: &yes},
+		"OverrideECBP1100 = 15000000": {OverrideECBP1100: &at},
+	} {
+		if !set(messConfigFrom(t, cfg)) {
+			t.Errorf("config file line %s: no MESS block is set", line)
+		}
 	}
 }

@@ -19,12 +19,14 @@ var errReorgFinality = errors.New("finality-enforced invalid new chain")
 // ArtificialFinalityNoDisable overrides toggling of AF features, forcing it on.
 // n  = 1 : ON
 // n != 1 : OFF
+//
+// It can be called while the chain runs, as the admin API does, since the setting is read
+// atomically wherever the node would switch MESS off.
 func (bc *BlockChain) ArtificialFinalityNoDisable(n int32) {
-	log.Warn("Deactivating ECBP1100 (MESS) safety mechanisms", "always on", true)
-	bc.artificialFinalityNoDisable = new(int32)
-	atomic.StoreInt32(bc.artificialFinalityNoDisable, n)
+	bc.artificialFinalityNoDisable.Store(n)
 
 	if n == 1 {
+		log.Warn("Deactivating ECBP1100 (MESS) safety mechanisms", "always on", true)
 		deactivateTransition := bc.chainConfig.GetECBP1100DeactivateTransition()
 		logActivationBlockRaw := bc.chainConfig.GetECBP1100Transition()
 		if notice := ecbp1100NoDisableNotice(logActivationBlockRaw, deactivateTransition); notice != "" {
@@ -38,17 +40,26 @@ func (bc *BlockChain) ArtificialFinalityNoDisable(n int32) {
 				logActivationBlock = *logActivationBlockRaw
 			}
 			logCtx := []interface{}{"ECBP1100 activation block", logActivationBlock}
-			if *deactivateTransition < ecbp1100Unreachable {
+			if *deactivateTransition < ECBP1100Unreachable {
 				logCtx = append(logCtx, "ECBP1100 deactivation block", *deactivateTransition)
 			}
 			log.Warn(notice, logCtx...)
 		}
+	} else {
+		log.Info("ECBP1100 (MESS) safety mechanisms apply again")
 	}
 }
 
-// ecbp1100Unreachable is the block --mess, --mess.activate and --mess.nodisable move the MESS
-// deactivation to when none is given. No chain reaches it.
-const ecbp1100Unreachable = math.MaxUint64 - 1
+// IsArtificialFinalityNoDisable reports whether the setting ArtificialFinalityNoDisable sets is
+// on: once MESS is on, the low-peer-count and stale-head safeguards no longer switch it off.
+func (bc *BlockChain) IsArtificialFinalityNoDisable() bool {
+	return bc.artificialFinalityNoDisable.Load() == 1
+}
+
+// ECBP1100Unreachable is the block a MESS setting moves one end of the window to, so that end
+// never takes effect: --mess=false moves the activation there, and --mess, --mess.activate and
+// --mess.nodisable move the deactivation there when none is given. No chain reaches it.
+const ECBP1100Unreachable uint64 = math.MaxUint64 - 1
 
 // ecbp1100NoDisableNotice is what --mess.nodisable adds to the log about the MESS window, or ""
 // when there is nothing to add. A deactivation block after the activation ends the window the
@@ -57,7 +68,7 @@ func ecbp1100NoDisableNotice(activation, deactivation *uint64) string {
 	switch {
 	case deactivation == nil:
 		return ""
-	case *deactivation >= ecbp1100Unreachable:
+	case *deactivation >= ECBP1100Unreachable:
 		return "MESS is set to on, with its deactivation moved to an unreachable block. " +
 			"--mess.nodisable keeps it on once enabled, bypassing its low-peer-count and stale-head safeguards."
 	case activation != nil && *activation >= *deactivation:
@@ -81,8 +92,7 @@ func ecbp1100NoDisableNotice(activation, deactivation *uint64) string {
 // The method is idempotent.
 func (bc *BlockChain) EnableArtificialFinality(enable bool, logValues ...interface{}) {
 	// Short circuit if AF state is enabled and nodisable=true.
-	if bc.artificialFinalityNoDisable != nil && atomic.LoadInt32(bc.artificialFinalityNoDisable) == 1 &&
-		bc.IsArtificialFinalityEnabled() && !enable {
+	if bc.IsArtificialFinalityNoDisable() && bc.IsArtificialFinalityEnabled() && !enable {
 		log.Warn("Preventing disable artificial finality", "enabled", true, "nodisable", true)
 		return
 	}
