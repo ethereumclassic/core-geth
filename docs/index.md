@@ -2,10 +2,10 @@
 hide:
   - navigation # Hide navigation
 title: Core-Geth
-description: "Core-Geth is the Ethereum Classic execution client: install and run an ETC or Mordor node, upgrade from v1.12.x, and read the security audits behind v1.13.0."
+description: "Core-Geth is an Ethereum Classic execution client: install and run an ETC or Mordor node, upgrade from v1.12.x, and read the security audits behind v1.13.0."
 ---
 
-# Core-Geth: the Ethereum Classic execution client
+# Core-Geth: an Ethereum Classic execution client
 
 > A [go-ethereum](https://github.com/ethereum/go-ethereum) downstream that keeps chain
 > configuration data-driven rather than hard-coded, so one binary serves Ethereum
@@ -29,25 +29,42 @@ are maintained here rather than inherited, which is what this client is for.
 | Building it yourself | [Build from source](developers/build-from-source.md) |
 | Reviewing what was audited | [The five audit reports](#what-was-audited) |
 
-!!! danger "The v1.12.x line is insecure: upgrade to v1.13.0"
-    Six CVEs and a GraphQL denial of service are documented against it, one of them
-    exploited against Ethereum Classic bootnodes in March 2026.
+!!! danger "The v1.12.x line is insecure: upgrade to the latest v1.13 release"
+    The v1.12.x line carries six CVEs and a GraphQL denial of service, stands on
+    out-of-support Go toolchains, ships binaries with release-pipeline defects, and its
+    emergency patches introduced regressions. One of the CVEs was exploited against the ETC
+    Cooperative's bootnodes in March 2026. No v1.12.x release, v1.12.23 included, closes all
+    of it; the v1.13 line does.
 
     | Identifier | Severity | What it allows |
     | --- | --- | --- |
-    | [CVE-2026-22862](audits/2026-03-security-audit.md#cve-2026-22862-ecies-elliptic-curve-integrated-encryption-scheme-decrypt-ciphertext-length-undercheck) | High | Any peer crashes the node during the RLPx handshake. **Exploited against Ethereum Classic bootnodes, 18 March 2026.** |
-    | [CVE-2026-26315](audits/2026-03-security-audit.md#cve-2026-26315-ecies-generateshared-accepts-unvalidated-public-key) | High | Repeated handshakes leak bits of the node's own P2P key |
-    | [CVE-2026-26314](audits/2026-03-security-audit.md#cve-2026-26314-secp256k1-isoncurve-field-boundary-bypass) | High | secp256k1 coordinate field boundary bypass |
-    | [CVE-2025-24883](audits/2026-03-security-audit.md#cve-2025-24883-off-curve-public-key-in-unmarshalpubkey) | High | Off-curve public key accepted by `UnmarshalPubkey` |
-    | [CVE-2026-26313](audits/2026-03-security-audit.md#cve-2026-26313-p2p-rlp-recursive-length-prefix-item-count-memory-exhaustion) | High | One crafted p2p message exhausts the node's memory |
-    | [CVE-2026-22868](audits/2026-03-security-audit.md#cve-2026-22868-kzg-kate-zaverucha-goldberg-blob-proof-verification-dos) | Medium | KZG proof verification denial of service |
-    | [GraphQL query depth](audits/2026-03-security-audit.md#graphql-query-depth-dos) | Medium | Unbounded GraphQL query nesting; no CVE identifier assigned |
+    | [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08) | High | Any peer crashes the node during the RLPx handshake. **Exploited against the ETC Cooperative's bootnodes, March 18, 2026.** |
+    | [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9) | Medium | Repeated handshakes leak bits of the node's own P2P key |
+    | [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c) | High | secp256k1 coordinate field boundary bypass |
+    | [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d) | High | Off-curve public key accepted by `UnmarshalPubkey` |
+    | [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835) | High | One crafted p2p message exhausts the node's memory |
+    | [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a) | Medium | KZG proof verification denial of service |
+    | [GraphQL query depth](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh) | Medium | Unbounded GraphQL query nesting; no CVE identifier assigned |
 
-    Every archive measured in the line was also built on a Go version that is no longer
-    supported, most recently [Go 1.21 and Go 1.22](audits/2026-09-go-toolchain.md), whose
-    support ended in August 2024 and February 2025. The
-    [migration guide](tutorials/v1.13.0-migration.md) covers the upgrade,
-    the required node-key rotation, and how to roll back.
+    Beyond the CVEs, the same line carries:
+
+    - **Out-of-support Go toolchains.** Every archive was built on Go 1.21 or Go 1.22, whose
+      support ended in August 2024 and February 2025, and carries 67 to 73 Go standard library
+      advisories those toolchains will never receive fixes for.
+      [Go toolchain audit](audits/2026-09-go-toolchain.md).
+    - **Release-pipeline and binary defects.** glibc and macOS platform floors left older
+      systems and many macOS users unable to run the published binaries, a macOS archive most
+      of its downloaders cannot run, and release files that did not identify themselves or carry
+      a build attestation. [Release artifacts audit](audits/2026-09-release-pipeline.md).
+    - **Regressions from the emergency patches.** The emergency v1.12.21, v1.12.22 and v1.12.23
+      releases backported some CVE fixes but left the KZG denial of service and the GraphQL depth
+      limit open, introduced the `eth_syncing` regression (v1.12.22) and a snap storage-range cap
+      that can disconnect honest peers (v1.12.23).
+      [March 2026 audit](audits/2026-03-security-audit.md) · [August 2026 follow-up](audits/2026-08-security-followup.md).
+
+    Upgrade to [the latest v1.13 release](https://github.com/ethereumclassic/core-geth/releases/latest); the
+    [migration guide](tutorials/v1.13.0-migration.md) covers the steps, the required node-key rotation, and how
+    to roll back.
 
 ## Supported networks
 
@@ -118,8 +135,9 @@ been with the network since its inception.
 
 ## Support this work
 
-Maintaining Core-Geth since it moved to the community repository has been unfunded public-goods
-work. Mining pools, centralized exchanges, issuers of Ethereum Classic financial products, Etchash
+Maintaining Core-Geth since it moved to the community repository is public-goods work, sustained by
+sponsorship and backed by the Ethereum Classic DAO. Mining pools, centralized exchanges, issuers of
+Ethereum Classic financial products, Etchash
 mining hardware manufacturers and large holders all depend on an Ethereum Classic client that
 follows the network correctly and receives security fixes promptly. If your operation relies on
 Ethereum Classic, please help fund that work. The [support page](support.md) carries the routes:

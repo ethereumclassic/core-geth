@@ -5,13 +5,14 @@ description: "Core-Geth v1.12.23 measured at its tag against the advisory record
 # Core-Geth Security Follow-Up: August 2026
 
 - **Follows:** [`2026-03-security-audit.md`](./2026-03-security-audit.md)
-- **Subject:** `etclabscore/core-geth` v1.12.23 ("Argos"), released 14 August 2026
+- **Subject:** `etclabscore/core-geth` v1.12.23 ("Argos"), released August 14, 2026
 - **Prepared by:** The core-geth Authors
+- **Agentic auditing methods and tooling:** the strongest available Claude models at each stage of the work, February through September 2026
 - **Work carried out by:** [White B0x](https://whiteb0x.com)
+- **Work funded by:** [Ethereum Classic DAO](https://ethereumclassicdao.org)
 - **Method:** direct measurement against `etclabscore/core-geth` at tag `v1.12.23`, and
   against the advisory records at OSV and the GitHub Advisory Database
-
-**On this page:** [What operators need to do](#what-operators-need-to-do) · [Summary](#summary) · [What v1.12.23 contains](#what-v11223-contains) · [What v1.12.23 does not change](#what-v11223-does-not-change) · [One response cap in v1.12.23 can still reject honest peers](#finding-one-response-cap-in-v11223-can-still-reject-honest-peers) · [CVE identifier reconciliation](#cve-identifier-reconciliation) · [Status of v1.13.0](#status-of-v1130) · [Supporting this work](#supporting-this-work) · [References](#references)
+- **Last edited:** October 12, 2026
 
 ---
 
@@ -63,6 +64,48 @@ The `eth_syncing` regression
 introduced in v1.12.22 is not addressed.
 
 This document records what v1.12.23 contains, what it leaves open, and where v1.13.0 stands.
+
+---
+
+## Status by release
+
+This is the per-release picture across the three axes a node operator needs: the client's own CVEs,
+the Go toolchain each archive was built with, and the regressions each release introduced. It is why
+"the latest v1.12.x is patched" does not hold. Every v1.12.x release, v1.12.23 included, leaves at
+least one client-side issue open, and every one stands on an out-of-support Go toolchain.
+
+| Finding | Severity | v1.12.20 | v1.12.21 | v1.12.22 | v1.12.23 | v1.13 line |
+|---|---|---|---|---|---|---|
+| [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08): ECIES decrypt length (remote crash; exploited on the ETC Cooperative's bootnodes, March 2026) | High | open | fixed | fixed | fixed | fixed |
+| [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9): ECIES GenerateShared accepts an unvalidated key (node-key oracle) | Medium | open | fixed | fixed | fixed | fixed |
+| [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d): off-curve point in UnmarshalPubkey | High | open | open | fixed | fixed | fixed |
+| [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c): secp256k1 coordinate field-boundary bypass | High | open | open | fixed | fixed | fixed |
+| [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835): P2P RLP item-count memory exhaustion | High | open | open | partial | fixed | fixed |
+| [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a): KZG proof-verification DoS (not reached on ETC; active on the Ethereum Foundation networks the client also ships) | Medium | open | open | open | open | fixed |
+| [GraphQL query-depth DoS](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh) (endpoint off by default) | Medium | open | open | open | open | fixed |
+| Go toolchain in support | - | no | no | no | no | yes |
+| Go standard library advisories, all archives | - | 75 | 75 | 75 | 75 | 0 (go1.26.9) |
+| `eth_syncing` `highestBlock` regression ([#697](https://github.com/etclabscore/core-geth/issues/697)) | - | not present | not present | introduced | present | not present |
+| Snap storage-range cap can disconnect honest peers | - | not present | not present | not present | present | not present |
+
+Legend: fixed means the fix is present; open means not addressed; partial means the crash is prevented
+and a related denial of service remains.
+
+**v1.12.22, the release most often described as the CVE backport, did not close every finding.** It
+fixed four of the six client CVEs and partly mitigated a fifth: CVE-2026-26313's out-of-memory crash is
+prevented, but a peer can still make the node spend CPU on a message it will reject. It did not address
+the KZG denial of service or add the GraphQL depth limit, it introduced the `eth_syncing` regression,
+and it stayed on Go 1.21 and Go 1.22.
+
+**v1.12.23 carries the delayed-decoding hardening that closes CVE-2026-26313, and adds the
+storage-range cap in the row above.** It does not touch the KZG path, the GraphQL limit, the
+`eth_syncing` regression or the toolchain.
+
+**The Go standard library figure is the cross-archive union against the current database,** 67 to 73
+per archive. The v1.13.0 archives were built with go1.26.8 and carried none when the release shipped;
+the October 2026 Go batch has since reached go1.26.8 at module level, and v1.13.1 is built on go1.26.9,
+a scan of which reports none. The difference the table records is support: the v1.12.x toolchains will
+never receive any of these fixes. [Go toolchain](./2026-09-go-toolchain.md) measures all of it.
 
 ---
 
@@ -172,9 +215,9 @@ confirmed in a full-history go-ethereum clone:
 
 | Identifier | Issue | Fix commit | First release |
 |---|---|---|---|
-| CVE-2026-26313 · GHSA-689v-6xwf-5jf3 · GO-2026-4508 | p2p message memory exhaustion (CWE-770) | go-ethereum `#33835` | v1.17.0 |
-| CVE-2026-26314 · GHSA-2gjw-fg97-vg3r · GO-2026-4507 | secp256k1 coordinate check (CWE-20) | `895a8597c` | v1.16.9 |
-| CVE-2026-26315 · GHSA-m6j8-rg6r-7mv8 | ECIES public key validation in the RLPx handshake | `46bee92f9` | v1.16.9 |
+| [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835) · GHSA-689v-6xwf-5jf3 · GO-2026-4508 | p2p message memory exhaustion (CWE-770) | go-ethereum `#33835` | v1.17.0 |
+| [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c) · GHSA-2gjw-fg97-vg3r · GO-2026-4507 | secp256k1 coordinate check (CWE-20) | `895a8597c` | v1.16.9 |
+| [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9) · GHSA-m6j8-rg6r-7mv8 | ECIES public key validation in the RLPx handshake | `46bee92f9` | v1.16.9 |
 
 **`etclabscore/core-geth` labels the secp256k1 issue CVE-2026-26315.** That identifier belongs
 to the ECIES handshake issue. The correct identifier for the coordinate check is
@@ -200,14 +243,15 @@ underlying fix shipped in v1.12.22. Both issues are in fact addressed there.
 
 v1.13.0 is released from
 [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth), the repository
-created on 21 December 2024 under the GitHub organization that also hosts the ECIP
+created on December 21, 2024 under the GitHub organization that also hosts the ECIP
 repository. It is where contributions and release artifacts for this series belong. ETC
 Cooperative's [2024 retrospective](https://etccooperative.org/etc-cooperative-retrospective-2024.pdf)
 records that with the organization in maintenance mode, "it will be up to other stakeholders to
 take on any required maintenance of the ETC client". Relative to
 v1.12.23 it carries the Go 1.26 toolchain upgrade and the dependency graph that requires, the
 six CVE patches with their tests, ETC network tooling, and the p2p hardening series. It is
-the current release series.
+the current release series. It has about six months of testing on Ethereum Classic mainnet and
+Mordor behind it and a month in production since release, with no critical issue found.
 
 **Recommendation for operators is unchanged in direction and updated in target.** Nodes on
 any v1.12.x release should upgrade to v1.13.0 from `ethereumclassic/core-geth` immediately.
@@ -218,12 +262,13 @@ does not resolve the toolchain exposure.
 
 ## Supporting this work
 
-This follow-up and the v1.13.0 remediation it reports were carried out by [White
-B0x](https://whiteb0x.com) as unfunded public-goods work for Ethereum Classic. Mining pools,
-centralized exchanges, issuers of Ethereum Classic financial products, Etchash mining hardware
-manufacturers and large holders all depend on this client. If your operation relies on Ethereum
-Classic, please help fund its maintenance. [Support this work](../support.md) has the routes:
-sponsorship on GitHub, an invoiced agreement for organizations, or a direct transfer.
+The client is maintained by Ethereum Classic's core developers and open community contributions, in
+the [`ethereumclassic`](https://github.com/ethereumclassic) GitHub organization. The Ethereum Classic
+DAO is the legal entity standing behind that work, and the floor under it when nobody else is paying.
+Mining pools, centralized exchanges, issuers of Ethereum Classic financial products, Etchash mining
+hardware manufacturers and large holders all depend on this client. If your operation relies on
+Ethereum Classic, please consider sponsoring its maintenance. [Support this work](../support.md) says
+who maintains and funds it and how to sponsor it.
 
 ---
 
