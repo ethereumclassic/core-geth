@@ -1,5 +1,6 @@
 ---
 title: Run an Ethereum Classic node
+description: "Run an Ethereum Classic node with Core-Geth, from first start to clean stop: the commands, what each start logs, how to tell the sync is done, and checking MESS."
 ---
 
 This page follows an Ethereum Classic node in depth, from its first start to a clean stop. Its
@@ -275,7 +276,8 @@ chain reorganizations. Check whether it is on:
 $ geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
 ```
 
-`true` means MESS is on. [MESS](../operate/mess.md) explains how to turn it on or off.
+`true` means MESS is on. Before `v1.13.1` the call is `admin.ecbp1100Status().enabled`.
+[MESS](../operate/mess.md) explains how to turn it on or off.
 
 ## Next steps
 
@@ -296,4 +298,4 @@ $ geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
   [Command-line Options](run-cli.md#command-line-options), for every flag.
 - [JSON-RPC API](../JSON-RPC-API/index.md), and the [`eth` namespace](../JSON-RPC-API/modules/eth.md)
   for `eth_syncing` and the rest of it.
-- [Migrating to v1.13.0](../tutorials/v1.13.0-migration.md), if this machine ran a v1.12.x node.
+- [Upgrading](../upgrading.md), if this machine ran a v1.12.x node.

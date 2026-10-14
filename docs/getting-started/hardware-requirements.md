@@ -1,5 +1,6 @@
 ---
 title: Hardware requirements
+description: "Hardware requirements for a Core-Geth Ethereum Classic node: measured disk, memory and sync-time figures for snap and full sync on ETC and Mordor, and what happens when disk runs low."
 ---
 
 This page holds the disk, memory and time figures for running a node. Each one was measured on the

@@ -1,3 +1,7 @@
+---
+description: "Upgrade an Ethereum Classic node on Windows from any v1.12.x release to Core-Geth v1.13.0: the steps, the node-key rotation, and how to roll back."
+---
+
 # Windows users guide
 
 This guide upgrades a node on Windows from any v1.12.x release to v1.13.0.

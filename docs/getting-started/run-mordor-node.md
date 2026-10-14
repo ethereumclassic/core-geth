@@ -1,5 +1,6 @@
 ---
 title: Run a Mordor node
+description: "Run a Mordor node with Core-Geth: Ethereum Classic's proof-of-work test network for trying the client, testing contracts and rehearsing a mainnet node."
 ---
 
 Mordor is Ethereum Classic's proof-of-work test network. Its chain is a fraction of mainnet's
@@ -83,12 +84,7 @@ A Mordor node's disk, memory and sync time are measured under
 
 ## Test coins
 
-[Mine on Mordor](../guides/mordor-mining.md) is the other way to get coins. Two public faucets are set up to give out Mordor coins. This is what each showed on 2026-09-13:
-
-| Faucet | How you ask | State on 2026-09-13 |
-| --- | --- | --- |
-| [`mordortestnet/mordor-public-faucet`](https://github.com/mordortestnet/mordor-public-faucet) | Open a pull request | No request received and no distribution recorded; no funding address published |
-| [faucet.etcmc-monitor.org](https://faucet.etcmc-monitor.org/) | Enter an address and mine on the site, then claim what you collected | Funded; 109 claims waiting, the oldest from 2026-08-08, and none sent |
+Mordor coins have no value and exist only for testing. The reliable way to get them is to [mine on Mordor](../guides/mordor-mining.md): point a node at the test network and mine with a CPU, with no faucet to wait on.
 
 ## Mordor beside Ethereum Classic on one host
 
