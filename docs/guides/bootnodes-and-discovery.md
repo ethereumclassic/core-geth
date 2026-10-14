@@ -3,7 +3,7 @@ title: Bootnodes and peer discovery
 description: "How Core-Geth finds peers on Ethereum Classic: bootnodes, the DNS discovery trees, how the lists are built from a crawl, and how to publish your own."
 ---
 
-A node needs peers to receive blocks. This page covers where core-geth finds them, how to make your node a
+A node needs peers to receive blocks. This page covers where Core-Geth finds them, how to make your node a
 useful peer for others, and how the network's discovery lists are built and published.
 
 ## Where a node finds peers

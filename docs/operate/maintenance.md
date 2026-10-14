@@ -1,5 +1,6 @@
 ---
 title: Maintenance, backup and upgrades
+description: "Maintain a Core-Geth Ethereum Classic node: what to back up, moving and upgrading a node within the v1.13.x line, the offline database commands, state pruning, and recovery after an unclean stop."
 ---
 
 This page covers keeping a node in service: what to back up, moving a node and upgrading it within
@@ -46,7 +47,7 @@ new key.
 
 ## Upgrading within v1.13.x
 
-A node on a v1.12.x release follows [Upgrading to v1.13.0](../tutorials/v1.13.0-migration.md)
+A node on a v1.12.x release follows [Upgrading](../upgrading.md)
 instead.
 
 1. **Read what changed.** Releases and their notes are on the

@@ -1,6 +1,7 @@
 ---
 hide:
   - toc        # Hide table of contents
+description: "Run Core-Geth with an external EVM via EVMC: connecting a third-party interpreter such as evmone or Hera to an Ethereum Classic node."
 ---
 
 # Running Geth with an External VM
@@ -41,9 +42,9 @@ These tests run exclusively via Github Actions, configured at `.github/workflows
 
 ## Discussion: Customizing EVMC Configuration
 
-While core-geth supports highly granular EIP/ECIP/xIP chain feature configuration (ie fork feature configs),
+While Core-Geth supports highly granular EIP/ECIP/xIP chain feature configuration (ie fork feature configs),
 EVMC does not. EVMC only supports the Fork configurations supported by ethereum/go-ethereum (eg. Byzantium, Constantinople, &c).
-Thus, the implementation at core-geth of EVMC requires a somewhat arbitrary mapping of granular features as keys toggling
+Thus, the implementation at Core-Geth of EVMC requires a somewhat arbitrary mapping of granular features as keys toggling
 entire Ethereum fork configurations.
 
 The following code snippet, taken from [`./core/vm/evmc.go`](https://github.com/ethereumclassic/core-geth/blob/main/core/vm/evmc.go#L339-L367), handles this translation.
