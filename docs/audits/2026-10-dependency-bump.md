@@ -152,7 +152,7 @@ reached end of life in 2024 and 2025, and on a module graph unchanged since Dece
 months without security maintenance. [Go toolchain](2026-09-go-toolchain.md) counts the Go standard
 library advisories its binaries carry, a total that only grows, and the
 [March 2026 security audit](2026-03-security-audit.md) records the flaw that was exploited against
-the ETC Cooperative's bootnodes while that line sat unmaintained. Backporting a fix into it closed
+the Core-Geth `v1.12` bootnodes while that line sat unmaintained. Backporting a fix into it closed
 individual CVEs and never the toolchain or the dependency graph underneath them. The `v1.13` line is
 the one where the client's own CVEs, the Go standard library and the module graph are current at once,
 so its binaries are the complete resolution.

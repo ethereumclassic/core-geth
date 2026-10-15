@@ -85,8 +85,8 @@ January 2025 and March 2026, and security disclosures sent to it privately in 20
 
 In February 2026 White B0x began modernizing the client here for the Ethereum Classic DAO: patching the
 outstanding CVEs, moving to a supported Go toolchain, and rebuilding the release pipeline. In February and March
-2026 it reported that security work privately to the ETC Cooperative, which owns the previous repository. A live
-attack on the ETC Cooperative's bootnodes in March 2026 then confirmed the exposure.
+2026 it reported that security work privately to the `etclabscore/core-geth` maintainers. A live
+attack on the Core-Geth `v1.12` bootnodes in March 2026 then confirmed the exposure.
 
 The work reported privately was cut into the emergency `v1.12.21` and `v1.12.22` releases in the previous
 repository, which gave `v1.12.x` operators immediate relief while `v1.13` was tested on Ethereum Classic mainnet

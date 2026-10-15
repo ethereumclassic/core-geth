@@ -9,8 +9,7 @@
 > one to run.
 
 Releases are published from `ethereumclassic/core-geth`, which the client moved to in December 2024. The
-`v1.12.x` releases and those before them were published from the ETC Cooperative's
-`etclabscore/core-geth`, which the Cooperative's board has communicated it intends to archive as the Cooperative
+`v1.12.x` releases and those before them were published from `etclabscore/core-geth`, which the Cooperative's board has communicated it intends to archive as the Cooperative
 dissolves. Each release archive carries a build attestation, which
 `gh attestation verify <file> --repo ethereumclassic/core-geth` checks.
 

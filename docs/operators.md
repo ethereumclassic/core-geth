@@ -13,7 +13,7 @@ that answers the questions operators actually arrive with.
 1. **Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Every published
    `v1.12.20` to `v1.12.23` archive, the newest included, was built on an unsupported Go release and carries 67
    to 73 Go standard library advisories that `v1.13.0` does not. The releases before `v1.12.21` also carry all
-   six client CVEs, one of which, CVE-2026-22862, was exploited against the ETC Cooperative's bootnodes in March 2026. On
+   six client CVEs, one of which, CVE-2026-22862, was exploited against the Core-Geth `v1.12` bootnodes in March 2026. On
    September 17, 2026, 71 percent of the Core-Geth nodes on the network were running a release older than
    `v1.12.23`, and 30 percent were running one older than `v1.12.21`. The
    [migration guide](tutorials/v1.13.0-migration.md) has a guide per platform. Your chain data carries over, and
@@ -24,7 +24,7 @@ that answers the questions operators actually arrive with.
 
     | Running | Nodes | Share | Carries |
     | --- | ---: | ---: | --- |
-    | `v1.12.20` and older | 158 | 30.2% | all six client CVEs, unpatched. [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08) was exploited against the ETC Cooperative's bootnodes in March 2026 |
+    | `v1.12.20` and older | 158 | 30.2% | all six client CVEs, unpatched. [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08) was exploited against the Core-Geth `v1.12` bootnodes in March 2026 |
     | `v1.12.21` | 50 | 9.5% | [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08) and [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9) closed. Still open: [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d), [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c), [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835), [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a) and the [GraphQL limit](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh). Go 1.21 |
     | `v1.12.22` | 165 | 31.5% | [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d) and [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c) backported, [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835) only partly mitigated. [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a) and the [GraphQL limit](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh) still open. Introduces the `eth_syncing` regression. Go 1.21 |
     | `v1.12.23` | 138 | 26.3% | [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835) closed by the delayed decoding series. Nothing else here is fixed: [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a) still unpatched, 67 to 73 Go advisories (54 to 58 present in the binary), no [GraphQL depth limit](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh), the `eth_syncing` regression untouched, and a response cap that can disconnect honest peers |

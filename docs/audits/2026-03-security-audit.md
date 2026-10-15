@@ -1,5 +1,5 @@
 ---
-description: "Six CVEs and a GraphQL denial of service in Core-Geth v1.12.x, with the per-release breakdown and the March 2026 attack on the ETC Cooperative's bootnodes."
+description: "Six CVEs and a GraphQL denial of service in Core-Geth v1.12.x, with the per-release breakdown and the March 2026 attack on the Core-Geth `v1.12` bootnodes."
 ---
 
 # Core-Geth v1.12 line Security Audit: March 2026
@@ -24,7 +24,7 @@ description: "Six CVEs and a GraphQL denial of service in Core-Geth v1.12.x, wit
 The client's own code, detailed in this audit:
 
 - [CVE-2025-24883](#cve-2025-24883-off-curve-public-key-in-unmarshalpubkey): off-curve public key accepted by `UnmarshalPubkey`
-- [CVE-2026-22862](#cve-2026-22862-ecies-elliptic-curve-integrated-encryption-scheme-decrypt-ciphertext-length-undercheck): ECIES decrypt ciphertext-length undercheck, exploited against the ETC Cooperative's bootnodes
+- [CVE-2026-22862](#cve-2026-22862-ecies-elliptic-curve-integrated-encryption-scheme-decrypt-ciphertext-length-undercheck): ECIES decrypt ciphertext-length undercheck, exploited against the Core-Geth `v1.12` bootnodes
 - [CVE-2026-26315](#cve-2026-26315-ecies-generateshared-accepts-unvalidated-public-key): ECIES `GenerateShared` accepts an unvalidated public key
 - [CVE-2026-26314](#cve-2026-26314-secp256k1-isoncurve-field-boundary-bypass): secp256k1 `IsOnCurve` field-boundary bypass
 - [CVE-2026-22868](#cve-2026-22868-kzg-kate-zaverucha-goldberg-blob-proof-verification-dos): KZG blob proof-verification denial of service
@@ -53,11 +53,11 @@ can be read as having closed everything.
 
 - **v1.12.20** (June 10, 2024): the baseline. **Open:** all six client CVEs (CVE-2025-24883,
   CVE-2026-22862, CVE-2026-26315, CVE-2026-26314, CVE-2026-26313, CVE-2026-22868) and the GraphQL
-  depth-limit denial of service, none patched; CVE-2026-22862 was later exploited against the ETC
-  Cooperative's bootnodes. **Toolchain:** Go 1.21 for the Linux and macOS archives and Go 1.22 for the
+  depth-limit denial of service, none patched; CVE-2026-22862 was later exploited against the Core-Geth
+  `v1.12` bootnodes. **Toolchain:** Go 1.21 for the Linux and macOS archives and Go 1.22 for the
   Windows and Arm archives, which reached end of life two and eight months later; its binaries carry
   75 Go standard library advisories across the release's archives.
-- **v1.12.21 "Aegis"** (March 18, 2026): cut during a live attack on the ETC Cooperative's bootnodes,
+- **v1.12.21 "Aegis"** (March 18, 2026): cut during a live attack on the Core-Geth `v1.12` bootnodes,
   five hours after the issue was opened. **Fixed:** CVE-2026-22862, the exploited ECIES crash, and
   CVE-2026-26315, the ECIES key oracle. **Left open:** CVE-2025-24883, CVE-2026-26314, CVE-2026-26313
   and CVE-2026-22868, and the GraphQL depth-limit DoS. **Introduced:** nothing. **Toolchain:**
@@ -120,7 +120,7 @@ Operators tracking the v1.12.x line should move their tracking there.
 
 During cross-client testing, the Ethereum Classic Core Developers identified that `etclabscore/core-geth` (the primary Ethereum Classic execution client) had received no security maintenance since June 2024, a 21-month gap. Six CVEs and one GraphQL depth-limit DoS were found unpatched, spanning cryptographic key validation, P2P protocol memory exhaustion, and query processing. CVE-2026-22868 is not reached on Ethereum Classic in normal operation, but the `v1.12.x` line also ships and selects the Ethereum Foundation networks (`--mainnet` selected Ethereum mainnet there), where EIP-4844 and the KZG path are active, so it is a live issue in a supported configuration of the client and is patched in v1.13.0. The Go toolchains underpinning the client had also reached end-of-life (EOL), Go 1.21 in August 2024 and Go 1.22, which built the Arm archives, in February 2025, exposing all deployed nodes to unpatched Go standard library vulnerabilities for at least 19 months.
 
-Disclosures to `etclabscore/core-geth` in early 2025 received no response. A public security disclosure by a Ledger security researcher in February 2026 likewise received no response until an active attack on the ETC Cooperative's bootnodes in March 2026 forced emergency patches (v1.12.21 and v1.12.22 at `etclabscore/core-geth`). Those patches backported some of the CVE fixes but did not close all of them (the KZG denial of service and the GraphQL depth limit stayed open) and left the client on the EOL Go 1.21 and Go 1.22 toolchains with no ETC-specific modernization. The full remediation (Go 1.26 upgrade, ETC network tooling, and all CVE fixes) is released as v1.13.0 under the `ethereumclassic` GitHub organization.
+Disclosures to `etclabscore/core-geth` in early 2025 received no response. A public security disclosure by a Ledger security researcher in February 2026 likewise received no response until an active attack on the Core-Geth `v1.12` bootnodes in March 2026 forced emergency patches (v1.12.21 and v1.12.22 at `etclabscore/core-geth`). Those patches backported some of the CVE fixes but did not close all of them (the KZG denial of service and the GraphQL depth limit stayed open) and left the client on the EOL Go 1.21 and Go 1.22 toolchains with no ETC-specific modernization. The full remediation (Go 1.26 upgrade, ETC network tooling, and all CVE fixes) is released as v1.13.0 under the `ethereumclassic` GitHub organization.
 
 ---
 
@@ -179,8 +179,8 @@ is the question a reader deciding where to contribute needs answered.
 | 2026-02-18 | GHSA-689v-6xwf-5jf3, GHSA-2gjw-fg97-vg3r and GHSA-m6j8-rg6r-7mv8 published; the CVE records follow on February 19 |
 | 2026-02-26 | [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d) patch authored by [White B0x](https://whiteb0x.com) |
 | Early March 2026 | Go toolchain upgrade and remaining CVE patches authored by White B0x |
-| February-March 2026 | White B0x reports the security work privately to the ETC Cooperative |
-| 2026-03-18 | Active attack on the ETC Cooperative's bootnodes: ECIES handshake crash-loop (`crypto/ecies.symDecrypt` panic) exploited in production; [@diega](https://github.com/diega) opens [PR #694](https://github.com/etclabscore/core-geth/pull/694) and self-merges it about 70 minutes later with no peer review, releasing [v1.12.21](https://github.com/etclabscore/core-geth/releases/tag/v1.12.21) ("Aegis") approximately 5 hours after the issue was first reported. This was the first code response there in 21 months, forced by the live attack rather than prior disclosures. A cryptographic security patch authored, reviewed, and merged by one person, in a repository with no other active reviewers, is itself a supply-chain risk: the process has no second reviewer able to catch a defective or malicious change shipped under cover of an emergency. |
+| February-March 2026 | White B0x reports the security work privately to the `etclabscore/core-geth` maintainers |
+| 2026-03-18 | Active attack on the Core-Geth `v1.12` bootnodes: ECIES handshake crash-loop (`crypto/ecies.symDecrypt` panic) exploited in production; [@diega](https://github.com/diega) opens [PR #694](https://github.com/etclabscore/core-geth/pull/694) and self-merges it about 70 minutes later with no peer review, releasing [v1.12.21](https://github.com/etclabscore/core-geth/releases/tag/v1.12.21) ("Aegis") approximately 5 hours after the issue was first reported. This was the first code response there in 21 months, forced by the live attack rather than prior disclosures. A cryptographic security patch authored, reviewed, and merged by one person, in a repository with no other active reviewers, is itself a supply-chain risk: the process has no second reviewer able to catch a defective or malicious change shipped under cover of an emergency. |
 | 2026-03-19 | @niooss-ledger [documents remaining unpatched CVEs](https://github.com/etclabscore/core-geth/pull/694#issuecomment-4089185353) after v1.12.21: [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d), [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835), and the secp256k1 coordinate check still unaddressed. The comment gives the coordinate check [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9); the advisory records assign it [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c) |
 | March 20-21, 2026 | White B0x submits the security work to `ethereumclassic/core-geth` as individually scoped pull requests ([#10](https://github.com/ethereumclassic/core-geth/pull/10)-[#36](https://github.com/ethereumclassic/core-geth/pull/36)), one per CVE with test coverage and linked CVE references, and cross-references the set in [issue #692](https://github.com/etclabscore/core-geth/issues/692) |
 | 2026-03-28 | [v1.12.22 "Hermes"](https://github.com/etclabscore/core-geth/releases/tag/v1.12.22) released at `etclabscore/core-geth` ([PR #696](https://github.com/etclabscore/core-geth/pull/696)): backports CVE-2025-24883 and CVE-2026-26314 and partly mitigates CVE-2026-26313, but leaves the KZG denial of service (CVE-2026-22868) and the GraphQL depth limit open and introduces the `eth_syncing` regression; EOL Go 1.21 and Go 1.22 toolchains unchanged, no ETC-specific modernization |
@@ -279,7 +279,7 @@ if len(c) < (rLen + hLen + params.BlockSize) {
 ```
 
 **Observed Attack (March 18, 2026):**
-This vulnerability was actively exploited against the ETC Cooperative's mainnet classic bootnodes (ams3, sfo3) on March 18, 2026. Malicious P2P traffic sent crafted `auth` messages with undersized ECIES payloads, triggering the out-of-bounds slice allocation and crashing each node on the next inbound handshake attempt. Because the crash occurred in `listenLoop`, the node process exited and restarted under the service manager, only to crash again on the next malicious connection, producing a crash-loop.
+This vulnerability was actively exploited against the Core-Geth `v1.12` bootnodes (ams3, sfo3) on March 18, 2026. Malicious P2P traffic sent crafted `auth` messages with undersized ECIES payloads, triggering the out-of-bounds slice allocation and crashing each node on the next inbound handshake attempt. Because the crash occurred in `listenLoop`, the node process exited and restarted under the service manager, only to crash again on the next malicious connection, producing a crash-loop.
 
 The following stack trace, reported by node operator [@shrikus](https://github.com/shrikus) in [issue #692](https://github.com/etclabscore/core-geth/issues/692), confirms the call path:
 
@@ -553,7 +553,7 @@ s, err := graphql.ParseSchema(schema, &q, graphql.MaxDepth(maxQueryDepth))
 
 The audit was initiated during cross-client interoperability testing. The `etclabscore/core-geth` codebase at tag `v1.12.20` was cross-referenced against the go-ethereum security advisory database (GitHub Security Advisories for `github.com/ethereum/go-ethereum`) and the Go vulnerability database (`vuln.go.dev`). Each published advisory was assessed for applicability by tracing shared code ancestry between Core-Geth and go-ethereum at the affected package level.
 
-**Exploitability assessment:** Where a CVE had confirmed exploitation records (CVE-2026-22862: active ECIES crash-loop on the ETC Cooperative's bootnodes, March 18, 2026), exploitability was treated as confirmed. For the remaining CVEs, static code analysis of the affected call paths was used to establish reachability from unauthenticated network input and assess preconditions.
+**Exploitability assessment:** Where a CVE had confirmed exploitation records (CVE-2026-22862: active ECIES crash-loop on the Core-Geth `v1.12` bootnodes, March 18, 2026), exploitability was treated as confirmed. For the remaining CVEs, static code analysis of the affected call paths was used to establish reachability from unauthenticated network input and assess preconditions.
 
 **Patch development:** Applicable fixes were cherry-picked from upstream go-ethereum commits where possible. In two cases (CVE-2026-26313, CVE-2026-26314), structural divergence from go-ethereum produced merge conflicts incompatible with clean cherry-pick; fixes were manually ported by adapting the upstream approach to Core-Geth's code structure.
 
@@ -573,7 +573,7 @@ The audit was initiated during cross-client interoperability testing. The `etcla
 
 - **Node operators (any v1.12.x release):** Upgrade to v1.13.0 from [github.com/ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth) immediately; it patches every CVE in this audit. Nodes on v1.12.20 or earlier are exposed to remote crash and potential key-oracle attacks from any peer.
 - **Infrastructure providers and exchanges:** Treat the upgrade to v1.13.0 as a security-critical update, not a routine version bump.
-- **Every node upgrading from v1.12.x:** Rotate the P2P node key (`--nodekey`). This is required, not precautionary: CVE-2026-26315 is an oracle against the node key, so a key used by an unpatched node should be treated as exposed. Any node reachable from the public internet over the 21-month gap was potentially targeted. The [migration guide](../tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key) gives the procedure.
+- **Every node upgrading from v1.12.x:** Rotate the P2P node key (`--nodekey`). This is required, not precautionary: CVE-2026-26315 is an oracle against the node key, so a key used by an unpatched node should be treated as exposed. Any node reachable from the public internet over the 21-month gap was potentially targeted. The [migration guide](../tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key) gives the procedure. None of the `etclabscore/core-geth` emergency releases note this: `v1.12.21` patches the oracle without recording that the key the node used under `v1.12.20` was exposed and should be replaced, and `v1.12.22` and `v1.12.23` are silent on it, so an operator who upgraded within the `v1.12.x` line and did not rotate is still running the exposed key. The go-ethereum advisory for the fix does recommend rotation.
 - **Multi-client operation:** Running more than one independent implementation is what limits the blast radius of any single client going unmaintained.
 - **GraphQL endpoint:** If `--graphql` is enabled on public-facing nodes, disable it until the node runs v1.13.0, which adds the query depth limit.
 

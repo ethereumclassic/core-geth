@@ -13,7 +13,7 @@ description: "Download, verify and install a Core-Geth release on Linux, macOS, 
 
     | Identifier | Severity | What it allows |
     | --- | --- | --- |
-    | [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08) | High | Any peer crashes the node during the RLPx handshake. **Exploited against the ETC Cooperative's bootnodes, March 18, 2026.** |
+    | [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08) | High | Any peer crashes the node during the RLPx handshake. **Exploited against the Core-Geth `v1.12` bootnodes, March 18, 2026.** |
     | [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9) | Medium | Repeated handshakes leak bits of the node's own P2P key |
     | [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c) | High | secp256k1 coordinate field boundary bypass |
     | [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d) | High | Off-curve public key accepted by `UnmarshalPubkey` |

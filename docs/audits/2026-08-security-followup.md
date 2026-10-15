@@ -76,7 +76,7 @@ least one client-side issue open, and every one stands on an out-of-support Go t
 
 | Finding | Severity | v1.12.20 | v1.12.21 | v1.12.22 | v1.12.23 | v1.13 line |
 |---|---|---|---|---|---|---|
-| [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08): ECIES decrypt length (remote crash; exploited on the ETC Cooperative's bootnodes, March 2026) | High | open | fixed | fixed | fixed | fixed |
+| [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08): ECIES decrypt length (remote crash; exploited on the Core-Geth `v1.12` bootnodes, March 2026) | High | open | fixed | fixed | fixed | fixed |
 | [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9): ECIES GenerateShared accepts an unvalidated key (node-key oracle) | Medium | open | fixed | fixed | fixed | fixed |
 | [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d): off-curve point in UnmarshalPubkey | High | open | open | fixed | fixed | fixed |
 | [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c): secp256k1 coordinate field-boundary bypass | High | open | open | fixed | fixed | fixed |
@@ -100,6 +100,11 @@ and it stayed on Go 1.21 and Go 1.22.
 **v1.12.23 carries the delayed-decoding hardening that closes CVE-2026-26313, and adds the
 storage-range cap in the row above.** It does not touch the KZG path, the GraphQL limit, the
 `eth_syncing` regression or the toolchain.
+
+**None of the three emergency releases recommend rotating the P2P node key.** The node-key oracle
+(CVE-2026-26315) they patch is the reason a node that ran `v1.12.20` must rotate, so a patched node that
+kept its key is still running an exposed one. The
+[March audit](2026-03-security-audit.md#recommendations) gives the procedure.
 
 **The Go standard library figure is the cross-archive union against the current database,** 67 to 73
 per archive. The v1.13.0 archives were built with go1.26.8 and carried none when the release shipped;
