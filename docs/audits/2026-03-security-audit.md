@@ -229,7 +229,7 @@ The Core-Geth fork was then developed by ETC Labs until they left the ETC ecosys
 - **CVSS v3.1:** `AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H`: **7.4 High**
 - **GHSA:** GHSA-q26p-9cq4-7fc2
 - **Component:** `crypto/crypto.go`: `UnmarshalPubkey()`
-- **Affected:** etclabscore/core-geth ≤ v1.12.20
+- **Affected:** etclabscore/core-geth ≤ v1.12.21
 - **Patched:** ethereumclassic/core-geth v1.13.0
 - **Commit:** `681c915f0`
 - **Upstream reference:** go-ethereum PR #31100 / commit `159fb1a1d`
@@ -343,7 +343,7 @@ if pub.X == nil || pub.Y == nil || !pub.Curve.IsOnCurve(pub.X, pub.Y) {
 - **CVSS v3.1:** `AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H`: **8.1 High**
 - **GHSA:** GHSA-2gjw-fg97-vg3r
 - **Component:** `crypto/secp256k1/curve.go`: `IsOnCurve()`; `crypto/secp256k1/ext.h`: `secp256k1_ext_scalar_mul()`; `crypto/signature_nocgo.go`: `btCurve.IsOnCurve()`
-- **Affected:** etclabscore/core-geth ≤ v1.12.20
+- **Affected:** etclabscore/core-geth ≤ v1.12.21
 - **Patched:** ethereumclassic/core-geth v1.13.0
 - **Commit:** `c19892395` (bundled with CVE-2026-26315)
 - **Upstream reference:** go-ethereum commit `895a8597c`
@@ -397,7 +397,7 @@ if (!secp256k1_fe_set_b32(&feX, point) ||
 - **Severity:** Medium
 - **CVSS v3.1:** `AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L`: **5.3 Medium** (not reached on Ethereum Classic in normal operation; the score reflects the EIP-4844 networks the client also ships and selects)
 - **Component:** `core/txpool/validation.go`: `validateBlobSidecar()`; `eth/fetcher/tx_fetcher.go`: `Enqueue()`
-- **Affected:** etclabscore/core-geth ≤ v1.12.20 (code present; inactive on Ethereum Classic, active on the Ethereum Foundation configurations the client also ships)
+- **Affected:** etclabscore/core-geth ≤ v1.12.23 (code present; inactive on Ethereum Classic, active on the Ethereum Foundation configurations the client also ships)
 - **Patched:** ethereumclassic/core-geth v1.13.0
 - **Commit:** `9985c33fb`
 - **Upstream reference:** go-ethereum commit `fdfd1235a` (v1.16.8)
@@ -432,7 +432,7 @@ if delivery.violation != nil {
 - **CVSS v3.1:** `AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H`: **7.5 High**
 - **GHSA:** GHSA-689v-6xwf-5jf3
 - **Component:** `eth/protocols/eth/`, `eth/protocols/snap/`, `p2p/tracker/`
-- **Affected:** etclabscore/core-geth ≤ v1.12.20
+- **Affected:** etclabscore/core-geth ≤ v1.12.22 (partial mitigation in v1.12.22; fully fixed in v1.12.23)
 - **Patched:** ethereumclassic/core-geth v1.13.0
 - **Commits:** the delayed-decoding series carried from v1.12.23: `68469cb19`, `863a59733`, `b77579985`,
   `92e92dc72`, `7a4988919`, `14b116bc1`, `665b53252`, `105dc459d` and `62489811f`. `7a4988919` is the one that
@@ -465,7 +465,7 @@ Response messages are bounded by the request they answer rather than by a fixed 
 - **CVSS v3.1:** `AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H`: **7.5 High** (assumes GraphQL endpoint exposed; off by default)
 - **Related advisory:** GHSA-mh3m-8c74-74xh / CVE-2022-21708: a stack-overflow DoS in `graphql-go` reachable only when `MaxDepth` is enabled. Affected `<v1.3.0`; patched in v1.3.0
 - **Component:** `graphql/service.go`; `go.mod`: `graphql-go v1.3.0 → v1.9.0`
-- **Affected:** etclabscore/core-geth ≤ v1.12.20
+- **Affected:** etclabscore/core-geth ≤ v1.12.23
 - **Patched:** ethereumclassic/core-geth v1.13.0
 - **Commit:** `6a046ee910`
 
