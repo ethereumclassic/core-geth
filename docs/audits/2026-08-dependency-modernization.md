@@ -9,18 +9,24 @@ from its December 2024 archive state to the `v1.13.x` line. It is a companion to
 `2026-03-security-audit.md` and `2026-08-security-followup.md`, which cover the
 source-level CVE remediation; this one covers what changed underneath the code.
 
-**Baseline:** commit `7ef3ecd7a`, 2024-12-16, the last commit of the archived
+**Baseline:** commit `7ef3ecd7a`, December 16, 2024, the last commit of the archived
 `v1.12.x` development line.
+
+**Agentic auditing methods and tooling:** the strongest available Claude models at each stage of the work, February through September 2026
 
 **Work carried out by:** [White B0x](https://whiteb0x.com)
 
-**On this page:** [In short](#in-short) · [Why this work was necessary](#why-this-work-was-necessary) · [Toolchain](#toolchain) · [Dependency delta](#dependency-delta) · [What deliberately did not move](#what-deliberately-did-not-move) · [Linter](#linter) · [Build and release pipeline](#build-and-release-pipeline) · [Verification](#verification) · [Outstanding](#outstanding) · [Supporting this work](#supporting-this-work)
+**Work funded by:** [Ethereum Classic DAO](https://ethereumclassicdao.org)
+
+**Last edited:** October 12, 2026
 
 ## In short
 
 **Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** The archived `v1.12.x` line was pinned to Go toolchains that left
 support in August 2024 and February 2025, and its module graph had not moved since December 2024. `v1.13.0`
-builds on Go 1.26.8, behind it 83 module changes and a current linter. This page records what moved, what
+builds on Go 1.26.8, behind it 83 module changes and a current linter. The v1.13 line has about six
+months of testing on Ethereum Classic mainnet and Mordor behind it and a month in production since
+release, with no critical issue found. This page records what moved, what
 deliberately did not, and how each version was chosen.
 
 ## Why this work was necessary
@@ -83,7 +89,7 @@ the client depends on.
 
 Eight of the 16 are not new code at all but import-path renames: they succeed seven entries in the
 removed list, one of which split into two modules. Each successor is the choice of the library that
-requires the module; core-geth imports none of them itself:
+requires the module; Core-Geth imports none of them itself:
 
 | Removed | Successor |
 |---|---|
@@ -236,8 +242,8 @@ deprecated the raw `big.Int` fields on `crypto/ecdsa` keys and the low-level
 covers the NIST curves only, and this client is secp256k1 throughout, so for most
 of the flagged sites there is no replacement to migrate to. Two of them are the
 CVE fixes recorded in the companion documents: the `IsOnCurve` calls in
-`crypto/crypto.go` and `crypto/ecies/ecies.go` answer CVE-2025-24883 and
-CVE-2026-26315, where the on-curve check is the fix. The sites in
+`crypto/crypto.go` and `crypto/ecies/ecies.go` answer [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d) and
+[CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9), where the on-curve check is the fix. The sites in
 `p2p/discover/v4wire` and `p2p/enode/urlv4` encode the devp2p discovery wire
 format, which is fixed by the protocol rather than chosen here.
 
@@ -275,19 +281,14 @@ Intel user's download path silently changes what it returns. The macOS build is 
 two entries: `osx` stays x86_64, and Apple Silicon publishes beside it as
 `osx-arm64`.
 
-**Corrected 2026-09: this had already shipped, and this section originally said it
-had not.** The text here read that every published macOS archive was x86_64 and that
-the *next* release would have been the first Arm64 one. Measured directly from the
-published archives afterwards, the switch happened at **v1.12.20** (June 2024):
-`v1.12.19` contains an x86_64 binary and every release from `v1.12.20` through
-`v1.12.23` contains an Arm64 one, all four under the same architecture-free `osx`
-name. So the defect was not caught before it shipped. It had shipped four times.
-`2026-09-release-pipeline.md` carries the measurement. The remedy described above is
-unchanged and correct; only the claim about when it was caught was wrong.
+Measured directly from the published archives, that switch reached the `v1.12.x` line at
+**v1.12.20** (June 2024): `v1.12.19` contains an x86_64 binary, and every release from `v1.12.20`
+through `v1.12.23` contains an Arm64 one, all four under the same architecture-free `osx` name.
+`2026-09-release-pipeline.md` carries the measurement.
 
 **Container images.** None were ever published from this repository. `build/ci.go`
 carries a complete implementation, inherited from upstream, that nothing has ever
-called -- not a workflow, and not any of the retired CI configurations. The images
+called: not a workflow, and not any of the retired CI configurations. The images
 under the previous namespace were produced by a registry-side integration
 configured outside the source tree, so the capability was absent rather than
 broken, and nothing in the repository looked wrong. Images are now built and
@@ -297,7 +298,7 @@ manifest list.
 **Build context.** The container build sent 2.96 GB, most of it never read:
 fixture submodules, local build output, documentation sources, and untracked
 working directories. It is now 1.38 GB, of which 1.16 GB is `.git`, kept
-deliberately -- `internal/build/env.go` guards its git reads on the directory
+deliberately: `internal/build/env.go` guards its git reads on the directory
 existing, so removing it does not fail the build, it silently produces a binary
 that reports no commit.
 
@@ -363,9 +364,10 @@ run against this repository, by hand.
 
 ## Supporting this work
 
-The modernization this document records was carried out by [White B0x](https://whiteb0x.com) as
-unfunded public-goods work for Ethereum Classic. Mining pools, centralized exchanges, issuers of
-Ethereum Classic financial products, Etchash mining hardware manufacturers and large holders all
-depend on this client. If your operation relies on Ethereum Classic, please help fund its
-maintenance. [Support this work](../support.md) has the routes: sponsorship on GitHub, an invoiced
-agreement for organizations, or a direct transfer.
+The client is maintained by Ethereum Classic's core developers and open community contributions, in
+the [`ethereumclassic`](https://github.com/ethereumclassic) GitHub organization. The Ethereum Classic
+DAO is the legal entity standing behind that work, and the floor under it when nobody else is paying.
+Mining pools, centralized exchanges, issuers of Ethereum Classic financial products, Etchash mining
+hardware manufacturers and large holders all depend on this client. If your operation relies on
+Ethereum Classic, please consider sponsoring its maintenance. [Support this work](../support.md) says
+who maintains and funds it and how to sponsor it.

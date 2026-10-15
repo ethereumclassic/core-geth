@@ -1,5 +1,6 @@
 ---
 title: OpenRPC Discovery
+description: "OpenRPC service discovery in Core-Geth: the rpc.discover method that returns a machine-readable description of the JSON-RPC API over HTTP, WebSocket, IPC and console."
 hide:
   - toc        # Hide table of contents
 ---

@@ -1,5 +1,6 @@
 ---
 title: MESS confirmation calculator
+description: "MESS confirmation calculator for Core-Geth on Ethereum Classic: how much hashrate a deep reorganization needs by block age, for setting exchange and integrator confirmation policies."
 ---
 
 On a node running [MESS](../operate/mess.md), a reorganization needs more total difficulty the older the
@@ -54,7 +55,7 @@ to replace blocks that old on nodes running MESS. Without MESS, any chain with m
 
 - It applies only where MESS is in force. A node switches MESS off when it has fewer than five peers or its
   head goes stale: [When the node switches it off by itself](../operate/mess.md#when-the-node-switches-it-off-by-itself).
-  `admin.messStatus()` shows whether it is on.
+  `admin.messStatus()` shows whether it is on (`admin.ecbp1100Status()` before `v1.13.1`).
 - The time comes from block timestamps, which miners set, not from your clock.
 - The hashrate reading is an approximation. Difficulty adjusts block by block, so a chain's difficulty
   tracks its hashrate only over many blocks.

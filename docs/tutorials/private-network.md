@@ -1,3 +1,7 @@
+---
+description: "Build a private network with Core-Geth on one machine: a custom genesis block, proof-of-work mining with a CPU miner, and connecting your own nodes."
+---
+
 # Tutorial: Operating a Private Network
 
 This tutorial builds a private network on one machine: a chain with its own genesis block that
@@ -401,6 +405,6 @@ Stop the signers and the bootnode as in [step 7](#7-stop-the-network).
 
 ## This tutorial was run before it was published
 
-Every command above was run on 13 September 2026, on one Linux x86_64 machine with an Intel Core
+Every command above was run on September 13, 2026, on one Linux x86_64 machine with an Intel Core
 i7-10710U (12 threads) and 31 GiB of RAM, with `geth` and `bootnode` built from source. The output
 is quoted from that run, with account addresses and enode IDs replaced by placeholders.

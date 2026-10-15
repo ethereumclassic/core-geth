@@ -1,5 +1,6 @@
 ---
 title: About
+description: "About Core-Geth, an Ethereum Classic execution client: a go-ethereum downstream that keeps chain configuration data-driven, and the networks it supports."
 ---
 
 # Core-Geth
@@ -8,8 +9,9 @@ Core-Geth is an Ethereum Classic execution client. It is a downstream of
 [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum) that keeps chain configuration as
 data rather than code, so one `geth` binary runs the networks in the
 [Supported networks](../index.md#supported-networks) table, private networks among them.
-The README's [Project history](https://github.com/ethereumclassic/core-geth/blob/main/README.md#project-history)
-tells where the project came from.
+Core-Geth is developed and released from [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth),
+the canonical home for the client in the Ethereum Classic community organization.
+[Project history](../about/project-history.md) tells where the project came from.
 
 This page lists what Core-Geth adds to go-ethereum, how its chain configuration is built, and what
 go-ethereum has that Core-Geth does not.

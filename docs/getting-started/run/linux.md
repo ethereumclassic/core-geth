@@ -1,3 +1,7 @@
+---
+description: "Run a Core-Geth Ethereum Classic or Mordor node on Linux: install geth, start it, and set up a systemd service that starts the node at boot."
+---
+
 # Linux users guide
 
 This guide runs a node on Linux, on Ethereum Classic or on the Mordor test network, from an

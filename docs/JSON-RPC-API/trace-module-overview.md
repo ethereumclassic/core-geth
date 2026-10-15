@@ -1,3 +1,7 @@
+---
+description: "The trace module in Core-Geth: the ad-hoc tracing and trace-filtering APIs for Ethereum Classic, provided as OpenEthereum-compatible aliases of the debug methods."
+---
+
 # "trace" Module Overview
 
 The trace module is for getting a deeper insight into transaction processing. It includes two sets of calls; the transaction trace filtering API and the ad-hoc tracing API. You can find the documentation for the supported methods [here](modules/trace.md).
@@ -31,7 +35,7 @@ These APIs allow you to get a full externality trace on any transaction executed
 ## Available tracers
 
 - `callTracerParity` Transaction trace returning a response equivalent to OpenEthereum's (aka Parity) response schema. For documentation on this response value see [here](#calltracerparity).
-- `vmTrace` Virtual Machine execution trace. Provides a full trace of the VM’s state throughout the execution of the transaction, including for any subcalls. *(not implemented)*
+- `vmTrace` Virtual Machine execution trace. Provides a full trace of the VM's state throughout the execution of the transaction, including for any subcalls. *(not implemented)*
 - `stateDiffTracer` State difference. Provides information detailing all altered portions of the Ethereum state made due to the execution of the transaction. For documentation on this response value see [here](#statedifftracer).
 
 !!! Example "Example trace_* API method config (last method argument)"
@@ -54,9 +58,9 @@ The output result is an array including the outer transaction (first object in t
 Each object that represents an internal transaction consists of:
 
 * the `action` object with all the call args,
-* the `resutls` object with the outcome as well the gas used,
+* the `result` object with the outcome as well as the gas used,
 * the `subtraces` field, representing the number of internal transactions that were being triggered by the current transaction,
-* the `traceAddress` field, representing the exact nesting location in the call trace *[index in root, index in first CALL, index in second CALL, …]*.
+* the `traceAddress` field, representing the exact nesting location in the call trace *[index in root, index in first CALL, index in second CALL, ...]*.
 
 ```js
 [
@@ -147,7 +151,7 @@ Actually, under the `storage` object, we can find the state differences for each
 1. **SSTORE** in some edge cases persists data in state but are not being returned on stateDiff storage results on OpenEthereum output.
    > Happens only on 2 transactions on **Mordor** testnet, as of **block 2,519,999**. (TX hashes: *0xab73afe7b92ad9b537df3f168de0d06f275ed34edf9e19b36362ac6fa304c0bf*, *0x15a7c727a9bbfdd43d09805288668cc4a0ec647772d717957e882a71ace80b1a*)
 2. When error **ErrInsufficientFundsForTransfer** happens, **OpenEthereum** leaves the tracer run producing negative balances, though using safe math for overflows it **returns 0 balance**, on the other hand the `to` account **receives the full amount**.
-**Core-geth removes only the gas cost** from the sender and **adds it to the coinbase balance**.
-3. Same as in 2, but on top of that, the **sender account doesn't have to pay for the gas cost** even. In this case, **core-geth returns an empty JSON**, as in reality this transaction will remain in the tx_pool and never be executed, neither change the state.
-4. On **OpenEthereum the block gasLimit is set to be U256::max()**, which leads into problems on contracts using it for pseudo-randomness. On **core-geth**, we believe that the user utilising the trace_* wants to **see what will happen in reality**, though we **leave the block untouched to its true values**.
+**Core-Geth removes only the gas cost** from the sender and **adds it to the coinbase balance**.
+3. Same as in 2, but on top of that, the **sender account doesn't have to pay for the gas cost** even. In this case, **Core-Geth returns an empty JSON**, as in reality this transaction will remain in the tx_pool and never be executed, neither change the state.
+4. On **OpenEthereum the block gasLimit is set to be U256::max()**, which leads into problems on contracts using it for pseudo-randomness. On **Core-Geth**, we believe that the user utilising the trace_* wants to **see what will happen in reality**, though we **leave the block untouched to its true values**.
 5. When an internal call fails with out of gas, and its state is not being persisted, we don't add it in stateDiff output, as it happens on OpenEthereum.

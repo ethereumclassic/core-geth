@@ -1,3 +1,7 @@
+---
+description: "Add a network to Core-Geth: define its chain configuration and genesis block with a worked example, and start a node on it."
+---
+
 # Adding a network to Core-Geth
 
 A network is its chain configuration and its genesis block. This page defines an example network,

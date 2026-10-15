@@ -1,3 +1,7 @@
+---
+description: "Run a Core-Geth Ethereum Classic or Mordor node on Windows: from geth.exe to a node that starts when you sign in."
+---
+
 # Windows users guide
 
 This guide runs a node on Windows, on Ethereum Classic or on the Mordor test network, from
