@@ -139,6 +139,9 @@ func loadBaseConfig(ctx *cli.Context) gethConfig {
 		if err := loadConfig(file, &cfg); err != nil {
 			utils.Fatalf("%v", err)
 		}
+		// A network ID in the file chooses the network's defaults as
+		// --networkid does, so the flags applied below must see it.
+		utils.SetConfigNetworkID(ctx, cfg.Eth.NetworkId)
 	}
 
 	// Apply flags.
@@ -174,6 +177,7 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 // makeFullNode loads geth configuration and creates the Ethereum backend.
 func makeFullNode(ctx *cli.Context) (*node.Node, ethapi.Backend) {
 	stack, cfg := makeConfigNode(ctx)
+	logNetwork(ctx)
 	applyMESSRunSettings(ctx, &cfg.Eth)
 	if ctx.IsSet(utils.OverrideShanghai.Name) {
 		v := ctx.Uint64(utils.OverrideShanghai.Name)

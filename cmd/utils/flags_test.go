@@ -25,6 +25,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/eth/ethconfig"
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
@@ -36,11 +37,12 @@ import (
 )
 
 // networkContext returns a command-line context holding the network flags,
-// parsed from args.
+// parsed from args, and the flags SetNodeConfig and SetEthConfig need a value for.
 func networkContext(t *testing.T, args ...string) *cli.Context {
 	t.Helper()
 	app := cli.NewApp()
-	app.Flags = slices.Concat(NetworkFlags, []cli.Flag{DeveloperFlag, DeveloperPoWFlag, NetworkIdFlag})
+	app.Flags = slices.Concat(NetworkFlags, []cli.Flag{DeveloperFlag, DeveloperPoWFlag, NetworkIdFlag,
+		USBFlag, GCModeFlag, EthProtocolsFlag, CryptoKZGFlag})
 	set := flag.NewFlagSet("test", flag.ContinueOnError)
 	for _, f := range app.Flags {
 		if err := f.Apply(set); err != nil {
@@ -51,6 +53,18 @@ func networkContext(t *testing.T, args ...string) *cli.Context {
 		t.Fatal(err)
 	}
 	return cli.NewContext(app, set, nil)
+}
+
+// configContext is networkContext with id recorded as the network ID a
+// configuration file sets, as geth records it once the file is loaded; 0
+// stands for a file that sets none, or no file.
+func configContext(t *testing.T, id uint64, args ...string) *cli.Context {
+	t.Helper()
+	ctx := networkContext(t, args...)
+	if id != 0 {
+		SetConfigNetworkID(ctx, id)
+	}
+	return ctx
 }
 
 // classicArgs are the command lines that must run Ethereum Classic mainnet.
@@ -181,6 +195,123 @@ func TestNetworkMinerDefaults(t *testing.T) {
 		if ecfg.Ethash.CacheDir != ethconfig.Defaults.Ethash.CacheDir {
 			t.Errorf("%v: ethash cache dir %q, want %q", args, ecfg.Ethash.CacheDir, ethconfig.Defaults.Ethash.CacheDir)
 		}
+	}
+}
+
+// TestNetworkDefaults follows each way of choosing a network, on the command line or in a
+// configuration file, through the two functions geth applies its flags with, and checks every
+// default that follows the network. A network ID set only in a configuration file once went
+// unread, so a private network defined there took all of Ethereum Classic's defaults and
+// announced itself to Ethereum Classic's discovery network.
+// A network flag given as false chooses no network, the same as leaving it out; it once counted
+// as a choice, so --classic=false ran Ethereum Classic's genesis with none of its defaults.
+func TestNetworkDefaults(t *testing.T) {
+	coinType := accounts.BIP0044CoinType
+	t.Cleanup(func() { accounts.SetCoinTypeConfiguration(coinType) })
+
+	urls := func(nodes []*enode.Node) (out []string) {
+		for _, n := range nodes {
+			out = append(out, n.URLv4())
+		}
+		return out
+	}
+	base := vars.DefaultDataDir()
+	type network struct {
+		datadir   string
+		bootnodes []string
+		coinType  uint32
+		trees     []string
+		gasCeil   uint64
+		etchash   bool
+	}
+	var (
+		classic = network{
+			datadir:   filepath.Join(base, "classic"),
+			bootnodes: urls(mustParseBootnodes(params.ClassicBootnodes)),
+			coinType:  accounts.BIP0044CoinTypeEtherClassic,
+			trees:     []string{params.ClassicDNSNetwork1, params.ClassicDNSNetwork2, params.ClassicDNSNetwork3},
+			gasCeil:   8_000_000,
+			etchash:   true,
+		}
+		mordor = network{
+			datadir:   filepath.Join(base, "mordor"),
+			bootnodes: urls(mustParseBootnodes(params.MordorBootnodes)),
+			coinType:  accounts.BIP0044CoinTypeTestnet,
+			trees:     []string{params.MordorDNSNetwork1, params.MordorDNSNetwork2, params.MordorDNSNetwork3},
+			gasCeil:   8_000_000,
+			etchash:   true,
+		}
+		// A private network keeps the defaults a node without a network flag had before
+		// Ethereum Classic became the default.
+		private = network{
+			datadir:  base,
+			coinType: accounts.BIP0044CoinTypeEther,
+			gasCeil:  ethconfig.Defaults.Miner.GasCeil,
+		}
+	)
+	tests := []struct {
+		name     string
+		args     []string
+		configID uint64 // the NetworkId a configuration file sets, 0 for none
+		want     network
+	}{
+		{"no flags, no config", nil, 0, classic},
+		{"--classic", []string{"--classic"}, 0, classic},
+		{"--mainnet", []string{"--mainnet"}, 0, classic},
+		{"--networkid 1", []string{"--networkid", "1"}, 0, classic},
+		{"config NetworkId 1", nil, 1, classic},
+		{"--classic over config NetworkId 12345", []string{"--classic"}, 12345, classic},
+		{"--networkid 1 over config NetworkId 12345", []string{"--networkid", "1"}, 12345, classic},
+		{"--mordor", []string{"--mordor"}, 0, mordor},
+		{"--mordor with config NetworkId 12345", []string{"--mordor"}, 12345, mordor},
+		{"config NetworkId 12345", nil, 12345, private},
+		{"config NetworkId 7, which only --mordor selects", nil, 7, private},
+		{"--networkid 12345", []string{"--networkid", "12345"}, 0, private},
+		{"--networkid 12345 over config NetworkId 1", []string{"--networkid", "12345"}, 1, private},
+		{"--classic=false", []string{"--classic=false"}, 0, classic},
+		{"--mainnet=false", []string{"--mainnet=false"}, 0, classic},
+		{"--mordor=false", []string{"--mordor=false"}, 0, classic},
+		{"--mintme=false", []string{"--mintme=false"}, 0, classic},
+		{"--sepolia=false", []string{"--sepolia=false"}, 0, classic},
+		{"--mordor=false --networkid 12345", []string{"--mordor=false", "--networkid", "12345"}, 0, private},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// --usb makes SetNodeConfig choose the HD derivation path, which it sets globally.
+			accounts.SetCoinTypeConfiguration(accounts.BIP0044CoinTypeEther)
+			ctx := configContext(t, test.configID, append(slices.Clone(test.args), "--usb")...)
+
+			ncfg := node.Config{DataDir: base}
+			SetNodeConfig(ctx, &ncfg)
+			if ncfg.DataDir != test.want.datadir {
+				t.Errorf("datadir %s, want %s", ncfg.DataDir, test.want.datadir)
+			}
+			if have := urls(ncfg.P2P.BootstrapNodes); !slices.Equal(have, test.want.bootnodes) {
+				t.Errorf("discv4 bootnodes %v, want %v", have, test.want.bootnodes)
+			}
+			if have := urls(ncfg.P2P.BootstrapNodesV5); !slices.Equal(have, test.want.bootnodes) {
+				t.Errorf("discv5 bootnodes %v, want %v", have, test.want.bootnodes)
+			}
+			if accounts.BIP0044CoinType != test.want.coinType {
+				t.Errorf("HD derivation path coin type %d, want %d", accounts.BIP0044CoinType, test.want.coinType)
+			}
+
+			ecfg := ethconfig.Defaults
+			ecfg.NetworkId = test.configID // where loading the file puts it
+			SetEthConfig(ctx, nil, &ecfg)
+			if !slices.Equal(ecfg.EthDiscoveryURLs, test.want.trees) || !slices.Equal(ecfg.SnapDiscoveryURLs, test.want.trees) {
+				t.Errorf("discovery trees %v and %v, want %v", ecfg.EthDiscoveryURLs, ecfg.SnapDiscoveryURLs, test.want.trees)
+			}
+			if ecfg.Miner.GasCeil != test.want.gasCeil {
+				t.Errorf("gas ceiling %d, want %d", ecfg.Miner.GasCeil, test.want.gasCeil)
+			}
+			if etchash := ecfg.Ethash.CacheDir == "etchash"; etchash != test.want.etchash {
+				t.Errorf("ethash cache dir %q, want etchash's: %v", ecfg.Ethash.CacheDir, test.want.etchash)
+			}
+			if etchash := ecfg.Ethash.DatasetDir != ethconfig.Defaults.Ethash.DatasetDir; etchash != test.want.etchash {
+				t.Errorf("ethash dataset dir %q, want etchash's: %v", ecfg.Ethash.DatasetDir, test.want.etchash)
+			}
+		})
 	}
 }
 
