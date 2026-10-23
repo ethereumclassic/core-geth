@@ -280,7 +280,7 @@ jobs:
       # before any draft existed each created one, and the release was split
       # across two drafts. Runs on a rehearsal too, so a rehearsal tests it.
       - name: Keep the archives for the publish job
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-archives-${{ matrix.BUILD_OS_NAME }}
           path: core-geth*.zip*
