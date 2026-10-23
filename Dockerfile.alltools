@@ -4,7 +4,7 @@ ARG VERSION=""
 ARG BUILDNUM=""
 
 # Build Core-Geth in a stock Go builder container
-FROM golang:1.26.8-alpine AS builder
+FROM golang:1.26.10-alpine AS builder
 
 RUN apk add --no-cache gcc musl-dev linux-headers git
 
