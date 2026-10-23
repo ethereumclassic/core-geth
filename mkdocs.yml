@@ -94,6 +94,8 @@ nav:
       - Dependency and toolchain modernization: audits/2026-08-dependency-modernization.md
       - Release artifacts: audits/2026-09-release-pipeline.md
       - Go toolchain: audits/2026-09-go-toolchain.md
+      - In preparation (v1.13.1):
+          - Dependency bump: audits/2026-10-dependency-bump-v1.13.1.md
       - 2021 chain split postmortem: postmortems/2021-08-22-split-postmortem.md
 
 
