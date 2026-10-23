@@ -544,7 +544,7 @@ it removes `github.com/fjl/memsize`, whose `//go:linkname` use Go 1.23 restricte
 raises the `go.mod` directive from `go 1.21` to `go 1.24.0`. It also moves the `# version:golang` pin in
 `build/checksums.txt` from 1.22.1 to 1.25.12 and updates `golang.org/x/crypto` from v0.17.0 to v0.48.0.
 
-**Two measurements to repeat rather than assume, if that release ships.** Go 1.24 left support on 10 February
+**Two measurements to repeat rather than assume, if that release ships.** Go 1.24 left support on February 10,
 2026 and Go 1.25 on August 19, 2026, each when two newer major releases existed, so a binary built from either
 would still carry standard library advisories, fewer than Go 1.21 carries. And the advisory count for any such
 release has to be measured from its published archives, the way the counts in this document were, rather than
