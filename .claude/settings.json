@@ -33,7 +33,6 @@
       "Bash(git submodule update:*)",
       "Bash(make all:*)",
       "Bash(make geth:*)",
-      "Bash(make geth:*)",
       "Bash(make clean:*)",
       "Bash(make test:*)",
       "Bash(make test-coregeth:*)",

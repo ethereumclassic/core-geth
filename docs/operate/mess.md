@@ -4,7 +4,8 @@ description: "How to check whether MESS (ECBP-1100) is on in Core-Geth, turn it 
 ---
 
 MESS (Modified Exponential Subjective Scoring, ECBP-1100) makes a node resist deep chain
-reorganizations. It never changes whether a block is valid. It only decides which of two valid
+reorganizations. It never changes whether a block is valid. In normal network conditions, MESS does not
+affect chain selection. It only decides which of two valid
 chains the node keeps when a competing chain would replace blocks it already accepted. The
 [MESS confirmation calculator](../guides/mess-calculator.md) shows how much protection it gives.
 
@@ -17,6 +18,10 @@ true
 
 `true` means MESS is on. `false` means it is off, or paused while the node is out of sync or has
 fewer than five peers.
+
+The `mess*` names on this page were added in `v1.13.1`. Before it, on `v1.13.0` and the legacy
+`v1.12.x` line, use the original `ecbp1100*` names, such as `admin.ecbp1100Status()`; both work from
+`v1.13.1` on. The [admin calls](#admin-calls) list each pair.
 
 ## Turn MESS on or off
 
@@ -132,8 +137,9 @@ true
   back to the block MESS first applied from on your network, as `--mess` does.
 - Called while the node is out of sync or short of peers, `admin.messNoDisable(true)` turns MESS on
   at the next sync, and keeps it on from then.
-- The ECBP-1100 names also work: `admin.ecbp1100`, `admin.ecbp1100Deactivate`,
-  `admin.ecbp1100NoDisable` and `admin.ecbp1100Status`.
+- The `ecbp1100*` names are the original ones and are the only form before `v1.13.1`, on `v1.13.0`
+  and the legacy `v1.12.x` line: `admin.ecbp1100`, `admin.ecbp1100Deactivate`,
+  `admin.ecbp1100NoDisable` and `admin.ecbp1100Status`. The `mess*` names were added in `v1.13.1`.
 - The calls use the `admin` namespace, which the node serves over IPC.
 - None of them is saved. To keep a change, use the flag or its config file line.
 
@@ -148,17 +154,19 @@ seconds old. It resumes once the node is back in sync with enough peers. The log
 [Troubleshooting](troubleshooting.md#what-do-disabled-artificial-finality-features-and-reorg-disallowed-mean)
 explains it. `--mess.nodisable` and `admin.messNoDisable(true)` keep MESS on through both.
 
-## The two defaults
+## The default is set per release
 
-A release ships one of two defaults, from two Best Practice documents:
+A release ships MESS on or off by default, from one of two Best Practice documents. Which one a
+release ships is a per-release decision and can differ from one release to the next, so read the
+notes for the release you run, or set `--mess` or `--mess=false` yourself, rather than assume.
 
-| Default | Ethereum Classic | Mordor |
-|---|---|---|
-| ECBP-1100's | on from block 11,380,000 | on from block 2,380,000 |
-| ECBP-1110's | on from block 11,380,000, off from block 19,250,000 | on from block 2,380,000, off from block 10,400,000 |
+| Default | Sets | Ethereum Classic | Mordor | Shipped by |
+|---|---|---|---|---|
+| ECBP-1100 | MESS on | on from block 11,380,000 | on from block 2,380,000 | `v1.13.0` |
+| ECBP-1110 | MESS off | on from block 11,380,000, off from block 19,250,000 | on from block 2,380,000, off from block 10,400,000 | `v1.13.1` |
 
-Both chains are past the ECBP-1110 blocks, so under ECBP-1110's default MESS is off, and under
-ECBP-1100's it is on. `--mess` and `--mess=false` override either one.
+Both chains are past the ECBP-1110 blocks, so under the ECBP-1110 default MESS ends up off, and under
+the ECBP-1100 default it is on. `--mess` and `--mess=false` override either one.
 
 ## After an upgrade
 

@@ -5,7 +5,6 @@
 **Do not open a public issue for a security vulnerability.**
 
 Report it privately, through either channel:
-Instead, please report security vulnerabilities through one of the following methods:
 
 1. **GitHub Security Advisories** (Preferred)
    - Navigate to the [Security tab](https://github.com/ethereumclassic/core-geth/security/) of our repository
@@ -70,9 +69,8 @@ review may be published in [`docs/audits/`](docs/audits/)**, as the March 2026
 audit and its August follow-up already are.
 
 That serves two purposes. It gives operators the per-release detail they need to
-decide what they are exposed to, and it credits the work by name. Security review
-of an under-resourced client is largely unpaid, and the record of who did it
-should be public and durable rather than a line in a changelog.
+decide what they are exposed to, and it credits the work by name. Security research like this deserves a public, durable record of who did it
+rather than a line in a changelog.
 
 **Our thanks to the white hat community.** Several of the defects closed in this
 release series were found and reported by people with no obligation to look. Where
@@ -80,7 +78,7 @@ a reporter wants credit they are named; where they prefer not to be, they are no
 
 ## Scope
 
-This repository is Core-Geth, the Ethereum Classic execution client. Consensus
+This repository is Core-Geth, an Ethereum Classic execution client. Consensus
 rules, chain configuration, peer-to-peer networking, the JSON-RPC surface, key
 handling and the node binaries are all in scope.
 

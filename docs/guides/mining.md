@@ -1,5 +1,6 @@
 ---
 title: Mining
+description: "Mine Ethereum Classic with Core-Geth: the Etchash (ECIP-1099) proof-of-work algorithm, ECIP-1017 block rewards, activation blocks, and connecting a miner to a node."
 ---
 
 Ethereum Classic is secured by proof of work. Its mining algorithm is Etchash (ECIP-1099), a modified
@@ -7,7 +8,7 @@ Ethash that doubles the epoch length to 60,000 blocks so the DAG grows more slow
 block 11,700,000 on Ethereum Classic and from block 2,520,000 on Mordor. Block rewards follow ECIP-1017:
 the reward drops by 20% every 5,000,000 blocks.
 
-core-geth mines in two ways:
+Core-Geth mines in two ways:
 
 - **It hands work to external mining software** over JSON-RPC. GPU and ASIC miners and pool software
   work this way. [Mining pool node](mining-pool-node.md) covers a node that serves a pool.

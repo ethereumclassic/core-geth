@@ -1,6 +1,7 @@
 ---
 hide:
   - toc        # Hide table of contents
+description: "Use the JSON-RPC, WebSocket and IPC interfaces of a Core-Geth Ethereum Classic node: the namespaces each one serves and how to enable them."
 ---
 
 # Using JSON-RPC APIs

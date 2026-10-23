@@ -68,6 +68,10 @@ les/transactions.rlp
 /manifest.json
 /site
 
+# Python bytecode cache from the mkdocs build hook (mkdocs_hooks.py)
+__pycache__/
+*.pyc
+
 # ---------------------------------------------------------------------------
 # Below this line: local development and agent tooling. Everything above is the
 # project's own build and editor output and is unrelated to this section.

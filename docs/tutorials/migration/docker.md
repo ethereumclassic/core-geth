@@ -1,3 +1,7 @@
+---
+description: "Upgrade an Ethereum Classic node in Docker from any v1.12.x image to Core-Geth v1.13.0: the steps, the node-key rotation, and how to roll back."
+---
+
 # Docker users guide
 
 This guide upgrades a node running in Docker from any v1.12.x image to v1.13.0.

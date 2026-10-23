@@ -16,16 +16,22 @@ downloading and inspecting the archives rather than by reading the configuration
 built them. `v1.12.20` (June 2024) is the last release before this repository was
 created from the archived development line; the other three were published in 2026.
 
+**Agentic auditing methods and tooling:** the strongest available Claude models at each stage of the work, February through September 2026
+
 **Work carried out by:** [White B0x](https://whiteb0x.com)
 
-**On this page:** [In short](#in-short) · [Why the artifacts needed a pass of their own](#why-the-artifacts-needed-a-pass-of-their-own) · [The platform floor was lost across the v1.12.x releases](#finding-the-platform-floor-was-lost-across-the-v112x-releases) · [The macOS archive contains a binary most of its downloaders cannot run](#finding-the-macos-archive-contains-a-binary-most-of-its-downloaders-cannot-run) · [The v1.12.x line no longer builds against a C23 compiler](#finding-the-v112x-line-no-longer-builds-against-a-c23-compiler) · [The v1.12.x releases were published from outside this organization](#finding-the-v112x-releases-were-published-from-outside-this-organization) · [No container image was ever published from this repository](#finding-no-container-image-was-ever-published-from-this-repository) · [The release files did not identify themselves](#finding-the-release-files-did-not-identify-themselves) · [What a vulnerability scanner will say about these artifacts](#what-a-vulnerability-scanner-will-say-about-these-artifacts) · [How v1.13.0 sets its platform floor](#how-v1130-sets-its-platform-floor) · [What this means if you are upgrading](#what-this-means-if-you-are-upgrading) · [Verification](#verification) · [Outstanding](#outstanding) · [Supporting this work](#supporting-this-work)
+**Work funded by:** [Ethereum Classic DAO](https://ethereumclassicdao.org)
+
+**As of:** the `v1.13.0` release, September 14, 2026
 
 ## In short
 
 **Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Measured by downloading them, the published `v1.12.20` to
 `v1.12.23` archives raised the glibc version a Linux host needs without saying so, shipped an Apple Silicon
 binary under a name that does not say so, and carried nothing that identifies what built them. Every `v1.13.0`
-archive and image ships with a checksum and a build attestation, and names its platform.
+archive and image ships with a checksum and a build attestation, and names its platform. The `v1.13.0`
+release has about six months of testing on Ethereum Classic mainnet and Mordor behind it, with no
+critical issue found.
 
 ## Why the artifacts needed a pass of their own
 
@@ -161,8 +167,8 @@ three things follow:
   it was built from rests entirely on the publisher's assertion.
 
 **Of the three findings above, the floor regression is the only one drawn on the handoff
-boundary, and there it is exact.** `7ef3ecd7a` (2024-12-16) is the last commit on the
-predecessor's master before this repository was created on 2024-12-21; the tag
+boundary, and there it is exact.** `7ef3ecd7a` (December 16, 2024) is the last commit on the
+predecessor's master before this repository was created on December 21, 2024; the tag
 `archive/etclabscore-2024-12` marks it. `v1.12.20`, published June 2024 and the last
 release before that boundary, carries a 2.17 Linux floor and the Arm floors `v1.13.0`
 restores. All three releases carrying the regression were published in 2026, well after
@@ -369,9 +375,10 @@ Windows image here. The remedy does not depend on which toolchain you meet it wi
 
 ## Supporting this work
 
-The release work this document records was carried out by [White B0x](https://whiteb0x.com) as
-unfunded public-goods work for Ethereum Classic. Mining pools, centralized exchanges, issuers of
-Ethereum Classic financial products, Etchash mining hardware manufacturers and large holders all
-depend on this client. If your operation relies on Ethereum Classic, please help fund its
-maintenance. [Support this work](../support.md) has the routes: sponsorship on GitHub, an invoiced
-agreement for organizations, or a direct transfer.
+The client is maintained by Ethereum Classic's core developers and open community contributions, in
+the [`ethereumclassic`](https://github.com/ethereumclassic) GitHub organization. The Ethereum Classic
+DAO is the legal entity standing behind that work, and the floor under it when nobody else is paying.
+Mining pools, centralized exchanges, issuers of Ethereum Classic financial products, Etchash mining
+hardware manufacturers and large holders all depend on this client. If your operation relies on
+Ethereum Classic, please consider sponsoring its maintenance. [Support this work](../support.md) says
+who maintains and funds it and how to sponsor it.

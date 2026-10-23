@@ -2,7 +2,7 @@
 description: "Short answers with links to the record: which repository publishes Core-Geth, which version to run, node key rotation, MESS, public RPC endpoints and how to verify a download."
 ---
 
-# Questions and answers
+# Core-Geth FAQ
 
 Short answers, each linking to the record it rests on. If you run a node and want the ordered path instead,
 read [Node operators: start here](../operators.md).
@@ -10,9 +10,13 @@ read [Node operators: start here](../operators.md).
 ## Which repository publishes Core-Geth releases?
 
 [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases), in the Ethereum Classic
-community's GitHub organization. `v1.13.0`, published 14 September 2026, is the first release cut from it.
+community's GitHub organization, is the canonical release pipeline for Core-Geth, where the client is developed and released now. `v1.13.0`, published September 14, 2026, is the first release cut from it.
 Archives published under the previous `etclabscore` namespace are not built from this source and do not carry the
 fixes released here. [Project history](project-history.md) covers how maintenance moved.
+
+## Where do I download Core-Geth?
+
+From the [releases page](https://github.com/ethereumclassic/core-geth/releases/latest) of `ethereumclassic/core-geth`, the canonical release pipeline. [Installation](../getting-started/installation.md) has a route for every platform, and [How do I verify a download?](#how-do-i-verify-a-download) confirms the archive is the one this repository built. Archives under the previous `etclabscore` namespace are unmaintained and do not carry the fixes released here.
 
 ## Is `etclabscore/core-geth` still maintained?
 
@@ -21,20 +25,20 @@ Cooperative has been in maintenance mode since the end of 2024 and is scheduled 
 [The ETC Cooperative transition](../etc-cooperative-transition.md) lists where each service it maintained
 continues.
 
-## Which version should I run?
+## Which Core-Geth version should I run?
 
-`v1.13.0`. Every `v1.12.20` to `v1.12.23` archive was built with Go 1.21 or Go 1.22, whose support ended in
+[The latest v1.13 release](https://github.com/ethereumclassic/core-geth/releases/latest). Every `v1.12.20` to `v1.12.23` archive was built with Go 1.21 or Go 1.22, whose support ended in
 August 2024 and February 2025, and carries 55 to 61 Go standard library advisories that `v1.13.0` does not. That
-is true of the newest release in the line as much as the oldest, and it is the exposure an operator on
+is true of the newest release in the `v1.12.x` line as much as the oldest, and it is the exposure an operator on
 `v1.12.23` still has, along with the GraphQL depth limit and the `eth_syncing` regression. The releases before
-`v1.12.21` also carry all six client CVEs. On 17 September 2026, 71 percent of the Core-Geth nodes on the
+`v1.12.21` also carry all six client CVEs. On September 17, 2026, 71 percent of the Core-Geth nodes on the
 network were running a release older than `v1.12.23`, and 30 percent one older than `v1.12.21`. The
 [migration guide](../tutorials/v1.13.0-migration.md) covers the upgrade and how to roll back, and the
 [Go toolchain audit](../audits/2026-09-go-toolchain.md) lists every advisory.
 
 ## Why does the upgrade ask me to rotate my P2P node key?
 
-Because CVE-2026-26315 is an oracle against the node key itself: an invalid-curve ephemeral key in the RLPx
+Because [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9) is an oracle against the node key itself: an invalid-curve ephemeral key in the RLPx
 handshake reached ECDH before failing, which leaks bits of the key across repeated handshakes. The fix stops new
 leaks and cannot recall bits that already leaked, so go-ethereum's own advisory
 ([GHSA-m6j8-rg6r-7mv8](https://github.com/ethereum/go-ethereum/security/advisories/GHSA-m6j8-rg6r-7mv8))
@@ -50,14 +54,13 @@ to it have reported stable nodes. It was run on Ethereum Classic mainnet and Mor
 from February 2026 to the release. [The record behind the release](../release-reports/v1.13.0-record.md) sets out
 what has been claimed about it and what the record shows.
 
-## Is `ethereumclassic/core-geth` a fork of the "real" client?
+## Is `ethereumclassic/core-geth` the same Core-Geth, or a fork?
 
-It is the same client, in the Ethereum Classic community's own organization. The repository was created on
-21 December 2024 from `etclabscore/core-geth` at commit `7ef3ecd7a`, holds the full history up to that point on
+It is the same client, in the Ethereum Classic community's own organization, and the canonical home for Core-Geth now. The repository was created on
+December 21, 2024 from `etclabscore/core-geth` at commit `7ef3ecd7a`, holds the full history up to that point on
 the [`archive-etclabscore-2024-12`](https://github.com/ethereumclassic/core-geth/tree/archive-etclabscore-2024-12)
 branch, and carries the `v1.12.23` p2p hardening with its original authorship. The move was named in the
-Cooperative's own published roadmap in July 2024, and [#1678](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1678), a pull request to point the website's
-client entry here, has been open since March 2026.
+Cooperative's own published roadmap in July 2024.
 [Project history](project-history.md) traces the move, and
 [the record](../release-reports/v1.13.0-record.md) answers the specific claims made about it.
 
@@ -69,9 +72,9 @@ across your fleet is sound practice.
 
 ## Is MESS on, and should it be?
 
-`admin.messStatus().enabled` returns `true` when MESS (ECBP-1100) is on. `--mess` turns it on and `--mess=false`
+`admin.messStatus().enabled` returns `true` when MESS (ECBP-1100) is on (`admin.ecbp1100Status().enabled` before `v1.13.1`). `--mess` turns it on and `--mess=false`
 turns it off; without either, the node uses the setting its release ships with. MESS changes which of two competing
-chains a node keeps during a deep reorganization, never whether a block is valid. [MESS](../operate/mess.md) sets out
+chains a node keeps during a deep reorganization, never whether a block is valid. In normal network conditions, MESS does not affect chain selection. [MESS](../operate/mess.md) sets out
 what the setting decides for each kind of operator, and the [confirmation calculator](../guides/mess-calculator.md) shows what it
 means for deposit confirmations.
 
@@ -104,9 +107,9 @@ reports where they agree and disagree.
 ## Who maintains Core-Geth, and where do I report a security issue?
 
 Long-time Ethereum Classic core developers and community contributors maintain it in the `ethereumclassic`
-organization. Report a security issue privately through
+organization, the canonical home for Core-Geth. Report a security issue privately through
 this repository's [private advisories](https://github.com/ethereumclassic/core-geth/security/advisories) or by
 email to <security@ethereumclassic.net>, never in a public issue. Mining pools, exchanges and service providers
 should use that address as their point of contact as the ETC Cooperative dissolves. For anything that is not a
-vulnerability, the Ethereum Classic Core Developers' [Discord](https://ethereumclassic.com/discord) reaches the same people, and a vulnerability
+vulnerability, the Ethereum Classic Core Developers' [Discord](https://coregeth.com/discord) reaches the same people, and a vulnerability
 does not belong there because a public channel discloses it to everyone at once.

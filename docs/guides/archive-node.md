@@ -1,5 +1,6 @@
 ---
 title: Archive node
+description: "Run a Core-Geth archive node on Ethereum Classic: the full historical state it keeps, what it can answer at any block, and the disk and sync it requires."
 ---
 
 An archive node keeps the state of every block it executes, so it can answer a question about the

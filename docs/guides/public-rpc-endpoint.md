@@ -8,7 +8,7 @@ description: "Serving Ethereum Classic JSON-RPC to other people from your own Co
 
 A node that answers JSON-RPC for other people lets wallets, explorers and applications use Ethereum
 Classic without running a node of their own, and each endpoint run by an independent operator is one
-more way to reach the network. This page covers what core-geth does for such an endpoint by itself,
+more way to reach the network. This page covers what Core-Geth does for such an endpoint by itself,
 and what has to sit in front of it.
 
 It starts from a synced node run as a service, as
@@ -147,7 +147,7 @@ A reverse proxy or an RPC gateway in front of it supplies them:
 - a limit on the block range of `eth_getLogs`.
 
 GraphQL, turned on by `--graphql`, answers at `/graphql` on the HTTP listener and goes behind the
-same proxy. v1.13.0 refuses a GraphQL query that nests fields more than 20 deep, the fix for the
+same proxy. Core-Geth refuses a GraphQL query that nests fields more than 20 deep, the fix for the
 [GraphQL query depth](../audits/2026-03-security-audit.md#graphql-query-depth-dos) finding in the
 March 2026 audit.
 

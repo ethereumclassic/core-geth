@@ -2,13 +2,16 @@
 
 > Core-Geth is the Ethereum Classic execution client, maintained at
 > [github.com/ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth) in the Ethereum Classic
-> community's GitHub organization. It is a go-ethereum downstream that holds chain configuration as data, so one
-> binary serves Ethereum Classic, the Mordor test network, MintMe and private chains. The current release is
-> `v1.13.0`, published 14 September 2026.
+> community's GitHub organization. The Ethereum Classic DAO, a Wyoming DAO LLC, is the legal entity that maintains
+> it, together with Ethereum Classic's core developers and community contributors. It is a go-ethereum downstream
+> that holds chain configuration as data, so one binary serves Ethereum Classic, the Mordor test network, MintMe
+> and private chains. [Releases](https://docs.coregeth.com/releases/) lists every release, and the latest is the
+> one to run.
 
-Releases are published from `ethereumclassic/core-geth`. Archives published under the previous `etclabscore`
-namespace are not built from this source. The ETC Cooperative board has communicated its intent to archive
-`etclabscore/core-geth`.
+Releases are published from `ethereumclassic/core-geth`, which the client moved to in December 2024. The
+`v1.12.x` releases and those before them were published from `etclabscore/core-geth`, which the Cooperative's board has communicated it intends to archive as the Cooperative
+dissolves. Each release archive carries a build attestation, which
+`gh attestation verify <file> --repo ethereumclassic/core-geth` checks.
 
 ## Start here
 
@@ -16,18 +19,19 @@ namespace are not built from this source. The ETC Cooperative board has communic
 - [Documentation home](https://docs.coregeth.com/): what this client is, which networks it supports, and where to go first.
 - [Installation](https://docs.coregeth.com/getting-started/installation/): download, checksum and install a release.
 - [Running a node](https://docs.coregeth.com/getting-started/run-a-node/): Linux, macOS, Windows and Docker, with the flags each kind of node needs.
-- [Upgrading to v1.13.0](https://docs.coregeth.com/tutorials/v1.13.0-migration/): the upgrade path from the `v1.12.x` line, including the required node key rotation.
+- [Upgrading](https://docs.coregeth.com/upgrading/): the steps for any release, and what a node leaving the `v1.12.x` line must also do, including the required node key rotation.
 
 ## What this project is
 
 - [Project history](https://docs.coregeth.com/about/project-history/): the lineage of the code, from go-ethereum through multi-geth, and of the organizations that funded and maintained it from 2018 to today.
 - [Questions and answers](https://docs.coregeth.com/about/faq/): which repository publishes releases, which version to run, why node key rotation is required, MESS, public RPC endpoints and how to verify a download.
-- [Support this work](https://docs.coregeth.com/support/): how this client's maintenance is funded, who depends on it, and the routes for sponsoring it.
+- [Support this work](https://docs.coregeth.com/support/): who maintains and funds this client, why it needs sponsors, how a sponsor is credited, and the routes for sponsoring it.
 
-## Security and provenance
+## Releases, audits and reports
 
+- [Releases](https://docs.coregeth.com/releases/): every release with its notes, upgrade notes, audits and reports, and which release lines are maintained.
 - [v1.13.0 release report](https://docs.coregeth.com/release-reports/v1.13.0/): what the release fixes, what it changes, and how to verify a download.
-- [v1.13.0: the record behind the release](https://docs.coregeth.com/release-reports/v1.13.0-record/): claims made about this release after it shipped, answered from commit metadata, pull requests, release files and advisory records.
+- [v1.13.0: the record behind the release](https://docs.coregeth.com/release-reports/v1.13.0-record/): questions raised about this release after it shipped, answered from commit metadata, pull requests, release files and advisory records.
 - [March 2026 security audit](https://docs.coregeth.com/audits/2026-03-security-audit/): six CVEs and a GraphQL denial of service in the `v1.12.x` line, with the per-release breakdown and the disclosure timeline.
 - [August 2026 security follow-up](https://docs.coregeth.com/audits/2026-08-security-followup/): `v1.12.23` measured at its tag against the advisory records.
 - [Go toolchain](https://docs.coregeth.com/audits/2026-09-go-toolchain/): which Go toolchain built each published archive, and the standard library advisories each one carries.

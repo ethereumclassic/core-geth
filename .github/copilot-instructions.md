@@ -7,7 +7,7 @@ do not. When either file changes, change both.
 
 ## What this repository is
 
-CoreGeth is an Ethereum protocol provider: a downstream of
+Core-Geth is an Ethereum protocol provider: a downstream of
 [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum) that keeps chain
 configuration data-driven rather than hard-coded, so one binary serves Ethereum
 Classic, Mordor, the Ethereum Foundation network, MintMe and private chains.
@@ -22,8 +22,8 @@ which blocks a node accepts is a chain split, not a failing build.
 | `main` | the default branch — what workflows fire on, what pull requests target, and where releases are cut |
 | `archive-etclabscore-2024-12` | the preserved pre-migration history, kept indefinitely |
 
-- `main` is cut from `archive-etclabscore-2024-12` (`7ef3ecd7a`, 2024-12-16), the
-  last commit before this repository was created on 2024-12-21.
+- `main` is cut from `archive-etclabscore-2024-12` (`7ef3ecd7a`, December 16, 2024), the
+  last commit before this repository was created on December 21, 2024.
 - `master` was deleted when `main` became the default. Do not recreate it, and do
   not add a `master` trigger to a workflow: it would fire on nothing. Anything
   described elsewhere as living "on `master`" is now on the archive branch alone.
@@ -73,13 +73,13 @@ make clean           # go clean -cache, remove build output
 make help            # list the annotated targets
 ```
 
-CoreGeth-specific suites, which is what proves this fork's configuration work:
+Core-Geth-specific suites, which is what proves this fork's configuration work:
 
 ```bash
 make test-coregeth                      # features + clique consensus + condensed regression
 make test-coregeth-features             # fork/feature/datatype equivalence
 make test-coregeth-consensus            # clique consensus equivalence
-make test-coregeth-chainspecs-coregeth  # CoreGeth JSON chainspec equivalence
+make test-coregeth-chainspecs-coregeth  # Core-Geth JSON chainspec equivalence
 make test-coregeth-regression-condensed # builds core-geth, imports simulated chains
 ```
 
@@ -113,7 +113,7 @@ request, unqualified.
 `v*` tag. Verify against the file.
 
 **`.travis.yml`, `circle.yml`, `appveyor.yml` and `Jenkinsfile` were removed
-from `main`** on 2026-08-30 and are absent here; they survive on the archive
+from `main`** on August 30, 2026 and are absent here; they survive on the archive
 branch only, as dead CI configs kept for history rather than anything that runs.
 
 ## Layout
@@ -146,7 +146,7 @@ Ethereum Classic is proof of work and does not adopt them. The same struct sets
 the default ECBP-1110 recommends: MESS is off from those heights unless the
 operator passes `--mess`. `params/config_etc_test.go` asserts both blocks.** ECBP-1100 is an Ethereum Classic Best
 Practice, not a consensus rule: it changes which of two competing chains this
-node prefers, never whether a block is valid.
+node prefers, never whether a block is valid. In normal network conditions it does not affect chain selection; it applies only during a deep reorganization.
 
 Read activation blocks out of the file. Do not restate a fork schedule from
 memory, and do not infer one network's rules from another's.
@@ -173,7 +173,7 @@ confirmation. The comment can drift from the SHA; trust the SHA.
 
 ## Facts that mislead if you do not know them
 
-- **`swarm/` was removed from `main`** on 2026-08-30; it survives on the archive
+- **`swarm/` was removed from `main`** on August 30, 2026; it survives on the archive
   branch only.
 - **`sync-parity-chainspecs` was removed from the `Makefile`** — it invoked a
   script this repository does not contain, and Parity configuration support is

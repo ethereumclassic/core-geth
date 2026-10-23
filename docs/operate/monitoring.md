@@ -1,5 +1,6 @@
 ---
 title: Monitoring
+description: "Monitor a Core-Geth Ethereum Classic node: the metrics it serves over HTTP, reading its log, and building a health check from JSON-RPC calls on the node's own machine."
 ---
 
 A node reports on itself through metrics served over HTTP and through its log. It has no health
