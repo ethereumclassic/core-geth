@@ -172,18 +172,25 @@ a numbered security release, and the CVEs carry CVSS scores in the National Vuln
 `crypto/tls`, with smaller groups in `net/url`, `net/textproto`, `net` and `encoding/asn1`. This client
 runs `net/http` servers for its JSON-RPC, WebSocket, GraphQL,
 metrics and pprof endpoints (`node/endpoints.go`, `node/rpcstack.go`), uses `crypto/tls` and
-`crypto/x509` with `encoding/asn1` and `encoding/pem` for TLS and certificate handling, and resolves
+`crypto/x509` with `encoding/asn1` for TLS and certificate handling, and resolves
 its DNS-based peer-discovery lists through `net`. Many are denial-of-service class and reachable
 without authentication: the HTTP/2 CONTINUATION flood (GO-2024-2687), request smuggling through
 invalid chunked data (GO-2025-3563), cookie-parsing memory exhaustion (GO-2025-4012), the HTTP/2
 `SETTINGS_MAX_FRAME_SIZE` infinite loop (GO-2026-4918), the unauthenticated TLS 1.3 KeyUpdate
 connection-retention DoS (GO-2026-4870), and a crash on a long DNS CNAME response (GO-2026-4981).
+Two more packages take input from the network: `net/netip`, which the discovery layer uses to check
+the addresses peers send (`p2p/netutil/net.go`, `p2p/enode/node.go`), and `encoding/xml`, which reads
+the replies from UPnP devices on the local network when the node maps its ports, as it does by default
+(`p2p/nat/natupnp.go`).
 
-**The rest are in the standard library but concern inputs a node does not take from untrusted peers in
-normal operation,** and are listed for completeness rather than as node exposures: `html/template`
-(HTML template injection and cross-site scripting, where this client serves JSON rather than rendering
-templates), `go/parser`, `go/build/constraint` and `encoding/gob` (stack exhaustion parsing sources a
-node does not accept over the network), and `archive/tar`, `archive/zip`, `net/mail` and `mime`.
+**The rest are in the standard library but concern inputs a node does not take from the network in
+normal operation, or code its binaries do not contain,** and are listed for completeness rather than
+as node exposures: `html/template` (HTML template injection and cross-site scripting, where this client
+serves JSON rather than rendering templates), `go/parser`, `go/build/constraint` and `encoding/gob`
+(stack exhaustion parsing sources a node does not accept over the network), `os`, `syscall`,
+`internal/syscall/unix` and `encoding/pem` (files on the node's own machine, such as its data directory
+and the system's certificate store), and `archive/tar`, `archive/zip`, `database/sql`, `mime`,
+`net/http/httputil`, `net/mail` and `os/exec`, whose affected code is in none of the binaries.
 
 **Reachability of a specific crafted input was not tested for any advisory here**, which
 [Verification](#verification) records among what was not measured. The grouping above is by the package
