@@ -175,7 +175,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.mongodb.org/mongo-driver v1.17.7 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/image v0.41.0 // indirect
+	golang.org/x/image v0.45.0 // indirect
 	golang.org/x/mod v0.41.0 // indirect
 	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
