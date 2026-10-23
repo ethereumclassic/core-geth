@@ -18,15 +18,14 @@ source-level CVE remediation; this one covers what changed underneath the code.
 
 **Work funded by:** [Ethereum Classic DAO](https://ethereumclassicdao.org)
 
-**Last edited:** October 12, 2026
+**As of:** the `v1.13.0` release, September 14, 2026
 
 ## In short
 
 **Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** The archived `v1.12.x` line was pinned to Go toolchains that left
 support in August 2024 and February 2025, and its module graph had not moved since December 2024. `v1.13.0`
 builds on Go 1.26.8, behind it 83 module changes and a current linter. The v1.13 line has about six
-months of testing on Ethereum Classic mainnet and Mordor behind it and a month in production since
-release, with no critical issue found. This page records what moved, what
+months of testing on Ethereum Classic mainnet and Mordor behind it, with no critical issue found. This page records what moved, what
 deliberately did not, and how each version was chosen.
 
 ## Why this work was necessary
@@ -47,7 +46,7 @@ than triggered by an incident.
 
 | Surface | Before | After |
 |---|---|---|
-| `go.mod` directive | `go 1.21` | `go 1.26.0` |
+| `go.mod` directive | `go 1.21` | `go 1.26` |
 | CI workflows | `1.21` | `1.26`; the release workflow `1.26.8` |
 | Docker builder | `golang:1.22-alpine` | `golang:1.26.8-alpine` |
 | `build/checksums.txt` (`version:golang`) | `1.22.1` | `1.26.8` |

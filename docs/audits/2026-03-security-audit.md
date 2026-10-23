@@ -17,7 +17,7 @@ description: "Six CVEs and a GraphQL denial of service in Core-Geth v1.12.x, wit
 - **Reported over 2025-2026 by:** the Ethereum Classic community and security researchers (see [Acknowledgments](#acknowledgments))
 - **Remediation carried out by:** [White B0x](https://whiteb0x.com)
 - **Work funded by:** [Ethereum Classic DAO](https://ethereumclassicdao.org)
-- **Last edited:** October 12, 2026
+- **As of:** the `v1.13.0` release, September 14, 2026
 
 **Findings**
 
@@ -56,12 +56,12 @@ can be read as having closed everything.
   depth-limit denial of service, none patched; CVE-2026-22862 was later exploited against the Core-Geth
   `v1.12` bootnodes. **Toolchain:** Go 1.21 for the Linux and macOS archives and Go 1.22 for the
   Windows and Arm archives, which reached end of life two and eight months later; its binaries carry
-  75 Go standard library advisories across the release's archives.
+  62 Go standard library advisories across the release's archives.
 - **v1.12.21 "Aegis"** (March 18, 2026): cut during a live attack on the Core-Geth `v1.12` bootnodes,
   five hours after the issue was opened. **Fixed:** CVE-2026-22862, the exploited ECIES crash, and
   CVE-2026-26315, the ECIES key oracle. **Left open:** CVE-2025-24883, CVE-2026-26314, CVE-2026-26313
   and CVE-2026-22868, and the GraphQL depth-limit DoS. **Introduced:** nothing. **Toolchain:**
-  unchanged, still end-of-life Go 1.21 and Go 1.22, carrying 75 Go standard library advisories across
+  unchanged, still end-of-life Go 1.21 and Go 1.22, carrying 62 Go standard library advisories across
   its archives.
 - **v1.12.22 "Hermes"** (March 28, 2026): **Fixed:** CVE-2025-24883 and CVE-2026-26314, and a partial
   mitigation of CVE-2026-26313 in which the out-of-memory crash is prevented but a CPU-amplification
@@ -71,19 +71,19 @@ can be read as having closed everything.
   the blob path are active) and the GraphQL depth-limit DoS. **Introduced:** the `eth_syncing` regression that reports
   `highestBlock` incorrectly, reported as
   [#697](https://github.com/etclabscore/core-geth/issues/697). **Toolchain:** unchanged, still
-  end-of-life Go 1.21 and Go 1.22, carrying 75 Go standard library advisories across its archives.
+  end-of-life Go 1.21 and Go 1.22, carrying 62 Go standard library advisories across its archives.
 - **v1.12.23 "Argos"** (August 14, 2026): **Fixed:** the delayed-decoding p2p hardening series
   completes the CVE-2026-26313 remediation, bounding a response by its pending request. **Left open:**
   CVE-2026-22868, the GraphQL depth-limit DoS, and the `eth_syncing` regression carried from
   v1.12.22. **Introduced:** a snap storage-range response cap that can disconnect peers answering
   correctly, measured in the [follow-up](./2026-08-security-followup.md). **Toolchain:** unchanged,
   still Go 1.21 and, for the Arm archives, Go 1.22, now twenty-four and eighteen months past end of
-  life and carrying 75 Go standard library advisories across its archives.
+  life and carrying 62 Go standard library advisories across its archives.
 - **v1.13.0** (September 14, 2026, released from `ethereumclassic/core-geth`): **Resolution.** All six
   client CVEs and the GraphQL depth-limit DoS are patched with test coverage; the build moves to the
-  supported Go 1.26 toolchain, which [Go toolchain](./2026-09-go-toolchain.md) and the
-  [dependency bump](./2026-10-dependency-bump.md) measure at zero Go standard library advisories and
-  record how it stays current; the p2p hardening series is carried with its original authorship; and
+  supported Go 1.26 toolchain, at its newest release when `v1.13.0` was cut, which
+  [Go toolchain](./2026-09-go-toolchain.md) measures at zero Go standard library advisories; the p2p
+  hardening series is carried with its original authorship; and
   the v1.12.23 storage-range cap is gone. Nothing in this document is left open. **Operators on any
   `v1.12.x` release should move their tracking to `ethereumclassic/core-geth` and run the latest v1.13
   release.** v1.13.0 ships with MESS active (ECBP-1100, a network best practice that affects which
@@ -110,8 +110,8 @@ published that it does not expect to continue this work. Its
 **The `ethereumclassic/core-geth` v1.13 release line is that continuation.** Its first release,
 v1.13.0, carries every fix in this document, the Go 1.26 toolchain, the p2p hardening series, and
 ETC-specific network tooling, and it is developed in the open at `ethereumclassic/core-geth`. It
-has about six months of testing on Ethereum Classic mainnet and Mordor behind it and has run in
-production for a month since release, with no critical issue found.
+has about six months of testing on Ethereum Classic mainnet and Mordor behind it, with no critical
+issue found.
 Operators tracking the v1.12.x line should move their tracking there.
 
 ---

@@ -22,7 +22,7 @@ created from the archived development line; the other three were published in 20
 
 **Work funded by:** [Ethereum Classic DAO](https://ethereumclassicdao.org)
 
-**Last edited:** October 12, 2026
+**As of:** the `v1.13.0` release, September 14, 2026
 
 ## In short
 
@@ -30,8 +30,8 @@ created from the archived development line; the other three were published in 20
 `v1.12.23` archives raised the glibc version a Linux host needs without saying so, shipped an Apple Silicon
 binary under a name that does not say so, and carried nothing that identifies what built them. Every `v1.13.0`
 archive and image ships with a checksum and a build attestation, and names its platform. The `v1.13.0`
-release has about six months of testing on Ethereum Classic mainnet and Mordor behind it and a month in
-production since release, with no critical issue found.
+release has about six months of testing on Ethereum Classic mainnet and Mordor behind it, with no
+critical issue found.
 
 ## Why the artifacts needed a pass of their own
 

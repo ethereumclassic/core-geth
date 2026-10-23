@@ -98,8 +98,6 @@ nav:
           - Release artifacts: audits/2026-09-release-pipeline.md
           - Go toolchain: audits/2026-09-go-toolchain.md
           - The record behind the release: release-reports/v1.13.0-record.md
-      - In preparation (v1.13.1):
-          - Dependency bump: audits/2026-10-dependency-bump.md
       - 2021 chain split postmortem: postmortems/2021-08-22-split-postmortem.md
 
 

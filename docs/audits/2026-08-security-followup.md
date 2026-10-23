@@ -12,7 +12,7 @@ description: "Core-Geth v1.12.23 measured at its tag against the advisory record
 - **Work funded by:** [Ethereum Classic DAO](https://ethereumclassicdao.org)
 - **Method:** direct measurement against `etclabscore/core-geth` at tag `v1.12.23`, and
   against the advisory records at OSV and the GitHub Advisory Database
-- **Last edited:** October 12, 2026
+- **As of:** the `v1.13.0` release, September 14, 2026
 
 ---
 
@@ -84,7 +84,7 @@ least one client-side issue open, and every one stands on an out-of-support Go t
 | [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a): KZG proof-verification DoS (not reached on ETC; active on the Ethereum Foundation networks the client also ships) | Medium | open | open | open | open | fixed |
 | [GraphQL query-depth DoS](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh) (endpoint off by default) | Medium | open | open | open | open | fixed |
 | Go toolchain in support | - | no | no | no | no | yes |
-| Go standard library advisories, all archives | - | 75 | 75 | 75 | 75 | 0 (go1.26.9) |
+| Go standard library advisories, all archives | - | 62 | 62 | 62 | 62 | 0 |
 | `eth_syncing` `highestBlock` regression ([#697](https://github.com/etclabscore/core-geth/issues/697)) | - | not present | not present | introduced | present | not present |
 | Snap storage-range cap can disconnect honest peers | - | not present | not present | not present | present | not present |
 
@@ -106,11 +106,10 @@ storage-range cap in the row above.** It does not touch the KZG path, the GraphQ
 kept its key is still running an exposed one. The
 [March audit](2026-03-security-audit.md#recommendations) gives the procedure.
 
-**The Go standard library figure is the cross-archive union against the current database,** 67 to 73
-per archive. The v1.13.0 archives were built with go1.26.8 and carried none when the release shipped;
-the October 2026 Go batch has since reached go1.26.8 at module level, and v1.13.1 is built on go1.26.9,
-a scan of which reports none. The difference the table records is support: the v1.12.x toolchains will
-never receive any of these fixes. [Go toolchain](./2026-09-go-toolchain.md) measures all of it.
+**The Go standard library figure is the cross-archive union,** 55 to 61 per archive, against the
+database as it stood when v1.13.0 shipped. The v1.13.0 archives were built with go1.26.8, the newest
+Go 1.26 release when it was cut, and carried none. The difference the table records is support: the
+v1.12.x toolchains will never receive any of these fixes. [Go toolchain](./2026-09-go-toolchain.md) measures all of it.
 
 ---
 
@@ -256,7 +255,7 @@ take on any required maintenance of the ETC client". Relative to
 v1.12.23 it carries the Go 1.26 toolchain upgrade and the dependency graph that requires, the
 six CVE patches with their tests, ETC network tooling, and the p2p hardening series. It is
 the current release series. It has about six months of testing on Ethereum Classic mainnet and
-Mordor behind it and a month in production since release, with no critical issue found.
+Mordor behind it, with no critical issue found.
 
 **Recommendation for operators is unchanged in direction and updated in target.** Nodes on
 any v1.12.x release should upgrade to v1.13.0 from `ethereumclassic/core-geth` immediately.

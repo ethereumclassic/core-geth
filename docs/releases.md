@@ -47,10 +47,9 @@ release is not what the build configuration says it builds.
 
 ## In preparation
 
-`v1.13.1` is the next release in the line. The
-[dependency bump](audits/2026-10-dependency-bump.md) records the Go 1.26.9 and dependency updates it
-carries and how the toolchain stays current. When it ships, its release notes and reports are added
-above.
+`v1.13.1` is the next release in the line. Like every release in it, it is built with the newest
+patch release of its Go version as of the day it is cut. When it ships, its release notes and reports
+are added above.
 
 ## Earlier
 
