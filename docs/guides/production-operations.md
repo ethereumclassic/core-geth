@@ -1,5 +1,6 @@
 ---
 title: Production operations
+description: "Production checklist for running Core-Geth on Ethereum Classic: what an exchange, custodian, mining pool or infrastructure provider should have in place before depending on a node."
 ---
 
 What an exchange, custodian, pool or infrastructure provider should have in place before depending on
@@ -29,7 +30,7 @@ Upgrade them one at a time, and keep them on the same release and MESS setting.
 
 - Read confirmations only from a node that is in sync: `eth_syncing` returns `false` and the head is recent.
 - Choose the number of confirmations with the [MESS confirmation calculator](mess-calculator.md), and check
-  that MESS is in force with `admin.messStatus()` over IPC.
+  that MESS is in force with `admin.messStatus()` over IPC (`admin.ecbp1100Status()` before `v1.13.1`).
 - A node with few peers can be shown a chain the rest of the network does not follow. Alert when the peer
   count drops, and hold credits while it is low.
 

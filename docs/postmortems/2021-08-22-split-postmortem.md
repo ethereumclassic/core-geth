@@ -1,3 +1,7 @@
+---
+description: "Post-mortem of the August 2021 Ethereum mainnet minority chain split at block 13107518, retained in the Core-Geth documentation."
+---
+
 # Minority split 2021-08-27 post mortem
 
 This is a post-mortem concerning the minority split that occurred on Ethereum mainnet on block [13107518](https://etherscan.io/block/13107518), at which a minority chain split occurred.

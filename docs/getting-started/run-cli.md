@@ -1,5 +1,6 @@
 ---
 title: Command Line Interface (CLI)
+description: "Core-Geth command-line reference for Ethereum Classic: how to run geth, the network flags, and the full list of command-line options."
 ---
 
 ## Running `geth`

@@ -2,6 +2,7 @@
 hide:
   - toc        # Hide table of contents
 title: Publishing a Release
+description: "How a Core-Geth release is published: the version metadata, tagging, the release workflow, and the build attestation each archive carries."
 ---
 
 # Publishing a release
@@ -19,7 +20,7 @@ to publish to.
       The release artifacts are produced by CI, so a red pipeline means no artifacts
       rather than a bad release.
 - [ ] **Set the release stage.** Edit `params/version.go` so `VersionMeta` names the
-      stage being cut: `unstable` → `RC1`, `RC2`, … → `stable`. It must never be
+      stage being cut: `unstable` → `RC1`, `RC2`, ... → `stable`. It must never be
       empty: the archive and version helpers branch on `!= "stable"`, so an empty
       value produces a malformed `1.13.0--<commit>` name rather than a clean one.
       Check `gofmt` after editing; the constant block realigns.

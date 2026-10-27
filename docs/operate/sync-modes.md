@@ -1,5 +1,6 @@
 ---
 title: Sync modes and data retention
+description: "Core-Geth sync modes and data retention for an Ethereum Classic node: snap and full sync, the hash and path state schemes, and gcmode, with their disk, memory and sync-time trade-offs."
 ---
 
 A node's sync mode decides how a new data directory gets the chain's state, and its retention

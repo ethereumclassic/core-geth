@@ -16,16 +16,26 @@ measured by downloading every archive and reading the build information recorded
 rather than the configuration that built it. The Linux x86_64 archive of each earlier stable
 `v1.12.x` release was measured the same way.
 
+**Agentic auditing methods and tooling:** the strongest available Claude models at each stage of the work, February through September 2026
+
 **Work carried out by:** [White B0x](https://whiteb0x.com)
 
-**On this page:** [In short](#in-short) · [Why the toolchain needed a pass of its own](#why-the-toolchain-needed-a-pass-of-its-own) · [Each release from v1.12.20 to v1.12.23 was built by two toolchains](#finding-each-release-from-v11220-to-v11223-was-built-by-two-toolchains) · [The v1.12.20 to v1.12.23 binaries carry Go standard library advisories](#finding-the-v11220-to-v11223-binaries-carry-go-standard-library-advisories) · [The v1.12.x source does not build on a supported Go](#finding-the-v112x-source-does-not-build-on-a-supported-go) · [Third-party module advisories were cleared alongside](#finding-third-party-module-advisories-were-cleared-alongside) · [What a vulnerability scanner reports against v1.13.0](#what-a-vulnerability-scanner-reports-against-v1130) · [What this means if you are upgrading](#what-this-means-if-you-are-upgrading) · [Verification](#verification) · [After v1.13.0](#after-v1130) · [Disposition of the build finding](#disposition-of-the-build-finding-17-september-2026) · [Supporting this work](#supporting-this-work)
+**Work funded by:** [Ethereum Classic DAO](https://ethereumclassicdao.org)
+
+**As of:** the `v1.13.0` release, September 14, 2026
 
 ## In short
 
-**Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Each release from `v1.12.20` to `v1.12.23` was built by two Go
-toolchains, Go 1.21 and Go 1.22, both out of support before those releases shipped. Each of those archives
-carries 55 to 61 Go standard library advisories, 43 to 47 of them with the vulnerable code present in the binary.
-Every `v1.13.0` archive and image is built with go1.26.8 and carries none.
+**Upgrade to [the latest v1.13 release](https://github.com/ethereumclassic/core-geth/releases/latest).** Each
+release from `v1.12.20` to `v1.12.23` was built by two Go toolchains, Go 1.21 and Go 1.22, both out of support
+before those releases shipped. Across all its archives each of those releases carries 62 Go standard library
+advisories, 48 of them with the vulnerable code present in the binary; per archive the figure runs from 55 to
+61, with 43 to 47 in the binary. Because both Go majors left support in 2024 and 2025, that count only rises as
+the Go team publishes more advisories, and none of the fixes will ever reach those binaries. The v1.13 line is
+built on Go 1.26, which is in support and receives those fixes, and each release in the line is cut with the
+newest patch release of its Go version: every `v1.13.0` archive and image is built with go1.26.8, the newest
+Go 1.26 release when it was cut, and carries none. The `v1.13.0` release has about six months of testing on
+Ethereum Classic mainnet and Mordor behind it, with no critical issue found.
 
 ## Why the toolchain needed a pass of its own
 
@@ -150,9 +160,44 @@ three, which go1.22.1 predates:
 Two others depend on the operating system: GO-2025-3750 applies only to Windows, and GO-2026-4864
 only to Linux.
 
-The Go vulnerability database assigns no severity to these entries, and this page does not add one.
+### What these advisories are, and which packages a node exposes
 
-??? note "All 62 standard library advisories"
+The Go vulnerability database assigns no severity to these entries, and this page adds none of its own.
+A count on its own invites the reply that the advisories are a scanner artifact with no bearing on a
+node, so this section says what they are and where they sit. Every one is a fix the Go team shipped in
+a numbered security release, and the CVEs carry CVSS scores in the National Vulnerability Database.
+
+**The largest groups are in standard-library packages this client serves to the network:**
+`net/http` (counting `net/http/internal` and the `x/net/idna` entry it pulls in), `crypto/x509` and
+`crypto/tls`, with smaller groups in `net/url`, `net/textproto`, `net` and `encoding/asn1`. This client
+runs `net/http` servers for its JSON-RPC, WebSocket, GraphQL,
+metrics and pprof endpoints (`node/endpoints.go`, `node/rpcstack.go`), uses `crypto/tls` and
+`crypto/x509` with `encoding/asn1` for TLS and certificate handling, and resolves
+its DNS-based peer-discovery lists through `net`. Many are denial-of-service class and reachable
+without authentication: the HTTP/2 CONTINUATION flood (GO-2024-2687), request smuggling through
+invalid chunked data (GO-2025-3563), cookie-parsing memory exhaustion (GO-2025-4012), the HTTP/2
+`SETTINGS_MAX_FRAME_SIZE` infinite loop (GO-2026-4918), the unauthenticated TLS 1.3 KeyUpdate
+connection-retention DoS (GO-2026-4870), and a crash on a long DNS CNAME response (GO-2026-4981).
+Two more packages take input from the network: `net/netip`, which the discovery layer uses to check
+the addresses peers send (`p2p/netutil/net.go`, `p2p/enode/node.go`), and `encoding/xml`, which reads
+the replies from UPnP devices on the local network when the node maps its ports, as it does by default
+(`p2p/nat/natupnp.go`).
+
+**The rest are in the standard library but concern inputs a node does not take from the network in
+normal operation, or code its binaries do not contain,** and are listed for completeness rather than
+as node exposures: `html/template` (HTML template injection and cross-site scripting, where this client
+serves JSON rather than rendering templates), `go/parser`, `go/build/constraint` and `encoding/gob`
+(stack exhaustion parsing sources a node does not accept over the network), `os`, `syscall`,
+`internal/syscall/unix` and `encoding/pem` (files on the node's own machine, such as its data directory
+and the system's certificate store), and `archive/tar`, `archive/zip`, `database/sql`, `mime`,
+`net/http/httputil`, `net/mail` and `os/exec`, whose affected code is in none of the binaries.
+
+**Reachability of a specific crafted input was not tested for any advisory here**, which
+[Verification](#verification) records among what was not measured. The grouping above is by the package
+a node links and exposes, not a proof of exploitability. Two things do not depend on it. The fixes exist, and the `v1.12.x` toolchains will
+never receive them, because Go 1.21 and Go 1.22 left support in 2024 and 2025, so the total only grows.
+
+???+ note "All 62 standard library advisories"
     *First fixed in* is the first Go release carrying the fix after the shipped patch. A version on
     the shipped major's own branch means a patch release of that major fixed it; two versions mean
     Go 1.21 and Go 1.22 each had one; a newer major means neither did. *Highest level* is the highest
@@ -282,11 +327,11 @@ Setting `GODEBUG=httpcookiemaxnum=3000,urlmaxqueryparams=10000` at run time turn
 
 - [#680](https://github.com/etclabscore/core-geth/issues/680), an issue opened 2025-04-30, reports
   that `v1.12.20` does not compile with go1.24.0, and its build log shows the `blst` v0.3.11 errors
-  above. It was closed on 2025-06-29 with the reply "Go 1.24 is not supported, please try Go 1.21".
+  above. It was closed on June 29, 2025 with the reply "Go 1.24 is not supported, please try Go 1.21".
 - [#683](https://github.com/etclabscore/core-geth/pull/683), a pull request titled "Support go 1.24
-  compiler" and opened 2025-06-30, changes `go.mod`, `internal/debug/flags.go`, the workflows and the
+  compiler" and opened June 30, 2025, changes `go.mod`, `internal/debug/flags.go`, the workflows and the
   Dockerfiles. Its description says it fixes #680 and #665, an earlier pull request that removes
-  memsize. It was closed without being merged on 2026-02-06.
+  memsize. It was closed without being merged on February 6, 2026.
 - [#690](https://github.com/etclabscore/core-geth/issues/690), an issue opened 2025-11-10, reports the
   AppVeyor build failing inside `blst` v0.3.11's header with `'bool' cannot be defined via 'typedef'`,
   and [#691](https://github.com/etclabscore/core-geth/pull/691), a pull request opened the same day,
@@ -297,7 +342,7 @@ Setting `GODEBUG=httpcookiemaxnum=3000,urlmaxqueryparams=10000` at run time turn
   memsize and its debug endpoint, citing the link error above. On its own that change does not clear
   the `blst` error.
 
-**`v1.13.0` carries `blst` v0.3.17, no memsize, and `go 1.26.0` in `go.mod`.** Its binaries record no
+**`v1.13.0` carries `blst` v0.3.17, no memsize, and `go 1.26` in `go.mod`.** Its binaries record no
 `DefaultGODEBUG` override.
 
 ## Finding: third-party module advisories were cleared alongside
@@ -379,7 +424,7 @@ changes themselves.
 
 **Standard library: nothing.** No Go standard library advisory applies to any of the nine `v1.13.0`
 archives, or to `geth` in either `core-geth-docker` image tarball, even at module level. On
-2026-09-17 go1.26.8 was the newest Go 1.26 release, and the last Go 1.26 security release before it
+September 17, 2026 go1.26.8 was the newest Go 1.26 release, and the last Go 1.26 security release before it
 was go1.26.6.
 
 **Three `golang.org/x/crypto` advisories, at module level only.** `v1.13.0` ships
@@ -401,7 +446,7 @@ reports every listed vulnerable symbol of every module-level match, so a scan of
 symbol-level `golang.org/x/crypto/ssh` and `golang.org/x/crypto/openpgp` findings for code the binary
 does not contain. Their module-level results are unaffected. The same scanner read symbols from the
 `v1.12.x` macOS archives. The `v1.13.0` macOS binaries were linked with `-s`, which removes the symbols it
-looks for; [After v1.13.0](#after-v1130) gives the detail and the change.
+looks for.
 
 **Six go-ethereum advisories, all fixed in `v1.13.0`.** Every `v1.13.0` archive matches six
 advisories filed against go-ethereum, at symbol level, and the match is structural. The Go module
@@ -428,13 +473,14 @@ tag:
 - **Rebuilding a `v1.12.x` release on a newer Go takes the standard library fixes, but not all of what
   upgrading does.** The build needs memsize removed and the KZG build tag left out. It still declares
   `go 1.21`, so two denial-of-service limits stay off unless `GODEBUG` sets them, and it keeps the
-  third-party module advisories and everything else `v1.12.23` carries. `v1.13.0` declares `go 1.26.0` and
+  third-party module advisories and everything else `v1.12.23` carries. `v1.13.0` declares `go 1.26` and
   is built with go1.26.8.
 - **Arm builds of `v1.12.x` carry the most.** Every Arm archive from `v1.12.20` to `v1.12.23` carries
   61 standard library advisories at module level.
 - **Go 1.26 is supported until go1.28.0 is released**, under the policy above. A Go security release
   reaches your node only through a Core-Geth release built with it, so follow the
-  [`ethereumclassic/core-geth` release line](https://github.com/ethereumclassic/core-geth/releases).
+  [`ethereumclassic/core-geth` release line](https://github.com/ethereumclassic/core-geth/releases) and
+  run the latest.
 
 ## Verification
 
@@ -488,44 +534,25 @@ Each check below was calibrated so that it could report a negative:
 - Reachability of any advisory from the client's code paths.
 - go-ethereum advisories against the `v1.12.x` binaries. Those record the main module's version as
   `(devel)`, which govulncheck never matches, so their absence is not evidence either way.
-- Why the release workflow's `go-version: '1.21'` produced go1.21.10 on 2024-06-10, when go1.21.11
-  had been released on 2024-06-04, and how the `v1.12.2` Linux archive came to be built with
+- Why the release workflow's `go-version: '1.21'` produced go1.21.10 on June 10, 2024, when go1.21.11
+  had been released on June 4, 2024, and how the `v1.12.2` Linux archive came to be built with
   go1.13.4.
 - Issues and pull requests in `etclabscore/core-geth` beyond those listed above, which were found by
   search and screened by title.
 
-## After v1.13.0
-
-Each of these is resolved on `main` for the next release. None changes what `v1.13.0` ships or how it
-behaves.
-
-- **Dependency maintenance.** `golang.org/x/crypto` moves to v0.56.0, which fixes GO-2026-6354 and
-  GO-2026-6355 in `golang.org/x/crypto/ssh`, and `golang.org/x/mod` to v0.40.0, which fixes GO-2026-6179 and
-  GO-2026-6180 in `golang.org/x/mod/sumdb`. `v1.13.0` compiles none of those packages into any binary, so
-  they are not a concern for `v1.13.0`. GO-2026-5932, in `golang.org/x/crypto/openpgp`, has no fixed version
-  and is not compiled in either.
-- **A weekly scan.** `.github/workflows/govulncheck.yml` scans `main` every week, in source mode and against a
-  `geth` binary built with the release Go version, and keeps one issue current with anything that needs a
-  maintainer. The six go-ethereum advisories above are expected; one of them disappearing is reported too.
-- **The macOS symbol table.** The release build linked the macOS binaries with `-s`, which removes Go's
-  symbols from the Mach-O symbol table. govulncheck looks up the `go:func.*` symbol there and, without it,
-  reports at module level, although the `__gopclntab` function table it reads next is present. `build/ci.go`
-  now links them with `-w`, which strips only the debugging information. A go1.26 macOS test binary linked
-  with `-w` keeps `go:func.*` and every Go symbol; one linked with `-s` keeps none.
-
-## Disposition of the build finding, 17 September 2026
+## Disposition of the build finding, September 17, 2026
 
 **The finding that the `v1.12.x` source does not build on a supported Go now has a proposed remedy in the
 repository that publishes that line.**
 [Pull request #702](https://github.com/etclabscore/core-geth/pull/702) at `etclabscore/core-geth`, opened
-17 September 2026 and unmerged when this was written, makes the three changes this audit measured as necessary:
+September 17, 2026 and unmerged when this was written, makes the three changes this audit measured as necessary:
 it removes `github.com/fjl/memsize`, whose `//go:linkname` use Go 1.23 restricted; it moves
 `github.com/supranational/blst` from v0.3.11, which Go 1.24 rejects for a cgo alias receiver, to v0.3.16; and it
 raises the `go.mod` directive from `go 1.21` to `go 1.24.0`. It also moves the `# version:golang` pin in
 `build/checksums.txt` from 1.22.1 to 1.25.12 and updates `golang.org/x/crypto` from v0.17.0 to v0.48.0.
 
-**Two measurements to repeat rather than assume, if that release ships.** Go 1.24 left support on 10 February
-2026 and Go 1.25 on 19 August 2026, each when two newer major releases existed, so a binary built from either
+**Two measurements to repeat rather than assume, if that release ships.** Go 1.24 left support on February 10,
+2026 and Go 1.25 on August 19, 2026, each when two newer major releases existed, so a binary built from either
 would still carry standard library advisories, fewer than Go 1.21 carries. And the advisory count for any such
 release has to be measured from its published archives, the way the counts in this document were, rather than
 inferred from the `go.mod` directive: this audit found two toolchains per release where the configuration
@@ -536,9 +563,10 @@ about anyone's reasons.
 
 ## Supporting this work
 
-The modernization this document records was carried out by [White B0x](https://whiteb0x.com) as
-unfunded public-goods work for Ethereum Classic. Mining pools, centralized exchanges, issuers of
-Ethereum Classic financial products, Etchash mining hardware manufacturers and large holders all
-depend on this client. If your operation relies on Ethereum Classic, please help fund its
-maintenance. [Support this work](../support.md) has the routes: sponsorship on GitHub, an invoiced
-agreement for organizations, or a direct transfer.
+The client is maintained by Ethereum Classic's core developers and open community contributions, in
+the [`ethereumclassic`](https://github.com/ethereumclassic) GitHub organization. The Ethereum Classic
+DAO is the legal entity standing behind that work, and the floor under it when nobody else is paying.
+Mining pools, centralized exchanges, issuers of Ethereum Classic financial products, Etchash mining
+hardware manufacturers and large holders all depend on this client. If your operation relies on
+Ethereum Classic, please consider sponsoring its maintenance. [Support this work](../support.md) says
+who maintains and funds it and how to sponsor it.

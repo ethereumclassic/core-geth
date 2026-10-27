@@ -1,3 +1,7 @@
+---
+description: "Run a Core-Geth Ethereum Classic or Mordor node on macOS: install geth and set up a launchd agent that starts the node when you log in."
+---
+
 # Mac users guide
 
 This guide runs a node on macOS, on Ethereum Classic or on the Mordor test network, from an

@@ -9,17 +9,17 @@ description: "Download, verify and install a Core-Geth release on Linux, macOS, 
     December 2024. Archives and images under the previous `etclabscore` namespace are
     not built from this source and do not carry the fixes released here.
 
-    **Affected:** all `v1.12.x` releases. **Fixed:** `v1.13.0`.
+    **Affected:** all `v1.12.x` releases. **Fixed:** `v1.13.0` and every release since.
 
     | Identifier | Severity | What it allows |
     | --- | --- | --- |
-    | [CVE-2026-22862](../audits/2026-03-security-audit.md#cve-2026-22862-ecies-elliptic-curve-integrated-encryption-scheme-decrypt-ciphertext-length-undercheck) | High | Any peer crashes the node during the RLPx handshake. **Exploited against Ethereum Classic bootnodes, 18 March 2026.** |
-    | [CVE-2026-26315](../audits/2026-03-security-audit.md#cve-2026-26315-ecies-generateshared-accepts-unvalidated-public-key) | High | Repeated handshakes leak bits of the node's own P2P key |
-    | [CVE-2026-26314](../audits/2026-03-security-audit.md#cve-2026-26314-secp256k1-isoncurve-field-boundary-bypass) | High | secp256k1 coordinate field boundary bypass |
-    | [CVE-2025-24883](../audits/2026-03-security-audit.md#cve-2025-24883-off-curve-public-key-in-unmarshalpubkey) | High | Off-curve public key accepted by `UnmarshalPubkey` |
-    | [CVE-2026-26313](../audits/2026-03-security-audit.md#cve-2026-26313-p2p-rlp-recursive-length-prefix-item-count-memory-exhaustion) | High | One crafted p2p message exhausts the node's memory |
-    | [CVE-2026-22868](../audits/2026-03-security-audit.md#cve-2026-22868-kzg-kate-zaverucha-goldberg-blob-proof-verification-dos) | Medium | KZG proof verification denial of service |
-    | [GraphQL query depth](../audits/2026-03-security-audit.md#graphql-query-depth-dos) | Medium | Unbounded GraphQL query nesting; no CVE identifier assigned |
+    | [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08) | High | Any peer crashes the node during the RLPx handshake. **Exploited against the Core-Geth `v1.12` bootnodes, March 18, 2026.** |
+    | [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9) | Medium | Repeated handshakes leak bits of the node's own P2P key |
+    | [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c) | High | secp256k1 coordinate field boundary bypass |
+    | [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d) | High | Off-curve public key accepted by `UnmarshalPubkey` |
+    | [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835) | High | One crafted p2p message exhausts the node's memory |
+    | [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a) | Medium | KZG proof verification denial of service |
+    | [GraphQL query depth](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh) | Medium | Unbounded GraphQL query nesting; no CVE identifier assigned |
 
     Every `v1.12.x` archive measured was also built on a Go version that is no longer
     supported, most recently [Go 1.21 and Go 1.22](../audits/2026-09-go-toolchain.md),
@@ -27,7 +27,7 @@ description: "Download, verify and install a Core-Geth release on Linux, macOS, 
 
     Later releases in the line backport some of these; the
     [March 2026 audit](../audits/2026-03-security-audit.md) records which, and the
-    [migration guide](../tutorials/v1.13.0-migration.md) covers the upgrade.
+    [Upgrading](../upgrading.md#leaving-the-v112x-line) covers the upgrade.
 
 ## Choose your route
 
@@ -58,10 +58,14 @@ tagged release on the
 of them is a `.zip` containing the binary and `COPYING`, the license, at the top level,
 published alongside a `.sha256` file.
 
+**Each route starts by reading the tag of the latest release into `VERSION`.** To install a different
+release, set `VERSION` to its tag from the
+[releases page](https://github.com/ethereumclassic/core-geth/releases) instead of running that first line.
+
 ## Linux, x86_64
 
 ```shell
-$ VERSION=v1.13.0
+$ VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
 $ BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
 $ curl -LO $BASE/core-geth-linux-$VERSION.zip
 $ curl -LO $BASE/core-geth-linux-$VERSION.zip.sha256
@@ -99,7 +103,7 @@ hardware. Follow what `uname -m` actually prints.
 Then, substituting your architecture for `arm64` below:
 
 ```shell
-$ VERSION=v1.13.0
+$ VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
 $ ARCH=arm64
 $ BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
 $ curl -LO $BASE/core-geth-$ARCH-$VERSION.zip
@@ -129,7 +133,7 @@ Two archives, chosen by processor:
 macOS has no `sha256sum`; use `shasum -a 256 -c`, which reads the same file.
 
 ```shell
-$ VERSION=v1.13.0
+$ VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
 $ PLATFORM=osx-arm64            # or: osx
 $ BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
 $ curl -LO $BASE/core-geth-$PLATFORM-$VERSION.zip
@@ -161,7 +165,7 @@ Before running it on a node that holds value, also
 Download `core-geth-win64-<tag>.zip` and its `.sha256`. In PowerShell:
 
 ```powershell
-> $VERSION = "v1.13.0"
+> $VERSION = (Invoke-RestMethod "https://api.github.com/repos/ethereumclassic/core-geth/releases/latest").tag_name
 > $BASE = "https://github.com/ethereumclassic/core-geth/releases/download/$VERSION"
 > Invoke-WebRequest "$BASE/core-geth-win64-$VERSION.zip" -OutFile "core-geth-win64-$VERSION.zip"
 > Invoke-WebRequest "$BASE/core-geth-win64-$VERSION.zip.sha256" -OutFile "core-geth-win64-$VERSION.zip.sha256"
@@ -203,7 +207,7 @@ v1.13.0 each archive also carries a build attestation, which records the workflo
 commit and ref that produced it:
 
 ```shell
-$ gh attestation verify core-geth-linux-v1.13.0.zip --repo ethereumclassic/core-geth
+$ gh attestation verify core-geth-linux-$VERSION.zip --repo ethereumclassic/core-geth
 ```
 
 That needs the [GitHub CLI](https://cli.github.com/). It succeeds only for an artifact
@@ -229,7 +233,7 @@ If you would rather not depend on the registry, or the machine has no route to i
 carries the same image as a file: [Load the image from the release](#load-the-image-from-the-release).
 It keeps its published name, so every command below is the same either way.
 
-Tags mirror the release tags. `ghcr.io/ethereumclassic/core-geth:v1.13.0` is a
+Tags mirror the release tags. `ghcr.io/ethereumclassic/core-geth:<tag>` is a
 specific release; `latest` follows the most recent non-prerelease. The image
 built from `Dockerfile.alltools`, containing the full tool set rather than the
 node alone, is published under the same name with an `alltools-` prefix, as
@@ -249,11 +253,11 @@ for the full tool set. Each is the published image saved from the registry, with
 a build attestation. Verify the one for your machine and load it:
 
 ```shell
-$ gh attestation verify core-geth-docker-amd64-v1.13.0.tar.gz --repo ethereumclassic/core-geth
-$ docker load -i core-geth-docker-amd64-v1.13.0.tar.gz
+$ gh attestation verify core-geth-docker-amd64-<tag>.tar.gz --repo ethereumclassic/core-geth
+$ docker load -i core-geth-docker-amd64-<tag>.tar.gz
 ```
 
-The loaded image keeps its published name, `ghcr.io/ethereumclassic/core-geth:v1.13.0`, so the
+The loaded image keeps its published name, `ghcr.io/ethereumclassic/core-geth:<tag>`, so the
 `docker run` command below works unchanged.
 
 ### Build an image from the release archive
@@ -272,9 +276,9 @@ ENTRYPOINT ["geth"]
 ```
 
 ```shell
-$ unzip core-geth-linux-v1.13.0.zip
-$ docker build -t core-geth:v1.13.0 .
-$ docker run --rm core-geth:v1.13.0 version
+$ unzip core-geth-linux-<tag>.zip
+$ docker build -t core-geth:local .
+$ docker run --rm core-geth:local version
 ```
 
 Use a glibc-based image such as Debian or Ubuntu. The release binaries link against glibc, so an
@@ -308,7 +312,7 @@ $ docker run -d \
     --http --http.addr 0.0.0.0 --http.port 8545
 ```
 
-If you built the image yourself, use your own tag (`core-geth:v1.13.0` or `core-geth:local`,
+If you built the image yourself, use your own tag (`core-geth:local`,
 above) in place of `ghcr.io/ethereumclassic/core-geth:latest`.
 
 That maps the devp2p port over both TCP and UDP, keeps chain data in
@@ -334,8 +338,10 @@ The image also exposes 8546 for the WebSocket endpoint, which needs
 
 ## Build from source
 
-Building needs **Go 1.26** and a C compiler. This is also the route for a platform no
-archive covers, or a distribution older than the glibc floors above.
+Building needs **Go 1.26** and a C compiler; the developer guide has the
+[per-platform toolchain setup](../developers/build-from-source.md#dependencies)
+for both. This is also the route for a platform no archive covers, or a
+distribution older than the glibc floors above.
 
 ```shell
 $ git clone https://github.com/ethereumclassic/core-geth.git

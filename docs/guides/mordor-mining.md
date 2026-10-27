@@ -1,5 +1,6 @@
 ---
 title: Mine on Mordor
+description: "Mine on Mordor, Ethereum Classic's proof-of-work test network, with Core-Geth: rehearse a mining or pool setup and get test ETC without a faucet."
 ---
 
 Mordor is Ethereum Classic's proof-of-work test network. Mining there tests a mining or pool setup without
@@ -10,11 +11,9 @@ block 2,520,000.
 
 **You do not need a faucet to fund development on Mordor.** Point a node at the test network with a CPU
 thread or two and leave it running: twenty minutes is usually more coin than a project needs for testing.
-The [faucets](../getting-started/run-mordor-node.md#test-coins) are worth trying, and they are
-frequently dry or unattended, which is why this page exists.
 
 It works because the test network's difficulty is low enough that an ordinary machine is a real share of
-it. Measured on 18 September 2026 at block 17,006,119: the previous twenty blocks averaged 10.7 seconds
+it. Measured on September 18, 2026 at block 17,006,119: the previous twenty blocks averaged 10.7 seconds
 apart at a difficulty near 7.2 million, which puts the whole network around 0.67 MH/s. The block reward in
 the current era is 0.8388608 METC, since ECIP-1017 reduces the reward by a fifth every 2,000,000 blocks on
 Mordor and era 9 begins at block 16,000,001.

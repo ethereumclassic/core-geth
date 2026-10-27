@@ -1,3 +1,7 @@
+---
+description: "Run a Core-Geth Ethereum Classic or Mordor node in Docker: the image, a chain volume, ports, and a restart policy that brings the node back after a failure or reboot."
+---
+
 # Docker users guide
 
 This guide runs a node in a Docker container, on Ethereum Classic or on the Mordor test network, with
@@ -11,10 +15,10 @@ every command.
 
 [Installation, Docker](../installation.md#docker) gives the ways to get it: pull it, load it from the
 release, or build it. This guide uses the release image's name,
-`ghcr.io/ethereumclassic/core-geth:v1.13.0`; for an image you built, use your own tag. Check it:
+`ghcr.io/ethereumclassic/core-geth:latest`; for an image you built, use your own tag. Check it:
 
 ```bash
-docker run --rm ghcr.io/ethereumclassic/core-geth:v1.13.0 version    # Core-Geth 1.13.0-stable
+docker run --rm ghcr.io/ethereumclassic/core-geth:latest version    # prints Core-Geth and its version
 ```
 
 ## 2. Choose the network
@@ -35,14 +39,14 @@ docker run -d --name core-geth-classic \
   --restart unless-stopped --stop-timeout 300 \
   -v core-geth-classic:/root \
   -p 30303:30303 -p 30303:30303/udp \
-  ghcr.io/ethereumclassic/core-geth:v1.13.0 --classic
+  ghcr.io/ethereumclassic/core-geth:latest --classic
 
 # Mordor
 docker run -d --name core-geth-mordor \
   --restart unless-stopped --stop-timeout 300 \
   -v core-geth-mordor:/root \
   -p 30303:30303 -p 30303:30303/udp \
-  ghcr.io/ethereumclassic/core-geth:v1.13.0 --mordor
+  ghcr.io/ethereumclassic/core-geth:latest --mordor
 ```
 
 - **`-p 30303:30303 -p 30303:30303/udp`** lets other nodes reach yours, over TCP and UDP.
@@ -112,7 +116,7 @@ docker run -d --name core-geth-mordor \
   -v core-geth-mordor:/root \
   -p 30303:30303 -p 30303:30303/udp \
   -p 127.0.0.1:8545:8545 \
-  ghcr.io/ethereumclassic/core-geth:v1.13.0 --mordor --http --http.addr 0.0.0.0
+  ghcr.io/ethereumclassic/core-geth:latest --mordor --http --http.addr 0.0.0.0
 ```
 
 Once the log shows the node has started, ask it for the chain ID from the host:
@@ -160,7 +164,7 @@ the node resumes where it stopped:
 docker stop core-geth-mordor && docker rm core-geth-mordor
 ```
 
-Run the step 3 command again with the new tag in place of `v1.13.0`, keeping any flags you added.
+Pull `:latest` again and run the step 3 command, keeping any flags you added; to pin a release instead, use its tag from the releases page.
 [Upgrading within v1.13.x](../../operate/maintenance.md#upgrading-within-v113x) lists what to read
 and check. A node on a v1.12.x release follows the
 [Docker migration guide](../../tutorials/migration/docker.md) instead.

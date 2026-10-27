@@ -10,15 +10,86 @@ The disk, memory and time a node needs are measured on
 
 ## Dependencies
 
-- **Go 1.26 or later.** <https://go.dev/doc/install>. The module declares
-  `go 1.26.0`, so an older toolchain refuses to build it rather than producing a
-  broken binary.
-- **A C compiler.** Parts of the client are cgo, so a working toolchain is
-  required. On Debian or Ubuntu:
+Building Core-Geth needs three things:
 
-```shell
-$ sudo apt-get install -y build-essential
-```
+- **Go 1.26 or later.** The module declares `go 1.26.0`, so an older toolchain
+  refuses to build it rather than producing a broken binary. Check yours with
+  `go version`.
+- **A C compiler.** Parts of the client are cgo, so a working C toolchain
+  (`gcc` or `clang`) is required.
+- **git**, to clone the repository.
+
+Install all three for your platform:
+
+=== "Debian / Ubuntu"
+
+    ```shell
+    $ sudo apt-get update && sudo apt-get install -y build-essential git
+    ```
+
+    `build-essential` is the C compiler. The `apt` Go package often lags 1.26, so
+    install Go from [go.dev/doc/install](https://go.dev/doc/install) or with snap:
+
+    ```shell
+    $ sudo snap install go --classic
+    $ go version
+    ```
+
+=== "Fedora / RHEL"
+
+    ```shell
+    $ sudo dnf install -y gcc git
+    ```
+
+    Then install Go 1.26 or later from
+    [go.dev/doc/install](https://go.dev/doc/install). Fedora's own `golang` package
+    works when it is 1.26 or newer, which `go version` confirms:
+
+    ```shell
+    $ sudo dnf install -y golang
+    $ go version
+    ```
+
+=== "Arch"
+
+    ```shell
+    $ sudo pacman -S --needed base-devel git go
+    $ go version
+    ```
+
+    `base-devel` provides the C compiler, and Arch packages a current Go; confirm
+    it is 1.26 or newer with `go version`.
+
+=== "macOS"
+
+    The Xcode command line tools provide `clang` and `git`:
+
+    ```shell
+    $ xcode-select --install
+    ```
+
+    Then install Go 1.26 or later with [Homebrew](https://brew.sh), or from the
+    macOS installer at [go.dev/doc/install](https://go.dev/doc/install):
+
+    ```shell
+    $ brew install go
+    $ go version
+    ```
+
+=== "Windows"
+
+    With [Chocolatey](https://chocolatey.org/install), in an elevated PowerShell:
+
+    ```powershell
+    > choco install golang mingw git
+    > go version
+    ```
+
+    `mingw` is the MinGW-w64 C compiler that cgo needs on Windows. Without
+    Chocolatey, install Go from the MSI at
+    [go.dev/doc/install](https://go.dev/doc/install), install
+    [MinGW-w64](https://www.mingw-w64.org/) separately, and make sure its `gcc.exe`
+    is on your `PATH`.
 
 !!! tip "Building without installing Go yourself"
     `go run build/ci.go install -dlgo` downloads the exact Go toolchain this

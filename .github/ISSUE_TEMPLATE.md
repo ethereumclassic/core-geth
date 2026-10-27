@@ -1,29 +1,25 @@
-Hi there,
+Thanks for reporting an issue with Core-Geth.
 
-Please note that this is an issue tracker reserved for bug reports and feature requests.
-
-For general questions please use [discord](https://discord.gg/nthXNEv) or the Ethereum stack exchange at https://ethereum.stackexchange.com.
+This tracker is for bug reports and feature requests. For general questions, use the Ethereum Classic Core Developers [Discord](https://coregeth.com/discord). **Do not report a security vulnerability here.** Report it privately; see [SECURITY.md](../SECURITY.md).
 
 #### System information
 
-Core-Geth version: `geth version`
-CL client & version: e.g. lighthouse/nimbus/prysm@v1.0.0
-OS & Version: Windows/Linux/OSX
-Commit hash : (if `develop`)
+- **Core-Geth version:** output of `geth version` (it includes the commit for a development build)
+- **Network:** Ethereum Classic / Mordor / MintMe / private
+- **How installed:** release binary / Docker image / built from source
+- **OS and version:**
 
-#### Expected behaviour
-
-
-#### Actual behaviour
+#### Expected behavior
 
 
-#### Steps to reproduce the behaviour
+#### Actual behavior
 
 
-#### Backtrace
+#### Steps to reproduce
 
-````
-[backtrace]
-````
 
-When submitting logs: please submit them as text and not screenshots.
+#### Logs or backtrace
+
+```
+paste as text, not a screenshot
+```

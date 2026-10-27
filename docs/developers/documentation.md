@@ -1,3 +1,7 @@
+---
+description: "How the Core-Geth documentation is written and built: the Markdown sources under /docs and the MkDocs site that publishes them."
+---
+
 # Documentation
 
 Project documentation lives in `/docs` and is written in [Markdown](https://daringfireball.net/projects/markdown/syntax).  

@@ -1,6 +1,6 @@
 # Project information
 site_name: Core-Geth Documentation
-site_description: "Documentation for Core-Geth, the Ethereum Classic execution client: install, run and operate an ETC or Mordor node, and the security audits behind each release."
+site_description: "Documentation for Core-Geth, an Ethereum Classic execution client: install, run and operate an ETC or Mordor node, and the security audits behind each release."
 site_url: https://docs.coregeth.com/
 site_author: Core-Geth Team
 
@@ -21,7 +21,7 @@ nav:
   - Node operators: operators.md
   - About:
       - Project history: about/project-history.md
-      - Questions and answers: about/faq.md
+      - FAQ: about/faq.md
       - ETC Cooperative transition: etc-cooperative-transition.md
       - Support this work: support.md
   - Getting started:
@@ -36,12 +36,14 @@ nav:
           - Run an Ethereum Classic node: getting-started/run-classic-node.md
           - Run a Mordor node: getting-started/run-mordor-node.md
       - Command line: getting-started/run-cli.md
-  - Upgrading to v1.13.0:
-      - Overview: tutorials/v1.13.0-migration.md
-      - Linux users guide: tutorials/migration/linux.md
-      - Mac users guide: tutorials/migration/macos.md
-      - Windows users guide: tutorials/migration/windows.md
-      - Docker users guide: tutorials/migration/docker.md
+  - Upgrading:
+      - Overview: upgrading.md
+      - From v1.12.x to v1.13.0:
+          - Overview: tutorials/v1.13.0-migration.md
+          - Linux users guide: tutorials/migration/linux.md
+          - Mac users guide: tutorials/migration/macos.md
+          - Windows users guide: tutorials/migration/windows.md
+          - Docker users guide: tutorials/migration/docker.md
   - Operate:
       - Sync modes and data retention: operate/sync-modes.md
       - Security and network exposure: operate/security.md
@@ -86,14 +88,16 @@ nav:
       - ethash: JSON-RPC-API/modules/ethash.md
       - trace: JSON-RPC-API/modules/trace.md
       - trace overview: JSON-RPC-API/trace-module-overview.md
-  - Audits and reports:
-      - v1.13.0 release report: release-reports/v1.13.0.md
-      - v1.13.0 record: release-reports/v1.13.0-record.md
-      - March 2026 security audit: audits/2026-03-security-audit.md
-      - August 2026 security follow-up: audits/2026-08-security-followup.md
-      - Dependency and toolchain modernization: audits/2026-08-dependency-modernization.md
-      - Release artifacts: audits/2026-09-release-pipeline.md
-      - Go toolchain: audits/2026-09-go-toolchain.md
+  - Releases:
+      - Overview: releases.md
+      - v1.13.0:
+          - Release report: release-reports/v1.13.0.md
+          - March 2026 security audit: audits/2026-03-security-audit.md
+          - August 2026 security follow-up: audits/2026-08-security-followup.md
+          - Dependency and toolchain modernization: audits/2026-08-dependency-modernization.md
+          - Release artifacts: audits/2026-09-release-pipeline.md
+          - Go toolchain: audits/2026-09-go-toolchain.md
+          - The record behind the release: release-reports/v1.13.0-record.md
       - 2021 chain split postmortem: postmortems/2021-08-22-split-postmortem.md
 
 
@@ -140,6 +144,10 @@ plugins:
       minify_html: true
   - git-revision-date-localized:
       type: timeago
+
+# Build hooks
+hooks:
+  - mkdocs_hooks.py
 
 # Extensions
 markdown_extensions:

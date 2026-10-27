@@ -1,3 +1,7 @@
+---
+description: "Build and test Core-Geth: linting with golangci-lint, the Go test suites, and the Ethereum Classic consensus and chainspec equivalence tests."
+---
+
 # Testing
 
 ## Lint
