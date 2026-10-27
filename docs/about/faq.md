@@ -28,7 +28,8 @@ continues.
 ## Which Core-Geth version should I run?
 
 [The latest v1.13 release](https://github.com/ethereumclassic/core-geth/releases/latest). Every `v1.12.20` to `v1.12.23` archive was built with Go 1.21 or Go 1.22, whose support ended in
-August 2024 and February 2025, and carries 55 to 61 Go standard library advisories that `v1.13.0` does not. That
+August 2024 and February 2025, and carries 55 to 61 Go standard library advisories, 43 to 47 of them present
+in the binary, that `v1.13.0` does not. That
 is true of the newest release in the `v1.12.x` line as much as the oldest, and it is the exposure an operator on
 `v1.12.23` still has, along with the GraphQL depth limit and the `eth_syncing` regression. The releases before
 `v1.12.21` also carry all six client CVEs. On September 17, 2026, 71 percent of the Core-Geth nodes on the

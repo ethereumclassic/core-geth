@@ -12,8 +12,9 @@ that answers the questions operators actually arrive with.
 
 1. **Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Every published
    `v1.12.20` to `v1.12.23` archive, the newest included, was built on an unsupported Go release and carries 55
-   to 61 Go standard library advisories that `v1.13.0` does not. The releases before `v1.12.21` also carry all
-   six client CVEs, one of which, CVE-2026-22862, was exploited against the Core-Geth `v1.12` bootnodes in March 2026. On
+   to 61 Go standard library advisories, 43 to 47 of them present in the binary, that `v1.13.0` does not. The
+   releases before `v1.12.21` also carry all six client CVEs, one of which, CVE-2026-22862, was exploited
+   against the Core-Geth `v1.12` bootnodes in March 2026. On
    September 17, 2026, 71 percent of the Core-Geth nodes on the network were running a release older than
    `v1.12.23`, and 30 percent were running one older than `v1.12.21`. The
    [migration guide](tutorials/v1.13.0-migration.md) has a guide per platform. Your chain data carries over, and

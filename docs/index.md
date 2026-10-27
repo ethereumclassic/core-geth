@@ -50,7 +50,7 @@ are maintained here rather than inherited, which is what this client is for.
 
     - **Out-of-support Go toolchains.** Every archive was built on Go 1.21 or Go 1.22, whose
       support ended in August 2024 and February 2025, and carries 55 to 61 Go standard library
-      advisories those toolchains will never receive fixes for.
+      advisories those toolchains will never receive fixes for, 43 to 47 of them present in the binary.
       [Go toolchain audit](audits/2026-09-go-toolchain.md).
     - **Release-pipeline and binary defects.** glibc and macOS platform floors left older
       systems and many macOS users unable to run the published binaries, a macOS archive most
