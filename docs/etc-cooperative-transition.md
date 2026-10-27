@@ -11,7 +11,7 @@ maintenance mode since the end of 2024. Its
 "cooperative-maintained services, including RPC endpoints", and states that the Cooperative will stay in
 maintenance mode until its funding runs out: *"At that time, it will be up to other stakeholders to take on any
 required maintenance of the ETC client, unless a new plan materializes."* The ETC Cooperative board has
-communicated that the Cooperative is scheduled to dissolve by the end of 2026.
+communicated that the Cooperative will dissolve.
 
 Long-time Ethereum Classic core developers are standing up replacements in the `ethereumclassic` organization, so
 that operators have somewhere to move before the Cooperative closes. One service has already stopped.
@@ -82,7 +82,6 @@ fall behind or stop. Anything you depend on should run against a node you contro
 | 2026-08-31 | `ethereumclassic/public-rpc` and `ethereumclassic/nodes` are created |
 | 2026-09-10 | The first crawl of the network is published from `ethereumclassic/discv4-dns-lists` |
 | 2026-09-14 | [`v1.13.0`](https://github.com/ethereumclassic/core-geth/releases/tag/v1.13.0) is released from `ethereumclassic/core-geth` with the organization's bootnodes and discovery trees, establishing the canonical release pipeline for Core-Geth, where the client is now developed and released |
-| End of 2026 | The ETC Cooperative is scheduled to dissolve, as communicated by its board |
 
 ## Why the `ethereumclassic` organization
 

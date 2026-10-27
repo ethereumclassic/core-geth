@@ -19,7 +19,7 @@ The repositories stay there no matter who maintains or funds them.
 
 That arrangement is new. Until now, this work moved between organizations as each one closed or left: ETCDEV in
 2018, ETC Labs in 2021, and the ETC Cooperative, which entered maintenance mode at the end of 2024 and is due to
-dissolve by the end of 2026. Along the way, the client changed repositories, the bootnodes and discovery trees
+dissolve. Along the way, the client changed repositories, the bootnodes and discovery trees
 changed operators, and Core-Geth went 21 months without security maintenance. A standing legal entity, with the
 software kept in the community's own organization, is meant to end that churn.
 

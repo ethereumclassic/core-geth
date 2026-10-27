@@ -21,7 +21,7 @@ From the [releases page](https://github.com/ethereumclassic/core-geth/releases/l
 ## Is `etclabscore/core-geth` still maintained?
 
 The ETC Cooperative owns that repository, and its board has communicated its intent to archive it. The
-Cooperative has been in maintenance mode since the end of 2024 and is scheduled to dissolve by the end of 2026.
+Cooperative has been in maintenance mode since the end of 2024 and is due to dissolve.
 [The ETC Cooperative transition](../etc-cooperative-transition.md) lists where each service it maintained
 continues.
 
