@@ -8,5 +8,6 @@
 	shallow = true
 [submodule "tests-etc"]
 	path = tests/testdata-etc
-	url = https://github.com/etclabscore/tests
+	url = https://github.com/ethereumclassic/core-geth-tests
 	shallow = true
+	branch = dep-etclabscore-tests-06ec708ea7f3
