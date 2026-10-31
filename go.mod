@@ -182,3 +182,7 @@ require (
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+replace github.com/etclabscore/go-openrpc-reflect => github.com/ethereumclassic/archive-reference-material v0.0.0-20220829134241-ba5a99fa846d
+
+replace github.com/etclabscore/go-jsonschema-walk => github.com/ethereumclassic/archive-reference-material v0.0.0-20200501124244-44dea48ac8a4
