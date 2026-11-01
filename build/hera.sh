@@ -16,10 +16,14 @@ main() {
     mkdir -p build/_workspace
     [ ! -d build/_workspace/hera ] && git clone https://github.com/ewasm/hera build/_workspace/hera || echo "Hera exists."
     cd build/_workspace/hera
-    git checkout v0.3.2
+    # The commit of tag v0.3.2, by hash because this script builds what it fetches.
+    git checkout 4574426dfff0854de5b61911360d262f36893afa
     git submodule update --init
     mkdir -p build
     cd build
+    # HunterGate, which this build uses to fetch its packages, writes a project declaring
+    # CMake 3.2. CMake 4 refuses that unless this is set, and older CMake ignores it.
+    export CMAKE_POLICY_VERSION_MINIMUM=3.5
     cmake -DBUILD_SHARED_LIBS=ON ..
     cmake --build .
     echo "Built library at: $(pwd)/src/libhera.so"
