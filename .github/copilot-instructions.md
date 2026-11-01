@@ -32,20 +32,21 @@ which blocks a node accepts is a chain split, not a failing build.
 
 ## Toolchain
 
-Four Go versions are declared in this tree and they do not agree. This is real
-and load-bearing:
+Several places declare a Go version, and the three that build release artifacts
+must name the same patch:
 
 | Where | Declares | Governs |
 |---|---|---|
 | `go.mod` | the language version | what the module compiles against |
-| `.github/workflows/*.yml` | `go-version`, a major only | what CI builds and tests with |
-| `build/checksums.txt` | `# version:golang`, an exact patch | what `-dlgo` downloads |
-| `Dockerfile`, `Dockerfile.alltools` | a `golang:` major tag | the container build |
+| `.github/workflows/release-packages.yml` | `go-version`, an exact patch | the Linux x86_64, macOS and Windows release archives |
+| `build/checksums.txt` | `# version:golang`, an exact patch | what `build/ci.go install -dlgo` downloads, which the ARM release archives build with |
+| `Dockerfile`, `Dockerfile.alltools` | a `golang:` tag naming an exact patch and an Alpine series, beside an `alpine:` tag naming an exact release, each with its digest | the container images |
+| the other `.github/workflows/*.yml` | `go-version`, a major only | CI tests and checks; resolves to whatever patch the runner has |
 
-Read the current values from those files. The major agrees across all four; the
-patch does not, because two of them float. `make all` carries no `-dlgo`, so most
-release archives use the runner's patch while only the ARM leg uses the pinned
-one.
+Read the current values from those files. Change the release patch in all three
+release places together: each builds part of one release's binaries, so a patch
+changed in only one of them ships a release built by two toolchains. A
+Dockerfile's digest moves with its tag: read the new one from the registry.
 
 `build/checksums.txt` also pins the linter release. `make lint`
 downloads that exact linter release rather than using a locally installed copy.

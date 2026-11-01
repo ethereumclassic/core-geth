@@ -53,8 +53,14 @@ jobs:
       - name: Checkout ethereumclassic/core-geth
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      # Both are named by version. Left unset, Buildx comes from the runner image
+      # and BuildKit from a floating tag, and nothing else builds these images
+      # before a release tag, so a change in either would first show on a release.
       - name: Set up Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          version: v0.38.1
+          driver-opts: image=moby/buildkit:v0.34.1@sha256:99368f3e46177c6405b9740e4461d91cee004128daeecca78d4ceac50ec1da5c
 
       - name: Authenticate to the registry
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -140,6 +146,9 @@ jobs:
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          version: v0.38.1
+          driver-opts: image=moby/buildkit:v0.34.1@sha256:99368f3e46177c6405b9740e4461d91cee004128daeecca78d4ceac50ec1da5c
 
       - name: Authenticate to the registry
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
