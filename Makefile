@@ -139,7 +139,6 @@ devtools:
 	env GOBIN= go install github.com/fjl/gencodec@v0.1.2
 	env GOBIN= go install github.com/golang/protobuf/protoc-gen-go@v1.5.4
 	env GOBIN= go install ./cmd/abigen
-	@type "solc" 2> /dev/null || echo 'Please install solc'
 	@type "protoc" 2> /dev/null || echo 'Please install protoc'
 
 #? help: Get more info on make commands.
