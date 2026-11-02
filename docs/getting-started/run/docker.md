@@ -14,8 +14,9 @@ every command.
 ## 1. Get the image
 
 [Installation, Docker](../installation.md#docker) gives the ways to get it: pull it, load it from the
-release, or build it. This guide uses the release image's name,
-`ghcr.io/ethereumclassic/core-geth:latest`; for an image you built, use your own tag. Check it:
+release, or build it. This guide uses the latest release, `ghcr.io/ethereumclassic/core-geth:latest`. For a
+specific release, or an image loaded from a release file, use `ghcr.io/ethereumclassic/core-geth:<tag>`; for an
+image you built, use your own tag. Check it:
 
 ```bash
 docker run --rm ghcr.io/ethereumclassic/core-geth:latest version    # prints Core-Geth and its version

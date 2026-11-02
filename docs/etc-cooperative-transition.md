@@ -17,6 +17,13 @@ Long-time Ethereum Classic core developers are standing up replacements in the `
 that operators have somewhere to move before the Cooperative closes. One service has already stopped.
 
 !!! warning "What to do now"
+    - **Every node still on a `v1.12` release should move to the `v1.13` line.**
+      [Downloads](https://coregeth.com/downloads/#upgrade) has the commands and checksums, and the
+      [migration guide](tutorials/v1.13.0-migration.md) has the steps, including the required P2P node key
+      rotation. A `v1.12` node that cannot move yet can
+      [add the `--discovery.dns` flag](#if-a-v112-node-cannot-move-yet) to read the `ethereumclassic`
+      organization's peer discovery lists, a small step that closes none of the flaws the audits found in the
+      `v1.12` line.
     - **Get Core-Geth releases from [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases).**
       The ETC Cooperative board has communicated its intent to archive `etclabscore/core-geth`.
     - **For a public endpoint today, use the lists on ChainList**, for
@@ -41,6 +48,29 @@ that operators have somewhere to move before the Cooperative closes. One service
 
 [Bootnodes and peer discovery](guides/bootnodes-and-discovery.md) explains how the discovery trees are built from a
 crawl of the network, and how to point a node at any other list.
+
+### If a v1.12 node cannot move yet
+
+Every node still on a `v1.12` release should move to the `v1.13` line. One that cannot move yet can take a small
+step. [`ethereumclassic/discv4-dns-lists`](https://github.com/ethereumclassic/discv4-dns-lists) records that the
+peer discovery lists a `v1.12` release reads by default stop being updated when the ETC Cooperative dissolves, so
+add `--discovery.dns` with the three trees that repository publishes for the node's network. The node stays
+exposed: the flag closes none of the flaws [the audits](releases.md#v1130) found in the `v1.12` line.
+
+After a [clean stop](getting-started/run-classic-node.md#stop-it-safely), add the flag to the command or unit you
+already start the node with:
+
+```sh
+geth --classic --discovery.dns "enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethereumclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethereumclassic.network"
+```
+
+Keep the node's other flags: a node on `--datadir` that runs this line as it stands starts an empty chain in the
+default directory. For Mordor, use `--mordor` and change `all.classic.` to `all.mordor.` in all three trees. On
+Windows, run `.\geth.exe` in place of `geth`. In a container, stop the container with `docker stop -t 300` and pass
+the same flags after the image name. Under systemd, run `sudo systemctl daemon-reload` after you edit the unit.
+
+The flag replaces the lists built into the release, and the node dials the nodes in a tree directly, so it does not
+need `--bootnodes` as well. [Bootnodes and peer discovery](guides/bootnodes-and-discovery.md) covers both flags.
 
 ### Public JSON-RPC
 

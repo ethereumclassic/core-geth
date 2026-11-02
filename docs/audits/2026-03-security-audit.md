@@ -43,8 +43,9 @@ The rest of the `v1.12.x` line's exposure, measured in the companion audits:
 ## What operators need to do
 
 **Track releases at [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth)
-and upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Every finding in this document, and every finding in the
-[August 2026 follow-up](./2026-08-security-followup.md), is resolved there.
+and upgrade to [v1.13.0 or later](https://coregeth.com/downloads/#upgrade).** Every finding in this document, and every finding in the
+[August 2026 follow-up](./2026-08-security-followup.md), is resolved there. The
+[migration guide](../tutorials/v1.13.0-migration.md) has the steps, including the required P2P node key rotation.
 
 **Findings apply to every release in the v1.12.x line, including the most recent.**
 

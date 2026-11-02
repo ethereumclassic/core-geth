@@ -26,7 +26,7 @@ description: "Download, verify and install a Core-Geth release on Linux, macOS, 
     whose support ended in August 2024 and February 2025.
 
     Later releases in the line backport some of these; the
-    [March 2026 audit](../audits/2026-03-security-audit.md) records which, and the
+    [March 2026 audit](../audits/2026-03-security-audit.md) records which, and
     [Upgrading](../upgrading.md#leaving-the-v112x-line) covers the upgrade.
 
 ## Choose your route
@@ -229,9 +229,21 @@ Images are published to the GitHub Container Registry for each tagged release, b
 $ docker pull ghcr.io/ethereumclassic/core-geth:latest
 ```
 
+To check where the pulled image came from, verify its build attestation:
+
+```shell
+gh attestation verify oci://ghcr.io/ethereumclassic/core-geth:latest --repo ethereumclassic/core-geth
+```
+
+That needs the [GitHub CLI](https://cli.github.com/), signed in, though the pull does not. It succeeds only for an
+image built by this repository's workflows, and
+[Verify where the archive came from](#verify-where-the-archive-came-from) says what an attestation records.
+
 If you would rather not depend on the registry, or the machine has no route to it, each release
 carries the same image as a file: [Load the image from the release](#load-the-image-from-the-release).
-It keeps its published name, so every command below is the same either way.
+It keeps its published name with its release tag and carries no `latest` tag, so in the commands below use
+`ghcr.io/ethereumclassic/core-geth:<tag>` in place of `ghcr.io/ethereumclassic/core-geth:latest`. A command that
+names `latest` makes Docker pull from the registry.
 
 Tags mirror the release tags. `ghcr.io/ethereumclassic/core-geth:<tag>` is a
 specific release; `latest` follows the most recent non-prerelease. The image
@@ -257,8 +269,9 @@ $ gh attestation verify core-geth-docker-amd64-<tag>.tar.gz --repo ethereumclass
 $ docker load -i core-geth-docker-amd64-<tag>.tar.gz
 ```
 
-The loaded image keeps its published name, `ghcr.io/ethereumclassic/core-geth:<tag>`, so the
-`docker run` command below works unchanged.
+The loaded image keeps its published name with its release tag, `ghcr.io/ethereumclassic/core-geth:<tag>`, and
+carries no `latest` tag. Use that name in the `docker run` command below: a command that names `latest` makes
+Docker pull from the registry.
 
 ### Build an image from the release archive
 

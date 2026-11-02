@@ -16,7 +16,7 @@ fixes released here. [Project history](project-history.md) covers how maintenanc
 
 ## Where do I download Core-Geth?
 
-From the [releases page](https://github.com/ethereumclassic/core-geth/releases/latest) of `ethereumclassic/core-geth`, the canonical release pipeline. [Installation](../getting-started/installation.md) has a route for every platform, and [How do I verify a download?](#how-do-i-verify-a-download) confirms the archive is the one this repository built. Archives under the previous `etclabscore` namespace are unmaintained and do not carry the fixes released here.
+From [coregeth.com/downloads](https://coregeth.com/downloads/), which has the archive for each platform, its checksum and the commands. The files are published on the [releases page](https://github.com/ethereumclassic/core-geth/releases) of `ethereumclassic/core-geth`, the canonical release pipeline. [Installation](../getting-started/installation.md) has a route for every platform, and [How do I verify a download?](#how-do-i-verify-a-download) confirms the archive is the one this repository built. Archives under the previous `etclabscore` namespace are unmaintained and do not carry the fixes released here.
 
 ## Is `etclabscore/core-geth` still maintained?
 
@@ -27,7 +27,7 @@ continues.
 
 ## Which Core-Geth version should I run?
 
-[The latest v1.13 release](https://github.com/ethereumclassic/core-geth/releases/latest). Every `v1.12.20` to `v1.12.23` archive was built with Go 1.21 or Go 1.22, whose support ended in
+[The latest v1.13 release](https://coregeth.com/downloads/). Every `v1.12.20` to `v1.12.23` archive was built with Go 1.21 or Go 1.22, whose support ended in
 August 2024 and February 2025, and carries 55 to 61 Go standard library advisories, 43 to 47 of them present
 in the binary, that `v1.13.0` does not. That
 is true of the newest release in the `v1.12.x` line as much as the oldest, and it is the exposure an operator on
@@ -92,7 +92,10 @@ company's.
 ## How do I verify a download?
 
 Check the archive against its published `.sha256`, then verify its build attestation with
-`gh attestation verify <file> --repo ethereumclassic/core-geth`. `go version -m geth` prints the Go version and
+`gh attestation verify <file> --repo ethereumclassic/core-geth`. A pulled container image has no file to name, so
+point the same command at the image:
+`gh attestation verify oci://ghcr.io/ethereumclassic/core-geth:latest --repo ethereumclassic/core-geth`.
+`go version -m geth` prints the Go version and
 the commit a binary was built from without running it. [Verifying a download](../release-reports/v1.13.0.md#verifying-a-download)
 gives the commands, and [Release artifacts](../audits/2026-09-release-pipeline.md) records what each published
 archive actually contains.

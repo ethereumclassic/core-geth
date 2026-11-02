@@ -22,7 +22,9 @@ source-level CVE remediation; this one covers what changed underneath the code.
 
 ## In short
 
-**Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** The archived `v1.12.x` line was pinned to Go toolchains that left
+**Upgrade to [v1.13.0 or later](https://coregeth.com/downloads/#upgrade).** The
+[migration guide](../tutorials/v1.13.0-migration.md) has the steps, including the required P2P node key rotation.
+The archived `v1.12.x` line was pinned to Go toolchains that left
 support in August 2024 and February 2025, and its module graph had not moved since December 2024. `v1.13.0`
 builds on Go 1.26.8, behind it 83 module changes and a current linter. The v1.13 line has about six
 months of testing on Ethereum Classic mainnet and Mordor behind it, with no critical issue found. This page records what moved, what

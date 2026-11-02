@@ -56,3 +56,8 @@ A node on any `v1.12.x` release has more to do than replace the binary:
 [Linux](tutorials/migration/linux.md), [macOS](tutorials/migration/macos.md),
 [Windows](tutorials/migration/windows.md) and [Docker](tutorials/migration/docker.md), and how to roll
 back. Where the guide names `v1.13.0`, install the latest release instead.
+
+A `v1.12` node that cannot move yet can
+[add the `--discovery.dns` flag](etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet) to read the
+`ethereumclassic` organization's peer discovery lists, a small step that closes none of the flaws the audits
+found in the `v1.12` line.

@@ -10,7 +10,7 @@ that answers the questions operators actually arrive with.
 
 ## Do these four things
 
-1. **Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Every published
+1. **Upgrade to [v1.13.0 or later](https://coregeth.com/downloads/#upgrade).** Every published
    `v1.12.20` to `v1.12.23` archive, the newest included, was built on an unsupported Go release and carries 55
    to 61 Go standard library advisories, 43 to 47 of them present in the binary, that `v1.13.0` does not. The
    releases before `v1.12.21` also carry all six client CVEs, one of which, CVE-2026-22862, was exploited
@@ -18,7 +18,10 @@ that answers the questions operators actually arrive with.
    September 17, 2026, 71 percent of the Core-Geth nodes on the network were running a release older than
    `v1.12.23`, and 30 percent were running one older than `v1.12.21`. The
    [migration guide](tutorials/v1.13.0-migration.md) has a guide per platform. Your chain data carries over, and
-   the upgrade costs about twenty minutes of downtime.
+   the upgrade costs about twenty minutes of downtime. A `v1.12` node that cannot move yet can
+   [add the `--discovery.dns` flag](etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet) to read the
+   `ethereumclassic` organization's peer discovery lists, a small step that closes none of the flaws the audits
+   found in the `v1.12` line.
 
     **What the network was running on September 17, 2026**, from [etcnodes.org](https://etcnodes.org),
     524 Core-Geth nodes of 550:

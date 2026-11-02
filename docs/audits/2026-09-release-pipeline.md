@@ -26,7 +26,9 @@ created from the archived development line; the other three were published in 20
 
 ## In short
 
-**Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Measured by downloading them, the published `v1.12.20` to
+**Upgrade to [v1.13.0 or later](https://coregeth.com/downloads/#upgrade).** The
+[migration guide](../tutorials/v1.13.0-migration.md) has the steps, including the required P2P node key rotation.
+Measured by downloading them, the published `v1.12.20` to
 `v1.12.23` archives raised the glibc version a Linux host needs without saying so, shipped an Apple Silicon
 binary under a name that does not say so, and carried nothing that identifies what built them. Every `v1.13.0`
 archive and image ships with a checksum and a build attestation, and names its platform. The `v1.13.0`

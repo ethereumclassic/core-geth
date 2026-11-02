@@ -20,7 +20,9 @@ Bootnodes and DNS trees give the node its first peers. Discovery then finds more
 
 - `--bootnodes enode://...,enode://...` replaces the compiled list.
 - `--discovery.dns enrtree://<public key>@<domain>` replaces the trees, and `--discovery.dns ""` turns DNS
-  discovery off.
+  discovery off. [A `v1.12` node that cannot move yet](../etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet)
+  can use it to read the `ethereumclassic` organization's peer discovery lists, a small step that closes none of
+  the flaws the audits found in the `v1.12` line.
 - `--nodiscover` turns discovery off. The node then connects only to static and trusted peers, and to peers
   that connect to it.
 - `--maxpeers`, 50 by default, caps the number of peers. Trusted peers can connect past it.

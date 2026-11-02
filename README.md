@@ -26,7 +26,7 @@ Read the current fork schedule from [`params/`](params/) rather than restating i
 
 ## Quick start
 
-Download `geth` for your platform from the [latest release](https://github.com/ethereumclassic/core-geth/releases/latest), verify it, and put it on your `PATH`. Then run an Ethereum Classic node:
+Download `geth` for your platform from the [latest release](https://coregeth.com/downloads/), verify it, and put it on your `PATH`. Then run an Ethereum Classic node:
 
 ```shell
 geth --classic

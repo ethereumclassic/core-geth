@@ -62,7 +62,7 @@ are maintained here rather than inherited, which is what this client is for.
       that can disconnect honest peers (v1.12.23).
       [March 2026 audit](audits/2026-03-security-audit.md) · [August 2026 follow-up](audits/2026-08-security-followup.md).
 
-    Upgrade to [the latest v1.13 release](https://github.com/ethereumclassic/core-geth/releases/latest); the
+    Upgrade to [the latest v1.13 release](https://coregeth.com/downloads/#upgrade); the
     [migration guide](tutorials/v1.13.0-migration.md) covers the steps, the required node-key rotation, and how
     to roll back.
 
@@ -75,10 +75,9 @@ are maintained here rather than inherited, which is what this client is for.
 | MintMe.com Coin | 24734 | Proof of Work | `--mintme` |
 | Private chains | configurable | PoW / PoA | genesis configuration |
 
-Ethereum Classic runs every hard fork from Frontier through Spiral. The
-[README's consensus table](https://github.com/ethereumclassic/core-geth#etc-consensus-history)
-lists each upgrade with its activation block and the EIPs it included; `params/` in the
-source is the authority, and a fork schedule recalled from memory is a guess.
+Ethereum Classic runs every hard fork from Frontier through Spiral.
+[`params/`](https://github.com/ethereumclassic/core-geth/tree/main/params) in the source holds
+each activation block and is the authority; a fork schedule recalled from memory is a guess.
 
 **With no network flag, `geth` runs Ethereum Classic mainnet**, and `--mainnet` is the
 same as `--classic`. A data directory initialized with a private network's genesis keeps

@@ -19,8 +19,9 @@ description: "Core-Geth v1.12.23 measured at its tag against the advisory record
 ## What operators need to do
 
 **Track releases at [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth)
-and upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Every finding in this document and in the
-[March 2026 audit](./2026-03-security-audit.md) is resolved there.
+and upgrade to [v1.13.0 or later](https://coregeth.com/downloads/#upgrade).** Every finding in this document and in the
+[March 2026 audit](./2026-03-security-audit.md) is resolved there. The
+[migration guide](../tutorials/v1.13.0-migration.md) has the steps, including the required P2P node key rotation.
 
 v1.12.23 is real security work, and it does not close the two findings that matter most to a
 node operator:

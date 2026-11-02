@@ -19,7 +19,7 @@ dissolves. Each release archive carries a build attestation, which
 - [Documentation home](https://docs.coregeth.com/): what this client is, which networks it supports, and where to go first.
 - [Installation](https://docs.coregeth.com/getting-started/installation/): download, checksum and install a release.
 - [Running a node](https://docs.coregeth.com/getting-started/run-a-node/): Linux, macOS, Windows and Docker, with the flags each kind of node needs.
-- [Upgrading](https://docs.coregeth.com/upgrading/): the steps for any release, and what a node leaving the `v1.12.x` line must also do, including the required node key rotation.
+- [Upgrading](https://docs.coregeth.com/upgrading/): the steps for any release, and what a node leaving the `v1.12.x` line must also do, including the required node key rotation. Every node still on a `v1.12` release should move to the `v1.13` line. [Downloads](https://coregeth.com/downloads/#upgrade) has the commands and checksums, and the [migration guide](https://docs.coregeth.com/tutorials/v1.13.0-migration/) has the steps, including that rotation. A `v1.12` node that cannot move yet can [add the `--discovery.dns` flag](https://docs.coregeth.com/etc-cooperative-transition/#if-a-v112-node-cannot-move-yet) to read the `ethereumclassic` organization's peer discovery lists, a small step that closes none of the flaws the audits found in the `v1.12` line.
 
 ## What this project is
 
