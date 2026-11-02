@@ -106,6 +106,27 @@ Fatal: Error starting protocol stack: invalid peer config: light peer count (100
 - **Fix:** delete the `LightServ` and `LightPeers` lines from the file.
 - **Once fixed:** the node starts and keeps running.
 
+### Why does the node stop with `field 'ECBP1100' is not defined`?
+
+```
+Fatal: <config file>, line <line>: field 'ECBP1100' is not defined in ethconfig.Config, see https://godoc.org/github.com/ethereum/go-ethereum/eth/ethconfig#Config for available fields
+```
+
+The line can name `ECBP1100Disable` instead.
+
+- **Why:** `dumpconfig` on `v1.12.17` or `v1.12.18` wrote the file, with `ECBP1100 = "<nil>"` and
+  `ECBP1100Disable = "<nil>"` under `[Eth]`. `v1.13.0` has neither setting.
+- **Check:** this reads the file and starts no node, and prints the same line:
+
+    ```shell
+    geth --classic --config <config file> dumpconfig
+    ```
+
+- **Fix:** delete both lines. Delete the file's `BootstrapNodes`, `EthDiscoveryURLs` and `SnapDiscoveryURLs` lines as
+  well, or the node keeps that release's peer lists
+  ([Re-check RPC exposure](../tutorials/v1.13.0-migration.md#re-check-rpc-exposure)).
+- **Once fixed:** the same command prints the configuration, and the node starts.
+
 ### Why does the node stop with `bind: address already in use`?
 
 ```
@@ -263,12 +284,24 @@ ERROR[..] The trusted-nodes.json file is deprecated and ignored. Use P2P.Trusted
 
 - **Why:** the node reads static and trusted peers only from its configuration file. It logs these
   lines when it finds the old files in `<datadir>/geth/`, and does not read them.
-- **Fix:** move each enode to the `StaticNodes` or `TrustedNodes` line under `[Node.P2P]`, in a
-  configuration file written by `dumpconfig`
-  ([Configuration](../getting-started/run-cli.md#configuration)), and start the node with `--config`.
-  The lines belong under `[Node.P2P]`, and a `[P2P]` table of its own stops the node:
+- **Fix:** move each enode to the `StaticNodes` or `TrustedNodes` line under `[Node.P2P]` in a configuration file,
+  and start the node with `--config`. A file holding only those lines is enough, and it changes nothing else the node
+  does:
+
+    ```toml
+    [Node.P2P]
+    StaticNodes = ["enode://<node ID>@<IP>:30303"]
+    ```
+
+    A file written by `dumpconfig` ([Configuration](../getting-started/run-cli.md#configuration)) is the better choice
+    when you want it to hold your other settings too. It also writes the network's discovery lists and bootnodes, and
+    those lines keep replacing the ones the client builds in, through later releases as well. Delete them unless you
+    want those lists to stay as they are.
+
+    A placeholder left in the file stops the node, and so does a `[P2P]` table of its own:
 
     ```
+    Fatal: <config file>, line <line>: (p2p.Config.StaticNodes) parse "enode://<node ID>@<IP>:30303": net/url: invalid userinfo
     Fatal: <config file>, line <line>: field 'P2P' is not defined in main.gethConfig
     ```
 

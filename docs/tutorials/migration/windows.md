@@ -114,10 +114,31 @@ node's data directory before you go on. If `geth/nodekey.old-rotated-` with toda
 already happened. If only `geth/nodekey` is there, rename that file, because a node started now would start on the
 old key.
 
+### If this node lists static peers, update the list
+
+Static peers are nodes a node keeps connecting to, such as the rest of a mining pool's fleet. They sit under
+`[Node.P2P]` in the file you pass with `--config`, so edit that file while the node is down:
+
+```toml
+[Node.P2P]
+StaticNodes = ["enode://<node ID>@<IP>:30303"]
+```
+
+A node that has already moved has a new ID, so put the new ID in its entry and keep the address and port. Separate
+entries with commas. `TrustedNodes`, on a line of its own in the same section, takes the same entries. With no file
+yet, save these two lines with your own values, then add `--config` and the file's path to the start command. The
+client ignores `static-nodes.json` and logs an error at the start, so move any entries from that file into this one.
+To change the list on a running node instead, use the lines
+[at the end of step 5](#if-other-nodes-list-this-node-give-them-the-new-id).
+
+Save the file as UTF-8 with no byte order mark. A byte order mark, or UTF-16, stops the start with
+`Fatal: <file>, line 1: invalid TOML syntax`.
+
 ## 4. Re-check RPC exposure
 
 Go through the [RPC exposure checklist](../v1.13.0-migration.md#re-check-rpc-exposure) against the flags you
-start the node with.
+start the node with. If you pass `--config` a file that
+`dumpconfig` wrote on `v1.12`, the checklist also lists the lines to delete.
 
 ## 5. Start and verify
 
@@ -141,6 +162,27 @@ If a line cannot connect, give the node a minute to open its socket and run that
   lists your old enode ID.**
 - **The block number** resumes where the node stopped. Last, compare it with a block explorer or another node you
   operate. If it settles somewhere else, stop and investigate rather than resyncing.
+
+### If other nodes list this node, give them the new ID
+
+The new ID exists only now that this node has started. A node that still names the old ID no longer connects to this
+node, and neither node logs the failure at the default verbosity. On each node that lists this one, on `v1.12` or
+`v1.13`, run these lines with your own values: the old ID you recorded, the new ID from the block above, and the
+address and port the entry already has.
+
+```powershell
+.\geth.exe attach --exec "admin.removePeer('enode://<old ID>@<IP>:30303')" \\.\pipe\geth.ipc
+.\geth.exe attach --exec "admin.addPeer('enode://<new ID>@<IP>:30303')" \\.\pipe\geth.ipc
+.\geth.exe attach --exec "admin.peers.map(function(p){return p.enode})" \\.\pipe\geth.ipc
+```
+
+The first two lines each print `true` and take effect with no restart, and the third lists the new ID once the two
+nodes connect. A running node keeps this change only until it restarts, so put the new ID in that node's configuration
+file too. Send the new ID to anyone else who lists this node.
+
+For an entry in `TrustedNodes`, use `admin.removeTrustedPeer` and `admin.addTrustedPeer`, which also print `true`.
+They do not open a connection, so a node given only those stays unconnected until the other node dials it.
+[Static and trusted peers](../../guides/bootnodes-and-discovery.md#static-and-trusted-peers) explains the two lists.
 
 ## 6. If you need to roll back
 
