@@ -17,8 +17,10 @@ Install `geth` as [Installation, macOS](../installation.md#macos) shows, includi
 quarantine attribute if a browser downloaded it. Then check it:
 
 ```bash
-geth version        # Core-Geth 1.13.0-stable
+geth version
 ```
+
+The first line it prints names the client and its version.
 
 ## 2. Choose the network
 
@@ -32,9 +34,16 @@ command says which network it is for.
 
 ## 3. Start the node
 
+On Ethereum Classic:
+
 ```bash
-geth --classic      # Ethereum Classic
-geth --mordor       # Mordor
+geth --classic
+```
+
+On Mordor:
+
+```bash
+geth --mordor
 ```
 
 The node runs in the foreground and logs to the terminal. Its first line names the network:
@@ -53,19 +62,24 @@ Then give `attach` the socket inside that directory:
 
 ## 4. Check that it syncs
 
-In a second terminal window:
+In a second terminal window, on Ethereum Classic:
 
 ```bash
-# Ethereum Classic
-geth --classic attach --exec 'eth.syncing'       # an object while it syncs, false once synced
-geth --classic attach --exec 'net.peerCount'     # above 0 within minutes
-geth --classic attach --exec 'eth.blockNumber'   # once synced, compare with a block explorer
+geth --classic attach --exec 'eth.syncing'
+geth --classic attach --exec 'net.peerCount'
+geth --classic attach --exec 'eth.blockNumber'
+```
 
-# Mordor
+On Mordor:
+
+```bash
 geth --mordor attach --exec 'eth.syncing'
 geth --mordor attach --exec 'net.peerCount'
 geth --mordor attach --exec 'eth.blockNumber'
 ```
+
+`eth.syncing` prints an object while the node syncs and `false` once it has synced. `net.peerCount` rises above 0
+within minutes. Once the node has synced, compare `eth.blockNumber` with a block explorer.
 
 `attach` looks for the node's socket in the data directory of the network you name, so a Mordor node
 needs `--mordor` here too. [How to tell it is done](../run-classic-node.md#how-to-tell-it-is-done)
@@ -100,7 +114,7 @@ stop. It runs while you are logged in, and a Mac that sleeps pauses the node unt
 it writes names the network in the agent's label, the flag and the log file:
 
 ```bash
-NETWORK=classic      # or: NETWORK=mordor
+NETWORK=classic
 mkdir -p ~/Library/LaunchAgents ~/Library/Logs
 cat > ~/Library/LaunchAgents/com.coregeth.$NETWORK.plist <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -160,12 +174,16 @@ reach it unchanged. To run a node with no one logged in, install the same file a
 
 - **In the foreground:** press Ctrl-C once, then wait for `Blockchain stopped` and the prompt.
 - **As an agent:** with `NETWORK` set as in step 6, unload it. launchd sends the node SIGTERM, and the
-  log then ends with `Blockchain stopped`. The agent loads again at your next login; delete its file to
-  keep it from starting.
+  log then ends with `Blockchain stopped`. The agent loads again at your next login.
 
 ```bash
 launchctl bootout gui/$(id -u)/com.coregeth.$NETWORK
-rm ~/Library/LaunchAgents/com.coregeth.$NETWORK.plist      # only to keep it from starting at login
+```
+
+To keep the agent from starting at your next login, also delete its file:
+
+```bash
+rm ~/Library/LaunchAgents/com.coregeth.$NETWORK.plist
 ```
 
 Pressing Ctrl-C again does not speed up a stop. [Stop it safely](../run-classic-node.md#stop-it-safely)

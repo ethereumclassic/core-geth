@@ -40,7 +40,7 @@ that answers the questions operators actually arrive with.
     `https://api.etcnodes.org/peers` is the instrument.
 2. **Rotate the P2P node key.** This one is required rather than precautionary: one of the fixed issues leaks
    bits of that key across repeated handshakes, and the fix cannot recall what already leaked.
-   [How, and which peer lists to update](tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key).
+   [How, and which peers' configuration to update](tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key).
 3. **Track releases at [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases).** A
    node tracking the previous repository will not see `v1.13.0`.
 4. **Decide your MESS setting, and give every node you run the same one.** `--mess` turns MESS on and
@@ -50,7 +50,8 @@ that answers the questions operators actually arrive with.
    operation a node with it on and a node with it off follow the same chain.
    [Which setting fits which operator](operate/mess.md#which-setting-fits-which-operator) sets out what
    the setting decides for each kind of node. Nodes in one fleet that disagree can prefer different
-   chains, which is worse than either setting.
+   chains, which is worse than either setting. Under systemd, run `sudo systemctl daemon-reload` after you add
+   the flag to the unit.
 
 ## Then read, in this order
 
@@ -104,7 +105,7 @@ Report a security issue privately, never in a public issue: through this reposit
 point of contact as the ETC Cooperative dissolves. A person answers it: one of the core developers who maintain
 this client.
 
-Anything else, including a defect in `v1.13.0`, belongs in
+Anything else, including a defect in a `v1.13` release, belongs in
 [the repository's issues](https://github.com/ethereumclassic/core-geth/issues), where it is public and checkable.
 
 To talk to the people who maintain this client, the Ethereum Classic Core Developers run a

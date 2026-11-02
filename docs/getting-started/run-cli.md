@@ -20,7 +20,7 @@ For running a node, from an installed `geth` to a synced, supervised, safely sto
 [Running a node](../getting-started/run-a-node.md), which has a guide for each platform.
 
 ```
-$ geth [--classic|--mordor] console
+geth [--classic|--mordor] console
 ```
 
 `console` starts `geth` and opens its built-in interactive
@@ -42,7 +42,7 @@ node. Started any other way, the node stops as covered in
 For running a node on Mordor, see [Run a Mordor node](../getting-started/run-mordor-node.md).
 
 ```shell
-$ geth --mordor console
+geth --mordor console
 ```
 
 `console` behaves exactly as above; `--mordor` is what selects Mordor's own data directory,
@@ -55,8 +55,8 @@ configuration file. `dumpconfig` writes out the configuration your current flags
 which is the easiest way to start one:
 
 ```shell
-$ geth --classic --your-other-flags dumpconfig > /path/to/your_config.toml
-$ geth --classic --config /path/to/your_config.toml
+geth --classic --your-other-flags dumpconfig > /path/to/your_config.toml
+geth --classic --config /path/to/your_config.toml
 ```
 
 **Where a setting comes from more than one place, the command line wins.** `geth` starts from
@@ -102,7 +102,7 @@ To reproduce a network's full chain configuration rather than your runtime setti
 `dumpgenesis`, which does include the consensus rules:
 
 ```shell
-$ geth --classic dumpgenesis > classic-genesis.json
+geth --classic dumpgenesis > classic-genesis.json
 ```
 
 ### Key derivation on a small machine
@@ -123,7 +123,7 @@ keeps the parameters it was written with, which are recorded inside the file its
 | `--lightkdf` | 2<sup>12</sup> | ~4MB | ~100ms |
 
 ```shell
-$ geth account new --mediumkdf
+geth account new --mediumkdf
 ```
 
 **Prefer the default, and reach for `--mediumkdf` before `--lightkdf`.** Each step down
@@ -146,8 +146,11 @@ go-ethereum's vulnerability feed, which does not track this client, so a clean r
 nothing about Core-Geth. [Security and network exposure](../operate/security.md) covers what it does
 and does not tell you.
 
+```shell
+geth --help
 ```
-$ geth --help
+
+```
 NAME:
    geth - the Core-Geth command line interface
 

@@ -12,8 +12,7 @@ chains the node keeps when a competing chain would replace blocks it already acc
 ## Check whether MESS is on
 
 ```shell
-$ geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
-true
+geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
 ```
 
 `true` means MESS is on. `false` means it is off, or paused while the node is out of sync or has
@@ -26,10 +25,13 @@ The `mess*` names on this page were added in `v1.13.1`. Before it, on `v1.13.0` 
 ## Turn MESS on or off
 
 ```shell
-$ geth --classic --mess          # on; default turns on.
-$ geth --classic --mess=true     # on
-$ geth --classic --mess=false    # off
+geth --classic --mess
+geth --classic --mess=true
+geth --classic --mess=false
 ```
+
+`--mess` and `--mess=true` turn MESS on, and `--mess=false` turns it off. Under systemd, add the flag to the unit's
+`ExecStart` and run `sudo systemctl daemon-reload` before you start the node.
 
 Without `--mess`, the node uses the setting its release ships with. Give every node you run the
 same setting: during a deep reorganization, nodes with different settings can follow different
@@ -90,9 +92,11 @@ flags and the config file decide again.
 started with `--config` reads the file each time it starts:
 
 ```shell
-$ geth --classic --mess dumpconfig node.toml    # writes node.toml, starts nothing
-$ geth --classic --config node.toml             # starts the node with MESS on
+geth --classic --mess dumpconfig node.toml
+geth --classic --config node.toml
 ```
+
+The first line writes `node.toml` and starts nothing. The second starts the node with MESS on.
 
 | Flag given to `geth dumpconfig` | Line it writes under `[Eth]` |
 |---|---|
@@ -113,9 +117,10 @@ $ geth --classic --config node.toml             # starts the node with MESS on
 ### Admin calls
 
 ```shell
-$ geth --classic attach --exec 'admin.mess(true).enabled' <datadir>/geth.ipc
-true
+geth --classic attach --exec 'admin.mess(true).enabled' <datadir>/geth.ipc
 ```
+
+That turns MESS on and prints `true`.
 
 | Call | What it does | Like the flag |
 |---|---|---|

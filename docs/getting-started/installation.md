@@ -52,7 +52,8 @@ which is what the rows above distinguish.
 the repository, the container image and the archive filenames. There is no
 executable by that name.
 
-Every archive route ends with a `geth` on your `PATH`. Archives are attached to each
+The Linux and macOS routes end with a `geth` on your `PATH`, and the Windows route with
+`geth.exe` in `C:\core-geth`. Archives are attached to each
 tagged release on the
 [releases page](https://github.com/ethereumclassic/core-geth/releases), and every one
 of them is a `.zip` containing the binary and `COPYING`, the license, at the top level,
@@ -65,18 +66,18 @@ release, set `VERSION` to its tag from the
 ## Linux, x86_64
 
 ```shell
-$ VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
-$ BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
-$ curl -LO $BASE/core-geth-linux-$VERSION.zip
-$ curl -LO $BASE/core-geth-linux-$VERSION.zip.sha256
-$ sha256sum -c core-geth-linux-$VERSION.zip.sha256
-$ unzip core-geth-linux-$VERSION.zip
-$ sudo install -m 0755 geth /usr/local/bin/geth
-$ geth version
+VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
+BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
+curl -LO $BASE/core-geth-linux-$VERSION.zip
+curl -LO $BASE/core-geth-linux-$VERSION.zip.sha256
+sha256sum -c core-geth-linux-$VERSION.zip.sha256 &&
+  unzip -o core-geth-linux-$VERSION.zip &&
+  sudo install -m 0755 geth /usr/local/bin/geth &&
+  geth version
 ```
 
-`sha256sum -c` must print `OK`. If it prints `FAILED`, stop: delete the file and
-download it again rather than running it.
+`sha256sum -c` must print `OK`. If it prints `FAILED`, the lines after it do not run:
+delete the file and download it again.
 
 **This archive needs glibc 2.17 or newer**: RHEL 7, CentOS 7 and anything more
 recent. `ldd --version` prints what you have. On an older distribution
@@ -103,15 +104,14 @@ hardware. Follow what `uname -m` actually prints.
 Then, substituting your architecture for `arm64` below:
 
 ```shell
-$ VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
-$ ARCH=arm64
-$ BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
-$ curl -LO $BASE/core-geth-$ARCH-$VERSION.zip
-$ curl -LO $BASE/core-geth-$ARCH-$VERSION.zip.sha256
-$ sha256sum -c core-geth-$ARCH-$VERSION.zip.sha256
-$ unzip core-geth-$ARCH-$VERSION.zip
-$ sudo install -m 0755 geth /usr/local/bin/geth
-$ geth version
+VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
+BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
+curl -LO $BASE/core-geth-arm64-$VERSION.zip
+curl -LO $BASE/core-geth-arm64-$VERSION.zip.sha256
+sha256sum -c core-geth-arm64-$VERSION.zip.sha256 &&
+  unzip -o core-geth-arm64-$VERSION.zip &&
+  sudo install -m 0755 geth /usr/local/bin/geth &&
+  geth version
 ```
 
 A `core-geth-arm-<tag>.zip` is published as well. It is byte-identical to the `arm5`
@@ -130,18 +130,18 @@ Two archives, chosen by processor:
 | `arm64`: Apple Silicon, M1 and later | `core-geth-osx-arm64-<tag>.zip` |
 | `x86_64`: Intel | `core-geth-osx-<tag>.zip` |
 
-macOS has no `sha256sum`; use `shasum -a 256 -c`, which reads the same file.
+macOS has no `sha256sum`; use `shasum -a 256 -c`, which reads the same file. On an Intel Mac, put `osx` where the
+file names below say `osx-arm64`:
 
 ```shell
-$ VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
-$ PLATFORM=osx-arm64            # or: osx
-$ BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
-$ curl -LO $BASE/core-geth-$PLATFORM-$VERSION.zip
-$ curl -LO $BASE/core-geth-$PLATFORM-$VERSION.zip.sha256
-$ shasum -a 256 -c core-geth-$PLATFORM-$VERSION.zip.sha256
-$ unzip core-geth-$PLATFORM-$VERSION.zip
-$ sudo install -m 0755 geth /usr/local/bin/geth
-$ geth version
+VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
+BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
+curl -LO $BASE/core-geth-osx-arm64-$VERSION.zip
+curl -LO $BASE/core-geth-osx-arm64-$VERSION.zip.sha256
+shasum -a 256 -c core-geth-osx-arm64-$VERSION.zip.sha256 &&
+  unzip -o core-geth-osx-arm64-$VERSION.zip &&
+  sudo install -m 0755 geth /usr/local/bin/geth &&
+  geth version
 ```
 
 !!! tip "If macOS refuses to run it"
@@ -151,7 +151,7 @@ $ geth version
     avoid it. If you downloaded through a browser, clear it:
 
     ```shell
-    $ xattr -d com.apple.quarantine geth
+    xattr -d com.apple.quarantine geth
     ```
 
     Once macOS has blocked it, **Open Anyway** in System Settings, under Privacy & Security,
@@ -165,22 +165,29 @@ Before running it on a node that holds value, also
 Download `core-geth-win64-<tag>.zip` and its `.sha256`. In PowerShell:
 
 ```powershell
-> $VERSION = (Invoke-RestMethod "https://api.github.com/repos/ethereumclassic/core-geth/releases/latest").tag_name
-> $BASE = "https://github.com/ethereumclassic/core-geth/releases/download/$VERSION"
-> Invoke-WebRequest "$BASE/core-geth-win64-$VERSION.zip" -OutFile "core-geth-win64-$VERSION.zip"
-> Invoke-WebRequest "$BASE/core-geth-win64-$VERSION.zip.sha256" -OutFile "core-geth-win64-$VERSION.zip.sha256"
-> (Get-FileHash "core-geth-win64-$VERSION.zip" -Algorithm SHA256).Hash
-> Get-Content "core-geth-win64-$VERSION.zip.sha256"
-> Expand-Archive "core-geth-win64-$VERSION.zip" -DestinationPath .
-> .\geth.exe version
+$VERSION = (Invoke-RestMethod "https://api.github.com/repos/ethereumclassic/core-geth/releases/latest").tag_name
+$BASE = "https://github.com/ethereumclassic/core-geth/releases/download/$VERSION"
+Invoke-WebRequest "$BASE/core-geth-win64-$VERSION.zip" -OutFile "core-geth-win64-$VERSION.zip"
+Invoke-WebRequest "$BASE/core-geth-win64-$VERSION.zip.sha256" -OutFile "core-geth-win64-$VERSION.zip.sha256"
+(Get-FileHash "core-geth-win64-$VERSION.zip" -Algorithm SHA256).Hash
+Get-Content "core-geth-win64-$VERSION.zip.sha256"
 ```
 
 **PowerShell has no equivalent of `sha256sum -c`, so compare the two lines yourself.**
 `Get-FileHash` prints uppercase hex and the `.sha256` file holds lowercase followed by
-the filename; the letters must match, the case does not.
+the filename; the letters must match, the case does not. If they differ, delete the file and
+download it again.
 
-The archive contains `geth.exe` and `COPYING`, the license. Move `geth.exe` wherever you keep command-line tools
-and add that directory to `PATH` if you want to run it by name.
+If they match, unpack it:
+
+```powershell
+Expand-Archive "core-geth-win64-$VERSION.zip" -DestinationPath C:\core-geth -Force
+C:\core-geth\geth.exe version
+```
+
+The archive contains `geth.exe` and `COPYING`, the license. The [Windows users guide](run/windows.md)
+keeps them in `C:\core-geth`. To keep `geth.exe` in another folder, unpack it there, and add that folder
+to `PATH` if you want to run it by name.
 
 !!! tip "If Windows warns about the publisher"
     These binaries are not code-signed, so Windows shows their publisher as unknown. That
@@ -193,7 +200,7 @@ and add that directory to `PATH` if you want to run it by name.
     extract it avoids the SmartScreen screen:
 
     ```powershell
-    > Unblock-File "core-geth-win64-$VERSION.zip"
+    Unblock-File "core-geth-win64-$VERSION.zip"
     ```
 
 Before running it on a node that holds value, also
@@ -204,13 +211,34 @@ Before running it on a node that holds value, also
 **A checksum proves the download was not corrupted. It does not prove what built the
 file**, because whoever publishes the archive publishes the checksum beside it. From
 v1.13.0 each archive also carries a build attestation, which records the workflow,
-commit and ref that produced it:
+commit and ref that produced it. In the same shell as your route above, naming the archive you downloaded:
 
-```shell
-$ gh attestation verify core-geth-linux-$VERSION.zip --repo ethereumclassic/core-geth
-```
+=== "Linux, x86_64"
 
-That needs the [GitHub CLI](https://cli.github.com/). It succeeds only for an artifact
+    ```shell
+    gh attestation verify core-geth-linux-$VERSION.zip --repo ethereumclassic/core-geth
+    ```
+
+=== "Linux, ARM"
+
+    ```shell
+    gh attestation verify core-geth-arm64-$VERSION.zip --repo ethereumclassic/core-geth
+    ```
+
+=== "macOS"
+
+    ```shell
+    gh attestation verify core-geth-osx-arm64-$VERSION.zip --repo ethereumclassic/core-geth
+    ```
+
+=== "Windows"
+
+    ```powershell
+    gh attestation verify "core-geth-win64-$VERSION.zip" --repo ethereumclassic/core-geth
+    ```
+
+That needs the [GitHub CLI](https://cli.github.com/), signed in with `gh auth login`. With no login it stops and
+asks for one, which says nothing about the file. Signed in, it succeeds only for an artifact
 built by this repository's release workflow. An archive from anywhere else fails, as
 does one whose bytes have changed. No signing key is involved: the attestation is minted
 against a short-lived certificate issued to the workflow run itself, so there is no key
@@ -226,7 +254,7 @@ Images are published to the GitHub Container Registry for each tagged release, b
 **Pulling needs no account and no token:**
 
 ```shell
-$ docker pull ghcr.io/ethereumclassic/core-geth:latest
+docker pull ghcr.io/ethereumclassic/core-geth:latest
 ```
 
 To check where the pulled image came from, verify its build attestation:
@@ -262,11 +290,29 @@ Each release also carries its images as files, one per architecture:
 `core-geth-docker-amd64-<tag>.tar.gz` and `core-geth-docker-arm64-<tag>.tar.gz`, and
 `core-geth-alltools-docker-amd64-<tag>.tar.gz` and `core-geth-alltools-docker-arm64-<tag>.tar.gz`
 for the full tool set. Each is the published image saved from the registry, with a `.sha256` and
-a build attestation. Verify the one for your machine and load it:
+a build attestation. Download the one for your machine, check it and load it. On a 64-bit ARM host, put `arm64` where
+the file names below say `amd64`:
 
 ```shell
-$ gh attestation verify core-geth-docker-amd64-<tag>.tar.gz --repo ethereumclassic/core-geth
-$ docker load -i core-geth-docker-amd64-<tag>.tar.gz
+VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
+BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
+curl -LO $BASE/core-geth-docker-amd64-$VERSION.tar.gz
+curl -LO $BASE/core-geth-docker-amd64-$VERSION.tar.gz.sha256
+sha256sum -c core-geth-docker-amd64-$VERSION.tar.gz.sha256
+```
+
+On macOS, use `shasum -a 256 -c` in place of `sha256sum -c`. It must print `OK`: if it prints `FAILED`, delete the
+file and download it again rather than loading it. On a node that holds value, also check where it came from, which
+needs the [GitHub CLI](https://cli.github.com/), signed in with `gh auth login`:
+
+```shell
+gh attestation verify core-geth-docker-amd64-$VERSION.tar.gz --repo ethereumclassic/core-geth
+```
+
+Then load it:
+
+```shell
+docker load -i core-geth-docker-amd64-$VERSION.tar.gz
 ```
 
 The loaded image keeps its published name with its release tag, `ghcr.io/ethereumclassic/core-geth:<tag>`, and
@@ -275,10 +321,7 @@ Docker pull from the registry.
 
 ### Build an image from the release archive
 
-This packages the binary the release attested, rather than compiling one. Download
-`core-geth-linux-<tag>.zip` for `linux/amd64` or `core-geth-arm64-<tag>.zip` for `linux/arm64`
-from the release, [verify it](#verify-where-the-archive-came-from), and unpack it next to this
-`Dockerfile`:
+This packages the binary the release attested, rather than compiling one. Save this `Dockerfile` in an empty folder:
 
 ```dockerfile
 FROM debian:bookworm-slim
@@ -288,10 +331,19 @@ EXPOSE 8545 8546 30303 30303/udp
 ENTRYPOINT ["geth"]
 ```
 
+Then, in that folder, download the latest release for `linux/amd64`, check it and build. For `linux/arm64`, put
+`arm64` where the file names say `linux`. On macOS, use `shasum -a 256 -c` in place of `sha256sum -c`. On a node that
+holds value, also [verify where the archive came from](#verify-where-the-archive-came-from):
+
 ```shell
-$ unzip core-geth-linux-<tag>.zip
-$ docker build -t core-geth:local .
-$ docker run --rm core-geth:local version
+VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
+BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
+curl -LO $BASE/core-geth-linux-$VERSION.zip
+curl -LO $BASE/core-geth-linux-$VERSION.zip.sha256
+sha256sum -c core-geth-linux-$VERSION.zip.sha256 &&
+  unzip -o core-geth-linux-$VERSION.zip &&
+  docker build -t core-geth:local . &&
+  docker run --rm core-geth:local version
 ```
 
 Use a glibc-based image such as Debian or Ubuntu. The release binaries link against glibc, so an
@@ -300,12 +352,13 @@ Alpine base cannot run them.
 ### Build an image from source
 
 The `Dockerfile` produces an image containing `geth`, and `Dockerfile.alltools` one containing
-the full tool set:
+the full tool set. These commands build the latest release:
 
 ```shell
-$ git clone https://github.com/ethereumclassic/core-geth.git
-$ cd core-geth
-$ docker build -t core-geth:local .
+VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
+git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git core-geth-$VERSION &&
+  cd core-geth-$VERSION &&
+  docker build -t core-geth:local .
 ```
 
 ### Run the container
@@ -315,7 +368,7 @@ so flags are passed straight to the node. `--name` below labels the running cont
 yours to choose:
 
 ```shell
-$ docker run -d \
+docker run -d \
     --name core-geth \
     -v $LOCAL_DATADIR:/root \
     -p 30303:30303 -p 30303:30303/udp \
@@ -354,22 +407,48 @@ The image also exposes 8546 for the WebSocket endpoint, which needs
 Building needs **Go 1.26** and a C compiler; the developer guide has the
 [per-platform toolchain setup](../developers/build-from-source.md#dependencies)
 for both. This is also the route for a platform no archive covers, or a
-distribution older than the glibc floors above.
+distribution older than the glibc floors above. These commands build the latest release:
 
-```shell
-$ git clone https://github.com/ethereumclassic/core-geth.git
-$ cd core-geth
-$ make geth
-$ ./build/bin/geth version
-```
+=== "Linux and macOS"
+
+    ```shell
+    VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
+    git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git core-geth-$VERSION &&
+      cd core-geth-$VERSION &&
+      make geth &&
+      ./build/bin/geth version
+    ```
+
+=== "Windows"
+
+    In PowerShell. `make geth` runs this same `go run` command on other systems:
+
+    ```powershell
+    $VERSION = (Invoke-RestMethod "https://api.github.com/repos/ethereumclassic/core-geth/releases/latest").tag_name
+    git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git "core-geth-$VERSION"
+    cd "core-geth-$VERSION"
+    go run build/ci.go install ./cmd/geth
+    .\build\bin\geth.exe version
+    ```
 
 **Do not clone with `--recursive`.** The three submodules hold consensus test fixtures,
 they are several gigabytes, and `make geth` does not read them. They are needed only to
 run the test suites.
 
+A build from source has no checksum or attestation of its own, because no file was published
+for it. What you can check is the commit. Run these in the clone: the first line is the commit you
+checked out, the second is the commit the binary was built from, and both must name the same one.
+
+```shell
+git rev-parse HEAD
+go version -m ./build/bin/geth | grep vcs.revision
+```
+
+On Windows, run `go version -m .\build\bin\geth.exe` and read its `vcs.revision` line.
+
 `make all` builds every tool rather than the node alone.
 [Build from source](../developers/build-from-source.md) covers the full set of targets,
-cross-compilation, and building inside Docker.
+building what is in development, and building inside Docker.
 
 ## What else is in a release
 

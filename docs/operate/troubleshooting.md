@@ -242,7 +242,7 @@ neither node logs the failed connection at the default verbosity.
 - **Check:** read this node's enode, and compare it with the entry on the other node:
 
     ```shell
-    $ geth --classic attach --exec 'admin.nodeInfo.enode' <datadir>/geth.ipc
+    geth --classic attach --exec 'admin.nodeInfo.enode' <datadir>/geth.ipc
     ```
 
 - **Fix:** give the new enode to every node that lists this one, in `StaticNodes` or `TrustedNodes`.
@@ -251,7 +251,7 @@ neither node logs the failed connection at the default verbosity.
 - **Once fixed:** on the other node, `admin.peers` includes the new enode:
 
     ```shell
-    $ geth --classic attach --exec 'admin.peers.map(function(p){return p.enode})' <datadir>/geth.ipc
+    geth --classic attach --exec 'admin.peers.map(function(p){return p.enode})' <datadir>/geth.ipc
     ```
 
 ### Why does the node ignore `static-nodes.json`?
@@ -360,11 +360,10 @@ core-geth.service: Main process exited, code=killed, status=9/KILL
 ```
 
 - **Why:** the machine ran short of memory, and the kernel's out-of-memory killer ended the node.
-- **Check:**
+- **Check:** this prints `Result=oom-kill`:
 
     ```shell
-    $ systemctl show core-geth -p Result
-    Result=oom-kill
+    systemctl show core-geth -p Result
     ```
 
 - **Fix:** lower `--cache`, the memory the node gives its caches
@@ -378,9 +377,14 @@ core-geth.service: Main process exited, code=killed, status=9/KILL
 ### Why does a request for the `finalized` or `safe` block fail?
 
 ```shell
-$ curl -s -X POST -H 'Content-Type: application/json' \
+curl -s -X POST -H 'Content-Type: application/json' \
     --data '{"jsonrpc":"2.0","id":1,"method":"eth_getBlockByNumber","params":["finalized",false]}' \
     http://127.0.0.1:8545
+```
+
+It prints:
+
+```
 {"jsonrpc":"2.0","id":1,"error":{"code":-32000,"message":"finalized block not found"}}
 ```
 
@@ -446,7 +450,7 @@ Before you open an issue, collect these:
    and the platform:
 
     ```shell
-    $ geth version
+    geth version
     ```
 
 2. **How the node runs:** the network, the command line or service unit, and the configuration file
@@ -457,7 +461,7 @@ Before you open an issue, collect these:
    log to a file, and `--verbosity 4` adds debug lines ([Logs](monitoring.md#logs)):
 
     ```shell
-    $ geth --classic --datadir <datadir> --log.file geth.log --verbosity 4
+    geth --classic --datadir <datadir> --log.file geth.log --verbosity 4
     ```
 
     The log shows the node's IP address and enode ID, in its `New local node record` and
@@ -467,8 +471,8 @@ Before you open an issue, collect these:
    ([Profiling](monitoring.md#profiling)), and save the dump while it hangs:
 
     ```shell
-    $ geth --classic --datadir <datadir> --pprof
-    $ curl -s -o goroutines.txt 'http://127.0.0.1:6060/debug/pprof/goroutine?debug=2'
+    geth --classic --datadir <datadir> --pprof
+    curl -s -o goroutines.txt 'http://127.0.0.1:6060/debug/pprof/goroutine?debug=2'
     ```
 
 5. **What you expected, what happened, and the steps that reproduce it.**

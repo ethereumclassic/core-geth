@@ -29,15 +29,20 @@ firewall from [Security and network exposure](../operate/security.md#a-host-fire
 Serve `eth`, `net` and `web3`, and name them on the command line:
 
 ```shell
-$ geth --classic --datadir <datadir> --http --http.api eth,net,web3
+geth --classic --datadir <datadir> --http --http.api eth,net,web3
 ```
 
 `rpc_modules` lists the namespaces an interface serves:
 
 ```shell
-$ curl -s -X POST -H 'Content-Type: application/json' \
+curl -s -X POST -H 'Content-Type: application/json' \
     --data '{"jsonrpc":"2.0","id":1,"method":"rpc_modules","params":[]}' \
     http://127.0.0.1:8545
+```
+
+It prints:
+
+```
 {"jsonrpc":"2.0","id":1,"result":{"eth":"1.0","net":"1.0","rpc":"1.0","web3":"1.0"}}
 ```
 
@@ -85,13 +90,18 @@ A proxy that passes the public hostname on to the node needs that hostname in th
 then replaces `localhost`:
 
 ```shell
-$ geth --classic --datadir <datadir> --http --http.api eth,net,web3 --http.vhosts rpc.example.org
+geth --classic --datadir <datadir> --http --http.api eth,net,web3 --http.vhosts rpc.example.org
 ```
 
 ```shell
-$ curl -s -X POST -H 'Content-Type: application/json' -H 'Host: rpc.example.org' \
+curl -s -X POST -H 'Content-Type: application/json' -H 'Host: rpc.example.org' \
     --data '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}' \
     http://127.0.0.1:8545
+```
+
+It prints:
+
+```
 {"jsonrpc":"2.0","id":1,"result":"0x3d"}
 ```
 

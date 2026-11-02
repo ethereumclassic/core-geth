@@ -48,14 +48,14 @@ Published from this repository at [docs.coregeth.com](https://docs.coregeth.com/
 
 Building from source needs Go 1.26 or newer and a C compiler. With the repository cloned:
 
-```shell
-make geth                                 # build the node into ./build/bin/geth
-make all                                  # build every executable
-git submodule update --init --recursive   # fetch the fixture submodules the tests need
-make test                                 # build, then run the test suite
-make test-coregeth                        # the Ethereum Classic consensus suites
-make lint                                 # the linter gate
-```
+| Command | What it does |
+|---|---|
+| `make geth` | Builds the node into `./build/bin/geth` |
+| `make all` | Builds every executable |
+| `git submodule update --init --recursive` | Fetches the fixture submodules the tests need |
+| `make test` | Builds, then runs the test suite |
+| `make test-coregeth` | Runs the Ethereum Classic consensus suites |
+| `make lint` | Runs the linter gate |
 
 [Build from source](https://docs.coregeth.com/developers/build-from-source/) has the toolchain details and the Docker build; [CONTRIBUTING.md](.github/CONTRIBUTING.md) has the coding guidelines and how a change reaches `main`.
 

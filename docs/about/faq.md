@@ -45,7 +45,7 @@ leaks and cannot recall bits that already leaked, so go-ethereum's own advisory
 ([GHSA-m6j8-rg6r-7mv8](https://github.com/ethereum/go-ethereum/security/advisories/GHSA-m6j8-rg6r-7mv8))
 recommends rotating after the upgrade. A key that served a `v1.12.20` or earlier node should be treated as
 exposed. The [migration guide](../tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key) gives the procedure,
-including which peer lists to update.
+including which peers' configuration to update.
 
 ## Has anything gone wrong with `v1.13.0` since it shipped?
 
@@ -95,6 +95,7 @@ Check the archive against its published `.sha256`, then verify its build attesta
 `gh attestation verify <file> --repo ethereumclassic/core-geth`. A pulled container image has no file to name, so
 point the same command at the image:
 `gh attestation verify oci://ghcr.io/ethereumclassic/core-geth:latest --repo ethereumclassic/core-geth`.
+Both need the [GitHub CLI](https://cli.github.com/), signed in with `gh auth login`.
 `go version -m geth` prints the Go version and
 the commit a binary was built from without running it. [Verifying a download](../release-reports/v1.13.0.md#verifying-a-download)
 gives the commands, and [Release artifacts](../audits/2026-09-release-pipeline.md) records what each published

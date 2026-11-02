@@ -92,7 +92,7 @@ A node that shuts itself down because its disk is nearly full stops cleanly
 ### See what the database holds
 
 ```shell
-$ geth --classic --datadir <datadir> db inspect
+geth --classic --datadir <datadir> db inspect
 ```
 
 `db inspect` reads the whole database and prints a table with one row for each kind of data it holds.
@@ -120,7 +120,7 @@ synced nodes.
 ### Read the storage engine's statistics
 
 ```shell
-$ geth --classic --datadir <datadir> db stats
+geth --classic --datadir <datadir> db stats
 ```
 
 `db stats` prints the storage engine's own statistics: a table of its storage levels, then lines
@@ -129,7 +129,7 @@ about its log, flushes, compactions, caches and files. It prints the same statis
 ### Compact the database
 
 ```shell
-$ geth --classic --datadir <datadir> db compact
+geth --classic --datadir <datadir> db compact
 ```
 
 `db compact` rewrites the database's files, which drops data the node has deleted or overwritten. It
@@ -177,7 +177,7 @@ state of the block 127 below the head.
 **Prune**, with the node stopped:
 
 ```shell
-$ geth --classic --datadir <datadir> snapshot prune-state
+geth --classic --datadir <datadir> snapshot prune-state
 ```
 
 The command reads the state it keeps from the snapshot, writes a bloom filter of that state to disk,
@@ -205,13 +205,13 @@ you choose, such as one on another disk. To move the store of a synced node:
 2. Move the store:
 
     ```shell
-    $ mv <datadir>/geth/chaindata/ancient <ancient dir>
+    mv <datadir>/geth/chaindata/ancient <ancient dir>
     ```
 
 3. Start the node with `--datadir.ancient`, and add the flag to its service unit:
 
     ```shell
-    $ geth --classic --datadir <datadir> --datadir.ancient <ancient dir>
+    geth --classic --datadir <datadir> --datadir.ancient <ancient dir>
     ```
 
     As it starts, it logs where it opened the store:
@@ -233,7 +233,7 @@ the empty store before you move the real one back.
 `export` writes blocks to a file:
 
 ```shell
-$ geth --classic --datadir <datadir> export <file> <first block> <last block>
+geth --classic --datadir <datadir> export <file> <first block> <last block>
 ```
 
 ```
@@ -249,7 +249,7 @@ For a file name ending in `.gz` the output is compressed, and `import` reads it 
 full sync does:
 
 ```shell
-$ geth --classic --datadir <other datadir> import <file>
+geth --classic --datadir <other datadir> import <file>
 ```
 
 While it works it logs `Imported new chain segment` lines. When the file is done it prints its memory
@@ -274,7 +274,7 @@ use and compacts the database.
 starts:
 
 ```shell
-$ geth --classic --datadir <datadir> removedb
+geth --classic --datadir <datadir> removedb
 ```
 
 It asks about two parts in turn, and deletes a part only when you answer `y`. For a resync, answer `y`

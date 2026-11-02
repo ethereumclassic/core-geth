@@ -20,11 +20,11 @@ in `params/config_mordor.go`, and its genesis is in `params/genesis_mordor.go`. 
 reports both IDs:
 
 ```shell
-$ geth --mordor attach --exec 'eth.chainId()'
-"0x3f"
-$ geth --mordor attach --exec 'net.version'
-"7"
+geth --mordor attach --exec 'eth.chainId()'
+geth --mordor attach --exec 'net.version'
 ```
+
+The first line prints `"0x3f"`, and the second prints `"7"`.
 
 ## Pass `--mordor` on every command
 
@@ -40,7 +40,7 @@ warning under [Configuration](run-cli.md#configuration).
 ## Start it, and where the data lives
 
 ```shell
-$ geth --mordor --datadir <datadir>
+geth --mordor --datadir <datadir>
 ```
 
 Without `--datadir`, the node uses a `mordor` directory beside Ethereum Classic's `classic`
@@ -112,8 +112,8 @@ With the Ethereum Classic node on the defaults, the Mordor node needs only the p
 otherwise share:
 
 ```shell
-$ geth --classic --datadir <classic-datadir> --http
-$ geth --mordor --datadir <mordor-datadir> --port 30304 --http --http.port 8547
+geth --classic --datadir <classic-datadir> --http
+geth --mordor --datadir <mordor-datadir> --port 30304 --http --http.port 8547
 ```
 
 On Linux and macOS, each node's IPC socket is inside its own data directory. On Windows, every
@@ -123,7 +123,7 @@ give the second node its own, such as `--ipcpath geth-mordor.ipc`.
 On Linux, this lists what each node listens on:
 
 ```shell
-$ ss -lntup
+ss -lntup
 ```
 
 ## Attach
@@ -131,13 +131,13 @@ $ ss -lntup
 `geth --mordor attach` finds a node that uses the default data directory:
 
 ```shell
-$ geth --mordor attach --exec 'eth.blockNumber'
+geth --mordor attach --exec 'eth.blockNumber'
 ```
 
 For a node with its own `--datadir`, give the socket's path:
 
 ```shell
-$ geth --mordor attach --exec 'eth.blockNumber' <datadir>/geth.ipc
+geth --mordor attach --exec 'eth.blockNumber' <datadir>/geth.ipc
 ```
 
 On Windows, give the pipe's name instead of a path. `geth --mordor attach` with no name connects

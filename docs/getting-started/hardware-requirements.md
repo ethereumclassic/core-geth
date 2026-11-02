@@ -53,8 +53,8 @@ process exiting.
 both timestamps read from the log the node wrote to standard error:
 
 ```shell
-$ grep -m1 -F 'Starting Core-Geth' geth.log
-$ grep -m1 -F 'Snap sync complete, auto disabling' geth.log
+grep -m1 -F 'Starting Core-Geth' geth.log
+grep -m1 -F 'Snap sync complete, auto disabling' geth.log
 ```
 
 **Disk** is `du -sb` on each directory, read within two minutes of that line. `-b` reports the
@@ -63,9 +63,9 @@ counts each directory once per command, so nested directories passed together le
 out of a total.
 
 ```shell
-$ du -sb <datadir>/geth/chaindata
-$ du -sb <datadir>/geth/chaindata/ancient
-$ du -sb <datadir>
+du -sb <datadir>/geth/chaindata
+du -sb <datadir>/geth/chaindata/ancient
+du -sb <datadir>
 ```
 
 On Ethereum Classic the node was still generating its state snapshot when the disk was read, and
@@ -75,7 +75,7 @@ that snapshot is written into `chaindata` as it grows. On Mordor, generation had
 sync finished:
 
 ```shell
-$ grep VmHWM /proc/<pid>/status
+grep VmHWM /proc/<pid>/status
 ```
 
 **Load average** is the first field of `/proc/loadavg`, sampled once a minute. It includes other

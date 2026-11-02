@@ -68,7 +68,7 @@ a default node finds by hash. An archive node indexes every transaction.
 Start a new data directory with full sync and `--gcmode archive`:
 
 ```shell
-$ geth --classic --datadir <datadir> --syncmode full --gcmode archive
+geth --classic --datadir <datadir> --syncmode full --gcmode archive
 ```
 
 Full sync executes every block from genesis, and in archive mode the node writes the state of each

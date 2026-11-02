@@ -33,7 +33,7 @@ The first release published from this repository.
 | Document | What it covers |
 | --- | --- |
 | [Release report](release-reports/v1.13.0.md) | What the release fixes and changes, the files it publishes, and how to verify a download |
-| [Migrating to v1.13.0](tutorials/v1.13.0-migration.md) | The upgrade from `v1.12.x`, with a guide for Linux, macOS, Windows and Docker |
+| [Migrating to v1.13](tutorials/v1.13.0-migration.md) | The upgrade from `v1.12.x`, with a guide for Linux, macOS, Windows and Docker |
 | [March 2026 security audit](audits/2026-03-security-audit.md) | The six CVEs and the GraphQL denial of service, with the per-release breakdown |
 | [August 2026 security follow-up](audits/2026-08-security-followup.md) | `v1.12.23` measured at the tag against the advisory records: what it fixed and what it left open |
 | [Dependency and toolchain modernization](audits/2026-08-dependency-modernization.md) | What changed underneath the code between the December 2024 archive and `v1.13.0`: the Go toolchain, 83 modules, the linter |

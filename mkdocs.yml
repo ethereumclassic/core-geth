@@ -38,7 +38,7 @@ nav:
       - Command line: getting-started/run-cli.md
   - Upgrading:
       - Overview: upgrading.md
-      - From v1.12.x to v1.13.0:
+      - From v1.12.x to v1.13:
           - Overview: tutorials/v1.13.0-migration.md
           - Linux users guide: tutorials/migration/linux.md
           - Mac users guide: tutorials/migration/macos.md
@@ -164,7 +164,8 @@ markdown_extensions:
   - pymdownx.emoji
   - pymdownx.superfences
   - pymdownx.details
-  - pymdownx.tabbed
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.magiclink:
       repo_url_shortener: true
       repo_url_shorthand: true

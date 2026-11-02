@@ -32,7 +32,7 @@ user the node runs as, and by root.
 On Linux, `ss` lists what each process listens on:
 
 ```shell
-$ ss -lntup
+ss -lntup
 ```
 
 A node with the default settings has two lines, for peer connections and discovery on every
@@ -97,7 +97,7 @@ table inet core-geth {
 Load it as root:
 
 ```shell
-$ sudo nft -f core-geth.nft
+sudo nft -f core-geth.nft
 ```
 
 - **Other machines then reach only TCP and UDP 30303 and SSH.** That holds for an RPC listener bound
@@ -170,7 +170,7 @@ drops nodes outside those networks from discovery replies and from the bootnode 
 port still answers packets from any address; `--nodiscover` closes that port.
 
 ```shell
-$ geth --classic --datadir <datadir> --netrestrict 10.0.0.0/8,192.168.0.0/16
+geth --classic --datadir <datadir> --netrestrict 10.0.0.0/8,192.168.0.0/16
 ```
 
 `--maxpeers` caps the number of peers, 50 by default. `--maxpeers 0` does not close the
@@ -187,9 +187,10 @@ between them never complete.
 Keep the clock synchronized with NTP. On a host that runs systemd, this reports whether it is:
 
 ```shell
-$ timedatectl show -p NTPSynchronized
-NTPSynchronized=yes
+timedatectl show -p NTPSynchronized
 ```
+
+It prints `NTPSynchronized=yes` when the clock is synchronized.
 
 ## Reporting a vulnerability
 

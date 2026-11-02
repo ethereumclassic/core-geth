@@ -39,7 +39,7 @@ A node on any `v1.12.x` release has more to do than replace the binary:
 - **Rotate the P2P node key.** This is required. One of the vulnerabilities in that line leaks bits
   of the key, and a fix cannot recall what already leaked.
   [Rotate the P2P node key](tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key) says why, and which
-  peer lists to update.
+  peers' configuration to update.
 - **Check how the node is started.** With no network flag the client runs Ethereum Classic, where a
   `v1.12.x` node ran Ethereum mainnet.
   [If you start the node without a network flag](tutorials/v1.13.0-migration.md#if-you-start-the-node-without-a-network-flag)
@@ -52,7 +52,7 @@ A node on any `v1.12.x` release has more to do than replace the binary:
 - **Re-check RPC exposure** while the node is down.
   [Re-check RPC exposure](tutorials/v1.13.0-migration.md#re-check-rpc-exposure) is the checklist.
 
-[Migrating to v1.13.0](tutorials/v1.13.0-migration.md) is the full guide, with every step for
+[Migrating to v1.13](tutorials/v1.13.0-migration.md) is the full guide, with every step for
 [Linux](tutorials/migration/linux.md), [macOS](tutorials/migration/macos.md),
 [Windows](tutorials/migration/windows.md) and [Docker](tutorials/migration/docker.md), and how to roll
 back. Where the guide names `v1.13.0`, install the latest release instead.

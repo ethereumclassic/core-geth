@@ -12,7 +12,7 @@ Metrics are off by default. `--metrics` turns collection on, and `--metrics.addr
 server that serves the values:
 
 ```shell
-$ geth --classic --datadir <datadir> --metrics --metrics.addr 127.0.0.1 --metrics.port <port>
+geth --classic --datadir <datadir> --metrics --metrics.addr 127.0.0.1 --metrics.port <port>
 ```
 
 ```
@@ -33,7 +33,12 @@ A metric keeps its name in both formats, with each `/` of the JSON key written a
 Prometheus one. The peer count and the head block, from a node that has just started:
 
 ```shell
-$ curl -s http://127.0.0.1:<port>/debug/metrics/prometheus | grep -E '^(# TYPE )?(p2p_peers|chain_head_block) '
+curl -s http://127.0.0.1:<port>/debug/metrics/prometheus | grep -E '^(# TYPE )?(p2p_peers|chain_head_block) '
+```
+
+It prints:
+
+```
 # TYPE chain_head_block gauge
 chain_head_block 0
 # TYPE p2p_peers gauge
@@ -87,9 +92,10 @@ For a node run as the `core-geth` service
 ([Linux users guide](../getting-started/run/linux.md#6-keep-it-running-a-systemd-service)):
 
 ```shell
-$ systemctl show core-geth -p NRestarts
-NRestarts=1
+systemctl show core-geth -p NRestarts
 ```
+
+It prints the count, such as `NRestarts=1`.
 
 ## Health checks
 
@@ -98,7 +104,7 @@ A check runs on the node's machine and talks to the node over its IPC socket.
 **Live** means the node answers:
 
 ```shell
-$ geth --classic attach --exec 'eth.blockNumber' <datadir>/geth.ipc
+geth --classic attach --exec 'eth.blockNumber' <datadir>/geth.ipc
 ```
 
 It prints the head block number and exits with status 0. With no node behind the socket, it exits
@@ -140,9 +146,10 @@ echo "ready"
 Saved as `readiness.sh` and run against a node that is still syncing:
 
 ```shell
-$ sh readiness.sh <datadir>/geth.ipc
-not ready: still syncing
+sh readiness.sh <datadir>/geth.ipc
 ```
+
+It prints `not ready: still syncing`.
 
 Over local HTTP the same checks are the
 [`eth_syncing`](../JSON-RPC-API/modules/eth.md#eth_syncing),
@@ -178,7 +185,7 @@ The node logs to standard error. Under systemd that goes to the journal, which t
 With `--log.format json`, each line is one JSON object:
 
 ```shell
-$ geth --classic --datadir <datadir> --log.format json
+geth --classic --datadir <datadir> --log.format json
 ```
 
 ```
@@ -191,7 +198,7 @@ $ geth --classic --datadir <datadir> --log.format json
 value is the name this node reports under, followed by the server's secret and address:
 
 ```shell
-$ geth --classic --datadir <datadir> --ethstats <node name>:<secret>@<host>:<port>
+geth --classic --datadir <datadir> --ethstats <node name>:<secret>@<host>:<port>
 ```
 
 When the server cannot be reached, the node logs a warning and keeps running:
