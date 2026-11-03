@@ -4,35 +4,13 @@ description: "Download, verify and install a Core-Geth release on Linux, macOS, 
 ---
 
 !!! danger "Security advisory: the v1.12.x line"
-    Core-Geth moved to
-    [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth) in
-    December 2024. Archives and images under the previous `etclabscore` namespace are
-    not built from this source and do not carry the fixes released here.
-
-    **Affected:** all `v1.12.x` releases. **Fixed:** `v1.13.0` and every release since.
-
-    | Identifier | Severity | What it allows |
-    | --- | --- | --- |
-    | [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08) | High | Any peer crashes the node during the RLPx handshake. **Exploited against the Core-Geth `v1.12` bootnodes, March 18, 2026.** |
-    | [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9) | Medium | Repeated handshakes leak bits of the node's own P2P key |
-    | [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c) | High | secp256k1 coordinate field boundary bypass |
-    | [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d) | High | Off-curve public key accepted by `UnmarshalPubkey` |
-    | [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835) | High | One crafted p2p message exhausts the node's memory |
-    | [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a) | Medium | KZG proof verification denial of service |
-    | [GraphQL query depth](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh) | Medium | Unbounded GraphQL query nesting; no CVE identifier assigned |
-
-    Every `v1.12.x` archive measured was also built on a Go version that is no longer
-    supported, most recently [Go 1.21 and Go 1.22](../audits/2026-09-go-toolchain.md),
-    whose support ended in August 2024 and February 2025.
-
-    Later releases in the line backport some of these; the
-    [March 2026 audit](../audits/2026-03-security-audit.md) records which, and
-    [Upgrading](../upgrading.md#leaving-the-v112x-line) covers the upgrade.
+        Every `v1.12.x` release is affected by [the flaws the audits found](../index.md#what-was-audited). `v1.13.0` and
+    every release since fix them. Archives and images under the previous `etclabscore` namespace are not built from this
+    source and do not carry those fixes. [Upgrading](../upgrading.md#leaving-the-v112x-line) covers the move.
 
 ## Choose your route
 
-Pick the one row that matches your machine and follow only that section. You do not
-need the others.
+Pick the row that matches your machine, and follow only that section.
 
 | Your machine | Route |
 | --- | --- |
@@ -45,23 +23,17 @@ need the others.
 | Anything, in a container | [Docker](#docker) |
 | Anything, compiled yourself | [Build from source](#build-from-source) |
 
-On Linux and macOS, `uname -sm` prints the operating system and machine architecture,
-which is what the rows above distinguish.
+On Linux and macOS, `uname -sm` prints both.
 
-**The executable is named `geth`.** `core-geth` appears throughout as the project,
-the repository, the container image and the archive filenames. There is no
-executable by that name.
+**The executable is named `geth`.** `core-geth` is the project, the repository, the container image and the archive
+names.
 
-The Linux and macOS routes end with a `geth` on your `PATH`, and the Windows route with
-`geth.exe` in `C:\core-geth`. Archives are attached to each
-tagged release on the
-[releases page](https://github.com/ethereumclassic/core-geth/releases), and every one
-of them is a `.zip` containing the binary and `COPYING`, the license, at the top level,
-published alongside a `.sha256` file.
+The Linux and macOS routes end with `geth` on your `PATH`, and the Windows route with `geth.exe` in `C:\core-geth`. Each
+archive on the [releases page](https://github.com/ethereumclassic/core-geth/releases) is a `.zip` holding the binary and
+`COPYING`, the license, with a `.sha256` file beside it.
 
-**Each route starts by reading the tag of the latest release into `VERSION`.** To install a different
-release, set `VERSION` to its tag from the
-[releases page](https://github.com/ethereumclassic/core-geth/releases) instead of running that first line.
+**Each route reads the latest release's tag into `VERSION`.** To install a different release, set `VERSION` to its tag
+instead of running that first line.
 
 ## Linux, x86_64
 
@@ -97,9 +69,8 @@ Four ARM archives are published. `uname -m` tells you which one you need:
 | `armv6l` | `core-geth-arm6-<tag>.zip` | 2.28 or newer |
 | `armv5tel` and other `armv5` | `core-geth-arm5-<tag>.zip` | 2.28 or newer |
 
-**A 64-bit capable board does not mean a 64-bit archive.** Raspberry Pi OS reports
-`aarch64` in its 64-bit edition and `armv7l` in its 32-bit edition on the same
-hardware. Follow what `uname -m` actually prints.
+Follow what `uname -m` prints, not the board: Raspberry Pi OS reports `aarch64` in its 64-bit edition and `armv7l` in
+its 32-bit edition on the same hardware.
 
 Then, substituting your architecture for `arm64` below:
 
@@ -114,9 +85,7 @@ sha256sum -c core-geth-arm64-$VERSION.zip.sha256 &&
   geth version
 ```
 
-A `core-geth-arm-<tag>.zip` is published as well. It is byte-identical to the `arm5`
-archive and exists only so that existing scripts referring to it keep working: use
-`arm5`.
+`core-geth-arm-<tag>.zip` is the same file as `arm5`, kept for existing scripts. Use `arm5`.
 
 Before running it on a node that holds value, also
 [verify where the archive came from](#verify-where-the-archive-came-from).
@@ -173,9 +142,7 @@ Invoke-WebRequest "$BASE/core-geth-win64-$VERSION.zip.sha256" -OutFile "core-get
 Get-Content "core-geth-win64-$VERSION.zip.sha256"
 ```
 
-**PowerShell has no equivalent of `sha256sum -c`, so compare the two lines yourself.**
-`Get-FileHash` prints uppercase hex and the `.sha256` file holds lowercase followed by
-the filename; the letters must match, the case does not. If they differ, delete the file and
+Compare the last two lines: the letters must match, and the case does not matter. If they differ, delete the file and
 download it again.
 
 If they match, unpack it:
@@ -185,19 +152,13 @@ Expand-Archive "core-geth-win64-$VERSION.zip" -DestinationPath C:\core-geth -For
 C:\core-geth\geth.exe version
 ```
 
-The archive contains `geth.exe` and `COPYING`, the license. The [Windows users guide](run/windows.md)
-keeps them in `C:\core-geth`. To keep `geth.exe` in another folder, unpack it there, and add that folder
-to `PATH` if you want to run it by name.
+To keep `geth.exe` in another folder, unpack it there, and add that folder to `PATH` to run it by name.
 
 !!! tip "If Windows warns about the publisher"
-    These binaries are not code-signed, so Windows shows their publisher as unknown. That
-    appears in the firewall alert on the first start, and in the *"Windows protected your
-    PC"* screen if Microsoft Defender SmartScreen stops a downloaded `geth.exe`. Check the
-    archive first, against its checksum above and
-    [where it came from](#verify-where-the-archive-came-from). Then allow the firewall
-    access, and in the SmartScreen screen select **More info**, then **Run anyway**. A
-    browser marks what it downloads, and removing the mark from the archive before you
-    extract it avoids the SmartScreen screen:
+        These binaries are not code-signed, so Windows shows their publisher as unknown, in the firewall alert on the first
+    start and in the *"Windows protected your PC"* screen. Check the archive first, against its checksum and
+    [where it came from](#verify-where-the-archive-came-from). Then allow the firewall access, and select **More info**,
+    then **Run anyway**. To avoid that screen for a file a browser downloaded, remove its mark before you extract it:
 
     ```powershell
     Unblock-File "core-geth-win64-$VERSION.zip"
@@ -237,14 +198,8 @@ commit and ref that produced it. In the same shell as your route above, naming t
     gh attestation verify "core-geth-win64-$VERSION.zip" --repo ethereumclassic/core-geth
     ```
 
-That needs the [GitHub CLI](https://cli.github.com/), signed in with `gh auth login`. With no login it stops and
-asks for one, which says nothing about the file. Signed in, it succeeds only for an artifact
-built by this repository's release workflow. An archive from anywhere else fails, as
-does one whose bytes have changed. No signing key is involved: the attestation is minted
-against a short-lived certificate issued to the workflow run itself, so there is no key
-to steal or rotate.
-
-Worth doing once on any binary you are about to run on a node that holds value.
+That needs the [GitHub CLI](https://cli.github.com/), signed in with `gh auth login`. It succeeds only for a file built
+by this repository's release workflow: a file from anywhere else fails, as does one whose bytes have changed.
 
 ## Docker
 
@@ -263,15 +218,10 @@ To check where the pulled image came from, verify its build attestation:
 gh attestation verify oci://ghcr.io/ethereumclassic/core-geth:latest --repo ethereumclassic/core-geth
 ```
 
-That needs the [GitHub CLI](https://cli.github.com/), signed in, though the pull does not. It succeeds only for an
-image built by this repository's workflows, and
-[Verify where the archive came from](#verify-where-the-archive-came-from) says what an attestation records.
+That needs the [GitHub CLI](https://cli.github.com/), signed in. It succeeds only for an image built by this
+repository's workflows.
 
-If you would rather not depend on the registry, or the machine has no route to it, each release
-carries the same image as a file: [Load the image from the release](#load-the-image-from-the-release).
-It keeps its published name with its release tag and carries no `latest` tag, so in the commands below use
-`ghcr.io/ethereumclassic/core-geth:<tag>` in place of `ghcr.io/ethereumclassic/core-geth:latest`. A command that
-names `latest` makes Docker pull from the registry.
+With no route to the registry, [load the image from the release](#load-the-image-from-the-release) instead.
 
 Tags mirror the release tags. `ghcr.io/ethereumclassic/core-geth:<tag>` is a
 specific release; `latest` follows the most recent non-prerelease. The image
@@ -279,9 +229,7 @@ built from `Dockerfile.alltools`, containing the full tool set rather than the
 node alone, is published under the same name with an `alltools-` prefix, as
 `ghcr.io/ethereumclassic/core-geth:alltools-latest`.
 
-!!! warning "Images under the previous namespace are not these images"
-    Images published as `etclabscore/core-geth` on Docker Hub are not built from
-    this source and receive nothing released here.
+
 
 
 ### Load the image from the release
@@ -363,9 +311,7 @@ git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/c
 
 ### Run the container
 
-Run the image the same way whichever method produced it. Its entry point is the `geth` binary,
-so flags are passed straight to the node. `--name` below labels the running container and is
-yours to choose:
+Run the image the same way whichever method produced it. Flags go straight to the node:
 
 ```shell
 docker run -d \
@@ -385,19 +331,13 @@ That maps the devp2p port over both TCP and UDP, keeps chain data in
 `$LOCAL_DATADIR` on the host so it survives the container, and reaches the
 JSON-RPC endpoint from the host and nowhere else.
 
-!!! warning "Both halves of that RPC line are deliberate"
-    `--http` alone binds the listener to `localhost` **inside the container**, while
-    Docker forwards a published port to the container's *external* interface, so
-    `-p 8545:8545` with the default address publishes a port that reaches nothing, and
-    the RPC appears dead with no error explaining why.
+!!! warning "Keep both halves of that RPC line"
+    `--http` alone binds to `localhost` inside the container, so a published port reaches nothing, with no error.
+    `--http.addr 0.0.0.0` fixes that, and `-p 127.0.0.1:8545:8545` keeps the port off the host's public interfaces.
+    **Publishing as `-p 8545:8545` instead exposes your RPC on every interface of the host, which on a VPS is the open
+    internet.**
 
-    `--http.addr 0.0.0.0` binds every interface inside the container's own network
-    namespace, which is isolated. `-p 127.0.0.1:8545:8545` is what keeps it off the
-    host's public interfaces. **Publishing as `-p 8545:8545` instead exposes your RPC
-    on every interface of the host, which on a VPS is the open internet.**
-
-    If you do not need RPC from the host at all, drop both the `-p 127.0.0.1:8545:8545`
-    and the `--http*` flags.
+    If you do not need RPC from the host, drop both the `-p 127.0.0.1:8545:8545` and the `--http*` flags.
 
 The image also exposes 8546 for the WebSocket endpoint, which needs
 `--ws --ws.addr 0.0.0.0` to be served.
@@ -431,13 +371,10 @@ distribution older than the glibc floors above. These commands build the latest 
     .\build\bin\geth.exe version
     ```
 
-**Do not clone with `--recursive`.** The three submodules hold consensus test fixtures,
-they are several gigabytes, and `make geth` does not read them. They are needed only to
-run the test suites.
+Do not clone with `--recursive`: the submodules are several gigabytes, and `make geth` does not read them.
 
-A build from source has no checksum or attestation of its own, because no file was published
-for it. What you can check is the commit. Run these in the clone: the first line is the commit you
-checked out, the second is the commit the binary was built from, and both must name the same one.
+To check a build, compare the commit you checked out with the one the binary was built from. In the clone, both lines
+must name the same commit:
 
 ```shell
 git rev-parse HEAD
@@ -462,8 +399,7 @@ Each platform publishes two archives:
 Every route above uses the first. The `alltools` archive adds every other executable
 built from this source (`abidump`, `abigen`, `ancient-store-mem`, `bootnode`,
 `clef`, `devp2p`, `echainspec`, `era`, `ethkey`, `evm`, `p2psim` and `rlpdump`) and
-installs exactly the same way. Read the archive itself rather than this list if you
-need to be certain: the release ships whatever `make all` produced.
+installs the same way.
 
 Once `geth` is installed, [Running a node](run-a-node.md) takes it to a synced node that keeps
 running, with a guide for each platform and the flags for each kind of node.

@@ -50,21 +50,7 @@ new key.
 A node on a v1.12.x release follows [Upgrading](../upgrading.md)
 instead.
 
-1. **Read what changed.** Releases and their notes are on the
-   [releases page](https://github.com/ethereumclassic/core-geth/releases), and published
-   [security advisories](https://github.com/ethereumclassic/core-geth/security/advisories) describe
-   the vulnerabilities a release fixes.
-   [`SECURITY.md`](https://github.com/ethereumclassic/core-geth/blob/main/SECURITY.md) says how they
-   are disclosed.
-2. **Download and verify the new release**, following your route in
-   [Choose your route](../getting-started/installation.md#choose-your-route) and then
-   [Verify where the archive came from](../getting-started/installation.md#verify-where-the-archive-came-from).
-3. **Stop the node** and wait for the process to exit
-   ([Stop it safely](../getting-started/run-classic-node.md#stop-it-safely)).
-4. **Replace the binary**, or the image tag in a container, and start the node.
-5. **Check the result.** `geth version` reports the new release, and
-   [How to tell it is done](../getting-started/run-classic-node.md#how-to-tell-it-is-done) confirms
-   the node is back in sync.
+[Upgrade to the latest release](../upgrading.md#upgrade-to-the-latest-release) has the five steps.
 
 ## After an unclean stop
 
@@ -76,12 +62,12 @@ WARN [..] Unclean shutdown detected                booted=<time> age=<age>
 ```
 
 The node records its ten most recent unclean stops, and every later start logs this line once for
-each of them, including starts that follow a clean stop. One line on a start is therefore not proof
-that the run before it crashed: compare `booted` with the lines the previous start logged.
+each of them, including starts that follow a clean stop. A line is new only if its `booted` time falls within the
+previous run. A node updates `booted` every five minutes, so it is not the run's start time.
 
 If the node was importing blocks when it stopped, the state it held in memory for its newest blocks
 is gone. It logs `Head state missing, repairing` and moves its head back to a lower block whose
-state it still has. Check it with
+state it still has, then imports the blocks again. Check it with
 [How to tell it is done](../getting-started/run-classic-node.md#how-to-tell-it-is-done).
 
 A node that shuts itself down because its disk is nearly full stops cleanly
@@ -141,8 +127,7 @@ INFO [..] Triggering compaction
 INFO [..] Stats after compaction
 ```
 
-`geth db compact --help` warns that interrupting the command can corrupt the database, so let it
-finish.
+Interrupting `db compact` can corrupt the database, so let it finish.
 
 ## Offline state pruning
 

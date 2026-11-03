@@ -22,7 +22,7 @@ Core-Geth implements every Ethereum Classic fork, and the consensus rules are ma
 
 Started with no network flag, Core-Geth runs Ethereum Classic. **`--ethereum`, `--sepolia` and `--holesky` refuse to start:** this client implements Ethereum upgrades only through Cancun and is not a way to follow Ethereum mainnet.
 
-Read the current fork schedule from [`params/`](params/) rather than restating it; it is data there, not code branches. **MESS** (ECBP-1100), the chain-selection defense against deep reorganizations, is covered on the [MESS page](https://docs.coregeth.com/operate/mess/).
+[`params/`](params/) holds the fork schedule. **MESS** (ECBP-1100), the chain-selection defense against deep reorganizations, is covered on the [MESS page](https://docs.coregeth.com/operate/mess/).
 
 ## Quick start
 
@@ -32,7 +32,7 @@ Download `geth` for your platform from the [latest release](https://coregeth.com
 geth --classic
 ```
 
-[Installation](https://docs.coregeth.com/getting-started/installation/) has the per-platform download and verification steps, Docker images, and building from source. [Running a node](https://docs.coregeth.com/getting-started/run-a-node/) covers networks, running as a service, and the flags each kind of node needs; [Choose your role](https://docs.coregeth.com/guides/) routes operators, miners, mining pools, exchanges, RPC providers and developers to the right guide.
+[Installation](https://docs.coregeth.com/getting-started/installation/) has the steps for each platform, and [Choose your role](https://docs.coregeth.com/guides/) routes you to the right guide.
 
 ## Documentation
 

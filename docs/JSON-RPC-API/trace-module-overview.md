@@ -6,7 +6,7 @@ description: "The trace module in Core-Geth: the ad-hoc tracing and trace-filter
 
 The trace module is for getting a deeper insight into transaction processing. It includes two sets of calls; the transaction trace filtering API and the ad-hoc tracing API. You can find the documentation for the supported methods [here](modules/trace.md).
 
-It's good to mention that `trace_*` methods are nothing more than aliases to some existing `debug_*` methods. The reason for creating those aliases, was to reach compatibility with OpenEthereum's (aka Parity) trace module, which has been requested by the community in order they can fully use core-geth. For achieving this, the `trace_*` methods set the default tracer to `callTracerParity` if none is set.
+`trace_*` methods are aliases of `debug_*` methods, for compatibility with OpenEthereum's (aka Parity) trace module. They use the `callTracerParity` tracer unless you set another.
 
 !!! Note "Older blocks need an archive node"
     A trace needs the state of the block before the one it traces. A node on the default settings has that state for its most recent blocks only; [Archive node](../guides/archive-node.md#what-each-node-answers) covers tracing older blocks.

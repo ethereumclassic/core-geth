@@ -10,9 +10,8 @@ description: "Core-Geth command-line reference for Ethereum Classic: how to run 
     With no network flag, `geth` runs Ethereum Classic mainnet, and `--mainnet` is the same
     as `--classic`. Pass `--mordor` for the test network.
 
-    `--ethereum`, `--sepolia` and `--holesky` are deprecated and refuse to start: this
-    client implements Ethereum upgrades only through Cancun, so it cannot follow Ethereum
-    or its test networks. See [supported networks](../index.md#supported-networks).
+        `--ethereum`, `--sepolia` and `--holesky` refuse to start
+    ([supported networks](../index.md#supported-networks)).
 
 ### A node on an Ethereum Classic network
 
@@ -31,10 +30,8 @@ in one command, through which you can invoke `web3` methods (a subset of
 leave it out and attach to an already-running `geth` instance with `geth attach` instead.
 
 **To leave the console, type `exit` or press Ctrl-D, and the node stops with it.** Ctrl-C at
-the console prompt discards the line being typed and leaves the node running. The exception is
-a terminal that cannot edit the line: one narrower than 12 columns (including one that reports
-a width of zero), or one with `TERM` unset or `dumb`. There, Ctrl-C stops both the line and the
-node. Started any other way, the node stops as covered in
+the console prompt discards the line being typed and leaves the node running, except on a terminal that cannot edit the
+line, such as one with `TERM` unset or `dumb`, where it stops the node too. Started any other way, the node stops as covered in
 [Stop it safely](../getting-started/run-classic-node.md#stop-it-safely).
 
 ### A node on the Mordor test network
@@ -45,8 +42,7 @@ For running a node on Mordor, see [Run a Mordor node](../getting-started/run-mor
 geth --mordor console
 ```
 
-`console` behaves exactly as above; `--mordor` is what selects Mordor's own data directory,
-bootnodes, network ID and genesis instead of Ethereum Classic's.
+`console` behaves as above.
 
 ### Configuration
 
@@ -80,18 +76,9 @@ whatever either says.
 
 !!! warning "Pass `--mordor` alongside a configuration file dumped with it"
 
-    **A dumped configuration file does not contain the chain rules.** A file dumped with a
-    network flag says so on its first line:
-    `# Note: this config doesn't contain the genesis block.` The network ID, discovery lists
-    and mining settings are written into the file; which chain's consensus rules to follow is
-    not.
-
-    With no network flag the node takes Ethereum Classic mainnet's rules, so a file dumped
-    with `--classic` needs no flag beside it. A file dumped with `--mordor` does: started
-    without the flag, the node carries Mordor's network ID and discovery lists but not
-    Mordor's chain rules, and it cannot follow Mordor.
-
-    Pass the network flag you dumped with every time you start from that file.
+        A dumped file does not contain the chain rules, so pass the network flag you dumped with every time you start from
+    it. With no network flag the node takes Ethereum Classic's rules, so a file dumped with `--classic` works without
+    one. A file dumped with `--mordor` and started without the flag cannot follow Mordor.
 
 **Static and trusted peers belong in that file, not in `static-nodes.json`.** This client ignores
 `static-nodes.json` and `trusted-nodes.json` and logs an error naming them. Put the peers in
@@ -107,11 +94,8 @@ geth --classic dumpgenesis > classic-genesis.json
 
 ### Key derivation on a small machine
 
-Creating an account derives the keyfile's encryption key with scrypt, and the default
-parameters deliberately cost a lot of memory. That cost is what makes an offline
-guessing attack against your passphrase expensive. On a host with little RAM it can be
-too much: `geth account new` allocates around 256MB and is killed by the OOM reaper on a
-small VPS or an embedded node.
+Creating an account derives the keyfile's encryption key with scrypt, which by default uses about 256MB of memory, so
+`geth account new` can be killed on a small VPS or an embedded node.
 
 Two flags lower it. They change **newly created keyfiles only**. An existing keyfile
 keeps the parameters it was written with, which are recorded inside the file itself.
@@ -127,24 +111,15 @@ geth account new --mediumkdf
 ```
 
 **Prefer the default, and reach for `--mediumkdf` before `--lightkdf`.** Each step down
-divides the work an attacker must do to test a candidate passphrase: `--mediumkdf` by
-four, `--lightkdf` by sixty-four. `--lightkdf` also lowers `p`, so it is the weakest of
-the three by more than the `N` column alone suggests. The two flags are mutually
-exclusive and `geth` refuses both rather than choosing for you.
-
-None of this is a substitute for a strong passphrase. A weak one is guessable at any of
-these settings; the parameters decide how expensive each guess is, not how many guesses
-are needed.
+divides the work an attacker must do to test a candidate passphrase: `--mediumkdf` by four, `--lightkdf` by more than
+sixty-four. `geth` refuses both flags together. None of this is a substitute for a strong passphrase.
 
 ## Command-line Options
 
-Generated from `geth --help`. The binary is authoritative; regenerate this
-section rather than editing it, and prefer `geth --help` when the two differ.
+Generated from `geth --help`, which is the authority when the two differ.
 
-**One command in the list below means less than it appears to.** `version-check` queries
-go-ethereum's vulnerability feed, which does not track this client, so a clean result from it says
-nothing about Core-Geth. [Security and network exposure](../operate/security.md) covers what it does
-and does not tell you.
+`version-check` queries go-ethereum's vulnerability feed, which does not track this client, so a clean result from it
+says nothing about Core-Geth.
 
 ```shell
 geth --help

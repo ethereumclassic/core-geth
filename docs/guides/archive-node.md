@@ -76,9 +76,7 @@ block to disk. Disk, memory and sync time are on
 [Hardware requirements](../getting-started/hardware-requirements.md).
 
 Archive mode also turns on the full transaction index and the recording of key preimages, as
-[State of old blocks](../operate/sync-modes.md#state-of-old-blocks) shows. It gives trie pruning no
-memory: the `Allocated trie memory caches` line the node logs as it starts reports no dirty cache,
-and the share of `--cache` that `--cache.gc` would take goes to the trie and snapshot caches.
+[State of old blocks](../operate/sync-modes.md#state-of-old-blocks) shows.
 
 ### With snap sync
 

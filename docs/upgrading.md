@@ -55,7 +55,7 @@ A node on any `v1.12.x` release has more to do than replace the binary:
 [Migrating to v1.13](tutorials/v1.13.0-migration.md) is the full guide, with every step for
 [Linux](tutorials/migration/linux.md), [macOS](tutorials/migration/macos.md),
 [Windows](tutorials/migration/windows.md) and [Docker](tutorials/migration/docker.md), and how to roll
-back. Where the guide names `v1.13.0`, install the latest release instead.
+back.
 
 A `v1.12` node that cannot move yet can
 [add the `--discovery.dns` flag](etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet) to read the

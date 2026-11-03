@@ -114,17 +114,16 @@ Fatal: <config file>, line <line>: field 'ECBP1100' is not defined in ethconfig.
 
 The line can name `ECBP1100Disable` instead.
 
-- **Why:** `dumpconfig` on `v1.12.17` or `v1.12.18` wrote the file, with `ECBP1100 = "<nil>"` and
-  `ECBP1100Disable = "<nil>"` under `[Eth]`. `v1.13.0` has neither setting.
+- **Why:** `v1.12.19` replaced these two keys, so every release since refuses them, not only `v1.13`.
 - **Check:** this reads the file and starts no node, and prints the same line:
 
     ```shell
     geth --classic --config <config file> dumpconfig
     ```
 
-- **Fix:** delete both lines. Delete the file's `BootstrapNodes`, `EthDiscoveryURLs` and `SnapDiscoveryURLs` lines as
-  well, or the node keeps that release's peer lists
-  ([Re-check RPC exposure](../tutorials/v1.13.0-migration.md#re-check-rpc-exposure)).
+- **Fix:** delete both lines. If a line held a block number,
+  [set MESS with a flag](../tutorials/v1.13.0-migration.md#decide-your-mess-setting) instead. Then delete the
+  [peer list lines](../tutorials/v1.13.0-migration.md#if-your-config-file-came-from-dumpconfig) as well.
 - **Once fixed:** the same command prints the configuration, and the node starts.
 
 ### Why does the node stop with `bind: address already in use`?
@@ -224,7 +223,9 @@ causes in order.
     ```
 
     Remove the flag, or list the peers to connect to in `StaticNodes`
-    ([Why does the node ignore `static-nodes.json`?](#why-does-the-node-ignore-static-nodesjson)).
+    ([Why does the node ignore `static-nodes.json`?](#why-does-the-node-ignore-static-nodesjson)). With neither, it has
+    peers only when other nodes dial it. If its key just changed,
+    [give them the new ID](#why-did-nodes-that-list-this-one-stop-connecting-after-its-key-changed).
 
 3. **The wrong network.** The first log line names the network the node is running
    ([Why does the node refuse its data directory, or start on the wrong network?](#why-does-the-node-refuse-its-data-directory-or-start-on-the-wrong-network)).
@@ -250,6 +251,17 @@ causes in order.
 
 7. **A configuration file from another network.** The file's `BootstrapNodes` replace the network's
    own ([Configuration](../getting-started/run-cli.md#configuration)).
+
+8. **The `v1.12` peer lists.** The peer discovery lists a `v1.12` release reads by default stop being
+   updated when the ETC Cooperative dissolves.
+
+    - **On `v1.12`,** move the node to the `v1.13` line: [Downloads](https://coregeth.com/downloads/#upgrade)
+      has the commands, and the [migration guide](../tutorials/v1.13.0-migration.md) has the steps. Until
+      it can move, [add the `--discovery.dns` flag](../etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet)
+      to read the `ethereumclassic` organization's lists, a small step that closes none of the flaws the
+      audits found.
+    - **On `v1.13`,** a configuration file that `dumpconfig` wrote on `v1.12` keeps those lists until you
+      delete its [peer list lines](../tutorials/v1.13.0-migration.md#if-your-config-file-came-from-dumpconfig).
 
 **Once fixed:** `net.peerCount` returns a number above 0.
 
@@ -470,8 +482,7 @@ WARN [..] Unclean shutdown detected                booted=<time> age=<age>
 - **Why:** the node keeps a record of its recent unclean stops, and logs this line for each one on
   every start, including a start after a clean stop
   ([After an unclean stop](maintenance.md#after-an-unclean-stop)).
-- **Check:** compare `booted` with the time the previous run started. Only a line whose `booted`
-  matches that run is new.
+- **Check:** a line is new only if its `booted` time falls within the previous run.
 - **Fix:** none for an old line. A new line means the previous run was killed or crashed, and
   [After an unclean stop](maintenance.md#after-an-unclean-stop) says what the node does about it.
 

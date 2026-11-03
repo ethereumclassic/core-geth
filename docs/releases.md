@@ -41,15 +41,12 @@ The first release published from this repository.
 | [Go toolchain](audits/2026-09-go-toolchain.md) | Which Go toolchain built each published archive, and the Go standard library advisories each one carries |
 | [The record behind the release](release-reports/v1.13.0-record.md) | Questions raised about the release after it shipped, answered from commit metadata, pull requests, release files and advisory records |
 
-The two security audits and the modernization report describe the source. **The release artifacts
-and Go toolchain reports describe the files you download**, which can disagree with the source: a
-release is not what the build configuration says it builds.
+The two security audits and the modernization report describe the source, and the release artifacts and Go toolchain
+reports the files you download.
 
 ## In preparation
 
-`v1.13.1` is the next release in the line. Like every release in it, it is built with the newest
-patch release of its Go version as of the day it is cut. When it ships, its release notes and reports
-are added above.
+`v1.13.1` is the next release in the line. When it ships, its release notes and reports are added above.
 
 ## Earlier
 

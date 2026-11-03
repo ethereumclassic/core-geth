@@ -73,9 +73,9 @@ release such as `v1.13.0` takes the moving tag.
       containerd image store reports the manifest digest there instead:
 
     ```shell
-    gh attestation verify core-geth-docker-amd64-<tag>.tar.gz --repo ethereumclassic/core-geth
-    docker load -i core-geth-docker-amd64-<tag>.tar.gz
-    docker run --rm ghcr.io/ethereumclassic/core-geth:<tag> version
+    gh attestation verify core-geth-docker-amd64-<tag>.tar.gz --repo ethereumclassic/core-geth &&
+      docker load -i core-geth-docker-amd64-<tag>.tar.gz &&
+      docker run --rm ghcr.io/ethereumclassic/core-geth:<tag> version
     tar -xOzf core-geth-docker-amd64-<tag>.tar.gz manifest.json
     ```
 

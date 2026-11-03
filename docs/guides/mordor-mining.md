@@ -12,26 +12,16 @@ block 2,520,000.
 **You do not need a faucet to fund development on Mordor.** Point a node at the test network with a CPU
 thread or two and leave it running: twenty minutes is usually more coin than a project needs for testing.
 
-It works because the test network's difficulty is low enough that an ordinary machine is a real share of
-it. Measured on September 18, 2026 at block 17,006,119: the previous twenty blocks averaged 10.7 seconds
-apart at a difficulty near 7.2 million, which puts the whole network around 0.67 MH/s. The block reward in
-the current era is 0.8388608 METC, since ECIP-1017 reduces the reward by a fifth every 2,000,000 blocks on
-Mordor and era 9 begins at block 16,000,001.
-
-So a machine contributing 0.2 MH/s is roughly a quarter of the network, which at that spacing is on the
-order of 80 blocks an hour, or about 70 METC. Your own rate decides the rest, and as hashrate joins the
-network the difficulty retargets upward and your share settles lower.
-
-**These figures move, so measure rather than trust them.** `eth.hashrate` in the console reports what your
-node is contributing, and the current network numbers come from any Mordor endpoint:
+The difficulty is low enough that an ordinary machine is a real share of the network. On September 18, 2026, the whole
+network ran at around 0.67 MH/s, so a machine contributing 0.2 MH/s earned about 70 METC an hour. These figures move. To
+read your node's hashrate and the current difficulty:
 
 ```sh
 geth --mordor attach --exec 'eth.hashrate' <datadir>/geth.ipc
 geth --mordor attach --exec 'eth.getBlock("latest").difficulty' <datadir>/geth.ipc
 ```
 
-Mordor coins have no value and are not exchangeable for ETC. Nothing here applies to mainnet, where the
-difficulty is set by mining hardware and a CPU finds nothing.
+Mordor coins have no value and are not exchangeable for ETC.
 
 ## Before you start
 
@@ -47,8 +37,7 @@ geth --mordor --mine --miner.threads 1 --miner.etherbase 0xYOUR_ADDRESS
 ```
 
 The node writes the DAG to `--ethash.dagdir`, `~/.ethash` by default, then starts mining. Generating the
-DAG takes a few minutes and several gigabytes before the first hash is tried, so the first blocks arrive
-later than the arithmetic above suggests. For more hashrate than a CPU gives, point GPU mining software at
+DAG takes a few minutes and several gigabytes before the first hash is tried. For more hashrate than a CPU gives, point GPU mining software at
 the node as [Mining](mining.md#mine-with-external-mining-software) describes, with `--mordor` in place of
 `--classic`.
 

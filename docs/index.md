@@ -48,18 +48,15 @@ are maintained here rather than inherited, which is what this client is for.
 
     Beyond the CVEs, the same line carries:
 
-    - **Out-of-support Go toolchains.** Every archive was built on Go 1.21 or Go 1.22, whose
-      support ended in August 2024 and February 2025, and carries 55 to 61 Go standard library
-      advisories those toolchains will never receive fixes for, 43 to 47 of them present in the binary.
+        - **Out-of-support Go toolchains.** Every archive was built on Go 1.21 or Go 1.22, and carries 55 to 61 Go standard
+      library advisories, 43 to 47 of them present in the binary.
       [Go toolchain audit](audits/2026-09-go-toolchain.md).
-    - **Release-pipeline and binary defects.** glibc and macOS platform floors left older
-      systems and many macOS users unable to run the published binaries, a macOS archive most
-      of its downloaders cannot run, and release files that did not identify themselves or carry
-      a build attestation. [Release artifacts audit](audits/2026-09-release-pipeline.md).
-    - **Regressions from the emergency patches.** The emergency v1.12.21, v1.12.22 and v1.12.23
-      releases backported some CVE fixes but left the KZG denial of service and the GraphQL depth
-      limit open, introduced the `eth_syncing` regression (v1.12.22) and a snap storage-range cap
-      that can disconnect honest peers (v1.12.23).
+    - **Release-pipeline defects.** Platform floors left older Linux systems and many Macs unable to run the published
+      binaries, and release files did not identify themselves or carry a build attestation.
+      [Release artifacts audit](audits/2026-09-release-pipeline.md).
+    - **Regressions from the emergency patches.** v1.12.21, v1.12.22 and v1.12.23 backported some CVE fixes but left the
+      KZG denial of service and the GraphQL depth limit open. They also added the `eth_syncing` regression (v1.12.22) and
+      a snap storage-range cap that can disconnect honest peers (v1.12.23).
       [March 2026 audit](audits/2026-03-security-audit.md) · [August 2026 follow-up](audits/2026-08-security-followup.md).
 
     Upgrade to [the latest v1.13 release](https://coregeth.com/downloads/#upgrade); the
@@ -76,8 +73,7 @@ are maintained here rather than inherited, which is what this client is for.
 | Private chains | configurable | PoW / PoA | genesis configuration |
 
 Ethereum Classic runs every hard fork from Frontier through Spiral.
-[`params/`](https://github.com/ethereumclassic/core-geth/tree/main/params) in the source holds
-each activation block and is the authority; a fork schedule recalled from memory is a guess.
+[`params/`](https://github.com/ethereumclassic/core-geth/tree/main/params) in the source holds each activation block.
 
 **With no network flag, `geth` runs Ethereum Classic mainnet**, and `--mainnet` is the
 same as `--classic`. A data directory initialized with a private network's genesis keeps
@@ -86,14 +82,14 @@ running that network.
 ### Networks this client does not support
 
 **Ethereum mainnet, Sepolia and Holesky are not supported.** This client implements
-Ethereum upgrades only through Cancun, so it cannot follow any of them. `--ethereum`,
-`--sepolia` and `--holesky` are deprecated and refuse to start, rather than start a node
-that would fall off its chain.
+Ethereum upgrades only through Cancun, so it cannot follow any of them. `--ethereum`, `--sepolia` and `--holesky` refuse
+to start.
 
-**MintMe is carried deliberately.** `--mintme` works, and this release includes the
-MintMe hardfork enabling PUSH0 and MCOPY. It is scheduled for deprecation in a later
-release; it is here so that community has a modernized client to build from rather than
-a fork of an abandoned one.
+**MintMe is carried deliberately.** `--mintme` works, including the MintMe hardfork that enables PUSH0 and MCOPY. It is
+scheduled for deprecation in a later release, and stays for now so that community has a modernized client to build from.
+
+**On the wire this client speaks `eth/68`.** `eth/69` removes Total Difficulty from the handshake, which this client's
+proof-of-work chain selection reads, so it is not adopted here.
 
 ## Where releases come from
 
@@ -104,8 +100,7 @@ source and do not carry the fixes released here.
 
 ## What was audited
 
-Five reports, each measuring a different layer. Together they are the evidence for the
-paragraph above. No single one of them answers "what differs".
+Five reports, each measuring a different layer.
 
 | Report | What it measures |
 | --- | --- |
@@ -115,22 +110,17 @@ paragraph above. No single one of them answers "what differs".
 | [Release artifacts](audits/2026-09-release-pipeline.md) | What the published archives actually contain: platform floors, architectures, provenance |
 | [Go toolchain](audits/2026-09-go-toolchain.md) | Which Go toolchain built each published archive, and the Go standard library advisories each one carries |
 
-The first three describe the source. **The last two describe the files you download**,
-which can disagree with the source: a release is not what the build configuration says it builds.
+The first three describe the source, and the last two the files you download.
 
 ## Security reporting
 
 Report a security issue privately, never in a public issue: through this repository's
 [private advisories](https://github.com/ethereumclassic/core-geth/security/advisories), or by
-email to <security@ethereumclassic.net>. To follow security updates and releases, track the
-[`ethereumclassic/core-geth` release line](https://github.com/ethereumclassic/core-geth/releases).
-[`SECURITY.md`](https://github.com/ethereumclassic/core-geth/blob/main/SECURITY.md) has the
-disclosure policy and the details of each channel.
+email to <security@ethereumclassic.net>.
+[`SECURITY.md`](https://github.com/ethereumclassic/core-geth/blob/main/SECURITY.md) has the disclosure policy.
 
-With the ETC Cooperative's dissolution, Ethereum Classic stakeholders such as mining pools,
-exchanges and service providers should use <security@ethereumclassic.net> as their point of
-contact. A person answers it: one of the core developers who maintain this repository and have
-been with the network since its inception.
+As the ETC Cooperative dissolves, mining pools, exchanges and service providers should use that address as their point of
+contact. A person answers it: one of the core developers who maintain this repository.
 
 ## Support this work
 

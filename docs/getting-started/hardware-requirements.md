@@ -3,10 +3,8 @@ title: Hardware requirements
 description: "Hardware requirements for a Core-Geth Ethereum Classic node: measured disk, memory and sync-time figures for snap and full sync on ETC and Mordor, and what happens when disk runs low."
 ---
 
-This page holds the disk, memory and time figures for running a node. Each one was measured on the
-machine described below, with the client's default settings unless its row says otherwise, and
-each row records the date and the block it was measured at. The chain grows with every block, so a
-figure describes what that date needed.
+These figures were measured on the machine below, with default settings unless a row says otherwise. The chain grows
+with every block, so a figure describes what its date needed. Full sync and archive mode were not measured.
 
 **The reference machine** used for every figure below:
 
@@ -20,18 +18,14 @@ figure describes what that date needed.
 
 | Mode | Time to sync | `chaindata`, of which `ancient` | Whole data directory | Peak memory | Measured |
 | --- | --- | --- | --- | --- | --- |
-| Snap sync (default) | 69 min | 50.98 GiB, of which 27.24 GiB | 51.18 GiB | 2.33 GiB | 2026-09-13; v1.13.0; synced at block 25,337,078; reference machine, `--cache 1024`; state snapshot still generating when disk was read; load average peaked at 12.76 |
-| Snap sync (default) | 76 min | not measured | not measured | not measured | 2026-09-12; v1.13.0; synced at block 25,331,662; reference machine, `--cache 1024`, `--http` on; load average not recorded |
-| Full sync (`--syncmode full`) | not measured | not measured | not measured | not measured | not measured |
-| Archive (`--gcmode archive`) | not measured | not measured | not measured | not measured | not measured |
+| Snap sync (default) | 69 min | 50.98 GiB, of which 27.24 GiB | 51.18 GiB | 2.33 GiB | 2026-09-13; v1.13.0; synced at block 25,337,078; reference machine, `--cache 1024`; state snapshot still generating when disk was read |
+| Snap sync (default) | 76 min | not measured | not measured | not measured | 2026-09-12; v1.13.0; synced at block 25,331,662; reference machine, `--cache 1024`, `--http` on |
 
 ## Mordor
 
 | Mode | Time to sync | `chaindata`, of which `ancient` | Whole data directory | Peak memory | Measured |
 | --- | --- | --- | --- | --- | --- |
-| Snap sync (default) | 19 min | 9.61 GiB, of which 7.09 GiB | 9.76 GiB | 1.13 GiB | 2026-09-13; v1.13.0; synced at block 16,972,715; reference machine, `--cache 1024`; state snapshot generated when disk was read; load average peaked at 6.08 |
-| Full sync (`--syncmode full`) | not measured | not measured | not measured | not measured | not measured |
-| Archive (`--gcmode archive`) | not measured | not measured | not measured | not measured | not measured |
+| Snap sync (default) | 19 min | 9.61 GiB, of which 7.09 GiB | 9.76 GiB | 1.13 GiB | 2026-09-13; v1.13.0; synced at block 16,972,715; reference machine, `--cache 1024`; state snapshot generated when disk was read |
 
 ## Stopping
 
@@ -49,40 +43,12 @@ process exiting.
 
 ## How each figure was measured
 
-**Time to sync** runs from the node's first log line to `Snap sync complete, auto disabling`, with
-both timestamps read from the log the node wrote to standard error:
-
-```shell
-grep -m1 -F 'Starting Core-Geth' geth.log
-grep -m1 -F 'Snap sync complete, auto disabling' geth.log
-```
-
-**Disk** is `du -sb` on each directory, read within two minutes of that line. `-b` reports the
-apparent size in bytes, which the tables convert to GiB. Give `du` one directory per command: it
-counts each directory once per command, so nested directories passed together leave one of them
-out of a total.
-
-```shell
-du -sb <datadir>/geth/chaindata
-du -sb <datadir>/geth/chaindata/ancient
-du -sb <datadir>
-```
-
-On Ethereum Classic the node was still generating its state snapshot when the disk was read, and
-that snapshot is written into `chaindata` as it grows. On Mordor, generation had finished.
-
-**Peak memory** is the process's peak resident set size as the kernel reports it, read after the
-sync finished:
-
-```shell
-grep VmHWM /proc/<pid>/status
-```
-
-**Load average** is the first field of `/proc/loadavg`, sampled once a minute. It includes other
-work running on the machine at the same time.
-
-**Stop times** run from `Got interrupt, shutting down...` to `Blockchain stopped` in the log.
-Process exit was checked once a second, so those times are to the nearest second.
+- **Time to sync** runs from the node's first log line to `Snap sync complete, auto disabling`.
+- **Disk** is `du -sb` on each directory, read within two minutes of that line. The state snapshot, still generating on
+  Ethereum Classic, adds to `chaindata` as it grows.
+- **Peak memory** is `VmHWM` in `/proc/<pid>/status`, read after the sync finished.
+- **Stop times** run from `Got interrupt, shutting down...` to `Blockchain stopped`. Process exit is to the nearest
+  second.
 
 ## Memory and `--cache`
 

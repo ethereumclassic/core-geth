@@ -18,9 +18,7 @@ geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
 `true` means MESS is on. `false` means it is off, or paused while the node is out of sync or has
 fewer than five peers.
 
-The `mess*` names on this page were added in `v1.13.1`. Before it, on `v1.13.0` and the legacy
-`v1.12.x` line, use the original `ecbp1100*` names, such as `admin.ecbp1100Status()`; both work from
-`v1.13.1` on. The [admin calls](#admin-calls) list each pair.
+On `v1.13.0`, the call is `admin.ecbp1100Status().enabled`. A `v1.12.x` release has no status call.
 
 ## Turn MESS on or off
 
@@ -77,14 +75,14 @@ flags and the config file decide again.
 | `--mess.nodisable` or `--mess.nodisable=true` | Turns MESS on, and keeps it on while the node is out of sync or short of peers |
 | `--mess.nodisable=false` | Lets the node switch MESS off again while it is out of sync or short of peers, over a config file's `ECBP1100NoDisable = true` |
 
-- `--mess.activate` and `--mess.nodisable` turn MESS on with no end, unless you give
-  `--mess.deactivate`. With both blocks given, the later one wins.
-- `--mess.activate` wins over `--mess=false`. Flags that contradict each other log a warning at
-  startup.
+- `--mess.activate` and `--mess.nodisable` turn MESS on with no end, unless you give `--mess.deactivate`.
+- If the activation block is after the deactivation block, MESS turns on at the activation block and stays on. On
+  `v1.13.0`, MESS never applies in that case.
+- `--mess.activate` wins over `--mess=false`. From `v1.13.1`, flags that contradict each other log a warning at startup.
 - The older spellings also work: `--ecbp1100`, `--override.ecbp1100.deactivate` and
   `--ecbp1100.nodisable`.
 - Each flag can also be set with an environment variable, such as `GETH_MESS=true` or
-  `GETH_MESS_ACTIVATE=15000000`. The older names, such as `GETH_ECBP1100`, also work.
+  `GETH_MESS_ACTIVATE=15000000`. The older names, such as `GETH_ECBP1100`, work from `v1.13.1`; `v1.13.0` ignores them.
 
 ### Config file
 
@@ -110,6 +108,8 @@ The first line writes `node.toml` and starts nothing. The second starts the node
 - A line means what its flag means, and you can also write one by hand.
 - The file keeps the setting until you remove the line. For example, a file dumped with `--mess`
   keeps MESS on until you remove its `OverrideECBP1100Deactivate` line.
+- On `v1.13.0`, `--mess` writes no line, so the file does not hold the setting. To keep MESS on in later releases, add
+  `OverrideECBP1100Deactivate = 18446744073709551614` under `[Eth]` yourself. `v1.13.0` reads it too.
 - A flag on the command line wins over the file.
 - `geth dumpconfig` never reads a running node, so it does not show a change made with an admin
   call.
@@ -134,17 +134,14 @@ That turns MESS on and prints `true`.
 
 - A block is `"latest"`, which means the current block, or a block number in hex, such as
   `"0x125bb50"` for block 19,250,000. A decimal number is refused.
-- The calls follow the flags' rules. `admin.messActivate` and `admin.messNoDisable(true)` turn MESS
-  on with no end, unless a deactivation block was given, with `--mess.deactivate`, a config file
-  line or `admin.messDeactivate`. With both blocks given, the later one wins, and when the
-  deactivation block keeps MESS off, the node logs a warning naming it.
-- `admin.mess(true)` and `admin.messNoDisable(true)` move an activation block that keeps MESS off
-  back to the block MESS first applied from on your network, as `--mess` does.
+- The calls follow the flags' rules, and the node logs a warning when a deactivation block keeps MESS off.
+- `admin.mess(true)` and `admin.messNoDisable(true)` also undo an activation block that keeps MESS off, as `--mess` does.
+
 - Called while the node is out of sync or short of peers, `admin.messNoDisable(true)` turns MESS on
   at the next sync, and keeps it on from then.
-- The `ecbp1100*` names are the original ones and are the only form before `v1.13.1`, on `v1.13.0`
-  and the legacy `v1.12.x` line: `admin.ecbp1100`, `admin.ecbp1100Deactivate`,
-  `admin.ecbp1100NoDisable` and `admin.ecbp1100Status`. The `mess*` names were added in `v1.13.1`.
+- These calls start at `v1.13.1`. `v1.13.0` has only `admin.ecbp1100` and `admin.ecbp1100Status`, and a `v1.12.x` release
+  only `admin.ecbp1100`. Those names keep working.
+
 - The calls use the `admin` namespace, which the node serves over IPC.
 - None of them is saved. To keep a change, use the flag or its config file line.
 
@@ -161,9 +158,8 @@ explains it. `--mess.nodisable` and `admin.messNoDisable(true)` keep MESS on thr
 
 ## The default is set per release
 
-A release ships MESS on or off by default, from one of two Best Practice documents. Which one a
-release ships is a per-release decision and can differ from one release to the next, so read the
-notes for the release you run, or set `--mess` or `--mess=false` yourself, rather than assume.
+A release ships MESS on or off by default, and that can change from one release to the next. Read the notes for the
+release you run, or set `--mess` or `--mess=false` yourself.
 
 | Default | Sets | Ethereum Classic | Mordor | Shipped by |
 |---|---|---|---|---|
@@ -175,14 +171,12 @@ the ECBP-1100 default it is on. `--mess` and `--mess=false` override either one.
 
 ## After an upgrade
 
-When a node starts with MESS on where the client that last used its database had it off, or off
-where it had it on, it logs one warning. An upgrade to a release with the other default does this:
+From `v1.13.1`, a node logs one warning when its MESS setting differs from the client that last used its database. An
+upgrade to a release with the other default does this:
 
 ```text
 WARN [...] ECBP1100 (MESS) is configured differently from the client that last used this database was=on now=off ... keep_previous=--mess
 ```
 
-`was` and `now` show the setting before and after. To keep the setting the node had, add the flag
-that `keep_previous` names to the command that starts the node. The warning appears once, because
-the node stores the new setting with its chain data. It does not appear when you set MESS with a
-flag or a config file line.
+To keep the old setting, add the flag `keep_previous` names to the start command. The warning appears once, and not at
+all when you set MESS with a flag or a config file line.

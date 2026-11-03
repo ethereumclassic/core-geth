@@ -39,10 +39,7 @@ block's header instead. Set it on the command line: the config file's `NotifyFul
 
 ## Mine on the CPU
 
-**This is for Mordor, not for Ethereum Classic mainnet.** Mainnet is mined by ASICs, so CPU threads
-find nothing there and the DAG generation and memory they cost buy nothing. On the test network the
-difficulty is low enough that a CPU does find blocks, which is what makes it useful for trying a
-setup end to end.
+**This is for Mordor, not for Ethereum Classic mainnet**, where ASICs mine and CPU threads find nothing.
 
 ```sh
 geth --mordor --mine --miner.threads 2 --miner.etherbase 0xYOUR_ADDRESS
@@ -52,8 +49,7 @@ geth --mordor --mine --miner.threads 2 --miner.etherbase 0xYOUR_ADDRESS
 `~/.ethash` by default. The node keeps up to two DAGs on disk (`--ethash.dagsondisk`) and one in memory
 (`--ethash.dagsinmem`).
 
-On mainnet, leave `--miner.threads` at its default of 0 and let mining hardware fetch work over the
-RPC endpoint, as the section above describes.
+
 
 ## Check that it is mining
 

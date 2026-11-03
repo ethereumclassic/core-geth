@@ -14,10 +14,7 @@ Docker, with Mordor's beside Ethereum Classic's.
 
 ## What Mordor is
 
-`--mordor` selects it. Its chain ID is listed under
-[supported networks](../index.md#supported-networks), its network ID is `MordorChainConfig.NetworkID`
-in `params/config_mordor.go`, and its genesis is in `params/genesis_mordor.go`. A running node
-reports both IDs:
+`--mordor` selects it. A running node reports its chain ID and network ID:
 
 ```shell
 geth --mordor attach --exec 'eth.chainId()'
@@ -47,11 +44,8 @@ Without `--datadir`, the node uses a `mordor` directory beside Ethereum Classic'
 directory, `~/.ethereum/mordor` on Linux. Inside it, the layout is the one described under
 [where your data lives](run-classic-node.md#where-your-data-lives).
 
-An account is not tied to a network: the same key controls the same address on Ethereum
-Classic and on Mordor alike. What differs by default is the directory `geth` reads it from,
-since the keystore sits inside each network's own data directory, so a keyfile created under
-Ethereum Classic's default directory does not appear here unless you copy it into this
-directory's `keystore/` or point `--keystore` at it directly.
+The same key controls the same address on both networks, but each data directory has its own `keystore/`. To use a
+keyfile from Ethereum Classic's directory, copy it here or point `--keystore` at it.
 
 A new Mordor node's first lines name the network. Check them before anything else:
 

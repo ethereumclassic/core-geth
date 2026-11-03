@@ -8,18 +8,13 @@ description: "Use the JSON-RPC, WebSocket and IPC interfaces of a Core-Geth Ethe
 
 ## Programmatically interfacing `geth` nodes
 
-As a developer, sooner rather than later you'll want to start interacting with `geth` and the
-Ethereum Classic network via your own programs and not manually through the console. To aid
-this, `geth` has built-in support for a JSON-RPC based APIs ([standard APIs](https://ethereum.org/developers/docs/apis/json-rpc/)
-and `geth` specific APIs; most namespaces have a page of their own in this section).
-These can be exposed via HTTP, WebSockets and IPC (UNIX sockets on UNIX based
-platforms, and named pipes on Windows).
+`geth` serves JSON-RPC ([standard APIs](https://ethereum.org/developers/docs/apis/json-rpc/) and `geth`-specific ones;
+most namespaces have a page of their own in this section) over HTTP, WebSocket and IPC (a UNIX socket, or a named pipe on
+Windows).
 
-The IPC interface is enabled by default. On Ethereum Classic and Mordor it serves `admin`,
+IPC is on by default. On Ethereum Classic and Mordor it serves `admin`,
 `debug`, `engine`, `eth`, `ethash`, `miner`, `net`, `rpc`, `trace`, `txpool` and `web3`, and
-adds the deprecated `personal` namespace only with `--rpc.enabledeprecatedpersonal`. The HTTP
-and WS interfaces need to manually be enabled, and due to security reasons they serve only the
-namespaces named in `--http.api` and `--ws.api`, plus `rpc`.
+adds the deprecated `personal` namespace only with `--rpc.enabledeprecatedpersonal`. HTTP and WebSocket must be turned on, and serve only the namespaces named in `--http.api` and `--ws.api`, plus `rpc`.
 An empty list is not an empty set. `--http.api ""` and `--ws.api ""` stop the node at startup,
 because an empty list would serve every namespace except `engine`, `admin`, `debug` and
 `personal` among them. An empty `HTTPModules` or `WSModules` in a configuration file still does
@@ -45,10 +40,7 @@ HTTP based JSON-RPC API options:
   * `--ipcdisable` Disable the IPC-RPC server
   * `--ipcpath` Filename for IPC socket/pipe within the datadir (explicit paths escape it)
 
-You'll need to use your own programming environments' capabilities (libraries, tools, etc) to
-connect via HTTP, WS or IPC to a `geth` node configured with the above flags and you'll
-need to speak [JSON-RPC](https://www.jsonrpc.org/specification) on all transports. You
-can reuse the same connection for multiple requests!
+All three speak [JSON-RPC](https://www.jsonrpc.org/specification), and one connection can carry many requests.
 [OpenRPC discovery](openrpc.md) shows how to ask a running node for its OpenRPC document. The
 document can list methods an interface does not serve, such as `personal_*` over IPC without
 `--rpc.enabledeprecatedpersonal` and the `trace_filter` subscription, so `rpc_modules` is the check
@@ -56,10 +48,6 @@ for which namespaces an interface serves.
 
 !!! Attention
 
-    Please understand the security implications of opening up an HTTP/WS based
-    transport before doing so! [RPC exposure](../operate/security.md#rpc-exposure) covers what to
-    check first. [Public RPC endpoint](../guides/public-rpc-endpoint.md) covers serving JSON-RPC to
-    other people. Hackers on the internet are actively trying to subvert
-    Ethereum nodes with exposed APIs! Further, all browser tabs can access locally
-    running web servers, so malicious web pages could try to subvert locally available
-    APIs!
+        Read [RPC exposure](../operate/security.md#rpc-exposure) before you turn on HTTP or WebSocket. Attackers scan the
+    internet for nodes with exposed APIs, and any browser tab can reach a web server on the same machine.
+    [Public RPC endpoint](../guides/public-rpc-endpoint.md) covers serving JSON-RPC to other people.

@@ -22,7 +22,13 @@ You can run a live-reloading web server in imitation of the production generator
 - Open `http://localhost:8000` in a web browser.
 - Write some docs!
 
+## Writing
+
+Keep pages clean, crisp, clear and accurate. A step says what to do and what to expect. Leave out what a reader does not
+act on, and say a thing once, on one page, then link to it.
+
 ## Code blocks
+
 
 A reader copies a block with its copy button and pastes it into a shell, so write each block to run
 as it stands. Leave out the `$` or `>` prompt. Put expected output in a sentence or a block of its
