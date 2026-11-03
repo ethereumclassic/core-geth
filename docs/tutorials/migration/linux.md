@@ -1,4 +1,5 @@
 ---
+title: Migrating to v1.13 on Linux
 description: "Upgrade an Ethereum Classic node on Linux from any v1.12.x release to the Core-Geth v1.13 line: the steps, the node-key rotation, and how to roll back."
 ---
 

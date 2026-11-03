@@ -1,4 +1,5 @@
 ---
+title: Running a node
 description: "Run an Ethereum Classic or Mordor node with Core-Geth, with the flags, ports and service setup each kind of node needs."
 ---
 

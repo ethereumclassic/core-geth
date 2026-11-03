@@ -1,6 +1,6 @@
 # Core-Geth
 
-> Core-Geth is the Ethereum Classic execution client, maintained at
+> Core-Geth is an Ethereum Classic execution client, maintained at
 > [github.com/ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth) in the Ethereum Classic
 > community's GitHub organization. The Ethereum Classic DAO, a Wyoming DAO LLC, is the legal entity that maintains
 > it, together with Ethereum Classic's core developers and community contributors. It is a go-ethereum downstream
@@ -9,9 +9,9 @@
 > one to run.
 
 Releases are published from `ethereumclassic/core-geth`, which the client moved to in December 2024. The
-`v1.12.x` releases and those before them were published from `etclabscore/core-geth`, which the Cooperative's board has communicated it intends to archive as the Cooperative
-dissolves. Each release archive carries a build attestation, which
-`gh attestation verify <file> --repo ethereumclassic/core-geth` checks.
+`v1.12.x` releases and those before them were published from `etclabscore/core-geth`, which the ETC Cooperative's
+board has communicated it intends to archive as the Cooperative dissolves. Each release archive carries a build
+attestation, which `gh attestation verify <file> --repo ethereumclassic/core-geth` checks.
 
 ## Start here
 
@@ -49,6 +49,7 @@ dissolves. Each release archive carries a build attestation, which
 - [Security and network exposure](https://docs.coregeth.com/operate/security/): which ports and APIs to expose, and which to keep closed.
 - [Sync modes and data retention](https://docs.coregeth.com/operate/sync-modes/): what each sync mode stores and what it costs.
 - [Maintenance, backup and upgrades](https://docs.coregeth.com/operate/maintenance/): keeping a node healthy over time.
+- [Troubleshooting](https://docs.coregeth.com/operate/troubleshooting/): no peers, a stuck sync, database and disk errors, and MESS messages, and what the node does once each is resolved.
 - [Public RPC endpoint](https://docs.coregeth.com/guides/public-rpc-endpoint/): serving JSON-RPC to other people from your own node.
 - [Endpoints for your own project](https://docs.coregeth.com/guides/developer-endpoints/): running your own JSON-RPC and archive endpoints for an application you are building, and getting Mordor test coins by mining rather than from a faucet.
 - [Mining](https://docs.coregeth.com/guides/mining/) and [mining pool node](https://docs.coregeth.com/guides/mining-pool-node/): what a pool's node needs.

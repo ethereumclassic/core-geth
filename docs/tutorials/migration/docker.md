@@ -1,4 +1,5 @@
 ---
+title: Migrating to v1.13 in Docker
 description: "Upgrade an Ethereum Classic node in Docker from any v1.12.x image to the Core-Geth v1.13 line: the steps, the node-key rotation, and how to roll back."
 ---
 
