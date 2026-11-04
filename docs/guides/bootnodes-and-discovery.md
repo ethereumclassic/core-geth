@@ -49,6 +49,10 @@ discovery network, so a node can be listed when it:
 - advertises an `eth` entry for the network in its node record, which
   `devp2p nodeset filter -eth-network classic` (or `mordor`) checks.
 
+A published tree lists only the nodes whose entry carries their network's current fork ID, which leaves out a node
+whose snap sync has not finished:
+[Only nodes on the current fork ID are published](https://github.com/ethereumclassic/discv4-dns-lists/blob/main/docs/node-selection.md#only-nodes-on-the-current-fork-id-are-published).
+
 ## Run your own bootnode
 
 The `bootnode` tool, in the `alltools` archive, runs discovery only, without syncing a chain.
