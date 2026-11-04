@@ -35,7 +35,7 @@ advisories, 48 of them with the vulnerable code present in the binary; per archi
 the Go team publishes more advisories, and none of the fixes will ever reach those binaries. The v1.13 line is
 built on Go 1.26, which is in support and receives those fixes, and each release in the line is cut with the
 newest patch release of its Go version: every `v1.13.0` archive and image is built with go1.26.8, the newest
-Go 1.26 release when it was cut, and carries none. The `v1.13.0` release has about six months of testing on
+Go 1.26 release when it was cut, and carried none when it shipped. The `v1.13.0` release has about six months of testing on
 Ethereum Classic mainnet and Mordor behind it, with no critical issue found.
 
 ## Why the toolchain needed a pass of its own
@@ -423,7 +423,8 @@ changes themselves.
 
 ## What a vulnerability scanner reports against v1.13.0
 
-**Standard library: nothing.** No Go standard library advisory applies to any of the nine `v1.13.0`
+**Standard library: nothing.** Against the database snapshot recorded under [Verification](#verification),
+modified September 15, 2026, no Go standard library advisory applies to any of the nine `v1.13.0`
 archives, or to `geth` in either `core-geth-docker` image tarball, even at module level. On
 September 17, 2026 go1.26.8 was the newest Go 1.26 release, and the last Go 1.26 security release before it
 was go1.26.6.
@@ -546,7 +547,7 @@ Each check below was calibrated so that it could report a negative:
 **The finding that the `v1.12.x` source does not build on a supported Go now has a proposed remedy in the
 repository that publishes that line.**
 [Pull request #702](https://github.com/etclabscore/core-geth/pull/702) at `etclabscore/core-geth`, opened
-September 17, 2026 and unmerged when this was written, makes the three changes this audit measured as necessary:
+September 17, 2026 and still unmerged that day, makes the three changes this audit measured as necessary:
 it removes `github.com/fjl/memsize`, whose `//go:linkname` use Go 1.23 restricted; it moves
 `github.com/supranational/blst` from v0.3.11, which Go 1.24 rejects for a cgo alias receiver, to v0.3.16; and it
 raises the `go.mod` directive from `go 1.21` to `go 1.24.0`. It also moves the `# version:golang` pin in

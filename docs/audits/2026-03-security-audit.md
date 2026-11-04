@@ -83,7 +83,7 @@ can be read as having closed everything.
 - **v1.13.0** (September 14, 2026, released from `ethereumclassic/core-geth`): **Resolution.** All six
   client CVEs and the GraphQL depth-limit DoS are patched with test coverage; the build moves to the
   supported Go 1.26 toolchain, at its newest release when `v1.13.0` was cut, which
-  [Go toolchain](./2026-09-go-toolchain.md) measures at zero Go standard library advisories; the p2p
+  [Go toolchain](./2026-09-go-toolchain.md) measured at zero Go standard library advisories when it shipped; the p2p
   hardening series is carried with its original authorship; and
   the v1.12.23 storage-range cap is gone. Nothing in this document is left open. **Operators on any
   `v1.12.x` release should move their tracking to `ethereumclassic/core-geth` and run the latest v1.13
@@ -196,7 +196,7 @@ is the question a reader deciding where to contribute needs answered.
 | 2026-08-14 | [v1.12.23 "Argos"](https://github.com/etclabscore/core-geth/releases/tag/v1.12.23) released at `etclabscore/core-geth`: closes CVE-2026-26313 with the delayed-decoding p2p hardening series, but leaves the KZG denial of service (CVE-2026-22868), the GraphQL depth limit, the `eth_syncing` regression and the EOL Go 1.21 and Go 1.22 toolchains unaddressed, and adds a snap storage-range cap that can disconnect honest peers. The [August 2026 follow-up](./2026-08-security-followup.md#status-by-release) measures it |
 | 2026-09-14 | [v1.13.0](https://github.com/ethereumclassic/core-geth/releases/tag/v1.13.0) is released from `ethereumclassic/core-geth`, beginning the v1.13 line: all six client CVEs and the GraphQL denial of service patched, on the Go 1.26 toolchain with ETC network tooling and DNS discovery. It completes the migration of Core-Geth to the Ethereum Classic community organization and establishes the canonical release pipeline there, where the client is now developed and released; the [ETC Cooperative transition](../etc-cooperative-transition.md) covers the remaining service handoffs |
 
-**Note on v1.12.21 and v1.12.22:** Those emergency patches backported some of the CVE fixes and are a safer option than v1.12.20 for operators who have not yet migrated, but they did not close every finding: the KZG denial of service (CVE-2026-22868) and the GraphQL depth limit stayed open, the `eth_syncing` regression was introduced, and they remain on the EOL Go 1.21 and Go 1.22 toolchains without the ETC network tooling or DNS discovery updates in v1.13.0. Operators running v1.12.x should upgrade to v1.13.0, released from [ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth).
+**Note on v1.12.21 and v1.12.22:** Those emergency patches backported some of the CVE fixes and are a safer option than v1.12.20 for operators who have not yet migrated, but they did not close every finding: the KZG denial of service (CVE-2026-22868) and the GraphQL depth limit stayed open, the `eth_syncing` regression was introduced, and they remain on the EOL Go 1.21 and Go 1.22 toolchains without the ETC network tooling or DNS discovery updates in v1.13.0. Operators running v1.12.x should upgrade to the latest release on the v1.13 line, released from [ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth).
 
 ### Prior Maintainers
 
@@ -575,14 +575,14 @@ The audit was initiated during cross-client interoperability testing. The `etcla
 
 ## Upgrade Path
 
-**If you are running any v1.12.x release, upgrade to v1.13.0 immediately.** v1.13.0 (the full Go 1.26 upgrade, ETC-specific modernization and every fix in this audit) is released from [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth).
+**If you are running any v1.12.x release, upgrade to the latest release on the v1.13 line immediately.** The line began with v1.13.0 (the full Go 1.26 upgrade, ETC-specific modernization and every fix in this audit) and is released from [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth).
 
 ---
 
 ## Recommendations
 
-- **Node operators (any v1.12.x release):** Upgrade to v1.13.0 from [github.com/ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth) immediately; it patches every CVE in this audit. Nodes on v1.12.20 or earlier are exposed to remote crash and potential key-oracle attacks from any peer.
-- **Infrastructure providers and exchanges:** Treat the upgrade to v1.13.0 as a security-critical update, not a routine version bump.
+- **Node operators (any v1.12.x release):** Upgrade to the latest release on the v1.13 line from [github.com/ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth) immediately; every release on it patches every CVE in this audit. Nodes on v1.12.20 or earlier are exposed to remote crash and potential key-oracle attacks from any peer.
+- **Infrastructure providers and exchanges:** Treat the upgrade to the v1.13 line as a security-critical update, not a routine version bump.
 - **Every node upgrading from v1.12.x:** Rotate the P2P node key (`--nodekey`). This is required, not precautionary: CVE-2026-26315 is an oracle against the node key, so a key used by an unpatched node should be treated as exposed. Any node reachable from the public internet over the 21-month gap was potentially targeted. The [migration guide](../tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key) gives the procedure. None of the `etclabscore/core-geth` emergency releases note this: `v1.12.21` patches the oracle without recording that the key the node used under `v1.12.20` was exposed and should be replaced, and `v1.12.22` and `v1.12.23` are silent on it, so an operator who upgraded within the `v1.12.x` line and did not rotate is still running the exposed key. The go-ethereum advisory for the fix does recommend rotation.
 - **Multi-client operation:** Running more than one independent implementation is what limits the blast radius of any single client going unmaintained.
 - **GraphQL endpoint:** If `--graphql` is enabled on public-facing nodes, disable it until the node runs v1.13.0, which adds the query depth limit.

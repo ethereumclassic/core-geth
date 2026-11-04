@@ -259,7 +259,8 @@ the current release series. It has about six months of testing on Ethereum Class
 Mordor behind it, with no critical issue found.
 
 **Recommendation for operators is unchanged in direction and updated in target.** Nodes on
-any v1.12.x release should upgrade to v1.13.0 from `ethereumclassic/core-geth` immediately.
+any v1.12.x release should upgrade to the latest release on the v1.13 line from
+`ethereumclassic/core-geth` immediately.
 v1.12.23 is a safer position than v1.12.20 on both the cryptographic and p2p surfaces, and it
 does not resolve the toolchain exposure.
 

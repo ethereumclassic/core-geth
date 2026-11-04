@@ -46,7 +46,7 @@ Core-Geth `v1.12` bootnodes in March 2026.
 | `v1.12.22` | 165 | 31.5% | [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d) and [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c) backported, [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835) only partly mitigated. [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a) and the [GraphQL limit](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh) still open. Introduces the `eth_syncing` regression. End-of-life Go 1.21 and 1.22, 55 to 61 Go standard library advisories (43 to 47 in the binary) |
 | `v1.12.23` | 138 | 26.3% | [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835) closed. [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a), the [GraphQL limit](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh) and the `eth_syncing` regression still open. Introduces a response cap that can disconnect peers answering correctly. End-of-life Go 1.21 and 1.22, 55 to 61 Go standard library advisories (43 to 47 in the binary) |
 | `v1.12.24` | 4 | 0.8% | a development build of the previous repository's `master`, not a release |
-| `v1.13.0` | 9 | 1.7% | **Recommended client:** six CVEs resolved and the GraphQL limit fixed, Go 1.26.8, zero Go standard library advisories |
+| `v1.13.0` | 9 | 1.7% | **Recommended client:** six CVEs resolved and the GraphQL limit fixed, Go 1.26.8, zero Go standard library advisories when it shipped |
 
 Each row is measured in the [Go toolchain audit](audits/2026-09-go-toolchain.md) and the
 [March 2026 security audit](audits/2026-03-security-audit.md). The figures move:
