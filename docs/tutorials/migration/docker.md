@@ -38,6 +38,17 @@ docker exec core-geth geth attach --exec 'admin.nodeInfo.enode' /root/.ethereum/
 
 **Keep that last line.** It is your current enode ID, and step 3 changes it.
 
+Then check where the container keeps its data:
+
+```bash
+docker inspect core-geth --format '{{range .Mounts}}{{.Destination}} {{end}}'
+```
+
+It prints `/root`, or `/root/.ethereum`, when the data is in a host directory or a named volume, which the steps below
+reach through `--volumes-from`. If it prints neither, as when the only mount is a config file, the data is inside the
+container itself: follow [If the data is inside the container](#if-the-data-is-inside-the-container) in step 3, or the
+new container starts with no chain and resyncs.
+
 ## 1. Stop the node cleanly
 
 ```bash
@@ -75,7 +86,7 @@ Keep your previous image; step 6 uses it.
 ## 3. Rotate the P2P node key
 
 **Required.** [Rotate the P2P node key](../v1.13.0-migration.md#rotate-the-p2p-node-key) explains why. This runs in a
-throwaway container from the new image, so it reaches the key however the old container mounts the data directory:
+throwaway container from the new image, which reaches the data through the old container's mounts:
 
 ```bash
 docker run --rm --volumes-from core-geth --entrypoint sh $IMAGE \
@@ -86,6 +97,23 @@ The next start writes a fresh key. If you start the node with `--nodekey` or `--
 `GETH_NODEKEYHEX`, leave that out of the `docker run` in step 5: it overrides the file.
 
 If the rename prints an error, check the data directory: `geth/nodekey` must not be there when the node starts.
+`No such file or directory` means the data is not where the command looks: check the path, and see
+[If the data is inside the container](#if-the-data-is-inside-the-container).
+
+### If the data is inside the container
+
+When the check in [Before you start](#before-you-start) printed neither, copy the data out of the stopped container,
+rename the key in the copy, and run the new container on the copy. The copy needs as much free space as the chain takes:
+
+```bash
+mkdir -p $HOME/core-geth-data
+docker cp core-geth:/root/. $HOME/core-geth-data/
+docker run --rm -v $HOME/core-geth-data:/root --entrypoint sh $IMAGE \
+  -c "mv -n /root/.ethereum/classic/geth/nodekey /root/.ethereum/classic/geth/nodekey.old-rotated-$(date +%F)"
+```
+
+In step 5, give the new container `-v $HOME/core-geth-data:/root` in place of `--volumes-from core-geth-v1.12`. The
+chain carries over with the copy, so the node does not resync.
 
 ### If this node lists static peers, update the list
 
@@ -180,3 +208,8 @@ docker stop -t 300 core-geth &&
 
 Put the old container's restart policy in place of `unless-stopped`. Keep the new key: rolling back does not make the old
 key safe.
+
+If you copied the data out, run only the first two lines, which stop and remove the new container, and do not start the
+old one: its own copy of the data still holds the old key. Run the image it used,
+`docker inspect core-geth-v1.12 --format '{{.Config.Image}}'`, on the copy instead, with
+`-v $HOME/core-geth-data:/root` and the old container's ports and flags.
