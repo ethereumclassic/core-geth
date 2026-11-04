@@ -10,7 +10,7 @@ that answers the questions operators actually arrive with.
 
 ## Do these four things
 
-1. **Upgrade to [v1.13.0 or later](https://coregeth.com/downloads/#upgrade).** The
+1. **Upgrade to [v1.13.0 or later](upgrading.md).** The
    [migration guide](tutorials/v1.13.0-migration.md) has a guide per platform. Your chain data carries over. Budget
    about twenty minutes for the steps; the node itself usually stops and starts in seconds. A `v1.12` node that cannot
    move yet can

@@ -16,9 +16,9 @@ fixes released here. [Project history](project-history.md) covers how maintenanc
 
 ## Where do I download Core-Geth?
 
-From [coregeth.com/downloads](https://coregeth.com/downloads/), which has the archive for each platform, its checksum and
-the commands. [Installation](../getting-started/installation.md) has a route for every platform, and
-[How do I verify a download?](#how-do-i-verify-a-download) confirms the archive is the one this repository built.
+From [Installation](../getting-started/installation.md), which has a route for every platform, with the archive, its
+checksum and the commands. [How do I verify a download?](#how-do-i-verify-a-download) confirms the archive is the one
+this repository built.
 
 ## Is `etclabscore/core-geth` still maintained?
 
@@ -29,7 +29,7 @@ continues.
 
 ## Which Core-Geth version should I run?
 
-[The latest v1.13 release](https://coregeth.com/downloads/). Every `v1.12.20` to `v1.12.23` archive was built with an
+[The latest v1.13 release](../releases.md). Every `v1.12.20` to `v1.12.23` archive was built with an
 out-of-support Go release and carries 55 to 61 Go standard library advisories, 43 to 48 of them present in the binary,
 that `v1.13.0` does not ([Go toolchain audit](../audits/2026-09-go-toolchain.md)). `v1.12.23` also lacks the GraphQL depth
 limit and carries the `eth_syncing` regression, and releases before `v1.12.21` carry all six client CVEs. The

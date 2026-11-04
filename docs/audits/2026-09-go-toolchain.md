@@ -26,7 +26,7 @@ rather than the configuration that built it. The Linux x86_64 archive of each ea
 
 ## In short
 
-**Upgrade to [the latest v1.13 release](https://coregeth.com/downloads/#upgrade).** The
+**Upgrade to [the latest v1.13 release](../upgrading.md).** The
 [migration guide](../tutorials/v1.13.0-migration.md) has the steps, including the required P2P node key rotation. Each
 release from `v1.12.20` to `v1.12.23` was built by two Go toolchains, Go 1.21 and Go 1.22, both out of support
 before those releases shipped. Across all its archives each of those releases carries 62 Go standard library

@@ -18,7 +18,7 @@ that operators have somewhere to move before the Cooperative closes. One service
 
 !!! warning "What to do now"
     - **Every node still on a `v1.12` release should move to the `v1.13` line.**
-      [Downloads](https://coregeth.com/downloads/#upgrade) has the commands and checksums, and the
+      [Installation](getting-started/installation.md) has the commands and checksums, and the
       [migration guide](tutorials/v1.13.0-migration.md) has the steps, including the required P2P node key
       rotation. A `v1.12` node that cannot move yet can
       [add the `--discovery.dns` flag](#if-a-v112-node-cannot-move-yet) to read the `ethereumclassic`

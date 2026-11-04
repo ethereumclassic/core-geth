@@ -59,7 +59,7 @@ are maintained here rather than inherited, which is what this client is for.
       a snap storage-range cap that can disconnect honest peers (v1.12.23).
       [March 2026 audit](audits/2026-03-security-audit.md) · [August 2026 follow-up](audits/2026-08-security-followup.md).
 
-    Upgrade to [the latest v1.13 release](https://coregeth.com/downloads/#upgrade); the
+    Upgrade to [the latest v1.13 release](upgrading.md); the
     [migration guide](tutorials/v1.13.0-migration.md) covers the steps, the required node-key rotation, and how
     to roll back.
 

@@ -22,7 +22,7 @@ source-level CVE remediation; this one covers what changed underneath the code.
 
 ## In short
 
-**Upgrade to [v1.13.0 or later](https://coregeth.com/downloads/#upgrade).** The
+**Upgrade to [v1.13.0 or later](../upgrading.md).** The
 [migration guide](../tutorials/v1.13.0-migration.md) has the steps, including the required P2P node key rotation.
 The archived `v1.12.x` line was pinned to Go toolchains that left
 support in August 2024 and February 2025, and its module graph had not moved since December 2024. `v1.13.0`

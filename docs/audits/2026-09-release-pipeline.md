@@ -26,7 +26,7 @@ created from the archived development line; the other three were published in 20
 
 ## In short
 
-**Upgrade to [v1.13.0 or later](https://coregeth.com/downloads/#upgrade).** The
+**Upgrade to [v1.13.0 or later](../upgrading.md).** The
 [migration guide](../tutorials/v1.13.0-migration.md) has the steps, including the required P2P node key rotation.
 Measured by downloading them, the published `v1.12.20` to
 `v1.12.23` archives raised the glibc version a Linux host needs without saying so, shipped an Apple Silicon
