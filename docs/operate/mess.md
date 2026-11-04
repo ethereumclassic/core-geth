@@ -166,6 +166,11 @@ release you run, or set `--mess` or `--mess=false` yourself.
 | ECBP-1100 | MESS on | on from block 11,380,000 | on from block 2,380,000 | `v1.13.0` |
 | ECBP-1110 | MESS off | on from block 11,380,000, off from block 19,250,000 | on from block 2,380,000, off from block 10,400,000 | `v1.13.1` |
 
+`v1.13.0` ships ECBP-1100 because every `v1.12` release still carried at least one known vulnerability when it was
+released, and MESS defends a node against deep chain reorganizations while nodes on that line remain exposed.
+`v1.13.1` returns to ECBP-1110 once the move to the `v1.13` line is expected to be under way, or at least the `v1.12`
+vulnerabilities are widely known.
+
 Both chains are past the ECBP-1110 blocks, so under the ECBP-1110 default MESS ends up off, and under
 the ECBP-1100 default it is on. `--mess` and `--mess=false` override either one.
 
