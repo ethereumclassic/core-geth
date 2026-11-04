@@ -5,7 +5,7 @@ description: "Upgrade an Ethereum Classic node on macOS from any v1.12.x release
 
 # Mac users guide
 
-This guide upgrades a node on macOS from any v1.12.x release to the latest v1.13 release.
+This guide upgrades a node on macOS from any v1.12.x release to the v1.13 line.
 [Migrating to v1.13](../v1.13.0-migration.md) explains why, and what changes for every node.
 
 The commands use the default Ethereum Classic data directory on macOS, `~/Library/Ethereum/classic`. If you
@@ -41,7 +41,7 @@ geth attach --exec 'admin.nodeInfo.enode' ~/Library/Ethereum/classic/geth.ipc
 
 Wait until the log prints `Blockchain stopped` and the process exits.
 
-## 2. Install the latest release
+## 2. Install v1.13
 
 Keep the old binary until the upgrade is verified; step 6 uses it. These commands assume `geth` is in
 `/usr/local/bin`; `command -v geth` shows where yours is.
@@ -84,18 +84,20 @@ Each line runs only if the one before it worked. Go on only if `geth version` re
 
 ### Method B: build from source
 
-Building needs Go 1.26 and the Xcode Command Line Tools (`xcode-select --install`). Build the latest release's tag, not
-`main`, which keeps moving:
+Building needs Go 1.26 or later and the Xcode Command Line Tools (`xcode-select --install`). This builds `main`, which
+takes fixes and dependency updates before a release does. It is not a release, and it keeps moving: two builds a day
+apart can be different code.
 
 ```bash
-VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
-git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git core-geth-$VERSION &&
-  cd core-geth-$VERSION &&
+git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git &&
+  cd core-geth &&
   make geth &&
   ./build/bin/geth version
 ```
 
-Do not clone with `--recursive`: the submodules are several gigabytes, and `make geth` does not read them.
+Do not clone with `--recursive`: the submodules are several gigabytes, and `make geth` does not read them. If a
+`core-geth` folder is already there from an earlier build, run `git -C core-geth pull` in place of the clone.
+[Build from source](../../developers/build-from-source.md#source) says how changes reach `main`.
 
 Then, in that folder, keep the old binary and install the new one:
 
@@ -106,7 +108,8 @@ ls build/bin/geth &&
   geth version
 ```
 
-Go on only if `geth version` reports a `v1.13` release.
+Go on only if `geth version` reports a version ending in `-unstable`, such as `Core-Geth 1.13.1-unstable`, and a
+`Git Commit` line. Note that commit: it identifies the code you run.
 
 ## 3. Rotate the P2P node key
 
@@ -154,7 +157,8 @@ geth attach --exec 'eth.blockNumber'      ~/Library/Ethereum/classic/geth.ipc
 
 If a line cannot connect, wait a minute and run it again.
 
-- **The first line** must name a `v1.13` release.
+- **The first line** must name the version you installed: a `v1.13` release, or the `-unstable` version a build
+  of `main` printed.
 - **The enode ID** must differ from the one you recorded. If it is the same, the node is still on the old key: stop it
   and redo step 3.
 - **The peer count** climbs within minutes. If it stays at zero, see

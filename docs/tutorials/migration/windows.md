@@ -5,7 +5,7 @@ description: "Upgrade an Ethereum Classic node on Windows from any v1.12.x relea
 
 # Windows users guide
 
-This guide upgrades a node on Windows from any v1.12.x release to the latest v1.13 release.
+This guide upgrades a node on Windows from any v1.12.x release to the v1.13 line.
 [Migrating to v1.13](../v1.13.0-migration.md) explains why, and what changes for every node.
 
 The commands are for PowerShell. They use the default Ethereum Classic data directory,
@@ -43,7 +43,7 @@ Record what you are running, from the folder that holds `geth.exe`:
 
 Wait until the log prints `Blockchain stopped` and the process exits.
 
-## 2. Install the latest release
+## 2. Install v1.13
 
 Keep the old binary until the upgrade is verified; step 6 uses it.
 
@@ -83,19 +83,23 @@ Go on only if `.\geth.exe version` reports a `v1.13` release.
 
 ### Method B: build from source
 
-Building needs Go 1.26 and a C compiler on `PATH`, such as MinGW-w64. Build the latest release's tag, not
-`main`, which keeps moving:
+Building needs Go 1.26 or later and a C compiler on `PATH`, such as MinGW-w64. This builds `main`, which takes fixes and
+dependency updates before a release does. It is not a release, and it keeps moving: two builds a day apart can be
+different code.
 
 ```powershell
-$VERSION = (Invoke-RestMethod "https://api.github.com/repos/ethereumclassic/core-geth/releases/latest").tag_name
-git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git "core-geth-$VERSION"
-cd "core-geth-$VERSION"
+git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git
+cd core-geth
 go run build/ci.go install ./cmd/geth
 .\build\bin\geth.exe version
 ```
 
-Rename your current `geth.exe` to `geth-v1.12.exe`, then copy `build\bin\geth.exe` in its place. Do not clone with
-`--recursive`: the submodules are several gigabytes, and the build does not read them.
+The last line must print a version ending in `-unstable`, such as `Core-Geth 1.13.1-unstable`, and a `Git Commit` line.
+Note that commit: it identifies the code you run. Then go back to the folder that holds the node's `geth.exe`, rename it
+to `geth-v1.12.exe`, and copy `build\bin\geth.exe` from the clone into that folder: the steps below run from there. Do
+not clone with `--recursive`: the submodules are several gigabytes, and the build does not read them. If a `core-geth`
+folder is already there from an earlier build, run `git -C core-geth pull` in place of the clone. [Build from
+source](../../developers/build-from-source.md#source) says how changes reach `main`.
 
 ## 3. Rotate the P2P node key
 
@@ -147,7 +151,8 @@ Start the node the way you always do. Then, in this order:
 
 If a line cannot connect, wait a minute and run it again.
 
-- **The first line** must name a `v1.13` release.
+- **The first line** must name the version you installed: a `v1.13` release, or the `-unstable` version a build
+  of `main` printed.
 - **The enode ID** must differ from the one you recorded. If it is the same, the node is still on the old key: stop it
   and redo step 3.
 - **The peer count** climbs within minutes. If it stays at zero, see

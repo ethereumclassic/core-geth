@@ -91,16 +91,13 @@ Install all three for your platform:
 
 ## Source
 
-Once the dependencies have been installed, clone and build.
-
-**To run a node, build the latest release:**
+Once the dependencies have been installed, clone `main` and build:
 
 === "Linux and macOS"
 
     ```shell
-    VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
-    git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git core-geth-$VERSION &&
-      cd core-geth-$VERSION &&
+    git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git &&
+      cd core-geth &&
       make geth &&
       ./build/bin/geth version
     ```
@@ -110,33 +107,31 @@ Once the dependencies have been installed, clone and build.
     In PowerShell. `make geth` runs this same `go run` command on other systems:
 
     ```powershell
-    $VERSION = (Invoke-RestMethod "https://api.github.com/repos/ethereumclassic/core-geth/releases/latest").tag_name
-    git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git "core-geth-$VERSION"
-    cd "core-geth-$VERSION"
-    go run build/ci.go install ./cmd/geth
-    .\build\bin\geth.exe version
-    ```
-
-**To work on the client or try what is in development, build `main`.** It keeps moving, and it is
-not a release:
-
-=== "Linux and macOS"
-
-    ```shell
-    git clone https://github.com/ethereumclassic/core-geth.git &&
-      cd core-geth &&
-      make geth &&
-      ./build/bin/geth version
-    ```
-
-=== "Windows"
-
-    ```powershell
-    git clone https://github.com/ethereumclassic/core-geth.git
+    git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git
     cd core-geth
     go run build/ci.go install ./cmd/geth
     .\build\bin\geth.exe version
     ```
+
+If a `core-geth` folder is already there from an earlier clone, run `git -C core-geth pull` in place of the clone, here
+and in [Build docker image](#build-docker-image).
+
+**`main` is where changes land before a release.** Every change reaches it through a pull request, which needs an
+approving review from someone other than its last pusher, and five passing checks, before it merges. So a build of
+`main` carries the fixes and dependency updates merged since the latest release.
+
+**A build of `main` is not a release, and `main` keeps moving:** two builds a day apart can be different code.
+`geth version` prints the version `main` is working toward, marked `-unstable`, and the commit it was built from, for
+example:
+
+```text
+Core-Geth 1.13.1-unstable
+Git Commit: 50f00770daa3f9e31e4d6bd63e17f49a1d78a35f
+Git Commit Date: 20261012
+```
+
+A release's checksum and build attestation verify a release file, so they do not apply to a build. Note the commit
+instead, from that `Git Commit` line or from `git rev-parse --short HEAD` in the clone: it identifies the code you run.
 
 `make geth` builds the node alone. `make all` builds every executable in
 `cmd/`, which is what the `alltools` release archives contain; on Windows,
@@ -155,12 +150,11 @@ targets.
 
 ## Build docker image
 
-To build a local image of the latest release:
+To build a local image of `main`:
 
 ```shell
-VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
-git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git core-geth-$VERSION &&
-  cd core-geth-$VERSION &&
+git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git &&
+  cd core-geth &&
   docker build -t core-geth:local .
 ```
 

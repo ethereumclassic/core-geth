@@ -32,8 +32,8 @@ The Linux and macOS routes end with `geth` on your `PATH`, and the Windows route
 archive on the [releases page](https://github.com/ethereumclassic/core-geth/releases) is a `.zip` holding the binary and
 `COPYING`, the license, with a `.sha256` file beside it.
 
-**Each route reads the latest release's tag into `VERSION`.** To install a different release, set `VERSION` to its tag
-instead of running that first line.
+**Each route that downloads a release reads the latest release's tag into `VERSION`.** To install a different release,
+set `VERSION` to its tag instead of running that first line.
 
 ## Linux, x86_64
 
@@ -300,14 +300,16 @@ Alpine base cannot run them.
 ### Build an image from source
 
 The `Dockerfile` produces an image containing `geth`, and `Dockerfile.alltools` one containing
-the full tool set. These commands build the latest release:
+the full tool set. These commands build `main`, as [Build from source](#build-from-source) describes:
 
 ```shell
-VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
-git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git core-geth-$VERSION &&
-  cd core-geth-$VERSION &&
-  docker build -t core-geth:local .
+git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git &&
+  cd core-geth &&
+  docker build -t core-geth:local . &&
+  docker run --rm core-geth:local version
 ```
+
+If a `core-geth` folder is already there from an earlier clone, run `git -C core-geth pull` in place of the clone.
 
 ### Run the container
 
@@ -347,14 +349,13 @@ The image also exposes 8546 for the WebSocket endpoint, which needs
 Building needs **Go 1.26** and a C compiler; the developer guide has the
 [per-platform toolchain setup](../developers/build-from-source.md#dependencies)
 for both. This is also the route for a platform no archive covers, or a
-distribution older than the glibc floors above. These commands build the latest release:
+distribution older than the glibc floors above. These commands build `main`:
 
 === "Linux and macOS"
 
     ```shell
-    VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
-    git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git core-geth-$VERSION &&
-      cd core-geth-$VERSION &&
+    git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git &&
+      cd core-geth &&
       make geth &&
       ./build/bin/geth version
     ```
@@ -364,17 +365,22 @@ distribution older than the glibc floors above. These commands build the latest 
     In PowerShell. `make geth` runs this same `go run` command on other systems:
 
     ```powershell
-    $VERSION = (Invoke-RestMethod "https://api.github.com/repos/ethereumclassic/core-geth/releases/latest").tag_name
-    git clone --branch $VERSION --single-branch https://github.com/ethereumclassic/core-geth.git "core-geth-$VERSION"
-    cd "core-geth-$VERSION"
+    git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git
+    cd core-geth
     go run build/ci.go install ./cmd/geth
     .\build\bin\geth.exe version
     ```
 
-Do not clone with `--recursive`: the submodules are several gigabytes, and `make geth` does not read them.
+Do not clone with `--recursive`: the submodules are several gigabytes, and `make geth` does not read them. If a
+`core-geth` folder is already there from an earlier build, run `git -C core-geth pull` in place of the clone.
 
-To check a build, compare the commit you checked out with the one the binary was built from. In the clone, both lines
-must name the same commit:
+**A build of `main` is not a release.** `main` takes fixes and dependency updates before a release does, and it keeps
+moving, so two builds a day apart can be different code. `geth version` prints the version `main` is working toward,
+marked `-unstable`, such as `Core-Geth 1.13.1-unstable`, and a `Git Commit` line.
+[Build from source](../developers/build-from-source.md#source) says how changes reach `main`.
+
+A release's checksum and attestation do not apply to a build: its commit identifies it. To check a build, compare the
+commit you checked out with the one the binary was built from. In the clone, both lines must name the same commit:
 
 ```shell
 git rev-parse HEAD
@@ -384,8 +390,8 @@ go version -m ./build/bin/geth | grep vcs.revision
 On Windows, run `go version -m .\build\bin\geth.exe` and read its `vcs.revision` line.
 
 `make all` builds every tool rather than the node alone.
-[Build from source](../developers/build-from-source.md) covers the full set of targets,
-building what is in development, and building inside Docker.
+[Build from source](../developers/build-from-source.md) covers the full set of targets
+and building inside Docker.
 
 ## What else is in a release
 

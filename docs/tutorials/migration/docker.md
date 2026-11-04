@@ -5,7 +5,7 @@ description: "Upgrade an Ethereum Classic node in Docker from any v1.12.x image 
 
 # Docker users guide
 
-This guide upgrades a node running in Docker from any v1.12.x image to the latest v1.13 release.
+This guide upgrades a node running in Docker from any v1.12.x image to the v1.13 line.
 [Migrating to v1.13](../v1.13.0-migration.md) explains why, and what changes for every node.
 
 The image moves from `etclabscore/core-geth` to images built from `ethereumclassic/core-geth`. Your volume,
@@ -167,7 +167,8 @@ docker exec core-geth geth attach --exec 'eth.blockNumber'      /root/.ethereum/
 
 If a line cannot connect, wait a minute and run it again.
 
-- **The first line** must name a `v1.13` release.
+- **The first line** must name the version you installed: a `v1.13` release, or, for an image built from source,
+  the `-unstable` version of `main` it was built from.
 - **The enode ID** must differ from the one you recorded. If it is the same, the node is still on the old key: stop it
   and redo step 3.
 - **The peer count** climbs within minutes. If it stays at zero, see
