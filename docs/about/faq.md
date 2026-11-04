@@ -30,7 +30,7 @@ continues.
 ## Which Core-Geth version should I run?
 
 [The latest v1.13 release](https://coregeth.com/downloads/). Every `v1.12.20` to `v1.12.23` archive was built with an
-out-of-support Go release and carries 55 to 61 Go standard library advisories, 43 to 47 of them present in the binary,
+out-of-support Go release and carries 55 to 61 Go standard library advisories, 43 to 48 of them present in the binary,
 that `v1.13.0` does not ([Go toolchain audit](../audits/2026-09-go-toolchain.md)). `v1.12.23` also lacks the GraphQL depth
 limit and carries the `eth_syncing` regression, and releases before `v1.12.21` carry all six client CVEs. The
 [migration guide](../tutorials/v1.13.0-migration.md) covers the upgrade and how to roll back.

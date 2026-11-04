@@ -48,8 +48,8 @@ are maintained here rather than inherited, which is what this client is for.
 
     Beyond the CVEs, the same line carries:
 
-        - **Out-of-support Go toolchains.** Every archive was built on Go 1.21 or Go 1.22, and carries 55 to 61 Go standard
-      library advisories, 43 to 47 of them present in the binary.
+        - **Out-of-support Go toolchains.** Every `v1.12.20` to `v1.12.23` archive was built on Go 1.21 or Go 1.22, and carries
+      55 to 61 Go standard library advisories, 43 to 48 of them present in the binary.
       [Go toolchain audit](audits/2026-09-go-toolchain.md).
     - **Release-pipeline defects.** Platform floors left older Linux systems and many Macs unable to run the published
       binaries, and release files did not identify themselves or carry a build attestation.

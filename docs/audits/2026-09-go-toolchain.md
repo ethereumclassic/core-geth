@@ -31,7 +31,7 @@ rather than the configuration that built it. The Linux x86_64 archive of each ea
 release from `v1.12.20` to `v1.12.23` was built by two Go toolchains, Go 1.21 and Go 1.22, both out of support
 before those releases shipped. Across all its archives each of those releases carries 62 Go standard library
 advisories, 48 of them with the vulnerable code present in the binary; per archive the figure runs from 55 to
-61, with 43 to 47 in the binary. Because both Go majors left support in 2024 and 2025, that count only rises as
+61, with 43 to 48 in the binary. Because both Go majors left support in 2024 and 2025, that count only rises as
 the Go team publishes more advisories, and none of the fixes will ever reach those binaries. The v1.13 line is
 built on Go 1.26, which is in support and receives those fixes, and each release in the line is cut with the
 newest patch release of its Go version: every `v1.13.0` archive and image is built with go1.26.8, the newest
