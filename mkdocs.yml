@@ -99,6 +99,7 @@ nav:
           - Go toolchain: audits/2026-09-go-toolchain.md
           - The record behind the release: release-reports/v1.13.0-record.md
       - 2021 chain split postmortem: postmortems/2021-08-22-split-postmortem.md
+  - coregeth.com: https://coregeth.com/
 
 
 theme:
