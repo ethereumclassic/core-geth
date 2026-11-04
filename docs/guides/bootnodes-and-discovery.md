@@ -83,7 +83,9 @@ The `devp2p` tool, also in `alltools`, does each step:
 
 1. **Crawl** the network with `devp2p discv4 crawl`.
 2. **Filter** the result with `devp2p nodeset filter`, using `-eth-network classic` or `mordor`.
-3. **Sign** a tree with a key from `devp2p key generate`, using `devp2p dns sign`.
+3. **Sign** a tree with `devp2p dns sign`. It reads its key from an encrypted keystore file, such as one
+   `geth account new` writes, or one `geth account import` makes from a raw key file. `devp2p key generate`
+   writes a raw key file, which the signer cannot read as it stands.
 4. **Deploy** it to DNS with `devp2p dns to-cloudflare` or `devp2p dns to-route53`.
 
 [The devp2p command](https://github.com/ethereumclassic/core-geth/blob/main/cmd/devp2p/README.md) gives the
