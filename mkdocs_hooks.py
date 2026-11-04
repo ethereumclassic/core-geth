@@ -144,3 +144,18 @@ def on_post_page(output, page, config, **kwargs):
         script = f'<script type="application/ld+json">{data}</script>\n'
         output = output.replace("</head>", script + "</head>", 1)
     return output
+
+
+# --- Sitemap dates from each page's last commit -------------------------------
+# MkDocs dates every sitemap entry with the build. The git-revision-date-localized
+# plugin finds each page's last commit in on_page_markdown and writes its date into
+# page.meta. on_page_content runs after that for every page and before MkDocs
+# writes the sitemap, so each entry gets the date its page displays. A page the
+# plugin gave no date keeps the build date.
+
+
+def on_page_content(html, page, config, files, **kwargs):
+    date = page.meta.get("git_revision_date_localized_raw_iso_date")
+    if date:
+        page.update_date = date
+    return html
