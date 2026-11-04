@@ -69,8 +69,15 @@ default directory. For Mordor, use `--mordor` and change `all.classic.` to `all.
 Windows, run `.\geth.exe` in place of `geth`. In a container, stop the container with `docker stop -t 300` and pass
 the same flags after the image name. Under systemd, run `sudo systemctl daemon-reload` after you edit the unit.
 
-The flag replaces the lists built into the release, and the node dials the nodes in a tree directly, so it does not
-need `--bootnodes` as well. [Bootnodes and peer discovery](guides/bootnodes-and-discovery.md) covers both flags.
+The flag takes the place of the trees built into the release, and the node dials the nodes in a tree directly, so it
+does not need `--bootnodes` as well. A config file that lists discovery trees, as one `geth dumpconfig` wrote does, is
+the exception: the flag sets only `EthDiscoveryURLs`, so the node keeps the file's `SnapDiscoveryURLs`, the `v1.12`
+trees. For a node started from such a file, leave the flag out and replace the values of the file's `EthDiscoveryURLs`
+and `SnapDiscoveryURLs` lines with the three trees:
+[Using the trees](https://github.com/ethereumclassic/discv4-dns-lists/blob/main/docs/using-the-trees.md#core-geth-v112-line)
+lists them. When the node moves to the `v1.13` line, take the flag out, and any `--bootnodes` you added: that line reads
+these trees and its own bootnodes by default, and the flag would leave it no trees for snap peers.
+[Bootnodes and peer discovery](guides/bootnodes-and-discovery.md) covers both flags.
 
 ### Public JSON-RPC
 
