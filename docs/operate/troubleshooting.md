@@ -255,8 +255,8 @@ causes in order.
 8. **The `v1.12` peer lists.** The peer discovery lists a `v1.12` release reads by default stop being
    updated when the ETC Cooperative dissolves.
 
-    - **On `v1.12`,** move the node to the `v1.13` line: [Installation](../getting-started/installation.md)
-      has the commands, and the [migration guide](../tutorials/v1.13.0-migration.md) has the steps. Until
+    - **On `v1.12`,** move the node to the `v1.13` line: the [migration guide](../tutorials/v1.13.0-migration.md)
+      has the commands and the steps. Until
       it can move, [add the `--discovery.dns` flag](../etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet)
       to read the `ethereumclassic` organization's lists, a small step that closes none of the flaws the
       audits found.

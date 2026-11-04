@@ -45,13 +45,14 @@ sudo -u geth -H geth --classic attach --exec 'admin.nodeInfo.enode' /var/lib/cor
 - **In a terminal:** press Ctrl-C once and wait. A second interrupt does not kill it.
 - **Under systemd:** stop the unit you wrote, for example `sudo systemctl stop core-geth`.
 
-Wait until the log prints `Blockchain stopped` and the process exits.
+Wait until the log prints `Blockchain stopped` and the process exits. If the process exits without that line, the
+stop was not clean: the node repairs its database at its next start, and its block number can start lower.
 [Stop it safely](../../getting-started/run-classic-node.md#stop-it-safely) has the details.
 
 ## 2. Install v1.13
 
-Keep the old binary until the upgrade is verified; step 6 uses it. These commands assume `geth` is in
-`/usr/local/bin`; `command -v geth` shows where yours is.
+Keep the old binary: step 6 uses it to roll back. These commands assume `geth` is in `/usr/local/bin`;
+`command -v geth` shows where yours is, and if it is elsewhere, put that path in place of `/usr/local/bin/geth` below.
 
 ### Method A: release archive
 
@@ -65,12 +66,13 @@ curl -LO $BASE/core-geth-linux-$VERSION.zip.sha256
 sha256sum -c core-geth-linux-$VERSION.zip.sha256
 ```
 
-On an ARM board, put the name for your processor where the file name says `linux`, here and in the next two blocks:
+On an ARM machine, put the name for your processor where the file name says `linux`, here and in the next two blocks:
 `arm64` if `uname -m` prints `aarch64` or `arm64`, `arm7` for `armv7l`, `arm6` for `armv6l`, and `arm5` for `armv5tel`.
 
 `sha256sum -c` must print `OK`. If it prints `FAILED`, delete the file and download it again. On a node that holds
-value, also check [where it came from](../../getting-started/installation.md#verify-where-the-archive-came-from), which
-needs the [GitHub CLI](https://cli.github.com/), signed in with `gh auth login`:
+account keys or that others rely on, also check [where it came
+from](../../getting-started/installation.md#verify-where-the-archive-came-from), which needs the [GitHub
+CLI](https://cli.github.com/), signed in with `gh auth login`:
 
 ```bash
 gh attestation verify core-geth-linux-$VERSION.zip --repo ethereumclassic/core-geth
@@ -148,14 +150,16 @@ StaticNodes = ["enode://<node ID>@<IP>:30303"]
 ```
 
 A peer that has already moved has a new ID, so use that. Separate entries with commas. `TrustedNodes` takes the same
-entries. With no file yet, save these two lines and add `--config` and the file's path to the start command. The client
+form. With no file yet, save these two lines and add `--config` and the file's path to the start command. The client
 ignores `static-nodes.json`, so move its entries here.
 
 ## 4. Re-check RPC exposure
 
 Go through the [RPC exposure checklist](../v1.13.0-migration.md#re-check-rpc-exposure) against the flags in your unit
-file or start script. If you use a config file that `dumpconfig` wrote on `v1.12`,
-[delete the lines listed here](../v1.13.0-migration.md#if-your-config-file-came-from-dumpconfig).
+file or start script, and the config file if you use one. Check that file too for [the lines listed
+here](../v1.13.0-migration.md#if-your-config-file-came-from-dumpconfig), whoever wrote it. If you added
+`--discovery.dns` or `--bootnodes` on `v1.12`, [take them
+out](../v1.13.0-migration.md#if-you-added-discoverydns-or-bootnodes-on-v112).
 
 ## 5. Start and verify
 
@@ -182,13 +186,14 @@ If a line cannot connect, wait a minute and run it again.
   and redo step 3.
 - **The peer count** climbs within minutes. If it stays at zero, see
   [Why does the node have no peers?](../../operate/troubleshooting.md#why-does-the-node-have-no-peers)
-- **The block number** resumes where the node stopped, then catches up. Compare it with a block explorer or another
-  node you run. If it settles somewhere else, stop and investigate rather than resync.
+- **The block number** starts near where the node stopped, lower after an unclean stop, then climbs. Compare it with
+  a block explorer or another node you run. If it stops climbing short of the chain head, stop and investigate
+  rather than resync.
 
 ### If other nodes list this node, give them the new ID
 
 They can no longer connect to this node, and neither side logs it at the default verbosity. On each one, on `v1.12` or
-`v1.13`, run these lines with the old ID you recorded, the new ID from the block above, and the address and port the
+`v1.13`, run these lines with the old ID you recorded, the new ID that step 5 printed, and the address and port the
 entry already has:
 
 ```bash
@@ -198,10 +203,11 @@ geth attach --exec "admin.peers.map(function(p){return p.enode})" ~/.ethereum/cl
 ```
 
 The first two lines each print `true` and take effect with no restart. The third lists the new ID once the nodes
-connect. The change lasts only until that node restarts, so put the new ID in its config file too. Send the new ID to
-anyone else who lists this node.
+connect. The change lasts only until that node restarts, so put the new ID in that node's config file too. Send the new
+ID to anyone else who lists this node.
 
-For an entry in `TrustedNodes`, use `admin.removeTrustedPeer` and `admin.addTrustedPeer`. They do not open a connection.
+For an entry in `TrustedNodes`, run `admin.removeTrustedPeer` and `admin.addTrustedPeer` the same way, as well as the
+first two lines if that node also lists this one as a static peer. They do not open a connection.
 [Static and trusted peers](../../guides/bootnodes-and-discovery.md#static-and-trusted-peers) explains the two lists.
 
 ## 6. If you need to roll back
@@ -213,4 +219,5 @@ out of the start command, because a `v1.12` binary refuses it. Under systemd, ru
 sudo mv /usr/local/bin/geth-v1.12 /usr/local/bin/geth
 ```
 
-Start it again. Keep the new key: rolling back does not make the old key safe.
+Start it again. Keep the new key: rolling back does not make the old key safe. A release before `v1.12.21` leaks bits of
+the key it runs with, so rolling back to one exposes the new key too.

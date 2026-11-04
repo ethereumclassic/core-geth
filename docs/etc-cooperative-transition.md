@@ -17,10 +17,9 @@ Long-time Ethereum Classic core developers are standing up replacements in the `
 that operators have somewhere to move before the Cooperative closes. One service has already stopped.
 
 !!! warning "What to do now"
-    - **Every node still on a `v1.12` release should move to the `v1.13` line.**
-      [Installation](getting-started/installation.md) has the commands and checksums, and the
-      [migration guide](tutorials/v1.13.0-migration.md) has the steps, including the required P2P node key
-      rotation. A `v1.12` node that cannot move yet can
+    - **Every node still on a `v1.12` release should move to the `v1.13` line.** The
+      [migration guide](tutorials/v1.13.0-migration.md) has the commands and checksums for each platform, and the
+      steps, including the required P2P node key rotation. A `v1.12` node that cannot move yet can
       [add the `--discovery.dns` flag](#if-a-v112-node-cannot-move-yet) to read the `ethereumclassic`
       organization's peer discovery lists, a small step that closes none of the flaws the audits found in the
       `v1.12` line.
@@ -64,10 +63,13 @@ already start the node with:
 geth --classic --discovery.dns "enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethereumclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethereumclassic.network"
 ```
 
-Keep the node's other flags: a node on `--datadir` that runs this line as it stands starts an empty chain in the
-default directory. For Mordor, use `--mordor` and change `all.classic.` to `all.mordor.` in all three trees. On
-Windows, run `.\geth.exe` in place of `geth`. In a container, stop the container with `docker stop -t 300` and pass
-the same flags after the image name. Under systemd, run `sudo systemctl daemon-reload` after you edit the unit.
+Keep the node's other flags: a node on `--datadir` that runs this line as it stands starts an empty chain in the default
+directory. For Mordor, use `--mordor` and change `all.classic.` to `all.mordor.` in all three trees. On Windows, run
+`.\geth.exe` in place of `geth`. A container cannot take a new flag: stop it with `docker stop -t 300` and replace it,
+on the same data, with a container from the same `v1.12` image that has the flag after the image name. [Step 5 of the
+Docker guide](tutorials/migration/docker.md#5-start-and-verify) shows the commands; use the old image, which
+`docker inspect <container> --format '{{.Config.Image}}'` prints, in place of `$IMAGE`. Under systemd, run
+`sudo systemctl daemon-reload` after you edit the unit.
 
 The flag takes the place of the trees built into the release, and the node dials the nodes in a tree directly, so it
 does not need `--bootnodes` as well. A config file that lists discovery trees, as one `geth dumpconfig` wrote does, is

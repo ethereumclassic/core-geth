@@ -5,7 +5,7 @@ description: "Securing an Ethereum Classic node: which ports and RPC modules to 
 
 A node needs only its peer-to-peer ports reachable from the internet. Everything else it listens on
 is for the machine itself or for a network you trust, and the table below says which listener is
-which. Before a binary runs on a node that holds value,
+which. Before a binary runs on a node that holds account keys or that others rely on,
 [verify where the archive came from](../getting-started/installation.md#verify-where-the-archive-came-from).
 
 ## Ports and listeners

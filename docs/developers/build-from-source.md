@@ -85,9 +85,9 @@ Install all three for your platform:
     [MinGW-w64](https://www.mingw-w64.org/) separately, and make sure its `gcc.exe`
     is on your `PATH`.
 
-!!! tip "Building without installing Go yourself"
-        `go run build/ci.go install -dlgo` downloads the exact Go toolchain this project pins in `build/checksums.txt` and
-    builds with that.
+!!! tip "Building with the Go toolchain the project pins"
+    `go run build/ci.go install -dlgo` downloads the exact Go toolchain this project pins in `build/checksums.txt` and
+    builds with that. It still needs an installed Go to run the build script.
 
 ## Source
 

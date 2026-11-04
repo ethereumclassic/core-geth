@@ -55,7 +55,7 @@ delete the file and download it again.
 recent. `ldd --version` prints what you have. On an older distribution
 the binary will not start; [build from source](#build-from-source) there instead.
 
-Before running it on a node that holds value, also
+Before running it on a node that holds account keys or that others rely on, also
 [verify where the archive came from](#verify-where-the-archive-came-from).
 
 ## Linux, ARM
@@ -87,7 +87,7 @@ sha256sum -c core-geth-arm64-$VERSION.zip.sha256 &&
 
 `core-geth-arm-<tag>.zip` is the same file as `arm5`, kept for existing scripts. Use `arm5`.
 
-Before running it on a node that holds value, also
+Before running it on a node that holds account keys or that others rely on, also
 [verify where the archive came from](#verify-where-the-archive-came-from).
 
 ## macOS
@@ -126,7 +126,7 @@ shasum -a 256 -c core-geth-osx-arm64-$VERSION.zip.sha256 &&
     Once macOS has blocked it, **Open Anyway** in System Settings, under Privacy & Security,
     also lets it run ([Apple's instructions](https://support.apple.com/en-us/102445)).
 
-Before running it on a node that holds value, also
+Before running it on a node that holds account keys or that others rely on, also
 [verify where the archive came from](#verify-where-the-archive-came-from).
 
 ## Windows
@@ -164,7 +164,7 @@ To keep `geth.exe` in another folder, unpack it there, and add that folder to `P
     Unblock-File "core-geth-win64-$VERSION.zip"
     ```
 
-Before running it on a node that holds value, also
+Before running it on a node that holds account keys or that others rely on, also
 [verify where the archive came from](#verify-where-the-archive-came-from).
 
 ## Verify where the archive came from
@@ -249,9 +249,9 @@ curl -LO $BASE/core-geth-docker-amd64-$VERSION.tar.gz.sha256
 sha256sum -c core-geth-docker-amd64-$VERSION.tar.gz.sha256
 ```
 
-On macOS, use `shasum -a 256 -c` in place of `sha256sum -c`. It must print `OK`: if it prints `FAILED`, delete the
-file and download it again rather than loading it. On a node that holds value, also check where it came from, which
-needs the [GitHub CLI](https://cli.github.com/), signed in with `gh auth login`:
+On macOS, use `shasum -a 256 -c` in place of `sha256sum -c`. It must print `OK`: if it prints `FAILED`, delete the file
+and download it again rather than loading it. On a node that holds account keys or that others rely on, also check where
+it came from, which needs the [GitHub CLI](https://cli.github.com/), signed in with `gh auth login`:
 
 ```shell
 gh attestation verify core-geth-docker-amd64-$VERSION.tar.gz --repo ethereumclassic/core-geth
@@ -279,9 +279,9 @@ EXPOSE 8545 8546 30303 30303/udp
 ENTRYPOINT ["geth"]
 ```
 
-Then, in that folder, download the latest release for `linux/amd64`, check it and build. For `linux/arm64`, put
-`arm64` where the file names say `linux`. On macOS, use `shasum -a 256 -c` in place of `sha256sum -c`. On a node that
-holds value, also [verify where the archive came from](#verify-where-the-archive-came-from):
+Then, in that folder, download the latest release for `linux/amd64`, check it and build. For `linux/arm64`, put `arm64`
+where the file names say `linux`. On macOS, use `shasum -a 256 -c` in place of `sha256sum -c`. On a node that holds
+account keys or that others rely on, also [verify where the archive came from](#verify-where-the-archive-came-from):
 
 ```shell
 VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
@@ -346,7 +346,7 @@ The image also exposes 8546 for the WebSocket endpoint, which needs
 
 ## Build from source
 
-Building needs **Go 1.26** and a C compiler; the developer guide has the
+Building needs **Go 1.26 or later** and a C compiler; the developer guide has the
 [per-platform toolchain setup](../developers/build-from-source.md#dependencies)
 for both. This is also the route for a platform no archive covers, or a
 distribution older than the glibc floors above. These commands build `main`:
