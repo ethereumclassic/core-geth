@@ -37,6 +37,17 @@ set `VERSION` to its tag instead of running that first line.
 
 ## Linux, x86_64
 
+Install `curl` and `unzip`, which a minimal server can lack. On Debian or Ubuntu:
+
+```shell
+sudo apt-get update && sudo apt-get install -y curl unzip
+```
+
+On Fedora or RHEL, run `sudo dnf install -y --refresh curl unzip && sudo dnf upgrade -y curl unzip` instead, and on
+Arch, `sudo pacman -Syu --needed curl unzip`. Each line also updates curl and unzip if they are already installed.
+
+Then download the latest release, check it and install it:
+
 ```shell
 VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
 BASE=https://github.com/ethereumclassic/core-geth/releases/download/$VERSION
@@ -79,6 +90,14 @@ Four ARM archives are published. `uname -m` tells you which one you need:
 
 Follow what `uname -m` prints, not the board: Raspberry Pi OS reports `aarch64` in its 64-bit edition and `armv7l` in
 its 32-bit edition on the same hardware.
+
+Install `curl` and `unzip`, which a minimal system can lack. On Debian, Ubuntu or Raspberry Pi OS:
+
+```shell
+sudo apt-get update && sudo apt-get install -y curl unzip
+```
+
+On Fedora or Arch, use the line [Linux, x86_64](#linux-x86_64) gives.
 
 Then, substituting your architecture for `arm64` below:
 
@@ -125,9 +144,12 @@ curl -LO $BASE/core-geth-osx-arm64-$VERSION.zip
 curl -LO $BASE/core-geth-osx-arm64-$VERSION.zip.sha256
 shasum -a 256 -c core-geth-osx-arm64-$VERSION.zip.sha256 &&
   unzip -o core-geth-osx-arm64-$VERSION.zip &&
+  sudo mkdir -p /usr/local/bin &&
   sudo install -m 0755 geth /usr/local/bin/geth &&
   geth version
 ```
+
+The block creates `/usr/local/bin`, which a new Mac can lack.
 
 !!! tip "If macOS refuses to run it"
     These binaries are not code-signed, so Gatekeeper blocks one that carries the
@@ -205,7 +227,58 @@ For the Mordor test network, run `.\geth.exe --mordor` instead. [Running a node]
 **A checksum proves the download was not corrupted. It does not prove what built the
 file**, because whoever publishes the archive publishes the checksum beside it. From
 v1.13.0 each archive also carries a build attestation, which records the workflow,
-commit and ref that produced it. In the same shell as your route above, naming the archive you downloaded:
+commit and ref that produced it.
+
+### Check the GitHub CLI
+
+Checking the attestation needs the [GitHub CLI](https://cli.github.com/) 2.49.0 or later, the release that added
+`gh attestation`, signed in to GitHub.
+
+=== "Linux"
+
+    Debian's and Ubuntu's own `gh` packages are older than 2.49.0, so install or update GitHub's own package, as
+    [Installing gh on Linux](https://github.com/cli/cli/blob/trunk/docs/install_linux.md) shows for each distribution.
+    Then confirm the release and the sign-in:
+
+    ```shell
+    gh --version
+    gh auth status
+    ```
+
+=== "macOS"
+
+    Install or update it with Homebrew, `brew install gh`, or with the macOS installer from
+    [GitHub's releases](https://github.com/cli/cli/releases/latest). Then confirm the release and the sign-in:
+
+    ```shell
+    gh --version
+    gh auth status
+    ```
+
+=== "Windows"
+
+    In PowerShell, WinGet, which comes with Windows 11, installs it, or updates an older one:
+
+    ```powershell
+    winget install --id GitHub.cli -e --source winget --accept-source-agreements --accept-package-agreements
+    ```
+
+    Approve the prompt the installer shows. Then, in the same window:
+
+    ```powershell
+    $env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
+    gh --version
+    gh auth status
+    ```
+
+    The first line reloads `PATH` from Windows' settings, so this window finds `gh`.
+
+`gh --version` must print 2.49.0 or later. `gh auth status` must say you are logged in to github.com. If it does not,
+run `gh auth login`.
+
+### Check the archive
+
+In the same shell as your route above, naming the archive you downloaded:
 
 === "Linux, x86_64"
 
@@ -231,13 +304,22 @@ commit and ref that produced it. In the same shell as your route above, naming t
     gh attestation verify "core-geth-win64-$VERSION.zip" --repo ethereumclassic/core-geth
     ```
 
-That needs the [GitHub CLI](https://cli.github.com/), signed in with `gh auth login`. It succeeds only for a file built
-by this repository's release workflow: a file from anywhere else fails, as does one whose bytes have changed.
+It succeeds only for a file built by this repository's release workflow: a file from anywhere else fails, as does one
+whose bytes have changed.
 
 ## Docker
 
 Images are published to the GitHub Container Registry for each tagged release, built for
 `linux/amd64` and `linux/arm64`.
+
+Check that Docker is installed and running:
+
+```shell
+docker version --format '{{.Server.Version}}'
+```
+
+It must print the Docker engine's version. An error in its place means Docker is not installed or not running:
+[Get Docker](https://docs.docker.com/get-started/get-docker/) says how to install it.
 
 **Pulling needs no account and no token:**
 
@@ -251,8 +333,8 @@ To check where the pulled image came from, verify its build attestation:
 gh attestation verify oci://ghcr.io/ethereumclassic/core-geth:latest --repo ethereumclassic/core-geth
 ```
 
-That needs the [GitHub CLI](https://cli.github.com/), signed in. It succeeds only for an image built by this
-repository's workflows.
+That needs the GitHub CLI 2.49.0 or later, signed in, as [Check the GitHub CLI](#check-the-github-cli) shows. It
+succeeds only for an image built by this repository's workflows.
 
 With no route to the registry, [load the image from the release](#load-the-image-from-the-release) instead.
 
@@ -284,7 +366,8 @@ sha256sum -c core-geth-docker-amd64-$VERSION.tar.gz.sha256
 
 On macOS, use `shasum -a 256 -c` in place of `sha256sum -c`. It must print `OK`: if it prints `FAILED`, delete the file
 and download it again rather than loading it. On a node that holds account keys or that others rely on, also check where
-it came from, which needs the [GitHub CLI](https://cli.github.com/), signed in with `gh auth login`:
+it came from, which needs the GitHub CLI 2.49.0 or later, signed in, as [Check the GitHub CLI](#check-the-github-cli)
+shows:
 
 ```shell
 gh attestation verify core-geth-docker-amd64-$VERSION.tar.gz --repo ethereumclassic/core-geth
@@ -313,8 +396,9 @@ ENTRYPOINT ["geth"]
 ```
 
 Then, in that folder, download the latest release for `linux/amd64`, check it and build. For `linux/arm64`, put `arm64`
-where the file names say `linux`. On macOS, use `shasum -a 256 -c` in place of `sha256sum -c`. On a node that holds
-account keys or that others rely on, also [verify where the archive came from](#verify-where-the-archive-came-from):
+where the file names say `linux`. On Linux, the block needs `curl` and `unzip`, which [Linux, x86_64](#linux-x86_64)
+installs. On macOS, use `shasum -a 256 -c` in place of `sha256sum -c`. On a node that holds account keys or that others
+rely on, also [verify where the archive came from](#verify-where-the-archive-came-from):
 
 ```shell
 VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')

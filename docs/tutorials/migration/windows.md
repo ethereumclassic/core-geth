@@ -63,8 +63,9 @@ Get-Content "core-geth-win64-$VERSION.zip.sha256"
 
 Compare the last two lines: the letters must match, and the case does not matter. If they differ, delete the file and
 download it again. On a node that holds account keys or that others rely on, also check
-[where it came from](../../getting-started/installation.md#verify-where-the-archive-came-from), which needs the
-[GitHub CLI](https://cli.github.com/), signed in with `gh auth login`:
+[where it came from](../../getting-started/installation.md#verify-where-the-archive-came-from), which needs the GitHub
+CLI 2.49.0 or later, signed in, as [Check the GitHub CLI](../../getting-started/installation.md#check-the-github-cli)
+shows:
 
 ```powershell
 gh attestation verify "core-geth-win64-$VERSION.zip" --repo ethereumclassic/core-geth

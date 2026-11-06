@@ -77,8 +77,8 @@ docker pull $IMAGE
 ```
 
 With another of the methods above, set `IMAGE` to the name it gives you. On a node that holds account keys or that
-others rely on, also check where a pulled image came from, which needs the [GitHub CLI](https://cli.github.com/), signed
-in with `gh auth login`:
+others rely on, also check where a pulled image came from, which needs the GitHub CLI 2.49.0 or later, signed in, as
+[Check the GitHub CLI](../../getting-started/installation.md#check-the-github-cli) shows:
 
 ```bash
 gh attestation verify oci://$IMAGE --repo ethereumclassic/core-geth
@@ -111,14 +111,15 @@ When the check in [Before you start](#before-you-start) printed neither, copy th
 rename the key in the copy, and run the new container on the copy. The copy needs as much free space as the chain takes:
 
 ```bash
-mkdir -p $HOME/core-geth-data
-docker cp core-geth:/root/. $HOME/core-geth-data/
-docker run --rm -v $HOME/core-geth-data:/root --entrypoint sh $IMAGE \
-  -c "mv -n /root/.ethereum/classic/geth/nodekey /root/.ethereum/classic/geth/nodekey.old-rotated-$(date +%F)"
+mkdir -p $HOME/core-geth-data &&
+  docker cp core-geth:/root/. $HOME/core-geth-data/ &&
+  docker run --rm -v $HOME/core-geth-data:/root --entrypoint sh $IMAGE \
+    -c "mv -n /root/.ethereum/classic/geth/nodekey /root/.ethereum/classic/geth/nodekey.old-rotated-$(date +%F)"
 ```
 
-In step 5, give the new container `-v $HOME/core-geth-data:/root` in place of `--volumes-from core-geth-v1.12`. The
-chain carries over with the copy, so the node does not resync.
+Each line runs only if the one before it worked, so a failed copy stops before the rename. In step 5, give the new
+container `-v $HOME/core-geth-data:/root` in place of `--volumes-from core-geth-v1.12`. The chain carries over with the
+copy, so the node does not resync.
 
 ### If this node lists static peers, update the list
 

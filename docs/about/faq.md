@@ -86,7 +86,8 @@ lists on ChainList, for [Ethereum Classic, chain 61](https://chainlist.org/chain
 Check the archive against its published `.sha256`, then verify its build attestation with
 `gh attestation verify <file> --repo ethereumclassic/core-geth`. For a pulled container image, use
 `gh attestation verify oci://ghcr.io/ethereumclassic/core-geth:latest --repo ethereumclassic/core-geth`. Both need the
-[GitHub CLI](https://cli.github.com/), signed in with `gh auth login`. `go version -m geth` prints the Go version and the
+GitHub CLI 2.49.0 or later, signed in, as [Check the GitHub
+CLI](../getting-started/installation.md#check-the-github-cli) shows. `go version -m geth` prints the Go version and the
 commit a binary was built from without running it.
 [Verifying a download](../release-reports/v1.13.0.md#verifying-a-download) gives the commands.
 

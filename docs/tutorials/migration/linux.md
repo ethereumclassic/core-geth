@@ -56,7 +56,16 @@ Keep the old binary: step 6 uses it to roll back. These commands assume `geth` i
 
 ### Method A: release archive
 
-Download the latest release and check it:
+Install `curl` and `unzip`, which a minimal server can lack. On Debian or Ubuntu:
+
+```bash
+sudo apt-get update && sudo apt-get install -y curl unzip
+```
+
+On Fedora or RHEL, run `sudo dnf install -y --refresh curl unzip && sudo dnf upgrade -y curl unzip` instead, and on
+Arch, `sudo pacman -Syu --needed curl unzip`. Each line also updates curl and unzip if they are already installed.
+
+Then download the latest release and check it:
 
 ```bash
 VERSION=$(curl -sLo /dev/null -w '%{url_effective}' https://github.com/ethereumclassic/core-geth/releases/latest | sed 's|.*/||')
@@ -71,8 +80,8 @@ On an ARM machine, put the name for your processor where the file name says `lin
 
 `sha256sum -c` must print `OK`. If it prints `FAILED`, delete the file and download it again. On a node that holds
 account keys or that others rely on, also check [where it came
-from](../../getting-started/installation.md#verify-where-the-archive-came-from), which needs the [GitHub
-CLI](https://cli.github.com/), signed in with `gh auth login`:
+from](../../getting-started/installation.md#verify-where-the-archive-came-from), which needs the GitHub CLI 2.49.0 or
+later, signed in, as [Check the GitHub CLI](../../getting-started/installation.md#check-the-github-cli) shows:
 
 ```bash
 gh attestation verify core-geth-linux-$VERSION.zip --repo ethereumclassic/core-geth

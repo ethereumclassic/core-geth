@@ -64,8 +64,8 @@ browser instead, [clear the quarantine attribute](../../getting-started/installa
 
 `shasum -a 256 -c` must print `OK`. If it prints `FAILED`, delete the file and download it again. On a node that holds
 account keys or that others rely on, also check [where it came
-from](../../getting-started/installation.md#verify-where-the-archive-came-from), which needs the [GitHub
-CLI](https://cli.github.com/), signed in with `gh auth login`:
+from](../../getting-started/installation.md#verify-where-the-archive-came-from), which needs the GitHub CLI 2.49.0 or
+later, signed in, as [Check the GitHub CLI](../../getting-started/installation.md#check-the-github-cli) shows:
 
 ```bash
 gh attestation verify core-geth-osx-arm64-$VERSION.zip --repo ethereumclassic/core-geth
