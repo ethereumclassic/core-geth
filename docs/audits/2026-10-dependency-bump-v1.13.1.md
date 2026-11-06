@@ -1,5 +1,5 @@
 ---
-description: "The dependency changes in Core-Geth v1.13.1: Go 1.26.10, golang.org/x/net v0.62.0 and other Go modules, security updates to the documentation build, the CI tooling and the Alpine 3.24.3 container base, with the security advisories each change fixes."
+description: "The dependency changes in Core-Geth v1.13.1: Go 1.26.10, golang.org/x/net v0.62.0 and other Go modules, security updates to the documentation build, the CI tooling and the Alpine 3.24.4 container base, with the security advisories each change fixes."
 ---
 
 # Dependency bump: v1.13.0 to v1.13.1
@@ -27,16 +27,16 @@ in it since.
 
 **Work funded by:** [Ethereum Classic DAO](https://ethereumclassicdao.org)
 
-**Last edited:** November 1, 2026
+**Last edited:** November 6, 2026
 
 ## In short
 
 **Upgrade to [the latest v1.13 release](https://github.com/ethereumclassic/core-geth/releases/latest).**
 
 Each release in the `v1.13` line is built with the latest patch release of its Go version as of the
-day it is cut. `v1.13.0` was built with go1.26.8. As of November 1, 2026, `v1.13.1` is built with
-go1.26.10, and every module in its `go.mod` that has a published security fix moves to a fixed
-version.
+day it is cut. `v1.13.0` was built with go1.26.8. As of November 6, 2026, `v1.13.1` is built with
+go1.26.10, and every module in its `go.mod` with a security fix in a published release moves to a
+fixed version.
 
 Since `v1.13.0` was released, the Go team has published 14 security advisories for the Go standard
 library that affect go1.26.8:
@@ -51,14 +51,15 @@ go1.26.10 includes the fixes from go1.26.9, so `v1.13.1` fixes all 14. It also i
 - `golang.org/x/net` v0.62.0. This module has its own copy of Go's HTTP/2 code, and five of the
   October 8 issues need fixing there too. This version also fixes two advisories in the module's
   `html` package, which no `geth` binary includes. Other `golang.org/x` modules are updated with it.
-- `golang.org/x/image` v0.45.0 and `github.com/klauspost/compress` v1.18.7, which fix six advisories in
-  packages that no `geth` binary includes.
+- `golang.org/x/image` v0.45.0 and `github.com/klauspost/compress` v1.20.2, which fix seven advisories
+  in packages that no `geth` binary includes.
 - Security updates to three Python packages that build this documentation site. They are not part of
   `geth`.
-- Container images built on Alpine 3.24.3, which includes security fixes to musl (the C library),
-  OpenSSL and the system's trusted certificates. Both base images are pinned by digest.
-- Newer versions of the linter, the vulnerability scanner and five GitHub Actions used in CI and
-  releases, one of them with a security fix.
+- Container images built on Alpine 3.24.4, which includes security fixes to musl (the C library),
+  OpenSSL, the system's trusted certificates and `apk-tools`, the package manager. Both base images
+  are pinned by digest.
+- Newer versions of the linter, the vulnerability scanner, the tools that build the container images
+  and six GitHub Actions used in CI and releases. Three of them include security fixes.
 
 **Result.** A scan of a `geth` binary built from `v1.13.1` reports no Go standard library advisory, as
 of that date. The same scan of the published `v1.13.0` Linux binary reports 13 of the 14; the
@@ -127,11 +128,11 @@ commits.
 | Module | `v1.13.0` | `v1.13.1` | Why it is in the module list |
 |---|---|---|---|
 | `golang.org/x/image` | v0.41.0 | v0.45.0 | Used only by the MESS plotting tools in `core`, which build with `-tags plot` |
-| `github.com/klauspost/compress` | v1.16.7 | v1.18.7 | Used only by builds without cgo, through the pebble database; `geth` is always built with cgo |
+| `github.com/klauspost/compress` | v1.16.7 | v1.20.2 | Used only by builds without cgo, through the pebble database; `geth` is always built with cgo |
 
 The `golang.org/x/image` advisories were published between April and August 2026, before `v1.13.0`
-was released; the `github.com/klauspost/compress` advisory was published on October 20, 2026 in the
-GitHub Advisory Database. They are listed in the table below.
+was released; the two `github.com/klauspost/compress` advisories were published on October 20 and
+October 27, 2026 in the GitHub Advisory Database. They are listed in the table below.
 
 ### Which change fixes which advisory
 
@@ -147,9 +148,10 @@ GitHub Advisory Database. They are listed in the table below.
 | GO-2026-6354, GO-2026-6355 | `golang.org/x/crypto/ssh` | `golang.org/x/crypto` v0.56.0 or later |
 | GO-2026-6179, GO-2026-6180 | `golang.org/x/mod/sumdb` | `golang.org/x/mod` v0.40.0 or later |
 | GO-2026-4961, GO-2026-5061, GO-2026-5062, GO-2026-5066, GO-2026-6222 | `golang.org/x/image` (`webp`, `tiff`, `vp8l`) | `golang.org/x/image` v0.45.0 |
-| GO-2026-5841 (CVE-2026-63209) | `github.com/klauspost/compress/s2` | `github.com/klauspost/compress` v1.18.7 |
+| GO-2026-5841 (CVE-2026-63209) | `github.com/klauspost/compress/s2` | `github.com/klauspost/compress` v1.18.7 or later |
+| GO-2026-6865 (CVE-2026-116591) | `github.com/klauspost/compress` (`fse`, `huff0`) | `github.com/klauspost/compress` v1.20.2 |
 
-The first six rows are the 14 standard library advisories described above. The last five rows are twelve
+The first six rows are the 14 standard library advisories described above. The last six rows are thirteen
 advisories in packages that no Core-Geth binary includes, so they never affected a running node. They
 are listed because a scanner that checks module versions, rather than the code inside a binary,
 reports them.
@@ -167,22 +169,24 @@ part of `geth`. Three of them receive security updates:
 
 The other packages move to their current versions by the procedure written at the top of
 `requirements-mkdocs.txt`. `python-dateutil` moves to 4.0.0, which adds `tzdata` as a new package and no
-longer needs `six`. It, `pymdown-extensions` 12.3 and `watchdog` 7.0.0 are new major versions. None of the
+longer needs `six`. It, `pymdown-extensions` 12.3 and `watchdog` 7.1.0 are new major versions. None of the
 new versions has been withdrawn (yanked) by its publisher.
 
 ## Container images
 
 The Docker images are built in two stages. The first compiles `geth` in the `golang:1.26.10-alpine3.24`
 image and links it statically, so the binary includes that image's copy of musl, the C library. The
-second copies `geth` into an `alpine:3.24.3` image and installs the `ca-certificates` package, which
+second copies `geth` into an `alpine:3.24.4` image and installs the `ca-certificates` package, which
 holds the trusted certificates.
 
 Both base images are named by version and by digest, so every build uses the same base images until
 those lines change. In `v1.13.0` they followed the current Alpine release, through the
 `golang:1.26.8-alpine` and `alpine:latest` tags. Alpine 3.24.3, released October 21, 2026, includes
 security fixes to musl (CVE-2026-107891), to OpenSSL, and to `ca-certificates` for the same eMudhra
-certificate compromise. Both digests cover `linux/amd64` and `linux/arm64`. The packages each stage
-installs with `apk` still come from the Alpine 3.24 repository when the image is built.
+certificate compromise. Alpine 3.24.4, released November 5, 2026, adds a security fix to `apk-tools`,
+the package manager, which could crash on malformed data. Both digests cover `linux/amd64` and
+`linux/arm64`. The packages each stage installs with `apk` still come from the Alpine 3.24 repository
+when the image is built.
 
 ## CI and release tooling
 
@@ -192,11 +196,12 @@ These run in GitHub Actions and are not part of any binary or image.
 |---|---|---|---|
 | `docker/build-push-action` | v7.3.0 | v7.4.0 | Includes a fix for workflow command injection through metadata logs |
 | `docker/setup-buildx-action` | v4.3.0 | v4.4.1 | |
-| `docker/login-action` | v4.6.0 | v4.7.0 | |
+| `docker/login-action` | v4.6.0 | v4.8.0 | |
 | `actions/upload-artifact` | v7.0.1 | v7.0.2 | Retries rate-limited uploads |
 | `actions/setup-python` | v7.0.0 | v7.1.0 | |
-| Buildx, which builds the images | v0.37.0, from the runner image | v0.38.1 | Named in the workflow |
-| BuildKit, which Buildx runs | `buildx-stable-1`, a floating tag | v0.34.1 | Named by version and digest. Built with go1.26.10 |
+| `softprops/action-gh-release` | v3.0.3 | v3.0.4 | |
+| Buildx, which builds the images | v0.37.0, from the runner image | v0.38.2 | Named in the workflow. Fixes GHSA-xg6v-cv2h-2w5h and GHSA-rghq-x9hf-hc3r, in Bake, which the workflow does not use |
+| BuildKit, which Buildx runs | `buildx-stable-1`, a floating tag | v0.34.2 | Named by version and digest. Built with go1.26.10. Fixes GHSA-w26x-xg27-7qjc and GHSA-2fqp-xg6f-v7gj |
 | `stringer`, which `make devtools` installs | v0.49.0 | v0.51.0 | Follows `golang.org/x/tools` |
 | govulncheck, in the weekly scan | not present | v1.9.0 | The weekly scan was added after `v1.13.0` was released, with v1.8.0 |
 | gcc-9, in the EVMC job | 9.5.0 | removed | The job uses the runner's compiler, as the test jobs do |
@@ -221,8 +226,10 @@ for all six are in Core-Geth's code, and
 [Go toolchain](2026-09-go-toolchain.md#what-a-vulnerability-scanner-reports-against-v1130) shows where
 each one is. `v1.13.0` reports the same six.
 
-**One advisory with no fix, GO-2026-5932.** It marks the `golang.org/x/crypto/openpgp` package as
-unmaintained. There is no fixed version, and no Core-Geth binary includes that package.
+**One advisory with no fixed release, GO-2026-5932.** It marks the `golang.org/x/crypto/openpgp`
+package as unmaintained. Its fix moves that package out of `golang.org/x/crypto` into a module of its
+own, and `golang.org/x/crypto` v0.58.0, the version here, still includes it. No Core-Geth binary
+includes the package.
 
 ## How the v1.13 line stays current
 
@@ -263,9 +270,9 @@ itself is in the binary.
 - **Build and lint.** `go build ./...`, `go vet ./...` and `make lint` pass, as do the two special builds
   that use `golang.org/x/image` and `github.com/klauspost/compress`.
 
-**Advisories.** govulncheck v1.9.0 scanned three `geth` binaries on November 1, 2026, at module level and
+**Advisories.** govulncheck v1.9.0 scanned three `geth` binaries on November 6, 2026, at module level and
 at symbol level, against the Go vulnerability database (`vuln.go.dev`) as last modified
-2026-10-27T21:16:18Z, with 4,712 entries:
+2026-11-05T23:49:57Z, with 4,789 entries:
 
 | Binary | Built with | Standard library advisories, module level | Standard library advisories, symbol level |
 |---|---|---:|---:|
@@ -276,8 +283,10 @@ at symbol level, against the Go vulnerability database (`vuln.go.dev`) as last m
 The go1.26.9 and `v1.13.0` rows show that the scan does find standard library advisories when they are
 present. The `v1.13.0` file's checksum and build attestation were verified before it was scanned. All
 three binaries also report the six go-ethereum advisories described above, and GO-2026-5932 at module
-level only. A scan of the release branch's source code finds no vulnerable function that the code
-calls.
+level only. The `v1.13.0` binary also reports GO-2026-6354 and GO-2026-6355 in `golang.org/x/crypto`,
+and GO-2026-6860 and GO-2026-6866 in `golang.org/x/net`, at module level only; the newer versions of
+both modules in `v1.13.1` fix them. A scan of the release branch's source code finds no vulnerable
+function that the code calls.
 
 **Not checked:**
 
