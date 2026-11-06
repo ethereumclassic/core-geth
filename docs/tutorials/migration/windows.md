@@ -156,7 +156,21 @@ out](../v1.13.0-migration.md#if-you-added-discoverydns-or-bootnodes-on-v112).
 
 ## 5. Start and verify
 
-Start the node the way you always do. Then, in this order:
+Start the node with the flags it runs with, your MESS setting among them: `--mess` or `--mess=false`, as [Decide your
+MESS setting](../v1.13.0-migration.md#decide-your-mess-setting) explains. A node on `--datadir` started without that
+flag starts an empty chain in the default directory. If the node starts from the Startup folder, as the run guide's
+[Keep it running](../../getting-started/run/windows.md#6-keep-it-running-start-it-when-you-sign-in) sets up, run that
+command file instead. Otherwise, in PowerShell, in the folder that holds the node's `geth.exe`, add those flags to this
+line:
+
+```powershell
+.\geth.exe --classic
+```
+
+The node runs in this window until you stop it, so run the next steps in a second PowerShell window, in the same
+folder. For Mordor, use `--mordor` in place of `--classic`.
+
+Then, in this order:
 
 ```powershell
 .\geth.exe attach --exec 'admin.nodeInfo.name'  \\.\pipe\geth.ipc

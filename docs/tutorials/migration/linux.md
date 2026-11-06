@@ -164,11 +164,24 @@ out](../v1.13.0-migration.md#if-you-added-discoverydns-or-bootnodes-on-v112).
 
 ## 5. Start and verify
 
-Start the node the way you always do. For a systemd unit:
+Start the node with the flags it runs with, your MESS setting among them: `--mess` or `--mess=false`, as [Decide your
+MESS setting](../v1.13.0-migration.md#decide-your-mess-setting) explains. A node on `--datadir` started without that
+flag starts an empty chain in the default directory. Under the systemd unit in the [Linux run
+guide](../../getting-started/run/linux.md#6-keep-it-running-a-systemd-service), start the unit. `core-geth` stands for
+the unit you wrote, and the reload picks up any flag you changed in it:
 
 ```bash
 sudo systemctl daemon-reload && sudo systemctl start core-geth
 ```
+
+Otherwise, in a terminal, add those flags to this line:
+
+```bash
+geth --classic
+```
+
+The node runs in this terminal until you stop it, so run the next steps in a second terminal. For Mordor, use
+`--mordor` in place of `--classic`.
 
 Then, in this order:
 

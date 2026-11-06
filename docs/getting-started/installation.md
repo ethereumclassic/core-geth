@@ -28,9 +28,9 @@ On Linux and macOS, `uname -sm` prints both.
 **The executable is named `geth`.** `core-geth` is the project, the repository, the container image and the archive
 names.
 
-The Linux and macOS routes end with `geth` on your `PATH`, and the Windows route with `geth.exe` in `C:\core-geth`. Each
-archive on the [releases page](https://github.com/ethereumclassic/core-geth/releases) is a `.zip` holding the binary and
-`COPYING`, the license, with a `.sha256` file beside it.
+Each route ends at a running node, with `geth` on your `PATH` on Linux and macOS and `geth.exe` in `C:\core-geth` on
+Windows. Each archive on the [releases page](https://github.com/ethereumclassic/core-geth/releases) is a `.zip`
+holding the binary and `COPYING`, the license, with a `.sha256` file beside it.
 
 **Each route that downloads a release reads the latest release's tag into `VERSION`.** To install a different release,
 set `VERSION` to its tag instead of running that first line.
@@ -57,6 +57,14 @@ the binary will not start; [build from source](#build-from-source) there instead
 
 Before running it on a node that holds account keys or that others rely on, also
 [verify where the archive came from](#verify-where-the-archive-came-from).
+
+Then start a node on Ethereum Classic:
+
+```shell
+geth --classic
+```
+
+For the Mordor test network, run `geth --mordor` instead. [Running a node](run-a-node.md) takes it from there.
 
 ## Linux, ARM
 
@@ -89,6 +97,14 @@ sha256sum -c core-geth-arm64-$VERSION.zip.sha256 &&
 
 Before running it on a node that holds account keys or that others rely on, also
 [verify where the archive came from](#verify-where-the-archive-came-from).
+
+Then start a node on Ethereum Classic:
+
+```shell
+geth --classic
+```
+
+For the Mordor test network, run `geth --mordor` instead. [Running a node](run-a-node.md) takes it from there.
 
 ## macOS
 
@@ -129,6 +145,14 @@ shasum -a 256 -c core-geth-osx-arm64-$VERSION.zip.sha256 &&
 Before running it on a node that holds account keys or that others rely on, also
 [verify where the archive came from](#verify-where-the-archive-came-from).
 
+Then start a node on Ethereum Classic:
+
+```shell
+geth --classic
+```
+
+For the Mordor test network, run `geth --mordor` instead. [Running a node](run-a-node.md) takes it from there.
+
 ## Windows
 
 Download `core-geth-win64-<tag>.zip` and its `.sha256`. In PowerShell:
@@ -166,6 +190,15 @@ To keep `geth.exe` in another folder, unpack it there, and add that folder to `P
 
 Before running it on a node that holds account keys or that others rely on, also
 [verify where the archive came from](#verify-where-the-archive-came-from).
+
+Then start a node on Ethereum Classic:
+
+```powershell
+cd C:\core-geth
+.\geth.exe --classic
+```
+
+For the Mordor test network, run `.\geth.exe --mordor` instead. [Running a node](run-a-node.md) takes it from there.
 
 ## Verify where the archive came from
 
