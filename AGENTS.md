@@ -58,12 +58,19 @@ artifacts must name the same patch.**
 | `build/checksums.txt` | `# version:golang`, an **exact patch** | what `build/ci.go install -dlgo` downloads, which the ARM release archives build with |
 | `Dockerfile`, `Dockerfile.alltools` | a `golang:` tag naming an **exact patch** | the container images |
 | the other `.github/workflows/*.yml` | `go-version`, a **major** only | CI tests and checks; resolves to whatever patch the runner has |
+| `docs/developers/build-from-source.md` | the release `build/checksums.txt` pins, with SHA-256s | the Go a reader building from source installs |
 
 Read the current values from those files rather than from this table.
 
 **Change the release patch in all three release places together.** Each builds
 part of one release's binaries, so a patch changed in only one of them ships a
 release built by two toolchains.
+
+**A change to `# version:golang` also changes the build guide.**
+`docs/developers/build-from-source.md` names the pinned release, each archive's
+SHA-256 as `build/checksums.txt` lists it, and the Windows installer's SHA-256,
+which that file does not list: read it from go.dev's release feed,
+`https://go.dev/dl/?mode=json&include=all`. Nothing checks that the two agree.
 
 `build/checksums.txt` also pins the linter release. `make lint` downloads that
 exact version; it is never read from a locally installed copy.

@@ -346,10 +346,9 @@ The image also exposes 8546 for the WebSocket endpoint, which needs
 
 ## Build from source
 
-Building needs **Go 1.26 or later** and a C compiler; the developer guide has the
-[per-platform toolchain setup](../developers/build-from-source.md#dependencies)
-for both. This is also the route for a platform no archive covers, or a
-distribution older than the glibc floors above. These commands build `main`:
+This is also the route for a platform no archive covers, or a distribution older than the glibc floors above. A build
+needs Git, Go, a C compiler and, outside Windows, `make`: [Dependencies](../developers/build-from-source.md#dependencies)
+installs and checks each one for your platform, with Go at the release `main` pins. Then build `main`:
 
 === "Linux and macOS"
 
@@ -362,9 +361,11 @@ distribution older than the glibc floors above. These commands build `main`:
 
 === "Windows"
 
-    In PowerShell. `make geth` runs this same `go run` command on other systems:
+    In the PowerShell window you checked the tools in, one line at a time. `make geth` runs this same `go run` command
+    on other systems:
 
     ```powershell
+    cd $HOME
     git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git
     cd core-geth
     go run build/ci.go install ./cmd/geth
@@ -382,12 +383,63 @@ marked `-unstable`, such as `Core-Geth 1.13.1-unstable`, and a `Git Commit` line
 A release's checksum and attestation do not apply to a build: its commit identifies it. To check a build, compare the
 commit you checked out with the one the binary was built from. In the clone, both lines must name the same commit:
 
-```shell
-git rev-parse HEAD
-go version -m ./build/bin/geth | grep vcs.revision
-```
+=== "Linux and macOS"
 
-On Windows, run `go version -m .\build\bin\geth.exe` and read its `vcs.revision` line.
+    ```shell
+    git rev-parse HEAD
+    go version -m ./build/bin/geth | grep vcs.revision
+    ```
+
+=== "Windows"
+
+    ```powershell
+    git rev-parse HEAD
+    go version -m .\build\bin\geth.exe | Select-String vcs.revision
+    ```
+
+Then install the build where the release routes install the client:
+
+=== "Linux and macOS"
+
+    ```shell
+    ls build/bin/geth &&
+      sudo mkdir -p /usr/local/bin &&
+      sudo install -m 0755 build/bin/geth /usr/local/bin/geth &&
+      geth version
+    ```
+
+    Run this in the `core-geth` folder the build left you in: the first line stops the block anywhere else.
+    `geth version` must print the same first line and `Git Commit` line the build printed.
+
+=== "Windows"
+
+    ```powershell
+    New-Item -ItemType Directory -Force C:\core-geth | Out-Null
+    Copy-Item .\build\bin\geth.exe C:\core-geth\geth.exe
+    C:\core-geth\geth.exe version
+    ```
+
+    Run these in the `core-geth` folder the build left you in. The last line must print the same first line and
+    `Git Commit` line the build printed.
+
+Then start a node on Ethereum Classic:
+
+=== "Linux and macOS"
+
+    ```shell
+    geth --classic
+    ```
+
+    For the Mordor test network, run `geth --mordor` instead.
+
+=== "Windows"
+
+    ```powershell
+    cd C:\core-geth
+    .\geth.exe --classic
+    ```
+
+    For the Mordor test network, run `.\geth.exe --mordor` instead.
 
 `make all` builds every tool rather than the node alone.
 [Build from source](../developers/build-from-source.md) covers the full set of targets

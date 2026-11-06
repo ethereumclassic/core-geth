@@ -84,11 +84,14 @@ Go on only if `.\geth.exe version` reports a `v1.13` release.
 
 ### Method B: build from source
 
-Building needs Go 1.26 or later and a C compiler on `PATH`, such as MinGW-w64. This builds `main`, which takes fixes and
-dependency updates before a release does. It is not a release, and it keeps moving: two builds a day apart can be
-different code.
+Building needs Git, Go and a C compiler: [Dependencies](../../developers/build-from-source.md#dependencies) installs
+and checks each one, with Go at the release `main` pins. This builds `main`, which takes fixes and dependency updates
+before a release does. It is not a release, and it keeps moving: two builds a day apart can be different code.
+
+In the PowerShell window you checked the tools in, one line at a time:
 
 ```powershell
+cd $HOME
 git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git
 cd core-geth
 go run build/ci.go install ./cmd/geth
@@ -96,11 +99,21 @@ go run build/ci.go install ./cmd/geth
 ```
 
 The last line must print a version ending in `-unstable`, such as `Core-Geth 1.13.1-unstable`, and a `Git Commit` line.
-Note that commit: it identifies the code you run. Then go back to the folder that holds the node's `geth.exe`, rename it
-to `geth-v1.12.exe`, and copy `build\bin\geth.exe` from the clone into that folder: the steps below run from there. Do
-not clone with `--recursive`: the submodules are several gigabytes, and the build does not read them. If a `core-geth`
-folder is already there from an earlier build, run `git -C core-geth pull` in place of the clone. [Build from
-source](../../developers/build-from-source.md#source) says how changes reach `main`.
+Note that commit: it identifies the code you run. Do not clone with `--recursive`: the submodules are several
+gigabytes, and the build does not read them. If a `core-geth` folder is already there from an earlier build, run
+`git -C core-geth pull` in place of the clone. [Build from source](../../developers/build-from-source.md#source) says
+how changes reach `main`.
+
+Then go back to the folder that holds the node's `geth.exe`, keep the old binary, and copy the build in its place:
+
+```powershell
+Rename-Item .\geth.exe geth-v1.12.exe
+Copy-Item "$HOME\core-geth\build\bin\geth.exe" .\geth.exe
+.\geth.exe version
+```
+
+Go on only if `.\geth.exe version` prints the same first line and `Git Commit` line the build printed. The second line
+copies the build from `core-geth` in your home folder, where the build cloned it.
 
 ## 3. Rotate the P2P node key
 

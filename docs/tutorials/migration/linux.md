@@ -93,8 +93,9 @@ Each line runs only if the one before it worked. Go on only if `geth version` re
 
 ### Method B: build from source
 
-Building needs Go 1.26 or later and a C compiler. This builds `main`, which takes fixes and dependency updates before a
-release does. It is not a release, and it keeps moving: two builds a day apart can be different code.
+Building needs Git, Go, a C compiler and `make`: [Dependencies](../../developers/build-from-source.md#dependencies)
+installs and checks each one, with Go at the release `main` pins. This builds `main`, which takes fixes and dependency
+updates before a release does. It is not a release, and it keeps moving: two builds a day apart can be different code.
 
 ```bash
 git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git &&
@@ -105,7 +106,7 @@ git clone --branch main --single-branch https://github.com/ethereumclassic/core-
 
 Do not clone with `--recursive`: the submodules are several gigabytes, and `make geth` does not read them. If a
 `core-geth` folder is already there from an earlier build, run `git -C core-geth pull` in place of the clone.
-[Build from source](../../developers/build-from-source.md) covers the dependencies and how changes reach `main`.
+[Build from source](../../developers/build-from-source.md#source) says how changes reach `main`.
 
 Then, in that folder, keep the old binary and install the new one:
 

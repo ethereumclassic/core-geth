@@ -86,9 +86,9 @@ Each line runs only if the one before it worked. Go on only if `geth version` re
 
 ### Method B: build from source
 
-Building needs Go 1.26 or later and the Xcode Command Line Tools (`xcode-select --install`). This builds `main`, which
-takes fixes and dependency updates before a release does. It is not a release, and it keeps moving: two builds a day
-apart can be different code.
+Building needs the Xcode Command Line Tools and Go: [Dependencies](../../developers/build-from-source.md#dependencies)
+installs and checks both, with Go at the release `main` pins. This builds `main`, which takes fixes and dependency
+updates before a release does. It is not a release, and it keeps moving: two builds a day apart can be different code.
 
 ```bash
 git clone --branch main --single-branch https://github.com/ethereumclassic/core-geth.git &&

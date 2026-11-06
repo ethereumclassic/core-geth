@@ -50,6 +50,9 @@ one.
 `build/checksums.txt` also pins the linter release. `make lint`
 downloads that exact linter release rather than using a locally installed copy.
 
+`docs/developers/build-from-source.md` names the Go release `build/checksums.txt`
+pins, with its SHA-256s, so a change to `# version:golang` changes that guide too.
+
 **The Go module path is `github.com/ethereum/go-ethereum`, not a core-geth path.**
 Every internal import uses it. That is deliberate downstream compatibility — do
 not "fix" it, and do not expect package paths to match the repository name.
