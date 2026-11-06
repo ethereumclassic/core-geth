@@ -76,7 +76,7 @@ whatever either says.
 
 !!! warning "Pass `--mordor` alongside a configuration file dumped with it"
 
-        A dumped file does not contain the chain rules, so pass the network flag you dumped with every time you start from
+    A dumped file does not contain the chain rules, so pass the network flag you dumped with every time you start from
     it. With no network flag the node takes Ethereum Classic's rules, so a file dumped with `--classic` works without
     one. A file dumped with `--mordor` and started without the flag cannot follow Mordor.
 

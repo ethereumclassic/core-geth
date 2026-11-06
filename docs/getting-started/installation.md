@@ -4,7 +4,7 @@ description: "Download, verify and install a Core-Geth release on Linux, macOS, 
 ---
 
 !!! danger "Security advisory: the v1.12.x line"
-        Every `v1.12.x` release is affected by [the flaws the audits found](../index.md#what-was-audited). `v1.13.0` and
+    Every `v1.12.x` release is affected by [the flaws the audits found](../index.md#what-was-audited). `v1.13.0` and
     every release since fix them. Archives and images under the previous `etclabscore` namespace are not built from this
     source and do not carry those fixes. [Upgrading](../upgrading.md#leaving-the-v112x-line) covers the move.
 
@@ -155,7 +155,7 @@ C:\core-geth\geth.exe version
 To keep `geth.exe` in another folder, unpack it there, and add that folder to `PATH` to run it by name.
 
 !!! tip "If Windows warns about the publisher"
-        These binaries are not code-signed, so Windows shows their publisher as unknown, in the firewall alert on the first
+    These binaries are not code-signed, so Windows shows their publisher as unknown, in the firewall alert on the first
     start and in the *"Windows protected your PC"* screen. Check the archive first, against its checksum and
     [where it came from](#verify-where-the-archive-came-from). Then allow the firewall access, and select **More info**,
     then **Run anyway**. To avoid that screen for a file a browser downloaded, remove its mark before you extract it:

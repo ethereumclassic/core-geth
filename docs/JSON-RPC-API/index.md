@@ -49,6 +49,6 @@ for which namespaces an interface serves.
 
 !!! Attention
 
-        Read [RPC exposure](../operate/security.md#rpc-exposure) before you turn on HTTP or WebSocket. Attackers scan the
+    Read [RPC exposure](../operate/security.md#rpc-exposure) before you turn on HTTP or WebSocket. Attackers scan the
     internet for nodes with exposed APIs, and any browser tab can reach a web server on the same machine.
     [Public RPC endpoint](../guides/public-rpc-endpoint.md) covers serving JSON-RPC to other people.
