@@ -1,3 +1,7 @@
+---
+description: "Run a Core-Geth Ethereum Classic or Mordor node on Windows: from geth.exe to a node that starts when you sign in."
+---
+
 # Windows users guide
 
 This guide runs a node on Windows, on Ethereum Classic or on the Mordor test network, from
@@ -14,8 +18,10 @@ unpack `geth.exe` into `C:\core-geth`. Then:
 
 ```powershell
 cd C:\core-geth
-.\geth.exe version        # Core-Geth 1.13.0-stable
+.\geth.exe version
 ```
+
+The first line it prints names the client and its version.
 
 ## 2. Choose the network
 

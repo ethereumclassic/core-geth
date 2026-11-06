@@ -1,8 +1,9 @@
 ---
 title: Choose your role
+description: "Core-Geth guides by role: running an Ethereum Classic or Mordor node as an operator, exchange, miner, mining pool, developer or public RPC provider."
 ---
 
-Find the pages for what you run core-geth for. If you are upgrading, or deciding whether to, start with
+Find the pages for what you run Core-Geth for. If you are upgrading, or deciding whether to, start with
 [Node operators: start here](../operators.md).
 
 | You are | Start with | Then |

@@ -54,9 +54,9 @@ Cooperative winds down.
 ## This repository
 
 Maintenance moved to [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth), the Ethereum
-Classic community repository, created on 21 December 2024 from the preceding repository at commit
+Classic community repository, created on December 21, 2024 from the preceding repository at commit
 [`7ef3ecd7a`](https://github.com/ethereumclassic/core-geth/commit/7ef3ecd7a716354589c2f27ff8f4b74d7a5edf2e)
-(16 December 2024). That commit is preserved on the
+(December 16, 2024). That commit is preserved on the
 [`archive-etclabscore-2024-12`](https://github.com/ethereumclassic/core-geth/tree/archive-etclabscore-2024-12)
 branch and tagged
 [`archive/etclabscore-2024-12`](https://github.com/ethereumclassic/core-geth/releases/tag/archive%2Fetclabscore-2024-12),
@@ -70,30 +70,13 @@ reference client in the project's own organization is ordinary practice, as with
 
 The same proposal is on the Cooperative's own published roadmap.
 [Ethereum Classic Pathways](https://ethereumclassic.org/blog/2024-07-30-ethereum-classic-pathways-by-etc-cooperative-istora-and-donald-mcIntyre), published on
-30 July 2024 and attributed to the ETC Cooperative, Istora and Donald McIntyre, lists: *"Move Core Geth to the
+July 30, 2024 and attributed to the ETC Cooperative, Istora and Donald McIntyre, lists: *"Move Core Geth to the
 Ethereum Classic community GitHub repository: This would restore sovereignty of the community on the node client
 software."*
 
-**The community website's client entry has not followed.**
-[ethereumclassic.org/development/clients](https://ethereumclassic.org/development/clients) still sends readers to the
-previous project: its documentation site, its installation guide, its releases and its support channel. An
-operator who follows the website lands there rather than here.
-[#1678](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1678), opened on 20 March 2026 by a member of the
-[Cooperative's board](https://etccooperative.org/people), would point that entry at this repository and remove
-the previous organization's link from the site footer. It has not been merged. The same pull request carries a draft
-[migration announcement](https://github.com/ethereumclassic/ethereumclassic.github.io/blob/f6b004e9d3c7325f8d4b7133e47722959be4bf3b/content/blog/2026-08-01-coregeth-repository-migration/index.md) for the website, written by its author on 2 August 2026 and readable on the
-site's own [deploy preview](https://deploy-preview-1678--ethereumclassic.netlify.app/blog/2026-08-01-coregeth-repository-migration), which places the client's
-move in the consolidation the Cooperative announced in July 2024 and counts the community Discord's
-[November 2025 move](https://ethereumclassic.org/blog/2025-11-05-discord-migration/) as part of it. That
-announcement has not been published either. Three days before it,
-the website's footer link to this repository was reverted to the previous
-organization's GitHub page in [#1676](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1676), a revert three reviewers approved, one of them recording that
-"the etclabs repo is not maintained" and that "a longer term solution needs to be found". `v1.12.21` was
-published from the previous repository the following day.
-
 ## The maintenance gap
 
-After maintenance moved, the client went unfunded and unmaintained. The
+After maintenance moved, the client went unmaintained. The
 [March 2026 security audit](../audits/2026-03-security-audit.md) counts 21 months without security maintenance,
 from the `v1.12.20` release in June 2024 to March 2026. The previous repository received no commit between
 January 2025 and March 2026, and security disclosures sent to it privately in 2025 went unanswered.
@@ -102,16 +85,16 @@ January 2025 and March 2026, and security disclosures sent to it privately in 20
 
 In February 2026 White B0x began modernizing the client here for the Ethereum Classic DAO: patching the
 outstanding CVEs, moving to a supported Go toolchain, and rebuilding the release pipeline. In February and March
-2026 it reported that security work privately to the ETC Cooperative, which owns the previous repository. A live
-attack on Ethereum Classic bootnodes in March 2026 then confirmed the exposure.
+2026 it reported that security work privately to the `etclabscore/core-geth` maintainers. A live
+attack on the Core-Geth `v1.12` bootnodes in March 2026 then confirmed the exposure.
 
 The work reported privately was cut into the emergency `v1.12.21` and `v1.12.22` releases in the previous
 repository, which gave `v1.12.x` operators immediate relief while `v1.13` was tested on Ethereum Classic mainnet
 and Mordor from February to September 2026. The same fixes were submitted here as 27 individually scoped pull
 requests, [#10](https://github.com/ethereumclassic/core-geth/pull/10) through
-[#36](https://github.com/ethereumclassic/core-geth/pull/36), on 20 and 21 March 2026.
+[#36](https://github.com/ethereumclassic/core-geth/pull/36), on March 20 and 21, 2026.
 
-`v1.13.0` shipped on 14 September 2026, the first release published from this repository. What it fixes, and how
+`v1.13.0` shipped on September 14, 2026, the first release published from this repository and the start of the canonical v1.13 release line, where the client is now developed and released. What it fixes, and how
 each claim about it checks out against the record, are in the
 [release report](../release-reports/v1.13.0.md) and
 [v1.13.0: the record behind the release](../release-reports/v1.13.0-record.md).
@@ -125,22 +108,20 @@ repeated here.
 
 | When | What |
 | --- | --- |
-| 10 June 2024 | [`v1.12.20`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.20) is released from `etclabscore/core-geth`, the last release there before a 21-month gap |
-| 30 July 2024 | The ETC Cooperative's published roadmap lists moving Core-Geth to the community GitHub repository |
-| 16 December 2024 | [`7ef3ecd7a`](https://github.com/ethereumclassic/core-geth/commit/7ef3ecd7a716354589c2f27ff8f4b74d7a5edf2e), the last commit on the previous repository before this one is created |
-| 21 December 2024 | `ethereumclassic/core-geth` is created from that commit |
-| 23 January 2025 | The previous repository's last commit before 2026: a CI dependency bump, not a code change |
-| 10 November 2025 | The website's footer GitHub link is changed from the previous organization to this repository, inside [#1648](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1648), a pull request about the community's Discord |
-| 17 March 2026 | That footer change is reverted ([#1676](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1676)). Three reviewers approve it, one recording that "the etclabs repo is not maintained" and that "a longer term solution needs to be found" |
-| 18 March 2026 | [`v1.12.21`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.21) is published from the previous repository. Its release pull request records no review |
-| 20 March 2026 | [#1678](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1678) proposes pointing the website's client entry at this repository and removing the previous organization's footer link. It has not been merged |
-| 2 August 2026 | A draft [migration announcement](https://github.com/ethereumclassic/ethereumclassic.github.io/blob/f6b004e9d3c7325f8d4b7133e47722959be4bf3b/content/blog/2026-08-01-coregeth-repository-migration/index.md) for the website is added to that pull request. It has not been published |
-| 20 to 21 March 2026 | The security work is submitted here as pull requests [#10](https://github.com/ethereumclassic/core-geth/pull/10) to [#36](https://github.com/ethereumclassic/core-geth/pull/36), one per vulnerability, with tests and linked advisories |
-| 28 March 2026 | [`v1.12.22`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.22) is published from the previous repository |
-| 14 August 2026 | [`v1.12.23`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.23) is published from the previous repository |
-| 14 September 2026 | [`v1.13.0`](https://github.com/ethereumclassic/core-geth/releases/tag/v1.13.0) is released from this repository |
+| 2024-06-10 | [`v1.12.20`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.20) is released from `etclabscore/core-geth`, the last release there before a 21-month gap |
+| 2024-07-30 | The ETC Cooperative's published roadmap lists moving Core-Geth to the community GitHub repository |
+| December 2024 | The ETC Cooperative announces maintenance mode for Core-Geth and sets out moving it, with the network's other public goods, to the `ethereumclassic` community organization |
+| 2024-12-16 | [`7ef3ecd7a`](https://github.com/ethereumclassic/core-geth/commit/7ef3ecd7a716354589c2f27ff8f4b74d7a5edf2e), the last commit on the previous repository before this one is created |
+| 2024-12-21 | `ethereumclassic/core-geth` is created from that commit |
+| 2025-01-23 | The previous repository's last commit before 2026: a CI dependency bump, not a code change |
+| 2026-03-18 | [`v1.12.21`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.21) is published from the previous repository |
+| 2026-03-20 to 2026-03-21 | The security work is submitted here as pull requests [#10](https://github.com/ethereumclassic/core-geth/pull/10) to [#36](https://github.com/ethereumclassic/core-geth/pull/36), one per vulnerability, with tests and linked advisories |
+| 2026-03-28 | [`v1.12.22`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.22) is published from the previous repository |
+| 2026-08-14 | [`v1.12.23`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.23) is published from the previous repository |
+| 2026-09-14 | [`v1.13.0`](https://github.com/ethereumclassic/core-geth/releases/tag/v1.13.0) is released from this repository, beginning the v1.13 line and establishing the canonical release pipeline for Core-Geth in the `ethereumclassic` organization, where the client is now developed and released |
 
 ## Supporting the work
 
-Maintaining Core-Geth since it moved to the community repository has been unfunded public-goods work.
-[Support this work](../index.md#support-this-work) says how to fund it.
+Maintaining Core-Geth since it moved to the community repository is public-goods work, sustained by
+sponsorship and backed by the Ethereum Classic DAO. [Support this work](../index.md#support-this-work)
+says how to fund it.

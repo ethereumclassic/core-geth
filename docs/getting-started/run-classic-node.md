@@ -1,5 +1,6 @@
 ---
 title: Run an Ethereum Classic node
+description: "Run an Ethereum Classic node with Core-Geth, from first start to clean stop: the commands, what each start logs, how to tell the sync is done, and checking MESS."
 ---
 
 This page follows an Ethereum Classic node in depth, from its first start to a clean stop. Its
@@ -29,7 +30,7 @@ that it ignored them.
 ## Start it
 
 ```shell
-$ geth --classic --datadir <datadir>
+geth --classic --datadir <datadir>
 ```
 
 `<datadir>` is a directory on the disk that will hold the chain, and the node creates it on first
@@ -158,7 +159,7 @@ A new node is synced when all four of these hold.
 2. **`eth.syncing` returns `false`:**
 
     ```shell
-    $ geth --classic attach --exec 'eth.syncing' <datadir>/geth.ipc
+    geth --classic attach --exec 'eth.syncing' <datadir>/geth.ipc
     ```
 
     Until then it returns an object, even on a node that has not started syncing, and it stays an
@@ -169,14 +170,14 @@ A new node is synced when all four of these hold.
 3. **The node has peers.** This returns a number above zero:
 
     ```shell
-    $ geth --classic attach --exec 'net.peerCount' <datadir>/geth.ipc
+    geth --classic attach --exec 'net.peerCount' <datadir>/geth.ipc
     ```
 
 4. **Its head matches the network's.** Compare this with a block explorer or another node you
    operate; the two should match, give or take the blocks mined between the readings:
 
     ```shell
-    $ geth --classic attach --exec 'eth.blockNumber' <datadir>/geth.ipc
+    geth --classic attach --exec 'eth.blockNumber' <datadir>/geth.ipc
     ```
 
 After an upgrade from v1.12.x, use the checks in
@@ -241,22 +242,27 @@ A node started with the `console` subcommand stops differently; see
 `geth attach` without `--exec` opens an interactive JavaScript console on the running node:
 
 ```shell
-$ geth --classic attach <datadir>/geth.ipc
+geth --classic attach <datadir>/geth.ipc
 ```
 
 For programs and wallets, turn on the HTTP endpoint:
 
 ```shell
-$ geth --classic --datadir <datadir> --http
+geth --classic --datadir <datadir> --http
 ```
 
 It listens on `127.0.0.1:8545` only, and serves the `eth`, `net` and `web3` namespaces; `admin`
 calls are refused. Ask it for the chain ID:
 
 ```shell
-$ curl -s -X POST -H 'Content-Type: application/json' \
+curl -s -X POST -H 'Content-Type: application/json' \
     --data '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}' \
     http://127.0.0.1:8545
+```
+
+It prints:
+
+```
 {"jsonrpc":"2.0","id":1,"result":"0x3d"}
 ```
 
@@ -272,10 +278,11 @@ MESS ([ECBP-1100](https://ecips.ethereumclassic.org/ECIPs/ecip-1100)) is a defen
 chain reorganizations. Check whether it is on:
 
 ```shell
-$ geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
+geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
 ```
 
-`true` means MESS is on. [MESS](../operate/mess.md) explains how to turn it on or off.
+`true` means MESS is on. Before `v1.13.1` the call is `admin.ecbp1100Status().enabled`.
+[MESS](../operate/mess.md) explains how to turn it on or off.
 
 ## Next steps
 
@@ -296,4 +303,4 @@ $ geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
   [Command-line Options](run-cli.md#command-line-options), for every flag.
 - [JSON-RPC API](../JSON-RPC-API/index.md), and the [`eth` namespace](../JSON-RPC-API/modules/eth.md)
   for `eth_syncing` and the rest of it.
-- [Migrating to v1.13.0](../tutorials/v1.13.0-migration.md), if this machine ran a v1.12.x node.
+- [Upgrading](../upgrading.md), if this machine ran a v1.12.x node.

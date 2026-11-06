@@ -11,12 +11,18 @@ maintenance mode since the end of 2024. Its
 "cooperative-maintained services, including RPC endpoints", and states that the Cooperative will stay in
 maintenance mode until its funding runs out: *"At that time, it will be up to other stakeholders to take on any
 required maintenance of the ETC client, unless a new plan materializes."* The ETC Cooperative board has
-communicated that the Cooperative is scheduled to dissolve by the end of 2026.
+communicated that the Cooperative will dissolve.
 
 Long-time Ethereum Classic core developers are standing up replacements in the `ethereumclassic` organization, so
 that operators have somewhere to move before the Cooperative closes. One service has already stopped.
 
 !!! warning "What to do now"
+    - **Every node still on a `v1.12` release should move to the `v1.13` line.** The
+      [migration guide](tutorials/v1.13.0-migration.md) has the commands and checksums for each platform, and the
+      steps, including the required P2P node key rotation. A `v1.12` node that cannot move yet can
+      [add the `--discovery.dns` flag](#if-a-v112-node-cannot-move-yet) to read the `ethereumclassic`
+      organization's peer discovery lists, a small step that closes none of the flaws the audits found in the
+      `v1.12` line.
     - **Get Core-Geth releases from [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases).**
       The ETC Cooperative board has communicated its intent to archive `etclabscore/core-geth`.
     - **For a public endpoint today, use the lists on ChainList**, for
@@ -33,14 +39,47 @@ that operators have somewhere to move before the Cooperative closes. One service
 
 | Service | Before | Continues at | Status |
 | --- | --- | --- | --- |
-| Core-Geth client | [`etclabscore/core-geth`](https://github.com/etclabscore/core-geth), owned by the ETC Cooperative | [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth) | `v1.13.0` released on 14 September 2026 |
-| Peer discovery DNS trees | The trees published from [`etclabscore/discv4-dns-lists`](https://github.com/etclabscore/discv4-dns-lists) | The trees under `ethereumclassic.net`, `ethclassic.net` and `ethereumclassic.network`, published from [`ethereumclassic/discv4-dns-lists`](https://github.com/ethereumclassic/discv4-dns-lists) | Published since 10 September 2026 and built into `v1.13.0`. The previous trees still resolve, and the board has communicated that they are to be archived as the Cooperative dissolves |
+| Core-Geth client | [`etclabscore/core-geth`](https://github.com/etclabscore/core-geth), owned by the ETC Cooperative | [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth) | `v1.13.0` released on September 14, 2026 |
+| Peer discovery DNS trees | The trees published from [`etclabscore/discv4-dns-lists`](https://github.com/etclabscore/discv4-dns-lists) | The trees under `ethereumclassic.net`, `ethclassic.net` and `ethereumclassic.network`, published from [`ethereumclassic/discv4-dns-lists`](https://github.com/ethereumclassic/discv4-dns-lists) | Published since September 10, 2026 and built into `v1.13.0`. The previous trees still resolve, and the board has communicated that they will stop being updated as the Cooperative dissolves |
 | Bootnodes | The bootnodes built into `v1.12.x` | Three Classic and two Mordor bootnodes run by the Core-Geth maintainers, built into `v1.13.0` | Running |
 | Public JSON-RPC endpoints | `etc.rivet.link`, which [ethereumclassic.org](https://ethereumclassic.org/knowledge/metamask/) describes as provided by Rivet under contract with the ETC Cooperative, and `rpc.mordor.etccooperative.org` for Mordor, on the Cooperative's own domain | The lists on ChainList today; `rpc.ethereumclassic.net` and `rpc-mordor.ethereumclassic.net` as they are stood up, from [`ethereumclassic/public-rpc`](https://github.com/ethereumclassic/public-rpc) and [`ethereumclassic/nodes`](https://github.com/ethereumclassic/nodes) | `etc.rivet.link` went offline in late August 2026. See [Public JSON-RPC](#public-json-rpc) |
 | Security contact for stakeholders | The ETC Cooperative | <security@ethereumclassic.net> | Active |
 
 [Bootnodes and peer discovery](guides/bootnodes-and-discovery.md) explains how the discovery trees are built from a
 crawl of the network, and how to point a node at any other list.
+
+### If a v1.12 node cannot move yet
+
+Every node still on a `v1.12` release should move to the `v1.13` line. One that cannot move yet can take a small
+step. [`ethereumclassic/discv4-dns-lists`](https://github.com/ethereumclassic/discv4-dns-lists) records that the
+peer discovery lists a `v1.12` release reads by default stop being updated when the ETC Cooperative dissolves, so
+add `--discovery.dns` with the three trees that repository publishes for the node's network. The node stays
+exposed: the flag closes none of the flaws [the audits](releases.md#v1130) found in the `v1.12` line.
+
+After a [clean stop](getting-started/run-classic-node.md#stop-it-safely), add the flag to the command or unit you
+already start the node with:
+
+```sh
+geth --classic --discovery.dns "enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethereumclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethereumclassic.network"
+```
+
+Keep the node's other flags: a node on `--datadir` that runs this line as it stands starts an empty chain in the default
+directory. For Mordor, use `--mordor` and change `all.classic.` to `all.mordor.` in all three trees. On Windows, run
+`.\geth.exe` in place of `geth`. A container cannot take a new flag: stop it with `docker stop -t 300` and replace it,
+on the same data, with a container from the same `v1.12` image that has the flag after the image name. [Step 5 of the
+Docker guide](tutorials/migration/docker.md#5-start-and-verify) shows the commands; use the old image, which
+`docker inspect <container> --format '{{.Config.Image}}'` prints, in place of `$IMAGE`. Under systemd, run
+`sudo systemctl daemon-reload` after you edit the unit.
+
+The flag takes the place of the trees built into the release, and the node dials the nodes in a tree directly, so it
+does not need `--bootnodes` as well. A config file that lists discovery trees, as one `geth dumpconfig` wrote does, is
+the exception: the flag sets only `EthDiscoveryURLs`, so the node keeps the file's `SnapDiscoveryURLs`, the `v1.12`
+trees. For a node started from such a file, leave the flag out and replace the values of the file's `EthDiscoveryURLs`
+and `SnapDiscoveryURLs` lines with the three trees:
+[Using the trees](https://github.com/ethereumclassic/discv4-dns-lists/blob/main/docs/using-the-trees.md#core-geth-v112-line)
+lists them. When the node moves to the `v1.13` line, take the flag out, and any `--bootnodes` you added: that line reads
+these trees and its own bootnodes by default, and the flag would leave it no trees for snap peers.
+[Bootnodes and peer discovery](guides/bootnodes-and-discovery.md) covers both flags.
 
 ### Public JSON-RPC
 
@@ -72,19 +111,16 @@ fall behind or stop. Anything you depend on should run against a node you contro
 
 | When | What |
 | --- | --- |
-| 30 July 2024 | The Cooperative's published roadmap lists moving Core-Geth to the community GitHub repository |
-| End of 2024 | The ETC Cooperative enters maintenance mode |
-| 21 December 2024 | `ethereumclassic/core-geth` is created from `etclabscore/core-geth` at [`7ef3ecd7a`](https://github.com/ethereumclassic/core-geth/commit/7ef3ecd7a716354589c2f27ff8f4b74d7a5edf2e) |
-| 17 March 2026 | The website's footer link to this repository is reverted to the previous organization's GitHub page ([#1676](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1676)) |
-| 18 March 2026 | `v1.12.21` is published from the previous repository |
-| 20 March 2026 | A pull request to point the website's client entry at this repository and remove the previous organization's footer link is opened ([#1678](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1678)); it has not been merged |
-| 2 August 2026 | A draft [migration announcement](https://github.com/ethereumclassic/ethereumclassic.github.io/blob/f6b004e9d3c7325f8d4b7133e47722959be4bf3b/content/blog/2026-08-01-coregeth-repository-migration/index.md) for the website is added to that pull request; it has not been published |
-| 28 August 2026 | `ethereumclassic/discv4-dns-lists` is created |
+| 2024-07-30 | The Cooperative's published roadmap lists moving Core-Geth to the community GitHub repository |
+| End of 2024 | The ETC Cooperative enters maintenance mode and sets out moving its public goods, Core-Geth among them, to the `ethereumclassic` organization |
+| 2024-12-21 | `ethereumclassic/core-geth` is created from `etclabscore/core-geth` at [`7ef3ecd7a`](https://github.com/ethereumclassic/core-geth/commit/7ef3ecd7a716354589c2f27ff8f4b74d7a5edf2e) |
+| 2026-03-18 | `v1.12.21` is published from the previous repository |
+| 2026-08-14 | [`v1.12.23`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.23) is published from the previous repository, its last legacy release before v1.13.0 |
+| 2026-08-28 | `ethereumclassic/discv4-dns-lists` is created |
 | Late August 2026 | `etc.rivet.link` goes offline |
-| 31 August 2026 | `ethereumclassic/public-rpc` and `ethereumclassic/nodes` are created |
-| 10 September 2026 | The first crawl of the network is published from `ethereumclassic/discv4-dns-lists` |
-| 14 September 2026 | `v1.13.0` is released with the organization's bootnodes and discovery trees |
-| End of 2026 | The ETC Cooperative is scheduled to dissolve, as communicated by its board |
+| 2026-08-31 | `ethereumclassic/public-rpc` and `ethereumclassic/nodes` are created |
+| 2026-09-10 | The first crawl of the network is published from `ethereumclassic/discv4-dns-lists` |
+| 2026-09-14 | [`v1.13.0`](https://github.com/ethereumclassic/core-geth/releases/tag/v1.13.0) is released from `ethereumclassic/core-geth` with the organization's bootnodes and discovery trees, establishing the canonical release pipeline for Core-Geth, where the client is now developed and released |
 
 ## Why the `ethereumclassic` organization
 
@@ -94,17 +130,14 @@ fall behind or stop. Anything you depend on should run against a node you contro
 Cooperative's 2024 retrospective reproduces a conference slide by its Senior Editor, Donald McIntyre, proposing
 "Move Core Geth to the Ethereum Classic community repository" (page 24 of the PDF), and the Cooperative's
 published roadmap says the same: [Ethereum Classic Pathways](https://ethereumclassic.org/blog/2024-07-30-ethereum-classic-pathways-by-etc-cooperative-istora-and-donald-mcIntyre),
-30 July 2024, lists *"Move Core Geth to the Ethereum Classic community GitHub repository: This would restore
+July 30, 2024, lists *"Move Core Geth to the Ethereum Classic community GitHub repository: This would restore
 sovereignty of the community on the node client software."* Moving the services there keeps their code,
 configuration and history in public repositories under the community's name, with more than one maintainer, after
 the Cooperative closes.
 
-**The website's client entry still points at the previous project.**
-[ethereumclassic.org/development/clients](https://ethereumclassic.org/development/clients) links its documentation
-site, installation guide, releases and support channel, so use the release link on this page rather than the one
-on the website. [#1678](https://github.com/ethereumclassic/ethereumclassic.github.io/pull/1678), opened on 20 March 2026 by a member of the
-[Cooperative's board](https://etccooperative.org/people), would point that entry here and remove the previous
-organization's footer link. It has not been merged.
+**Core-Geth's releases and documentation are published from this repository.** The
+[releases page](https://github.com/ethereumclassic/core-geth/releases/latest) carries the current release, and
+[Installation](getting-started/installation.md) has the verified download and build steps.
 
 The [project history](https://github.com/ethereumclassic/core-geth#project-history) traces Core-Geth's code and its
 maintainers, and [v1.13.0: the record behind the release](release-reports/v1.13.0-record.md) sets out the record

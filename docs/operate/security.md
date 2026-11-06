@@ -5,7 +5,7 @@ description: "Securing an Ethereum Classic node: which ports and RPC modules to 
 
 A node needs only its peer-to-peer ports reachable from the internet. Everything else it listens on
 is for the machine itself or for a network you trust, and the table below says which listener is
-which. Before a binary runs on a node that holds value,
+which. Before a binary runs on a node that holds account keys or that others rely on,
 [verify where the archive came from](../getting-started/installation.md#verify-where-the-archive-came-from).
 
 ## Ports and listeners
@@ -32,7 +32,7 @@ user the node runs as, and by root.
 On Linux, `ss` lists what each process listens on:
 
 ```shell
-$ ss -lntup
+ss -lntup
 ```
 
 A node with the default settings has two lines, for peer connections and discovery on every
@@ -44,16 +44,7 @@ tcp LISTEN 0      4096                                       *:30303       *:* u
 ```
 
 HTTP, WebSocket and pprof each add a line on `127.0.0.1`, and metrics adds one on the address
-`--metrics.addr` names. These four lines come from a node that ran all of them, with metrics on
-`127.0.0.1` and every port moved off its default: metrics on 19514, pprof on 19515, HTTP on 19512 and
-WebSocket on 19513.
-
-```
-tcp LISTEN 0      4096                               127.0.0.1:19514 0.0.0.0:* users:(("geth",pid=<pid>,fd=6))
-tcp LISTEN 0      4096                               127.0.0.1:19515 0.0.0.0:* users:(("geth",pid=<pid>,fd=3))
-tcp LISTEN 0      4096                               127.0.0.1:19512 0.0.0.0:* users:(("geth",pid=<pid>,fd=70))
-tcp LISTEN 0      4096                               127.0.0.1:19513 0.0.0.0:* users:(("geth",pid=<pid>,fd=71))
-```
+`--metrics.addr` names.
 
 With the default `--nat any`, a node behind a router that supports UPnP or NAT-PMP asks the router to
 forward its peer-to-peer ports, and no other port. `--nat none` turns that off.
@@ -97,7 +88,7 @@ table inet core-geth {
 Load it as root:
 
 ```shell
-$ sudo nft -f core-geth.nft
+sudo nft -f core-geth.nft
 ```
 
 - **Other machines then reach only TCP and UDP 30303 and SSH.** That holds for an RPC listener bound
@@ -170,7 +161,7 @@ drops nodes outside those networks from discovery replies and from the bootnode 
 port still answers packets from any address; `--nodiscover` closes that port.
 
 ```shell
-$ geth --classic --datadir <datadir> --netrestrict 10.0.0.0/8,192.168.0.0/16
+geth --classic --datadir <datadir> --netrestrict 10.0.0.0/8,192.168.0.0/16
 ```
 
 `--maxpeers` caps the number of peers, 50 by default. `--maxpeers 0` does not close the
@@ -178,18 +169,14 @@ peer-to-peer port, which still listens.
 
 ## Clock
 
-Peer discovery depends on the clock. Every discovery packet carries an expiry time, set a fixed
-interval ahead of the sender's clock, and a node drops any packet whose expiry time has already
-passed by its own clock. When two nodes' clocks differ by more than that interval, the node whose
-clock is behind sends packets the other drops, so the request and reply that discovery needs
-between them never complete.
-
-Keep the clock synchronized with NTP. On a host that runs systemd, this reports whether it is:
+Peer discovery fails between two nodes whose clocks are too far apart, so keep the clock synchronized with NTP. On a host
+that runs systemd, this reports whether it is:
 
 ```shell
-$ timedatectl show -p NTPSynchronized
-NTPSynchronized=yes
+timedatectl show -p NTPSynchronized
 ```
+
+It prints `NTPSynchronized=yes` when the clock is synchronized.
 
 ## Reporting a vulnerability
 

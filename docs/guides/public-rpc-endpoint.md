@@ -6,12 +6,8 @@ description: "Serving Ethereum Classic JSON-RPC to other people from your own Co
 **Looking for an endpoint to use rather than one to run?**
 [Public JSON-RPC](../etc-cooperative-transition.md#public-json-rpc) lists what to point an application at today.
 
-A node that answers JSON-RPC for other people lets wallets, explorers and applications use Ethereum
-Classic without running a node of their own, and each endpoint run by an independent operator is one
-more way to reach the network. This page covers what core-geth does for such an endpoint by itself,
-and what has to sit in front of it.
-
-It starts from a synced node run as a service, as
+This page covers what Core-Geth does for an endpoint that serves JSON-RPC to other people, and what has to sit in front
+of it. It starts from a synced node run as a service, as
 [Run an Ethereum Classic node](../getting-started/run-classic-node.md) sets one up, with the
 firewall from [Security and network exposure](../operate/security.md#a-host-firewall) in place.
 
@@ -29,15 +25,20 @@ firewall from [Security and network exposure](../operate/security.md#a-host-fire
 Serve `eth`, `net` and `web3`, and name them on the command line:
 
 ```shell
-$ geth --classic --datadir <datadir> --http --http.api eth,net,web3
+geth --classic --datadir <datadir> --http --http.api eth,net,web3
 ```
 
 `rpc_modules` lists the namespaces an interface serves:
 
 ```shell
-$ curl -s -X POST -H 'Content-Type: application/json' \
+curl -s -X POST -H 'Content-Type: application/json' \
     --data '{"jsonrpc":"2.0","id":1,"method":"rpc_modules","params":[]}' \
     http://127.0.0.1:8545
+```
+
+It prints:
+
+```
 {"jsonrpc":"2.0","id":1,"result":{"eth":"1.0","net":"1.0","rpc":"1.0","web3":"1.0"}}
 ```
 
@@ -85,13 +86,18 @@ A proxy that passes the public hostname on to the node needs that hostname in th
 then replaces `localhost`:
 
 ```shell
-$ geth --classic --datadir <datadir> --http --http.api eth,net,web3 --http.vhosts rpc.example.org
+geth --classic --datadir <datadir> --http --http.api eth,net,web3 --http.vhosts rpc.example.org
 ```
 
 ```shell
-$ curl -s -X POST -H 'Content-Type: application/json' -H 'Host: rpc.example.org' \
+curl -s -X POST -H 'Content-Type: application/json' -H 'Host: rpc.example.org' \
     --data '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}' \
     http://127.0.0.1:8545
+```
+
+It prints:
+
+```
 {"jsonrpc":"2.0","id":1,"result":"0x3d"}
 ```
 
@@ -147,7 +153,7 @@ A reverse proxy or an RPC gateway in front of it supplies them:
 - a limit on the block range of `eth_getLogs`.
 
 GraphQL, turned on by `--graphql`, answers at `/graphql` on the HTTP listener and goes behind the
-same proxy. v1.13.0 refuses a GraphQL query that nests fields more than 20 deep, the fix for the
+same proxy. Core-Geth refuses a GraphQL query that nests fields more than 20 deep, the fix for the
 [GraphQL query depth](../audits/2026-03-security-audit.md#graphql-query-depth-dos) finding in the
 March 2026 audit.
 

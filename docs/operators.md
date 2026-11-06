@@ -10,43 +10,47 @@ that answers the questions operators actually arrive with.
 
 ## Do these four things
 
-1. **Upgrade to [v1.13.0 or later](https://github.com/ethereumclassic/core-geth/releases/latest).** Every published
-   `v1.12.20` to `v1.12.23` archive, the newest included, was built on an unsupported Go release and carries 55
-   to 61 Go standard library advisories that `v1.13.0` does not. The releases before `v1.12.21` also carry all
-   six client CVEs, two of which were exploited against Ethereum Classic bootnodes in March 2026. On
-   17 September 2026, 71 percent of the Core-Geth nodes on the network were running a release older than
-   `v1.12.23`, and 30 percent were running one older than `v1.12.21`. The
-   [migration guide](tutorials/v1.13.0-migration.md) has a guide per platform. Your chain data carries over, and
-   the upgrade costs about twenty minutes of downtime.
-
-    **What the network was running on 17 September 2026**, from [etcnodes.org](https://etcnodes.org),
-    524 Core-Geth nodes of 550:
-
-    | Running | Nodes | Share | Carries |
-    | --- | ---: | ---: | --- |
-    | `v1.12.20` and older | 158 | 30.2% | all six client CVEs, unpatched. Two were exploited against ETC bootnodes in March 2026 |
-    | `v1.12.21` | 50 | 9.5% | the ECIES crash and key oracle closed. Still missing two curve checks, the RLP work and the GraphQL limit. Go 1.21 |
-    | `v1.12.22` | 165 | 31.5% | the rest of the CVE backports, but CVE-2026-26313 only partly mitigated. Introduces the `eth_syncing` regression. Go 1.21 |
-    | `v1.12.23` | 138 | 26.3% | the delayed decoding series, and nothing else here is fixed: 55 to 61 Go advisories in the binary, no GraphQL depth limit, the `eth_syncing` regression untouched, and a response cap that can disconnect honest peers |
-    | `v1.12.24` | 4 | 0.8% | a development build of the previous repository's `master`, not a release |
-    | `v1.13.0` | 9 | 1.7% | **Recommended client:** six CVEs resolved and the GraphQL limit fixed, Go 1.26.8, zero Go advisories |
-
-    Each row is measured in the [Go toolchain audit](audits/2026-09-go-toolchain.md) and the
-    [March 2026 security audit](audits/2026-03-security-audit.md). The figures move:
-    `https://api.etcnodes.org/peers` is the instrument.
-2. **Rotate the P2P node key.** This one is required rather than precautionary: one of the fixed issues leaks
-   bits of that key across repeated handshakes, and the fix cannot recall what already leaked.
-   [How, and which peer lists to update](tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key).
+1. **Upgrade to [v1.13.0 or later](upgrading.md).** The
+   [migration guide](tutorials/v1.13.0-migration.md) has a guide per platform. Your chain data carries over. Budget
+   about twenty minutes for the steps; the node itself usually stops and starts in seconds. A `v1.12` node that cannot
+   move yet can
+   [add the `--discovery.dns` flag](etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet) to read the
+   `ethereumclassic` organization's peer discovery lists, a small step that closes none of the flaws the audits
+   found in the `v1.12` line.
+2. **Rotate the P2P node key.** This is required: one of the fixed flaws leaks bits of that key across repeated
+   handshakes, and no fix can recall what already leaked.
+   [How, and which peers' configuration to update](tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key).
 3. **Track releases at [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases).** A
    node tracking the previous repository will not see `v1.13.0`.
 4. **Decide your MESS setting, and give every node you run the same one.** `--mess` turns MESS on and
-   `--mess=false` turns it off; without either, the node uses the setting its release ships with, and
-   `admin.messStatus().enabled` shows whether MESS is on. MESS decides which of two competing
-   chains a node prefers during a deep reorganization and never whether a block is valid, so in normal
-   operation a node with it on and a node with it off follow the same chain.
-   [Which setting fits which operator](operate/mess.md#which-setting-fits-which-operator) sets out what
-   the setting decides for each kind of node. Nodes in one fleet that disagree can prefer different
-   chains, which is worse than either setting.
+   `--mess=false` turns it off; without either, the node uses the setting its release ships with. Once the node is in
+   sync with at least five peers, `admin.messStatus().enabled` shows whether MESS is on
+   (`admin.ecbp1100Status().enabled` before `v1.13.1`).
+   [Which setting fits which operator](operate/mess.md#which-setting-fits-which-operator) sets out the choice. Under
+   systemd, run `sudo systemctl daemon-reload` after you add the flag to the unit.
+
+## Why upgrade
+
+Every published `v1.12.20` to `v1.12.23` archive, the newest included, was built on an unsupported Go release and
+carries 55 to 61 Go standard library advisories, 43 to 48 of them present in the binary, that `v1.13.0` does not. The
+releases before `v1.12.21` also carry all six client CVEs, one of which, CVE-2026-22862, was exploited against the
+Core-Geth `v1.12` bootnodes in March 2026.
+
+**What the network was running on September 17, 2026**, from [etcnodes.org](https://etcnodes.org),
+524 Core-Geth nodes of 550:
+
+| Running | Nodes | Share | Carries |
+| --- | ---: | ---: | --- |
+| `v1.12.20` and older | 158 | 30.2% | all six client CVEs, unpatched. [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08) was exploited against the Core-Geth `v1.12` bootnodes in March 2026 |
+| `v1.12.21` | 50 | 9.5% | [CVE-2026-22862](https://github.com/ethereum/go-ethereum/commit/638741b08) and [CVE-2026-26315](https://github.com/ethereum/go-ethereum/commit/46bee92f9) closed. Still open: [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d), [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c), [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835), [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a) and the [GraphQL limit](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh). End-of-life Go 1.21 and 1.22, 55 to 61 Go standard library advisories (43 to 47 in the binary) |
+| `v1.12.22` | 165 | 31.5% | [CVE-2025-24883](https://github.com/ethereum/go-ethereum/commit/159fb1a1d) and [CVE-2026-26314](https://github.com/ethereum/go-ethereum/commit/895a8597c) backported, [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835) only partly mitigated. [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a) and the [GraphQL limit](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh) still open. Introduces the `eth_syncing` regression. End-of-life Go 1.21 and 1.22, 55 to 61 Go standard library advisories (43 to 47 in the binary) |
+| `v1.12.23` | 138 | 26.3% | [CVE-2026-26313](https://github.com/ethereum/go-ethereum/pull/33835) closed. [CVE-2026-22868](https://github.com/ethereum/go-ethereum/commit/fdfd1235a), the [GraphQL limit](https://github.com/graph-gophers/graphql-go/security/advisories/GHSA-mh3m-8c74-74xh) and the `eth_syncing` regression still open. Introduces a response cap that can disconnect peers answering correctly. End-of-life Go 1.21 and 1.22, 55 to 61 Go standard library advisories (43 to 47 in the binary) |
+| `v1.12.24` | 4 | 0.8% | a development build of the previous repository's `master`, not a release |
+| `v1.13.0` | 9 | 1.7% | **Recommended client:** six CVEs resolved and the GraphQL limit fixed, Go 1.26.8, zero Go standard library advisories when it shipped |
+
+Each row is measured in the [Go toolchain audit](audits/2026-09-go-toolchain.md) and the
+[March 2026 security audit](audits/2026-03-security-audit.md). The figures move:
+`https://api.etcnodes.org/peers` is the instrument.
 
 ## Then read, in this order
 
@@ -100,10 +104,10 @@ Report a security issue privately, never in a public issue: through this reposit
 point of contact as the ETC Cooperative dissolves. A person answers it: one of the core developers who maintain
 this client.
 
-Anything else, including a defect in `v1.13.0`, belongs in
+Anything else, including a defect in a `v1.13` release, belongs in
 [the repository's issues](https://github.com/ethereumclassic/core-geth/issues), where it is public and checkable.
 
 To talk to the people who maintain this client, the Ethereum Classic Core Developers run a
-[Discord](https://ethereumclassic.com/discord). It is the place for questions about running a node, an upgrade, or anything on these pages.
+[Discord](https://coregeth.com/discord). It is the place for questions about running a node, an upgrade, or anything on these pages.
 **It is not the place to report a vulnerability**: a public channel discloses it to everyone at once, which is
 what the private routes above exist to avoid.

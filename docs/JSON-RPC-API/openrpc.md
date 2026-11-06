@@ -1,5 +1,6 @@
 ---
 title: OpenRPC Discovery
+description: "OpenRPC service discovery in Core-Geth: the rpc.discover method that returns a machine-readable description of the JSON-RPC API over HTTP, WebSocket, IPC and console."
 hide:
   - toc        # Hide table of contents
 ---
@@ -16,7 +17,7 @@ Core-Geth supports [OpenRPC's Service Discovery method](https://spec.open-rpc.or
 !!! Example
 
     ```shell
-    $ curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"rpc_discover","params":[],"id":1}' http://localhost:8545
+    curl -X POST -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","method":"rpc_discover","params":[],"id":1}' http://localhost:8545
     ```
 
     An excerpt of the response from a v1.13 node, formatted for reading, with `[...]` marking

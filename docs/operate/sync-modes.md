@@ -1,5 +1,6 @@
 ---
 title: Sync modes and data retention
+description: "Core-Geth sync modes and data retention for an Ethereum Classic node: snap and full sync, the hash and path state schemes, and gcmode, with their disk, memory and sync-time trade-offs."
 ---
 
 A node's sync mode decides how a new data directory gets the chain's state, and its retention
@@ -32,7 +33,7 @@ disk, memory and sync time are on [Hardware requirements](../getting-started/har
 To use full sync, give the flag to a new data directory:
 
 ```shell
-$ geth --classic --datadir <datadir> --syncmode full
+geth --classic --datadir <datadir> --syncmode full
 ```
 
 A snap sync logs its chain and state downloads, then state healing, as
@@ -92,7 +93,7 @@ Fatal: Failed to register the Ethereum service: incompatible state scheme, store
 To use the path scheme, start from a new data directory:
 
 ```shell
-$ geth --classic --datadir <datadir> --state.scheme path
+geth --classic --datadir <datadir> --state.scheme path
 ```
 
 The two schemes keep old state differently: `--gcmode` changes how state is kept only under `hash`,
@@ -108,7 +109,7 @@ so the state of the blocks in between is not kept. With `archive`, it writes the
 block it executes. Under the path scheme, `--gcmode` does not change how state is kept.
 
 ```shell
-$ geth --classic --datadir <datadir> --gcmode archive
+geth --classic --datadir <datadir> --gcmode archive
 ```
 
 Archive mode also indexes every transaction and records key preimages, the addresses and storage

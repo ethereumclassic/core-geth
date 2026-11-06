@@ -7,7 +7,7 @@
 
 | Entity | Version |
 | --- | --- |
-| Source | <code>1.13.0-stable/generated-at:2026-09-14T07:51:25-06:00</code> |
+| Source | <code>1.13.1-unstable/generated-at:2026-10-12T21:10:57-06:00</code> |
 | OpenRPC | <code>1.2.6</code> |
 
 ---
@@ -962,7 +962,7 @@ func (api *AdminAPI) ExportChain(file string, first *uint64, last *uint64) (bool
 // or a range of blocks if first and last are non-nil.
 
 ```
-<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L49" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L59" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1077,7 +1077,7 @@ func (api *AdminAPI) ImportChain(file string) (bool, error) {
 	return true, nil
 }
 ```
-<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L97" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L107" target="_">View on GitHub →</a>
 </p>
 </details>
 
@@ -1187,7 +1187,7 @@ func (api *AdminAPI) MaxPeers(n int) (bool, error) {
 }// MaxPeers sets the maximum peer limit for the protocol manager and the p2p server.
 
 ```
-<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L238" target="_">View on GitHub →</a>
+<a href="https://github.com/ethereumclassic/core-geth/blob/main/eth/api_admin.go#L457" target="_">View on GitHub →</a>
 </p>
 </details>
 

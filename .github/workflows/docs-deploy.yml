@@ -12,6 +12,9 @@ on:
       # The theme override that emits the link preview metadata. It sits outside docs/,
       # so without this line an edit to it alone would build nothing.
       - overrides/**
+      # The build hook that writes the footer stamp, the FAQ's structured data and the
+      # sitemap dates. It sits outside docs/ too.
+      - mkdocs_hooks.py
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -28,6 +31,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # Each page's date and its sitemap lastmod come from the page's last commit,
+          # which a one-commit clone cannot show: every page would get the newest one.
+          fetch-depth: 0
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.12'

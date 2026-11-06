@@ -1,5 +1,6 @@
 ---
 title: Troubleshooting
+description: "Troubleshoot a Core-Geth Ethereum Classic node: no peers, stuck sync, database and disk errors, MESS and reorg messages, and what the node does once each is resolved."
 ---
 
 Each section starts from what you see and ends with what the node does once the problem is fixed.
@@ -105,6 +106,26 @@ Fatal: Error starting protocol stack: invalid peer config: light peer count (100
 - **Fix:** delete the `LightServ` and `LightPeers` lines from the file.
 - **Once fixed:** the node starts and keeps running.
 
+### Why does the node stop with `field 'ECBP1100' is not defined`?
+
+```
+Fatal: <config file>, line <line>: field 'ECBP1100' is not defined in ethconfig.Config, see https://godoc.org/github.com/ethereum/go-ethereum/eth/ethconfig#Config for available fields
+```
+
+The line can name `ECBP1100Disable` instead.
+
+- **Why:** `v1.12.19` replaced these two keys, so every release since refuses them, not only `v1.13`.
+- **Check:** this reads the file and starts no node, and prints the same line:
+
+    ```shell
+    geth --classic --config <config file> dumpconfig
+    ```
+
+- **Fix:** delete both lines. If a line held a block number,
+  [set MESS with a flag](../tutorials/v1.13.0-migration.md#decide-your-mess-setting) instead. Then delete the
+  [peer list lines](../tutorials/v1.13.0-migration.md#if-your-config-file-came-from-dumpconfig) as well.
+- **Once fixed:** the same command prints the configuration, and the node starts.
+
 ### Why does the node stop with `bind: address already in use`?
 
 ```
@@ -202,7 +223,9 @@ causes in order.
     ```
 
     Remove the flag, or list the peers to connect to in `StaticNodes`
-    ([Why does the node ignore `static-nodes.json`?](#why-does-the-node-ignore-static-nodesjson)).
+    ([Why does the node ignore `static-nodes.json`?](#why-does-the-node-ignore-static-nodesjson)). With neither, it has
+    peers only when other nodes dial it. If its key just changed,
+    [give them the new ID](#why-did-nodes-that-list-this-one-stop-connecting-after-its-key-changed).
 
 3. **The wrong network.** The first log line names the network the node is running
    ([Why does the node refuse its data directory, or start on the wrong network?](#why-does-the-node-refuse-its-data-directory-or-start-on-the-wrong-network)).
@@ -229,6 +252,17 @@ causes in order.
 7. **A configuration file from another network.** The file's `BootstrapNodes` replace the network's
    own ([Configuration](../getting-started/run-cli.md#configuration)).
 
+8. **The `v1.12` peer lists.** The peer discovery lists a `v1.12` release reads by default stop being
+   updated when the ETC Cooperative dissolves.
+
+    - **On `v1.12`,** move the node to the `v1.13` line: the [migration guide](../tutorials/v1.13.0-migration.md)
+      has the commands and the steps. Until
+      it can move, [add the `--discovery.dns` flag](../etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet)
+      to read the `ethereumclassic` organization's lists, a small step that closes none of the flaws the
+      audits found.
+    - **On `v1.13`,** a configuration file that `dumpconfig` wrote on `v1.12` keeps those lists until you
+      delete its [peer list lines](../tutorials/v1.13.0-migration.md#if-your-config-file-came-from-dumpconfig).
+
 **Once fixed:** `net.peerCount` returns a number above 0.
 
 ### Why did nodes that list this one stop connecting after its key changed?
@@ -241,7 +275,7 @@ neither node logs the failed connection at the default verbosity.
 - **Check:** read this node's enode, and compare it with the entry on the other node:
 
     ```shell
-    $ geth --classic attach --exec 'admin.nodeInfo.enode' <datadir>/geth.ipc
+    geth --classic attach --exec 'admin.nodeInfo.enode' <datadir>/geth.ipc
     ```
 
 - **Fix:** give the new enode to every node that lists this one, in `StaticNodes` or `TrustedNodes`.
@@ -250,7 +284,7 @@ neither node logs the failed connection at the default verbosity.
 - **Once fixed:** on the other node, `admin.peers` includes the new enode:
 
     ```shell
-    $ geth --classic attach --exec 'admin.peers.map(function(p){return p.enode})' <datadir>/geth.ipc
+    geth --classic attach --exec 'admin.peers.map(function(p){return p.enode})' <datadir>/geth.ipc
     ```
 
 ### Why does the node ignore `static-nodes.json`?
@@ -262,12 +296,24 @@ ERROR[..] The trusted-nodes.json file is deprecated and ignored. Use P2P.Trusted
 
 - **Why:** the node reads static and trusted peers only from its configuration file. It logs these
   lines when it finds the old files in `<datadir>/geth/`, and does not read them.
-- **Fix:** move each enode to the `StaticNodes` or `TrustedNodes` line under `[Node.P2P]`, in a
-  configuration file written by `dumpconfig`
-  ([Configuration](../getting-started/run-cli.md#configuration)), and start the node with `--config`.
-  The lines belong under `[Node.P2P]`, and a `[P2P]` table of its own stops the node:
+- **Fix:** move each enode to the `StaticNodes` or `TrustedNodes` line under `[Node.P2P]` in a configuration file,
+  and start the node with `--config`. A file holding only those lines is enough, and it changes nothing else the node
+  does:
+
+    ```toml
+    [Node.P2P]
+    StaticNodes = ["enode://<node ID>@<IP>:30303"]
+    ```
+
+    A file written by `dumpconfig` ([Configuration](../getting-started/run-cli.md#configuration)) is the better choice
+    when you want it to hold your other settings too. It also writes the network's discovery lists and bootnodes, and
+    those lines keep replacing the ones the client builds in, through later releases as well. Delete them unless you
+    want those lists to stay as they are.
+
+    A placeholder left in the file stops the node, and so does a `[P2P]` table of its own:
 
     ```
+    Fatal: <config file>, line <line>: (p2p.Config.StaticNodes) parse "enode://<node ID>@<IP>:30303": net/url: invalid userinfo
     Fatal: <config file>, line <line>: field 'P2P' is not defined in main.gethConfig
     ```
 
@@ -317,7 +363,7 @@ off. The line's `reason` gives the cause: `low peers` when the node has fewer pe
 and `stale safety interval` when the node's newest block is older than MESS allows.
 `Reorg disallowed` means MESS refused a reorganization to another chain.
 
-- **Check:** while MESS is off, `admin.messStatus()` reports `nodeSwitch` as `false`.
+- **Check:** while MESS is off, `admin.messStatus()` reports `nodeSwitch` as `false` (`admin.ecbp1100Status()` before `v1.13.1`).
 - **Fix:** bring back the node's [peers](#why-does-the-node-have-no-peers) or its
   [sync](#is-the-sync-stuck). MESS switches itself back on once the node is in sync with enough peers.
   [MESS](mess.md) describes both conditions.
@@ -359,11 +405,10 @@ core-geth.service: Main process exited, code=killed, status=9/KILL
 ```
 
 - **Why:** the machine ran short of memory, and the kernel's out-of-memory killer ended the node.
-- **Check:**
+- **Check:** this prints `Result=oom-kill`:
 
     ```shell
-    $ systemctl show core-geth -p Result
-    Result=oom-kill
+    systemctl show core-geth -p Result
     ```
 
 - **Fix:** lower `--cache`, the memory the node gives its caches
@@ -377,9 +422,14 @@ core-geth.service: Main process exited, code=killed, status=9/KILL
 ### Why does a request for the `finalized` or `safe` block fail?
 
 ```shell
-$ curl -s -X POST -H 'Content-Type: application/json' \
+curl -s -X POST -H 'Content-Type: application/json' \
     --data '{"jsonrpc":"2.0","id":1,"method":"eth_getBlockByNumber","params":["finalized",false]}' \
     http://127.0.0.1:8545
+```
+
+It prints:
+
+```
 {"jsonrpc":"2.0","id":1,"error":{"code":-32000,"message":"finalized block not found"}}
 ```
 
@@ -432,8 +482,7 @@ WARN [..] Unclean shutdown detected                booted=<time> age=<age>
 - **Why:** the node keeps a record of its recent unclean stops, and logs this line for each one on
   every start, including a start after a clean stop
   ([After an unclean stop](maintenance.md#after-an-unclean-stop)).
-- **Check:** compare `booted` with the time the previous run started. Only a line whose `booted`
-  matches that run is new.
+- **Check:** a line is new only if its `booted` time falls within the previous run.
 - **Fix:** none for an old line. A new line means the previous run was killed or crashed, and
   [After an unclean stop](maintenance.md#after-an-unclean-stop) says what the node does about it.
 
@@ -445,7 +494,7 @@ Before you open an issue, collect these:
    and the platform:
 
     ```shell
-    $ geth version
+    geth version
     ```
 
 2. **How the node runs:** the network, the command line or service unit, and the configuration file
@@ -456,7 +505,7 @@ Before you open an issue, collect these:
    log to a file, and `--verbosity 4` adds debug lines ([Logs](monitoring.md#logs)):
 
     ```shell
-    $ geth --classic --datadir <datadir> --log.file geth.log --verbosity 4
+    geth --classic --datadir <datadir> --log.file geth.log --verbosity 4
     ```
 
     The log shows the node's IP address and enode ID, in its `New local node record` and
@@ -466,8 +515,8 @@ Before you open an issue, collect these:
    ([Profiling](monitoring.md#profiling)), and save the dump while it hangs:
 
     ```shell
-    $ geth --classic --datadir <datadir> --pprof
-    $ curl -s -o goroutines.txt 'http://127.0.0.1:6060/debug/pprof/goroutine?debug=2'
+    geth --classic --datadir <datadir> --pprof
+    curl -s -o goroutines.txt 'http://127.0.0.1:6060/debug/pprof/goroutine?debug=2'
     ```
 
 5. **What you expected, what happened, and the steps that reproduce it.**

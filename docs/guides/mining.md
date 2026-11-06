@@ -1,5 +1,6 @@
 ---
 title: Mining
+description: "Mine Ethereum Classic with Core-Geth: the Etchash (ECIP-1099) proof-of-work algorithm, ECIP-1017 block rewards, activation blocks, and connecting a miner to a node."
 ---
 
 Ethereum Classic is secured by proof of work. Its mining algorithm is Etchash (ECIP-1099), a modified
@@ -7,7 +8,7 @@ Ethash that doubles the epoch length to 60,000 blocks so the DAG grows more slow
 block 11,700,000 on Ethereum Classic and from block 2,520,000 on Mordor. Block rewards follow ECIP-1017:
 the reward drops by 20% every 5,000,000 blocks.
 
-core-geth mines in two ways:
+Core-Geth mines in two ways:
 
 - **It hands work to external mining software** over JSON-RPC. GPU and ASIC miners and pool software
   work this way. [Mining pool node](mining-pool-node.md) covers a node that serves a pool.
@@ -38,10 +39,7 @@ block's header instead. Set it on the command line: the config file's `NotifyFul
 
 ## Mine on the CPU
 
-**This is for Mordor, not for Ethereum Classic mainnet.** Mainnet is mined by ASICs, so CPU threads
-find nothing there and the DAG generation and memory they cost buy nothing. On the test network the
-difficulty is low enough that a CPU does find blocks, which is what makes it useful for trying a
-setup end to end.
+**This is for Mordor, not for Ethereum Classic mainnet**, where ASICs mine and CPU threads find nothing.
 
 ```sh
 geth --mordor --mine --miner.threads 2 --miner.etherbase 0xYOUR_ADDRESS
@@ -51,8 +49,7 @@ geth --mordor --mine --miner.threads 2 --miner.etherbase 0xYOUR_ADDRESS
 `~/.ethash` by default. The node keeps up to two DAGs on disk (`--ethash.dagsondisk`) and one in memory
 (`--ethash.dagsinmem`).
 
-On mainnet, leave `--miner.threads` at its default of 0 and let mining hardware fetch work over the
-RPC endpoint, as the section above describes.
+
 
 ## Check that it is mining
 

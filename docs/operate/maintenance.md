@@ -1,5 +1,6 @@
 ---
 title: Maintenance, backup and upgrades
+description: "Maintain a Core-Geth Ethereum Classic node: what to back up, moving and upgrading a node within the v1.13.x line, the offline database commands, state pruning, and recovery after an unclean stop."
 ---
 
 This page covers keeping a node in service: what to back up, moving a node and upgrading it within
@@ -46,24 +47,10 @@ new key.
 
 ## Upgrading within v1.13.x
 
-A node on a v1.12.x release follows [Upgrading to v1.13.0](../tutorials/v1.13.0-migration.md)
+A node on a v1.12.x release follows [Upgrading](../upgrading.md)
 instead.
 
-1. **Read what changed.** Releases and their notes are on the
-   [releases page](https://github.com/ethereumclassic/core-geth/releases), and published
-   [security advisories](https://github.com/ethereumclassic/core-geth/security/advisories) describe
-   the vulnerabilities a release fixes.
-   [`SECURITY.md`](https://github.com/ethereumclassic/core-geth/blob/main/SECURITY.md) says how they
-   are disclosed.
-2. **Download and verify the new release**, following your route in
-   [Choose your route](../getting-started/installation.md#choose-your-route) and then
-   [Verify where the archive came from](../getting-started/installation.md#verify-where-the-archive-came-from).
-3. **Stop the node** and wait for the process to exit
-   ([Stop it safely](../getting-started/run-classic-node.md#stop-it-safely)).
-4. **Replace the binary**, or the image tag in a container, and start the node.
-5. **Check the result.** `geth version` reports the new release, and
-   [How to tell it is done](../getting-started/run-classic-node.md#how-to-tell-it-is-done) confirms
-   the node is back in sync.
+[Upgrade to the latest release](../upgrading.md#upgrade-to-the-latest-release) has the five steps.
 
 ## After an unclean stop
 
@@ -75,12 +62,12 @@ WARN [..] Unclean shutdown detected                booted=<time> age=<age>
 ```
 
 The node records its ten most recent unclean stops, and every later start logs this line once for
-each of them, including starts that follow a clean stop. One line on a start is therefore not proof
-that the run before it crashed: compare `booted` with the lines the previous start logged.
+each of them, including starts that follow a clean stop. A line is new only if its `booted` time falls within the
+previous run. A node updates `booted` every five minutes, so it is not the run's start time.
 
 If the node was importing blocks when it stopped, the state it held in memory for its newest blocks
 is gone. It logs `Head state missing, repairing` and moves its head back to a lower block whose
-state it still has. Check it with
+state it still has, then imports the blocks again. Check it with
 [How to tell it is done](../getting-started/run-classic-node.md#how-to-tell-it-is-done).
 
 A node that shuts itself down because its disk is nearly full stops cleanly
@@ -91,7 +78,7 @@ A node that shuts itself down because its disk is nearly full stops cleanly
 ### See what the database holds
 
 ```shell
-$ geth --classic --datadir <datadir> db inspect
+geth --classic --datadir <datadir> db inspect
 ```
 
 `db inspect` reads the whole database and prints a table with one row for each kind of data it holds.
@@ -119,7 +106,7 @@ synced nodes.
 ### Read the storage engine's statistics
 
 ```shell
-$ geth --classic --datadir <datadir> db stats
+geth --classic --datadir <datadir> db stats
 ```
 
 `db stats` prints the storage engine's own statistics: a table of its storage levels, then lines
@@ -128,7 +115,7 @@ about its log, flushes, compactions, caches and files. It prints the same statis
 ### Compact the database
 
 ```shell
-$ geth --classic --datadir <datadir> db compact
+geth --classic --datadir <datadir> db compact
 ```
 
 `db compact` rewrites the database's files, which drops data the node has deleted or overwritten. It
@@ -140,8 +127,7 @@ INFO [..] Triggering compaction
 INFO [..] Stats after compaction
 ```
 
-`geth db compact --help` warns that interrupting the command can corrupt the database, so let it
-finish.
+Interrupting `db compact` can corrupt the database, so let it finish.
 
 ## Offline state pruning
 
@@ -176,7 +162,7 @@ state of the block 127 below the head.
 **Prune**, with the node stopped:
 
 ```shell
-$ geth --classic --datadir <datadir> snapshot prune-state
+geth --classic --datadir <datadir> snapshot prune-state
 ```
 
 The command reads the state it keeps from the snapshot, writes a bloom filter of that state to disk,
@@ -204,13 +190,13 @@ you choose, such as one on another disk. To move the store of a synced node:
 2. Move the store:
 
     ```shell
-    $ mv <datadir>/geth/chaindata/ancient <ancient dir>
+    mv <datadir>/geth/chaindata/ancient <ancient dir>
     ```
 
 3. Start the node with `--datadir.ancient`, and add the flag to its service unit:
 
     ```shell
-    $ geth --classic --datadir <datadir> --datadir.ancient <ancient dir>
+    geth --classic --datadir <datadir> --datadir.ancient <ancient dir>
     ```
 
     As it starts, it logs where it opened the store:
@@ -232,7 +218,7 @@ the empty store before you move the real one back.
 `export` writes blocks to a file:
 
 ```shell
-$ geth --classic --datadir <datadir> export <file> <first block> <last block>
+geth --classic --datadir <datadir> export <file> <first block> <last block>
 ```
 
 ```
@@ -248,7 +234,7 @@ For a file name ending in `.gz` the output is compressed, and `import` reads it 
 full sync does:
 
 ```shell
-$ geth --classic --datadir <other datadir> import <file>
+geth --classic --datadir <other datadir> import <file>
 ```
 
 While it works it logs `Imported new chain segment` lines. When the file is done it prints its memory
@@ -273,7 +259,7 @@ use and compacts the database.
 starts:
 
 ```shell
-$ geth --classic --datadir <datadir> removedb
+geth --classic --datadir <datadir> removedb
 ```
 
 It asks about two parts in turn, and deletes a part only when you answer `y`. For a resync, answer `y`
