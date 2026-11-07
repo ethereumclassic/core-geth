@@ -56,14 +56,15 @@ artifacts must name the same patch.**
 | `go.mod` | the language version | what the module compiles against |
 | `.github/workflows/release-packages.yml` | `go-version`, an **exact patch** | the Linux x86_64, macOS and Windows release archives |
 | `build/checksums.txt` | `# version:golang`, an **exact patch** | what `build/ci.go install -dlgo` downloads, which the ARM release archives build with |
-| `Dockerfile`, `Dockerfile.alltools` | a `golang:` tag naming an **exact patch** | the container images |
+| `Dockerfile`, `Dockerfile.alltools` | a `golang:` tag naming an **exact patch** and an Alpine series, beside an `alpine:` tag naming an exact release, each with its digest | the container images |
 | the other `.github/workflows/*.yml` | `go-version`, a **major** only | CI tests and checks; resolves to whatever patch the runner has |
 
 Read the current values from those files rather than from this table.
 
 **Change the release patch in all three release places together.** Each builds
 part of one release's binaries, so a patch changed in only one of them ships a
-release built by two toolchains.
+release built by two toolchains. A Dockerfile's digest moves with its tag: read
+the new one from the registry.
 
 `build/checksums.txt` also pins the linter release. `make lint` downloads that
 exact version; it is never read from a locally installed copy.

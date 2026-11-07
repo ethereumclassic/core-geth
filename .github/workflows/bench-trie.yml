@@ -31,7 +31,7 @@ jobs:
         run: |
           go test -short ./trie -count 1 -p 1 -timeout 60m -run NONE -bench=. -v |& tee core-geth.txt
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: core-geth
           path: ./core-geth.txt
@@ -58,7 +58,7 @@ jobs:
         run: |
           go test -short ./trie -count 1 -p 1 -timeout 60m -run NONE -bench=. -v |& tee go-ethereum.txt
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: go-ethereum
           path: ./go-ethereum.txt

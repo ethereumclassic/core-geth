@@ -65,7 +65,7 @@ jobs:
         shell: bash
         env:
           GOTOOLCHAIN: local
-        run: go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.9.0
 
       - name: Build geth
         shell: bash

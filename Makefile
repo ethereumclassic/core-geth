@@ -135,11 +135,10 @@ docs-generate: ## Generate JSON RPC API documentation from the OpenRPC service d
 # deprecated in favour of google.golang.org/protobuf. Migrating regenerates the
 # trezor bindings, which is a code change in its own right and is not made here.
 devtools:
-	env GOBIN= go install golang.org/x/tools/cmd/stringer@v0.49.0
+	env GOBIN= go install golang.org/x/tools/cmd/stringer@v0.51.0
 	env GOBIN= go install github.com/fjl/gencodec@v0.1.2
 	env GOBIN= go install github.com/golang/protobuf/protoc-gen-go@v1.5.4
 	env GOBIN= go install ./cmd/abigen
-	@type "solc" 2> /dev/null || echo 'Please install solc'
 	@type "protoc" 2> /dev/null || echo 'Please install protoc'
 
 #? help: Get more info on make commands.
