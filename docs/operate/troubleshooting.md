@@ -256,10 +256,9 @@ causes in order.
    updated when the ETC Cooperative dissolves.
 
     - **On `v1.12`,** move the node to the `v1.13` line: the [migration guide](../tutorials/v1.13.0-migration.md)
-      has the commands and the steps. Until
-      it can move, [add the `--discovery.dns` flag](../etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet)
-      to read the `ethereumclassic` organization's lists, a small step that closes none of the flaws the
-      audits found.
+      has the commands and the steps. Until it can move,
+      [point it at the lists and bootnodes the `v1.13` line ships](../etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet),
+      a small step that closes none of the flaws the audits found.
     - **On `v1.13`,** a configuration file that `dumpconfig` wrote on `v1.12` keeps those lists until you
       delete its [peer list lines](../tutorials/v1.13.0-migration.md#if-your-config-file-came-from-dumpconfig).
 

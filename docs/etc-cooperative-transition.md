@@ -20,9 +20,8 @@ that operators have somewhere to move before the Cooperative closes. One service
     - **Every node still on a `v1.12` release should move to the `v1.13` line.** The
       [migration guide](tutorials/v1.13.0-migration.md) has the commands and checksums for each platform, and the
       steps, including the required P2P node key rotation. A `v1.12` node that cannot move yet can
-      [add the `--discovery.dns` flag](#if-a-v112-node-cannot-move-yet) to read the `ethereumclassic`
-      organization's peer discovery lists, a small step that closes none of the flaws the audits found in the
-      `v1.12` line.
+      [read the peer discovery lists and bootnodes the `v1.13` line ships](#if-a-v112-node-cannot-move-yet), a small
+      step that closes none of the flaws the audits found in the `v1.12` line.
     - **Get Core-Geth releases from [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases).**
       The ETC Cooperative board has communicated its intent to archive `etclabscore/core-geth`.
     - **For a public endpoint today, use the lists on ChainList**, for
@@ -50,35 +49,48 @@ crawl of the network, and how to point a node at any other list.
 
 ### If a v1.12 node cannot move yet
 
-Every node still on a `v1.12` release should move to the `v1.13` line. One that cannot move yet can take a small
-step. [`ethereumclassic/discv4-dns-lists`](https://github.com/ethereumclassic/discv4-dns-lists) records that the
-peer discovery lists a `v1.12` release reads by default stop being updated when the ETC Cooperative dissolves, so
-add `--discovery.dns` with the three trees that repository publishes for the node's network. The node stays
-exposed: the flag closes none of the flaws [the audits](releases.md#v1130) found in the `v1.12` line.
+Every node still on a `v1.12` release should move to the `v1.13` line. One that cannot move yet can take a small step:
+read the peer discovery lists and bootnodes the `v1.13` line ships.
+[`ethereumclassic/discv4-dns-lists`](https://github.com/ethereumclassic/discv4-dns-lists) records that the lists a
+`v1.12` release reads by default stop being updated when the ETC Cooperative dissolves. The node stays exposed: the step
+closes none of the flaws [the audits](releases.md#v1130) found in the `v1.12` line. It is for `v1.12.17` and later
+releases: a node on an older one follows an obsolete chain and
+[resyncs instead](tutorials/v1.13.0-migration.md#if-the-node-runs-a-release-before-v11217).
 
-After a [clean stop](getting-started/run-classic-node.md#stop-it-safely), add the flag to the command or unit you
+After a [clean stop](getting-started/run-classic-node.md#stop-it-safely), add both flags to the command or unit you
 already start the node with:
 
 ```sh
-geth --classic --discovery.dns "enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethereumclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethereumclassic.network"
+geth --classic --discovery.dns "enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethereumclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.classic.ethereumclassic.network" --bootnodes "enode://5c1f4f1c8036879c3186f0632ce0fdf3514e67679f0b5e1814335f5093a21c6c2fda20266ca2b54aac3305085fa46d9711493da1b564489ecec7b37d1aebb5f6@178.104.220.119:30303,enode://82100619a51fed73bce973a5f7ead3a9468535bdd4c87488037f99bf53b741e4701c5909b7c92897c863c23e494e27c83470a2fcbcc51f8b49655ed377dbd962@135.148.46.64:30303,enode://d77bc6696fc2a1419871c8819baef44089cd1847b1b895266382892fd04571cc01a97c45d4df6cbe4c37004195a3c578a76e706d12548916ca5c4341768b1972@62.72.47.101:30303"
 ```
 
-Keep the node's other flags: a node on `--datadir` that runs this line as it stands starts an empty chain in the default
-directory. For Mordor, use `--mordor` and change `all.classic.` to `all.mordor.` in all three trees. On Windows, run
-`.\geth.exe` in place of `geth`. A container cannot take a new flag: stop it with `docker stop -t 300` and replace it,
-on the same data, with a container from the same `v1.12` image that has the flag after the image name. [Step 5 of the
-Docker guide](tutorials/migration/docker.md#5-start-and-verify) shows the commands; use the old image, which
-`docker inspect <container> --format '{{.Config.Image}}'` prints, in place of `$IMAGE`. Under systemd, run
+On Mordor, Ethereum Classic's test network, use this line instead:
+
+```sh
+geth --mordor --discovery.dns "enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.mordor.ethereumclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.mordor.ethclassic.net,enrtree://APDLRZ2T7ERXPWXX4D5USB32NIFYHXMFVZQ3DZALK6JJJ5L4VSYIQ@all.mordor.ethereumclassic.network" --bootnodes "enode://d6f2e535a2d183f930bd780913d1d4169d3479f22c2941117d10184d65adbb614866db83049438c17657d1b24a53f3560280f563305426e93868a9a98a02c5fc@2.29.31.123:30303,enode://b0b8da5708a22a0bc92e993c6fb93801d1bc5956efaf3ef7cafcd3af2167f634a2147abb6913a719d61ed03e180aa2045ffea7bd2e367db589165e83058df487@40.160.140.180:30303"
+```
+
+`--discovery.dns` takes the place of the lists built into the release, and `--bootnodes` the place of its bootnodes,
+with the ones the Core-Geth maintainers run. If the command already has either flag, replace that flag's values with
+these. The node needs no working bootnode to use the lists: it dials the nodes in them directly. Keep the node's other
+flags: a node on `--datadir` that runs this line as it stands starts an empty chain in the default directory. On
+Windows, run `.\geth.exe` in place of `geth`. A container cannot take a new flag: stop it with `docker stop -t 300` and
+replace it, on the same data, with a container from the same `v1.12` image that has both flags after the image name.
+[Step 5 of the Docker guide](tutorials/migration/docker.md#5-start-and-verify) shows the commands; use the old image,
+which `docker inspect <container> --format '{{.Config.Image}}'` prints, in place of `$IMAGE`. Under systemd, run
 `sudo systemctl daemon-reload` after you edit the unit.
 
-The flag takes the place of the trees built into the release, and the node dials the nodes in a tree directly, so it
-does not need `--bootnodes` as well. A config file that lists discovery trees, as one `geth dumpconfig` wrote does, is
-the exception: the flag sets only `EthDiscoveryURLs`, so the node keeps the file's `SnapDiscoveryURLs`, the `v1.12`
-trees. For a node started from such a file, leave the flag out and replace the values of the file's `EthDiscoveryURLs`
-and `SnapDiscoveryURLs` lines with the three trees:
+A node started from a config file that names discovery lists, as one `geth dumpconfig` wrote does, needs the file
+changed as well: `--discovery.dns` sets only `EthDiscoveryURLs`, so the node would keep the file's `SnapDiscoveryURLs`,
+the `v1.12` lists. Replace the values of the file's `EthDiscoveryURLs` and `SnapDiscoveryURLs` lines, under `[Eth]`,
+with the three lists, and delete its `BootstrapNodes` and `BootstrapNodesV5` lines, under `[Node.P2P]`: `--bootnodes`
+takes their place. Then start the node with `--bootnodes` and without `--discovery.dns`.
 [Using the trees](https://github.com/ethereumclassic/discv4-dns-lists/blob/main/docs/using-the-trees.md#core-geth-v112-line)
-lists them. When the node moves to the `v1.13` line, take the flag out, and any `--bootnodes` you added: that line reads
-these trees and its own bootnodes by default, and the flag would leave it no trees for snap peers.
+shows the file.
+
+When the node moves to the `v1.13` line, take both flags out, and delete the two list lines this step put in a config
+file. That line reads these lists and its own bootnodes by default: `--bootnodes` would hold it to the bootnodes it
+names, and `--discovery.dns` would leave it no lists for snap peers.
 [Bootnodes and peer discovery](guides/bootnodes-and-discovery.md) covers both flags.
 
 ### Public JSON-RPC

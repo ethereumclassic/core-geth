@@ -16,9 +16,8 @@ that answers the questions operators actually arrive with.
    [resyncs instead](tutorials/v1.13.0-migration.md#if-the-node-runs-a-release-before-v11217). Budget
    about twenty minutes for the steps; the node itself usually stops and starts in seconds. A `v1.12` node that cannot
    move yet can
-   [add the `--discovery.dns` flag](etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet) to read the
-   `ethereumclassic` organization's peer discovery lists, a small step that closes none of the flaws the audits
-   found in the `v1.12` line.
+   [read the peer discovery lists and bootnodes the `v1.13` line ships](etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet),
+   a small step that closes none of the flaws the audits found in the `v1.12` line.
 2. **Rotate the P2P node key.** This is required: one of the fixed flaws leaks bits of that key across repeated
    handshakes, and no fix can recall what already leaked.
    [How, and which peers' configuration to update](tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key).

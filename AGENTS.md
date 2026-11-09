@@ -212,6 +212,11 @@ Reading an activation block out of this file is the only reliable way to know
 what is configured. Do not restate a fork schedule from memory, and do not infer
 one network's rules from another's.
 
+**`docs/etc-cooperative-transition.md` writes out what `params/bootnodes_classic.go`
+and `params/bootnodes_mordor.go` hold:** each network's discovery lists and
+bootnodes, in its section for a `v1.12` node that cannot move yet. A change to
+either file also changes that section. Nothing checks that the two agree.
+
 ## Version
 
 `params/version.go` is the single source, and `VersionName` is `CoreGeth`.

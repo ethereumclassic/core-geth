@@ -154,6 +154,11 @@ node prefers, never whether a block is valid. In normal network conditions it do
 Read activation blocks out of the file. Do not restate a fork schedule from
 memory, and do not infer one network's rules from another's.
 
+**`docs/etc-cooperative-transition.md` writes out what `params/bootnodes_classic.go`
+and `params/bootnodes_mordor.go` hold:** each network's discovery lists and
+bootnodes, in its section for a `v1.12` node that cannot move yet. A change to
+either file also changes that section. Nothing checks that the two agree.
+
 `params/version.go` is the single source of the version. Read the constants
 there rather than repeating them here; `VersionMeta` advances `unstable` →
 `RC1`, `RC2`, … → `stable` as tags are cut.
