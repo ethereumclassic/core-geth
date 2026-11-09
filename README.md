@@ -6,7 +6,7 @@
 |---|---|
 | **Website** | [coregeth.com](https://coregeth.com), documentation at [docs.coregeth.com](https://docs.coregeth.com) |
 | **Repository** | [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth) |
-| **Current release** | the v1.13 line, [latest release](https://github.com/ethereumclassic/core-geth/releases/latest) |
+| **Release line** | v1.13, [latest release](https://github.com/ethereumclassic/core-geth/releases/latest) |
 | **Maintainers** | the **@ethereumclassic/core-developers** team, in the [`ethereumclassic`](https://github.com/ethereumclassic) organization |
 
 Core-Geth implements every Ethereum Classic fork, and the consensus rules are maintained here by the Ethereum Classic core developers: several admins and contributors in the `ethereumclassic` organization, not any single person or company.

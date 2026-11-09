@@ -148,7 +148,7 @@ configuration and history in public repositories under the community's name, wit
 the Cooperative closes.
 
 **Core-Geth's releases and documentation are published from this repository.** The
-[releases page](https://github.com/ethereumclassic/core-geth/releases/latest) carries the current release, and
+[releases page](https://github.com/ethereumclassic/core-geth/releases/latest) carries the latest release, and
 [Installation](getting-started/installation.md) has the verified download and build steps.
 
 The [project history](https://github.com/ethereumclassic/core-geth#project-history) traces Core-Geth's code and its
