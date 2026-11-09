@@ -19,11 +19,7 @@ the Ethereum Classic organization's own repository.** `origin` is
 `main` carries zero commits `origin/main` does not already have: this branch is
 fully pushed to the organization's own remote, not a fork's local staging area.
 Root wiring artifacts committed here land in this organization's own tree,
-never in a separate maintainer's review queue. (Three auxiliary local-only
-branches — `main-wired`, `pre-condense-backup`, `reference/modernize-go-1.26` —
-do carry commits `origin` does not have; none of them is what this file
-describes or what gets wired.) Recorded 2026-09-04 so a later session does not
-re-ask.
+never in a separate maintainer's review queue.
 
 ## Branching
 
@@ -136,9 +132,8 @@ GitHub Actions under `.github/workflows/` is what actually runs:
 `test-linux.yml` (lint plus both test suites), `evmc.yml`, `go-generate-check.yml`,
 `bench-*.yml`, `docs-deploy.yml`, `release-packages.yml`, `audit-bootnodes.yml`.
 
-**Which workflow fires on what is not uniform, and the branch names are
-mid-transition.** Verify against the workflow file rather than assuming a push
-was tested:
+**Which workflow fires on what is not uniform.** Verify against the workflow
+file rather than assuming a push was tested:
 
 | Fires on | Workflows |
 |---|---|
