@@ -3,7 +3,7 @@ title: Bootnodes and peer discovery
 description: "How Core-Geth finds peers on Ethereum Classic: bootnodes, the DNS discovery trees, how the lists are built from a crawl, and how to publish your own."
 ---
 
-A node needs peers to receive blocks. This page covers where core-geth finds them, how to make your node a
+A node needs peers to receive blocks. This page covers where Core-Geth finds them, how to make your node a
 useful peer for others, and how the network's discovery lists are built and published.
 
 ## Where a node finds peers
@@ -19,8 +19,12 @@ useful peer for others, and how the network's discovery lists are built and publ
 Bootnodes and DNS trees give the node its first peers. Discovery then finds more.
 
 - `--bootnodes enode://...,enode://...` replaces the compiled list.
-- `--discovery.dns enrtree://<public key>@<domain>` replaces the trees, and `--discovery.dns ""` turns DNS
-  discovery off.
+- `--discovery.dns enrtree://<public key>@<domain>` replaces the trees the node reads for its `eth` peers,
+  `EthDiscoveryURLs`, and `--discovery.dns ""` empties that list. The flag does not change a config file's
+  `SnapDiscoveryURLs`: when the file sets that list, replace the values of both lists there instead. [A `v1.12` node
+  that cannot move yet](../etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet) can use it, with `--bootnodes`,
+  to read the peer discovery lists and bootnodes the `v1.13` line ships, a small step that closes none of the flaws the
+  audits found in the `v1.12` line.
 - `--nodiscover` turns discovery off. The node then connects only to static and trusted peers, and to peers
   that connect to it.
 - `--maxpeers`, 50 by default, caps the number of peers. Trusted peers can connect past it.
@@ -31,14 +35,16 @@ Bootnodes and DNS trees give the node its first peers. Discovery then finds more
   `--discovery.port`: [Ports and listeners](../operate/security.md#ports-and-listeners).
 - **Advertise the right address.** Behind NAT, pass `--nat extip:<public IP>` so the node advertises the
   address other nodes can reach.
-- **Keep the node key.** Your enode ID comes from `<datadir>/geth/nodekey`, and a new key is a new enode
-  ID. Back it up with the rest of the node: [What to back up](../operate/maintenance.md#what-to-back-up).
+- **Back up the node key.** Your enode ID comes from `<datadir>/geth/nodekey`, and a new key is a new enode
+  ID. Back it up with the rest of the node ([What to back up](../operate/maintenance.md#what-to-back-up)), and replace
+  it only when a step requires it, as [moving from `v1.12`](../tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key)
+  does.
 - **Name your node.** `--identity <your name>` puts a name in the client string other operators see. Use
   one that identifies you, not one that suggests someone else runs the node.
 
 ## How the discovery lists are built
 
-The DNS trees this client uses by default are published from
+The DNS trees the `v1.13` line uses by default are published from
 [`ethereumclassic/discv4-dns-lists`](https://github.com/ethereumclassic/discv4-dns-lists), whose README
 describes how often they are rebuilt and what gets a node listed. The lists come from crawls of the
 discovery network, so a node can be listed when it:
@@ -46,6 +52,10 @@ discovery network, so a node can be listed when it:
 - answers discovery on a reachable address, and
 - advertises an `eth` entry for the network in its node record, which
   `devp2p nodeset filter -eth-network classic` (or `mordor`) checks.
+
+A published tree lists only the nodes whose entry carries their network's current fork ID, which leaves out a node
+whose snap sync has not finished:
+[Only nodes on the current fork ID are published](https://github.com/ethereumclassic/discv4-dns-lists/blob/main/docs/node-selection.md#only-nodes-on-the-current-fork-id-are-published).
 
 ## Run your own bootnode
 
@@ -77,7 +87,9 @@ The `devp2p` tool, also in `alltools`, does each step:
 
 1. **Crawl** the network with `devp2p discv4 crawl`.
 2. **Filter** the result with `devp2p nodeset filter`, using `-eth-network classic` or `mordor`.
-3. **Sign** a tree with a key from `devp2p key generate`, using `devp2p dns sign`.
+3. **Sign** a tree with `devp2p dns sign`. It reads its key from an encrypted keystore file, such as one
+   `geth account new` writes, or one `geth account import` makes from a raw key file. `devp2p key generate`
+   writes a raw key file, which the signer cannot read as it stands.
 4. **Deploy** it to DNS with `devp2p dns to-cloudflare` or `devp2p dns to-route53`.
 
 [The devp2p command](https://github.com/ethereumclassic/core-geth/blob/main/cmd/devp2p/README.md) gives the

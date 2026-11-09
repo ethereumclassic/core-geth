@@ -2,11 +2,12 @@
 hide:
   - toc        # Hide table of contents
 title: Included Tools
+description: "The executables shipped with Core-Geth besides geth: clef, bootnode, evm, rlpdump and others, and what each does for an Ethereum Classic node."
 ---
 
 ## Executables
 
-The core-geth project comes with several wrappers/executables found in the `cmd`
+The Core-Geth project comes with several wrappers/executables found in the `cmd`
 directory, and which, with `make all`, will be built to `./build/bin/`.
 
 | Command       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |

@@ -1,6 +1,6 @@
 # core-geth
 
-CoreGeth is an Ethereum protocol provider: a downstream of
+Core-Geth is an Ethereum protocol provider: a downstream of
 [ethereum/go-ethereum](https://github.com/ethereum/go-ethereum) that keeps chain
 configuration data-driven rather than hard-coded, so one binary serves Ethereum
 Classic, Mordor, the Ethereum Foundation network, MintMe and private chains.
@@ -19,11 +19,7 @@ the Ethereum Classic organization's own repository.** `origin` is
 `main` carries zero commits `origin/main` does not already have: this branch is
 fully pushed to the organization's own remote, not a fork's local staging area.
 Root wiring artifacts committed here land in this organization's own tree,
-never in a separate maintainer's review queue. (Three auxiliary local-only
-branches — `main-wired`, `pre-condense-backup`, `reference/modernize-go-1.26` —
-do carry commits `origin` does not have; none of them is what this file
-describes or what gets wired.) Recorded 2026-09-04 so a later session does not
-re-ask.
+never in a separate maintainer's review queue.
 
 ## Branching
 
@@ -32,8 +28,8 @@ re-ask.
 | `main` | the default branch — what workflows fire on, what pull requests target, and where releases are cut |
 | `archive-etclabscore-2024-12` | the preserved pre-migration history, kept indefinitely |
 
-- **`main` is cut from `archive-etclabscore-2024-12`** (`7ef3ecd7a`, 2024-12-16),
-  the last commit before this repository was created on 2024-12-21. The annotated
+- **`main` is cut from `archive-etclabscore-2024-12`** (`7ef3ecd7a`, December 16, 2024),
+  the last commit before this repository was created on December 21, 2024. The annotated
   tag `archive/etclabscore-2024-12` marks the same commit.
 - **`master` was deleted when `main` became the default.** Do not recreate it, and
   do not add a `master` trigger to a workflow: a trigger naming a branch that does
@@ -58,12 +54,19 @@ artifacts must name the same patch.**
 | `build/checksums.txt` | `# version:golang`, an **exact patch** | what `build/ci.go install -dlgo` downloads, which the ARM release archives build with |
 | `Dockerfile`, `Dockerfile.alltools` | a `golang:` tag naming an **exact patch** | the container images |
 | the other `.github/workflows/*.yml` | `go-version`, a **major** only | CI tests and checks; resolves to whatever patch the runner has |
+| `docs/developers/build-from-source.md` | the release `build/checksums.txt` pins, with SHA-256s | the Go a reader building from source installs |
 
 Read the current values from those files rather than from this table.
 
 **Change the release patch in all three release places together.** Each builds
 part of one release's binaries, so a patch changed in only one of them ships a
 release built by two toolchains.
+
+**A change to `# version:golang` also changes the build guide.**
+`docs/developers/build-from-source.md` names the pinned release, each archive's
+SHA-256 as `build/checksums.txt` lists it, and the Windows installer's SHA-256,
+which that file does not list: read it from go.dev's release feed,
+`https://go.dev/dl/?mode=json&include=all`. Nothing checks that the two agree.
 
 `build/checksums.txt` also pins the linter release. `make lint` downloads that
 exact version; it is never read from a locally installed copy.
@@ -95,13 +98,13 @@ make clean           # go clean -cache, remove build output
 make help            # list the annotated targets
 ```
 
-CoreGeth-specific suites, which is what proves this fork's configuration work:
+Core-Geth-specific suites, which is what proves this fork's configuration work:
 
 ```bash
 make test-coregeth                      # features + clique consensus + condensed regression
 make test-coregeth-features             # fork/feature/datatype equivalence
 make test-coregeth-consensus            # clique consensus equivalence
-make test-coregeth-chainspecs-coregeth  # CoreGeth JSON chainspec equivalence
+make test-coregeth-chainspecs-coregeth  # Core-Geth JSON chainspec equivalence
 make test-coregeth-regression-condensed # builds core-geth, imports simulated chains
 ```
 
@@ -129,9 +132,8 @@ GitHub Actions under `.github/workflows/` is what actually runs:
 `test-linux.yml` (lint plus both test suites), `evmc.yml`, `go-generate-check.yml`,
 `bench-*.yml`, `docs-deploy.yml`, `release-packages.yml`, `audit-bootnodes.yml`.
 
-**Which workflow fires on what is not uniform, and the branch names are
-mid-transition.** Verify against the workflow file rather than assuming a push
-was tested:
+**Which workflow fires on what is not uniform.** Verify against the workflow
+file rather than assuming a push was tested:
 
 | Fires on | Workflows |
 |---|---|
@@ -159,7 +161,7 @@ trigger pointed at a branch that is going away, which reports nothing when it
 stops working.
 
 **`.travis.yml`, `circle.yml`, `appveyor.yml` and `Jenkinsfile` were removed from
-`main`** on 2026-08-30 (`55ca851c2`, `100a0c6c7`) and are absent here. They
+`main`** on August 30, 2026 (`55ca851c2`, `100a0c6c7`) and are absent here. They
 survive on the archive branch only — dead CI configs from before this
 repository's migration, kept as history rather than as anything that runs.
 
@@ -198,12 +200,17 @@ on Classic and 10,400,000 on Mordor, the default ECBP-1110 recommends: MESS is o
 from those heights unless the operator passes `--mess`. `params/config_etc_test.go`
 asserts both blocks, and a missing or changed block fails it.** ECBP-1100 is an Ethereum Classic
 Best Practice, not a consensus rule — it changes which of two competing chains
-this node prefers, never whether a block is valid. The Istanbul-equivalent set is
+this node prefers, never whether a block is valid. In normal network conditions it does not affect chain selection; it applies only during a deep reorganization. The Istanbul-equivalent set is
 labeled `// ECIP-1088` in a comment rather than carried as its own field.
 
 Reading an activation block out of this file is the only reliable way to know
 what is configured. Do not restate a fork schedule from memory, and do not infer
 one network's rules from another's.
+
+**`docs/etc-cooperative-transition.md` writes out what `params/bootnodes_classic.go`
+and `params/bootnodes_mordor.go` hold:** each network's discovery lists and
+bootnodes, in its section for a `v1.12` node that cannot move yet. A change to
+either file also changes that section. Nothing checks that the two agree.
 
 ## Version
 
@@ -266,7 +273,7 @@ comment can drift from the SHA without anything failing, so trust the SHA.
   package** and removes it afterwards. It is the executable's version information
   and manifest, generated by `internal/build/winres.go`, and `.gitignore` covers
   it. A leftover one after an interrupted build is harmless and is overwritten.
-- **`swarm/` was removed from `main`** on 2026-08-30 (`55ca851c2`); it no longer
+- **`swarm/` was removed from `main`** on August 30, 2026 (`55ca851c2`); it no longer
   exists in this tree. It survives on the archive branch only.
 - **The `sync-parity-chainspecs` target was removed from the `Makefile`.** It
   invoked a script this repository does not contain, so it could never run, and

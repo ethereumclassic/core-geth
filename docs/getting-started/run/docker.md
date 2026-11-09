@@ -1,3 +1,7 @@
+---
+description: "Run a Core-Geth Ethereum Classic or Mordor node in Docker: the image, a chain volume, ports, and a restart policy that brings the node back after a failure or reboot."
+---
+
 # Docker users guide
 
 This guide runs a node in a Docker container, on Ethereum Classic or on the Mordor test network, with
@@ -10,12 +14,15 @@ every command.
 ## 1. Get the image
 
 [Installation, Docker](../installation.md#docker) gives the ways to get it: pull it, load it from the
-release, or build it. This guide uses the release image's name,
-`ghcr.io/ethereumclassic/core-geth:v1.13.0`; for an image you built, use your own tag. Check it:
+release, or build it. This guide uses the latest release, `ghcr.io/ethereumclassic/core-geth:latest`. For a
+specific release, or an image loaded from a release file, use `ghcr.io/ethereumclassic/core-geth:<tag>`; for an
+image you built, use your own tag. Check it:
 
 ```bash
-docker run --rm ghcr.io/ethereumclassic/core-geth:v1.13.0 version    # Core-Geth 1.13.0-stable
+docker run --rm ghcr.io/ethereumclassic/core-geth:latest version
 ```
+
+The first line it prints names the client and its version.
 
 ## 2. Choose the network
 
@@ -29,20 +36,24 @@ mounted at `/root`, which keeps the chain when the container is replaced.
 
 ## 3. Start the node
 
+On Ethereum Classic:
+
 ```bash
-# Ethereum Classic
 docker run -d --name core-geth-classic \
   --restart unless-stopped --stop-timeout 300 \
   -v core-geth-classic:/root \
   -p 30303:30303 -p 30303:30303/udp \
-  ghcr.io/ethereumclassic/core-geth:v1.13.0 --classic
+  ghcr.io/ethereumclassic/core-geth:latest --classic
+```
 
-# Mordor
+On Mordor:
+
+```bash
 docker run -d --name core-geth-mordor \
   --restart unless-stopped --stop-timeout 300 \
   -v core-geth-mordor:/root \
   -p 30303:30303 -p 30303:30303/udp \
-  ghcr.io/ethereumclassic/core-geth:v1.13.0 --mordor
+  ghcr.io/ethereumclassic/core-geth:latest --mordor
 ```
 
 - **`-p 30303:30303 -p 30303:30303/udp`** lets other nodes reach yours, over TCP and UDP.
@@ -66,26 +77,38 @@ To run both networks on one host, give the Mordor node its own peer port: `--por
 
 Follow the log; Ctrl-C stops following it, and the node keeps running. The first line names the
 network: `Starting Core-Geth on Ethereum Classic...` or `Starting Core-Geth on Mordor testnet...`.
+On Ethereum Classic:
 
 ```bash
-docker logs -f core-geth-classic      # Ethereum Classic
-docker logs -f core-geth-mordor       # Mordor
+docker logs -f core-geth-classic
+```
+
+On Mordor:
+
+```bash
+docker logs -f core-geth-mordor
 ```
 
 [What a healthy first sync looks like](../run-classic-node.md#what-a-healthy-first-sync-looks-like)
-explains the lines that follow. To ask the node itself, run `attach` inside its container:
+explains the lines that follow. To ask the node itself, run `attach` inside its container, on Ethereum
+Classic:
 
 ```bash
-# Ethereum Classic
-docker exec core-geth-classic geth --classic attach --exec 'eth.syncing'       # an object while it syncs, false once synced
-docker exec core-geth-classic geth --classic attach --exec 'net.peerCount'     # above 0 within minutes
-docker exec core-geth-classic geth --classic attach --exec 'eth.blockNumber'   # once synced, compare with a block explorer
+docker exec core-geth-classic geth --classic attach --exec 'eth.syncing'
+docker exec core-geth-classic geth --classic attach --exec 'net.peerCount'
+docker exec core-geth-classic geth --classic attach --exec 'eth.blockNumber'
+```
 
-# Mordor
+On Mordor:
+
+```bash
 docker exec core-geth-mordor geth --mordor attach --exec 'eth.syncing'
 docker exec core-geth-mordor geth --mordor attach --exec 'net.peerCount'
 docker exec core-geth-mordor geth --mordor attach --exec 'eth.blockNumber'
 ```
+
+`eth.syncing` prints an object while the node syncs and `false` once it has synced. `net.peerCount` rises above 0
+within minutes. Once the node has synced, compare `eth.blockNumber` with a block explorer.
 
 `attach` looks for the node's socket in the data directory of the network you name, so a Mordor node
 needs `--mordor` here too. [How to tell it is done](../run-classic-node.md#how-to-tell-it-is-done)
@@ -112,7 +135,7 @@ docker run -d --name core-geth-mordor \
   -v core-geth-mordor:/root \
   -p 30303:30303 -p 30303:30303/udp \
   -p 127.0.0.1:8545:8545 \
-  ghcr.io/ethereumclassic/core-geth:v1.13.0 --mordor --http --http.addr 0.0.0.0
+  ghcr.io/ethereumclassic/core-geth:latest --mordor --http --http.addr 0.0.0.0
 ```
 
 Once the log shows the node has started, ask it for the chain ID from the host:
@@ -131,14 +154,23 @@ The restart policy from step 3 already does: the node comes back after a failure
 Check a container's policy and stop timeout with:
 
 ```bash
-docker inspect -f '{{.HostConfig.RestartPolicy.Name}} {{.Config.StopTimeout}}' core-geth-mordor    # unless-stopped 300
+docker inspect -f '{{.HostConfig.RestartPolicy.Name}} {{.Config.StopTimeout}}' core-geth-mordor
 ```
+
+It prints `unless-stopped 300`.
 
 ## 7. Stop it cleanly
 
+On Ethereum Classic:
+
 ```bash
-docker stop core-geth-classic      # Ethereum Classic
-docker stop core-geth-mordor       # Mordor
+docker stop core-geth-classic
+```
+
+On Mordor:
+
+```bash
+docker stop core-geth-mordor
 ```
 
 `docker stop` sends the node SIGTERM and waits for it to exit, for up to the stop timeout. Check that
@@ -160,7 +192,7 @@ the node resumes where it stopped:
 docker stop core-geth-mordor && docker rm core-geth-mordor
 ```
 
-Run the step 3 command again with the new tag in place of `v1.13.0`, keeping any flags you added.
+Pull `:latest` again and run the step 3 command, keeping any flags you added; to pin a release instead, use its tag from the releases page.
 [Upgrading within v1.13.x](../../operate/maintenance.md#upgrading-within-v113x) lists what to read
 and check. A node on a v1.12.x release follows the
 [Docker migration guide](../../tutorials/migration/docker.md) instead.

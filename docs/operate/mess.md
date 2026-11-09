@@ -4,27 +4,32 @@ description: "How to check whether MESS (ECBP-1100) is on in Core-Geth, turn it 
 ---
 
 MESS (Modified Exponential Subjective Scoring, ECBP-1100) makes a node resist deep chain
-reorganizations. It never changes whether a block is valid. It only decides which of two valid
+reorganizations. It never changes whether a block is valid. In normal network conditions, MESS does not
+affect chain selection. It only decides which of two valid
 chains the node keeps when a competing chain would replace blocks it already accepted. The
 [MESS confirmation calculator](../guides/mess-calculator.md) shows how much protection it gives.
 
 ## Check whether MESS is on
 
 ```shell
-$ geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
-true
+geth --classic attach --exec 'admin.messStatus().enabled' <datadir>/geth.ipc
 ```
 
 `true` means MESS is on. `false` means it is off, or paused while the node is out of sync or has
 fewer than five peers.
 
+On `v1.13.0`, the call is `admin.ecbp1100Status().enabled`. A `v1.12.x` release has no status call.
+
 ## Turn MESS on or off
 
 ```shell
-$ geth --classic --mess          # on; default turns on.
-$ geth --classic --mess=true     # on
-$ geth --classic --mess=false    # off
+geth --classic --mess
+geth --classic --mess=true
+geth --classic --mess=false
 ```
+
+`--mess` and `--mess=true` turn MESS on, and `--mess=false` turns it off. Under systemd, add the flag to the unit's
+`ExecStart` and run `sudo systemctl daemon-reload` before you start the node.
 
 Without `--mess`, the node uses the setting its release ships with. Give every node you run the
 same setting: during a deep reorganization, nodes with different settings can follow different
@@ -70,14 +75,14 @@ flags and the config file decide again.
 | `--mess.nodisable` or `--mess.nodisable=true` | Turns MESS on, and keeps it on while the node is out of sync or short of peers |
 | `--mess.nodisable=false` | Lets the node switch MESS off again while it is out of sync or short of peers, over a config file's `ECBP1100NoDisable = true` |
 
-- `--mess.activate` and `--mess.nodisable` turn MESS on with no end, unless you give
-  `--mess.deactivate`. With both blocks given, the later one wins.
-- `--mess.activate` wins over `--mess=false`. Flags that contradict each other log a warning at
-  startup.
+- `--mess.activate` and `--mess.nodisable` turn MESS on with no end, unless you give `--mess.deactivate`.
+- If the activation block is after the deactivation block, MESS turns on at the activation block and stays on. On
+  `v1.13.0`, MESS never applies in that case.
+- `--mess.activate` wins over `--mess=false`. From `v1.13.1`, flags that contradict each other log a warning at startup.
 - The older spellings also work: `--ecbp1100`, `--override.ecbp1100.deactivate` and
   `--ecbp1100.nodisable`.
 - Each flag can also be set with an environment variable, such as `GETH_MESS=true` or
-  `GETH_MESS_ACTIVATE=15000000`. The older names, such as `GETH_ECBP1100`, also work.
+  `GETH_MESS_ACTIVATE=15000000`. The older names, such as `GETH_ECBP1100`, work from `v1.13.1`; `v1.13.0` ignores them.
 
 ### Config file
 
@@ -85,9 +90,11 @@ flags and the config file decide again.
 started with `--config` reads the file each time it starts:
 
 ```shell
-$ geth --classic --mess dumpconfig node.toml    # writes node.toml, starts nothing
-$ geth --classic --config node.toml             # starts the node with MESS on
+geth --classic --mess dumpconfig node.toml
+geth --classic --config node.toml
 ```
+
+The first line writes `node.toml` and starts nothing. The second starts the node with MESS on.
 
 | Flag given to `geth dumpconfig` | Line it writes under `[Eth]` |
 |---|---|
@@ -101,6 +108,8 @@ $ geth --classic --config node.toml             # starts the node with MESS on
 - A line means what its flag means, and you can also write one by hand.
 - The file keeps the setting until you remove the line. For example, a file dumped with `--mess`
   keeps MESS on until you remove its `OverrideECBP1100Deactivate` line.
+- On `v1.13.0`, `--mess` writes no line, so the file does not hold the setting. To keep MESS on in later releases, add
+  `OverrideECBP1100Deactivate = 18446744073709551614` under `[Eth]` yourself. `v1.13.0` reads it too.
 - A flag on the command line wins over the file.
 - `geth dumpconfig` never reads a running node, so it does not show a change made with an admin
   call.
@@ -108,9 +117,10 @@ $ geth --classic --config node.toml             # starts the node with MESS on
 ### Admin calls
 
 ```shell
-$ geth --classic attach --exec 'admin.mess(true).enabled' <datadir>/geth.ipc
-true
+geth --classic attach --exec 'admin.mess(true).enabled' <datadir>/geth.ipc
 ```
+
+That turns MESS on and prints `true`.
 
 | Call | What it does | Like the flag |
 |---|---|---|
@@ -124,16 +134,14 @@ true
 
 - A block is `"latest"`, which means the current block, or a block number in hex, such as
   `"0x125bb50"` for block 19,250,000. A decimal number is refused.
-- The calls follow the flags' rules. `admin.messActivate` and `admin.messNoDisable(true)` turn MESS
-  on with no end, unless a deactivation block was given, with `--mess.deactivate`, a config file
-  line or `admin.messDeactivate`. With both blocks given, the later one wins, and when the
-  deactivation block keeps MESS off, the node logs a warning naming it.
-- `admin.mess(true)` and `admin.messNoDisable(true)` move an activation block that keeps MESS off
-  back to the block MESS first applied from on your network, as `--mess` does.
+- The calls follow the flags' rules, and the node logs a warning when a deactivation block keeps MESS off.
+- `admin.mess(true)` and `admin.messNoDisable(true)` also undo an activation block that keeps MESS off, as `--mess` does.
+
 - Called while the node is out of sync or short of peers, `admin.messNoDisable(true)` turns MESS on
   at the next sync, and keeps it on from then.
-- The ECBP-1100 names also work: `admin.ecbp1100`, `admin.ecbp1100Deactivate`,
-  `admin.ecbp1100NoDisable` and `admin.ecbp1100Status`.
+- These calls start at `v1.13.1`. `v1.13.0` has only `admin.ecbp1100` and `admin.ecbp1100Status`, and a `v1.12.x` release
+  only `admin.ecbp1100`. Those names keep working.
+
 - The calls use the `admin` namespace, which the node serves over IPC.
 - None of them is saved. To keep a change, use the flag or its config file line.
 
@@ -148,28 +156,32 @@ seconds old. It resumes once the node is back in sync with enough peers. The log
 [Troubleshooting](troubleshooting.md#what-do-disabled-artificial-finality-features-and-reorg-disallowed-mean)
 explains it. `--mess.nodisable` and `admin.messNoDisable(true)` keep MESS on through both.
 
-## The two defaults
+## The default is set per release
 
-A release ships one of two defaults, from two Best Practice documents:
+A release ships MESS on or off by default, and that can change from one release to the next. Read the notes for the
+release you run, or set `--mess` or `--mess=false` yourself.
 
-| Default | Ethereum Classic | Mordor |
-|---|---|---|
-| ECBP-1100's | on from block 11,380,000 | on from block 2,380,000 |
-| ECBP-1110's | on from block 11,380,000, off from block 19,250,000 | on from block 2,380,000, off from block 10,400,000 |
+| Default | Sets | Ethereum Classic | Mordor | Shipped by |
+|---|---|---|---|---|
+| ECBP-1100 | MESS on | on from block 11,380,000 | on from block 2,380,000 | `v1.13.0` |
+| ECBP-1110 | MESS off | on from block 11,380,000, off from block 19,250,000 | on from block 2,380,000, off from block 10,400,000 | `v1.13.1` |
 
-Both chains are past the ECBP-1110 blocks, so under ECBP-1110's default MESS is off, and under
-ECBP-1100's it is on. `--mess` and `--mess=false` override either one.
+`v1.13.0` ships ECBP-1100 because every `v1.12` release still carried at least one known vulnerability when it was
+released, and MESS defends a node against deep chain reorganizations while nodes on that line remain exposed.
+`v1.13.1` returns to ECBP-1110 once the move to the `v1.13` line is expected to be under way, or at least the `v1.12`
+vulnerabilities are widely known.
+
+Both chains are past the ECBP-1110 blocks, so under the ECBP-1110 default MESS ends up off, and under
+the ECBP-1100 default it is on. `--mess` and `--mess=false` override either one.
 
 ## After an upgrade
 
-When a node starts with MESS on where the client that last used its database had it off, or off
-where it had it on, it logs one warning. An upgrade to a release with the other default does this:
+From `v1.13.1`, a node logs one warning when its MESS setting differs from the client that last used its database. An
+upgrade to a release with the other default does this:
 
 ```text
 WARN [...] ECBP1100 (MESS) is configured differently from the client that last used this database was=on now=off ... keep_previous=--mess
 ```
 
-`was` and `now` show the setting before and after. To keep the setting the node had, add the flag
-that `keep_previous` names to the command that starts the node. The warning appears once, because
-the node stores the new setting with its chain data. It does not appear when you set MESS with a
-flag or a config file line.
+To keep the old setting, add the flag `keep_previous` names to the start command. The warning appears once, and not at
+all when you set MESS with a flag or a config file line.

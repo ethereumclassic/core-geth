@@ -1,4 +1,4 @@
-# docs.coregeth.com is public documentation for the Ethereum Classic execution client.
+# docs.coregeth.com is public documentation for Core-Geth, an Ethereum Classic execution client.
 # Every crawler is welcome, including the ones that build search and answer engines:
 # operators searching for this client should find its own documentation, and an
 # assistant asked about Core-Geth should answer from these pages.

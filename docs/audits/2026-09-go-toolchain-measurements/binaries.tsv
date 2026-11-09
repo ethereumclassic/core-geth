@@ -1,0 +1,60 @@
+repo	tag	platform	zip_entry	binary_sha256	binary_bytes	go_version	GOOS	GOARCH	GOARM	CGO_ENABLED
+etclabscore/core-geth	v1.12.23	linux	geth	c15b1795aad2d7080bbfdb5a46367bfd1de814f8791ff6630f7ff73c12cb365d	73669520	go1.21.13	linux	amd64		1
+etclabscore/core-geth	v1.12.20	arm	geth	31047d304247966ee9b77a9fe64d7f496bb82c1ba0af44d8e747612b9bcff9f4	71315556	go1.22.1	linux	arm	5	1
+etclabscore/core-geth	v1.12.20	arm5	geth	c7a646057517c817c6342b214129c3eabbc44e6f85cdc12ebc5f2dbbbf2fd491	71315556	go1.22.1	linux	arm	5	1
+etclabscore/core-geth	v1.12.20	arm6	geth	c0c2de95c39006c40f9b68f123fd804c7124c36d6daa18a27129dcc0077326e8	70263524	go1.22.1	linux	arm	6	1
+etclabscore/core-geth	v1.12.20	arm7	geth	4b5cb06e288b135098b99c919f1fdb3efcfa3ea7fe2a3308f473fb76fb1d1940	70016148	go1.22.1	linux	arm	7	1
+etclabscore/core-geth	v1.12.20	arm64	geth	90774fb0c3a58fa8dcbf2da6d5faf788e5f1997f930dca6626abdd79b5cb81b3	71544216	go1.22.1	linux	arm64		1
+etclabscore/core-geth	v1.12.20	linux	geth	7a8fb4326085e3b5c86516036e301d8000adad67b8d44cc62128592170fb19ea	73900816	go1.21.10	linux	amd64		1
+etclabscore/core-geth	v1.12.20	osx	geth	12736fa9a6f33a43e51f88aca79f26723dee76c1cc27247b3b02db41520275c7	57056578	go1.21.10	darwin	arm64		1
+etclabscore/core-geth	v1.12.20	win64	geth.exe	cf8b42514071ab0885cdb52f72161fd42cc96783fa0f17b30551532ef44dd364	120936107	go1.22.1	windows	amd64		1
+etclabscore/core-geth	v1.12.21	arm	geth	36aa45009b3c7ea4d4e1b938e1ff699c7c1259eaa7a3f2ce3d6f5dc3a1d90942	71028220	go1.22.1	linux	arm	5	1
+etclabscore/core-geth	v1.12.21	arm5	geth	98cce4b77edd8f5ae8b82a4646166d54bb8218a8d820b15708e0e2d2904ea681	71028220	go1.22.1	linux	arm	5	1
+etclabscore/core-geth	v1.12.21	arm6	geth	834d2bd48a2cbb28d3773fa9f7f2fbe1922120da42634a8c4d15ec2e59e1af58	69975872	go1.22.1	linux	arm	6	1
+etclabscore/core-geth	v1.12.21	arm7	geth	e77d02141266548aaf3bc921fa8f699ab6e5057788eb4c95ebd56cf1c8d794e0	69750920	go1.22.1	linux	arm	7	1
+etclabscore/core-geth	v1.12.21	arm64	geth	da5fa960e69a7ef2309ba91acc57c51bca4d7c8a1eb8da016e185499433d0f35	71175240	go1.22.1	linux	arm64		1
+etclabscore/core-geth	v1.12.21	linux	geth	4a5391be54384519f58223d072aa1da7bb7b3550def4c5c3ec034d0b2790bc93	73502400	go1.21.13	linux	amd64		1
+etclabscore/core-geth	v1.12.21	osx	geth	7a00785e443835d69a21f76d2be14caa56d66f2eb74b27b8c92ea36db11d0e70	57106130	go1.21.13	darwin	arm64		1
+etclabscore/core-geth	v1.12.21	win64	geth.exe	7061f2fc0fa6c7c1cdc3542e8dedc8825155ff6b5ebcf3f9b8ac00aa656433ca	119228216	go1.21.13	windows	amd64		1
+etclabscore/core-geth	v1.12.22	arm	geth	037e5d387839e47f01238121327cc24f442d4bab493b132b58ce5e23a4b1113c	71033668	go1.22.1	linux	arm	5	1
+etclabscore/core-geth	v1.12.22	arm5	geth	c2943c8311bffa195e6f066099b8ffd45cc22e9e2023820ba5c8b894436f5c1d	71033668	go1.22.1	linux	arm	5	1
+etclabscore/core-geth	v1.12.22	arm6	geth	f01339d81bb3822cbb000684f359b9ff5f6c4233426fa812ff2c68fe3754a815	69981680	go1.22.1	linux	arm	6	1
+etclabscore/core-geth	v1.12.22	arm7	geth	8a60e29d0d384202b0de9626735971140c9894be86d25e5e378b76abacae948d	69757036	go1.22.1	linux	arm	7	1
+etclabscore/core-geth	v1.12.22	arm64	geth	a1686e7c7a1cecd44eb10412bc52e70c681cadb2c4c2b6ac869c05020ec73775	71197760	go1.22.1	linux	arm64		1
+etclabscore/core-geth	v1.12.22	linux	geth	561b93053ac76e54a52c44d64d25f8bf1173395599971c982618c6aa46ffb480	73508624	go1.21.13	linux	amd64		1
+etclabscore/core-geth	v1.12.22	osx	geth	8325497c63a025a2a33e1f57fe0cbd581ab35372a855ca50d055c5f80d42ad77	57106658	go1.21.13	darwin	arm64		1
+etclabscore/core-geth	v1.12.22	win64	geth.exe	22438b8357dcad8ca07bccc80511dcbc82a6199dc2b74d06b56947bc0ca49f4a	119240004	go1.21.13	windows	amd64		1
+etclabscore/core-geth	v1.12.23	arm	geth	baec669c42027293a46038c444b8e0bf15ff362cdeab30d5536652f9b45ec316	71179616	go1.22.1	linux	arm	5	1
+etclabscore/core-geth	v1.12.23	arm5	geth	4cff13645d126b8c13ab80690769ad07ed94d6332a26bc4cb0b472a079a030cd	71179616	go1.22.1	linux	arm	5	1
+etclabscore/core-geth	v1.12.23	arm6	geth	265767c6fa5efbda6f875c4337dc0a4822d23d0266cbdc34453d446d2594bed2	70129404	go1.22.1	linux	arm	6	1
+etclabscore/core-geth	v1.12.23	arm7	geth	9a85234ef204e9b0f9905fd8591ebddea34431b673a6a809101fd49e94b02ff7	69903952	go1.22.1	linux	arm	7	1
+etclabscore/core-geth	v1.12.23	arm64	geth	94d5209de514d786c3e7459c17403ffa8fe9f82c7c2645dadc8db85eb32868de	71334864	go1.22.1	linux	arm64		1
+etclabscore/core-geth	v1.12.23	osx	geth	50a84855e2345cf466c4948d47bdf8ebddc855b3f5aefdc628df25f3bb6c9ae9	57265634	go1.21.13	darwin	arm64		1
+etclabscore/core-geth	v1.12.23	win64	geth.exe	91621cfc9738d197fe0102a47de2cb8181456f8358d16cb28b541ec2127a54f7	119514822	go1.21.13	windows	amd64		1
+ethereumclassic/core-geth	v1.13.0	arm	geth	fa7f2f15808b8a68cf434db2fdd03ef9f196aefcd6c8461b4744af9f0754a249	99814144	go1.26.8	linux	arm	5	1
+ethereumclassic/core-geth	v1.13.0	arm5	geth	35d263d57036ee788b4ac08a473373dbd819255e6cc21b8ccc37ed73c54925e5	99814144	go1.26.8	linux	arm	5	1
+ethereumclassic/core-geth	v1.13.0	arm6	geth	ef7f717986d6869ce5ba472224e54eb122a77c8afa28ec70109d41889bf8713a	98785944	go1.26.8	linux	arm	6	1
+ethereumclassic/core-geth	v1.13.0	arm7	geth	96202536e640044822d356cc811c58d3e6d611cbd48aec4cb6fffe26e399d6fe	98654332	go1.26.8	linux	arm	7	1
+ethereumclassic/core-geth	v1.13.0	arm64	geth	2d2cd92bf59d98b73a79aa07febf39df91f452000d53ac2d0e2f461f4b5c806a	99599040	go1.26.8	linux	arm64		1
+ethereumclassic/core-geth	v1.13.0	linux	geth	d4dd8e7f186f17ff590e64e78b1b3c2d937c6075bcd0436cc687b5f9b361b81f	103780032	go1.26.8	linux	amd64		1
+ethereumclassic/core-geth	v1.13.0	osx	geth	fc6cba79d6d4367fa86ad1cfb77f9c458031f359af58693fc7f8f3c77738ea59	57747608	go1.26.8	darwin	amd64		1
+ethereumclassic/core-geth	v1.13.0	osx-arm64	geth	137ddce6a8345657d0789ca8de7c3af9de471574ae62aca1e1cc8c7c108af4ff	53946674	go1.26.8	darwin	arm64		1
+ethereumclassic/core-geth	v1.13.0	win64	geth.exe	77cd54d0918de983e5c33b335203212eec11eacee50dd7d50e898ab86e313f0a	106248467	go1.26.8	windows	amd64		1
+etclabscore/core-geth	v1.12.0	linux	geth	47c94f595bc2a6b9b20eba7aa23536c3b4efcbf2455b107201167545e15142e7	43029272	go1.16.2				
+etclabscore/core-geth	v1.12.1	linux	geth	d39324e02ce51f489e5f37a988ec16067b31ede59b0f498342a426b9cfd36c98	51868248	go1.16.2				
+etclabscore/core-geth	v1.12.2	linux	geth	ad1ae9ca3c39063270b1fef85221c59665234f24641e6fdf191a26e3685c62d7	46264672	go1.13.4				
+etclabscore/core-geth	v1.12.3	linux	geth	5d9da3afc7f7fbee670340e87cdead40f6cbd7a7d9524e1dcfa51d3c84af27ca	58939832	go1.17.3				
+etclabscore/core-geth	v1.12.4	linux	geth	64869cd92093b8559c4f736c67b3d353248e4dc736818e6322b5018c927263ce	58940576	go1.17.5				
+etclabscore/core-geth	v1.12.6	linux	geth	366ec3110b2487e1229bd64082e794c91e7e4760b9e6bc92ea0906f801852f57	58277200	go1.17.6				
+etclabscore/core-geth	v1.12.7	linux	geth	d3f6813c6134dbb9b32217f4e944808777e92529b44bb9b4fc150c3830ed2a95	57981656	go1.18.2	linux	amd64		1
+etclabscore/core-geth	v1.12.8	linux	geth	6a2180b74618db4a971c9fae40e9777d1c1ba10a83cee12f0e45cae7fc9593ce	57124144	go1.18.3	linux	amd64		1
+etclabscore/core-geth	v1.12.10	linux	geth	67efcefd710a55a671869f84e3e8bd04388e15ff963a7b03e43f4ca38158cb9f	57351464	go1.18.10	linux	amd64		1
+etclabscore/core-geth	v1.12.11	linux	geth	6b9111493ed7c50c4a7588a33514a96a782f9bbca211157425e7f11cea44b693	69957072	go1.19.9	linux	amd64		1
+etclabscore/core-geth	v1.12.12	linux	geth	6f10d119d62669caab5a09964ddb328242da24db095b615485cefd1db77ba344	70352944	go1.20.4	linux	amd64		1
+etclabscore/core-geth	v1.12.13	linux	geth	d86c39c5ab57e3c89b60e2d353e3a35f732c655f5ec0f08398fb4516a10c0239	72922488	go1.20.5	linux	amd64		1
+etclabscore/core-geth	v1.12.14	linux	geth	25bf2d8d640d54475c1fef4ad2626d7009fe02f5dad83b38b71d019783141372	75782064	go1.21.1	linux	amd64		1
+etclabscore/core-geth	v1.12.15	linux	geth	b990f83681818836aa997261068ed5d9711d9c88d72ddf8466721e208f2bdc64	75787472	go1.21.3	linux	amd64		1
+etclabscore/core-geth	v1.12.16	linux	geth	cd577dc897fffd31a9dc77a8bea8eb855cbb4ac0947ac7f529a26adef1127800	75816432	go1.21.3	linux	amd64		1
+etclabscore/core-geth	v1.12.17	linux	geth	ffe8909f2a8537b28d65728e3916f88f2cad6508f6f2de7a6800c4bdf94972a7	75755816	go1.21.4	linux	amd64		1
+etclabscore/core-geth	v1.12.18	linux	geth	99580fa56b58e6b1057fc44941453fefdbd09173dfb511316852192884f417bc	75751384	go1.21.5	linux	amd64		1
+etclabscore/core-geth	v1.12.19	linux	geth	8d39fff40f1a221d69543af15ee9ebfa53e03172f0f2f395d2f7d54d676ede61	75752568	go1.21.6	linux	amd64		1

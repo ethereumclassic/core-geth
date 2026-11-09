@@ -1,3 +1,7 @@
+---
+description: "Run a Core-Geth Ethereum Classic or Mordor node on Linux: install geth, start it, and set up a systemd service that starts the node at boot."
+---
+
 # Linux users guide
 
 This guide runs a node on Linux, on Ethereum Classic or on the Mordor test network, from an
@@ -13,8 +17,10 @@ Install `geth` as [Installation](../installation.md) shows for
 [x86_64](../installation.md#linux-x86_64) or [ARM](../installation.md#linux-arm), then check it:
 
 ```bash
-geth version        # Core-Geth 1.13.0-stable
+geth version
 ```
+
+The first line it prints names the client and its version.
 
 ## 2. Choose the network
 
@@ -31,9 +37,16 @@ command says which network it is for.
 Other nodes reach yours on port 30303, over TCP and UDP. Allow it through your firewall
 ([A host firewall](../../operate/security.md#a-host-firewall)), then start the node:
 
+On Ethereum Classic:
+
 ```bash
-geth --classic      # Ethereum Classic
-geth --mordor       # Mordor
+geth --classic
+```
+
+On Mordor:
+
+```bash
+geth --mordor
 ```
 
 The node runs in the foreground and logs to the terminal. Its first line names the network:
@@ -50,19 +63,24 @@ give `attach` the socket inside that directory: `geth --mordor attach /data/core
 
 ## 4. Check that it syncs
 
-In a second terminal:
+In a second terminal, on Ethereum Classic:
 
 ```bash
-# Ethereum Classic
-geth --classic attach --exec 'eth.syncing'       # an object while it syncs, false once synced
-geth --classic attach --exec 'net.peerCount'     # above 0 within minutes
-geth --classic attach --exec 'eth.blockNumber'   # once synced, compare with a block explorer
+geth --classic attach --exec 'eth.syncing'
+geth --classic attach --exec 'net.peerCount'
+geth --classic attach --exec 'eth.blockNumber'
+```
 
-# Mordor
+On Mordor:
+
+```bash
 geth --mordor attach --exec 'eth.syncing'
 geth --mordor attach --exec 'net.peerCount'
 geth --mordor attach --exec 'eth.blockNumber'
 ```
+
+`eth.syncing` prints an object while the node syncs and `false` once it has synced. `net.peerCount` rises above 0
+within minutes. Once the node has synced, compare `eth.blockNumber` with a block explorer.
 
 `attach` looks for the node's socket in the data directory of the network you name. Without
 `--mordor`, it looks in `~/.ethereum/classic` and does not find a Mordor node:

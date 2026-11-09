@@ -1,8 +1,9 @@
 ---
 title: Mining pool node
+description: "Set up the Core-Geth node behind an Ethereum Classic mining pool: serving work over JSON-RPC, node configuration, and where the pool software fits."
 ---
 
-A mining pool runs pool software between its miners and one or more core-geth nodes. The node builds
+A mining pool runs pool software between its miners and one or more Core-Geth nodes. The node builds
 blocks and hands out work over JSON-RPC. The pool software splits that work among its miners, checks their
 shares, and submits solutions back to the node. This page covers the node side.
 
