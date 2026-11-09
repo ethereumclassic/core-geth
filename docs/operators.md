@@ -11,7 +11,9 @@ that answers the questions operators actually arrive with.
 ## Do these four things
 
 1. **Upgrade to [v1.13.0 or later](upgrading.md).** The
-   [migration guide](tutorials/v1.13.0-migration.md) has a guide per platform. Your chain data carries over. Budget
+   [migration guide](tutorials/v1.13.0-migration.md) has a guide per platform. From `v1.12.17` on, your chain data
+   carries over, and a node on an older release
+   [resyncs instead](tutorials/v1.13.0-migration.md#if-the-node-runs-a-release-before-v11217). Budget
    about twenty minutes for the steps; the node itself usually stops and starts in seconds. A `v1.12` node that cannot
    move yet can
    [add the `--discovery.dns` flag](etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet) to read the

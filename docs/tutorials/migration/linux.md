@@ -1,11 +1,12 @@
 ---
 title: Migrating to v1.13 on Linux
-description: "Upgrade an Ethereum Classic node on Linux from any v1.12.x release to the Core-Geth v1.13 line: the steps, the node-key rotation, and how to roll back."
+description: "Upgrade an Ethereum Classic node on Linux from v1.12.17 or a later v1.12 release to the Core-Geth v1.13 line: the steps, the node-key rotation, and how to roll back."
 ---
 
 # Linux users guide
 
-This guide upgrades a node on Linux from any v1.12.x release to the v1.13 line.
+This guide upgrades a node on Linux from v1.12.17 or a later v1.12 release to the v1.13 line. A node on an older
+release [resyncs instead](../v1.13.0-migration.md#if-the-node-runs-a-release-before-v11217).
 [Migrating to v1.13](../v1.13.0-migration.md) explains why, and what changes for every node.
 
 The commands use the default Ethereum Classic data directory, `~/.ethereum/classic`. If you pass

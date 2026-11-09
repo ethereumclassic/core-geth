@@ -36,6 +36,10 @@ whole upgrade.
 
 A node on any `v1.12.x` release has more to do than replace the binary:
 
+- **Resync a node on a release before `v1.12.17`.** That release does not schedule Spiral, so the node
+  has followed an obsolete chain since block 19,250,000 and cannot move in place.
+  [If the node runs a release before v1.12.17](tutorials/v1.13.0-migration.md#if-the-node-runs-a-release-before-v11217)
+  has the steps.
 - **Rotate the P2P node key.** This is required. One of the vulnerabilities in that line leaks bits
   of the key, and a fix cannot recall what already leaked.
   [Rotate the P2P node key](tutorials/v1.13.0-migration.md#rotate-the-p2p-node-key) says why, and which

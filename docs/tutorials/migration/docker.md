@@ -1,11 +1,12 @@
 ---
 title: Migrating to v1.13 in Docker
-description: "Upgrade an Ethereum Classic node in Docker from any v1.12.x image to the Core-Geth v1.13 line: the steps, the node-key rotation, and how to roll back."
+description: "Upgrade an Ethereum Classic node in Docker from a v1.12.17 or later v1.12 image to the Core-Geth v1.13 line: the steps, the node-key rotation, and how to roll back."
 ---
 
 # Docker users guide
 
-This guide upgrades a node running in Docker from any v1.12.x image to the v1.13 line.
+This guide upgrades a node running in Docker from a v1.12.17 or later v1.12 image to the v1.13 line. A node on an older
+release [resyncs instead](../v1.13.0-migration.md#if-the-node-runs-a-release-before-v11217).
 [Migrating to v1.13](../v1.13.0-migration.md) explains why, and what changes for every node.
 
 The image moves from `etclabscore/core-geth` to images built from `ethereumclassic/core-geth`. Your volume, ports and

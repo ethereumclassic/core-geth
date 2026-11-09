@@ -1,11 +1,12 @@
 ---
 title: Migrating to v1.13 on macOS
-description: "Upgrade an Ethereum Classic node on macOS from any v1.12.x release to the Core-Geth v1.13 line: the steps, the node-key rotation, and how to roll back."
+description: "Upgrade an Ethereum Classic node on macOS from v1.12.17 or a later v1.12 release to the Core-Geth v1.13 line: the steps, the node-key rotation, and how to roll back."
 ---
 
 # Mac users guide
 
-This guide upgrades a node on macOS from any v1.12.x release to the v1.13 line.
+This guide upgrades a node on macOS from v1.12.17 or a later v1.12 release to the v1.13 line. A node on an older
+release [resyncs instead](../v1.13.0-migration.md#if-the-node-runs-a-release-before-v11217).
 [Migrating to v1.13](../v1.13.0-migration.md) explains why, and what changes for every node.
 
 The commands use the default Ethereum Classic data directory on macOS, `~/Library/Ethereum/classic`. If you
