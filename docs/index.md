@@ -124,7 +124,7 @@ contact. A person answers it: one of the core developers who maintain this repos
 
 ## Support this work
 
-Maintaining Core-Geth since it moved to the community repository is public-goods work, sustained by
+Maintaining Core-Geth since it moved to the `ethereumclassic` GitHub organization is public-goods work, sustained by
 sponsorship and backed by the Ethereum Classic DAO. Mining pools, centralized exchanges, issuers of
 Ethereum Classic financial products, Etchash
 mining hardware manufacturers and large holders all depend on an Ethereum Classic client that

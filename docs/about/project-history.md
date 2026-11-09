@@ -1,5 +1,5 @@
 ---
-description: "Who built Core-Geth and who maintains it: the lineage from go-ethereum through multi-geth, and the organizations that funded and ran the client from 2018 to today."
+description: "Who built Core-Geth and who maintains it: the lineage from go-ethereum through Multi-Geth, and the organizations that funded and ran the client from 2018 to today."
 ---
 
 # Project history
@@ -9,9 +9,9 @@ both, because knowing where a consensus client comes from is part of deciding wh
 
 ## The code
 
-go-ethereum began in December 2013. [multi-geth](https://github.com/multi-geth/multi-geth) forked it in March
+go-ethereum began in December 2013. [Multi-Geth](https://github.com/multi-geth/multi-geth) forked it in March
 2018 to support several networks from a single client, holding chain rules as configuration rather than as code
-branches. Core-Geth forked from multi-geth in 2020 and kept that model, which is why adding a network here is a
+branches. Core-Geth forked from Multi-Geth in 2020 and kept that model, which is why adding a network here is a
 chain configuration rather than a new client.
 
 The Go module path is still `github.com/ethereum/go-ethereum`, and every internal import uses it. That is
@@ -19,11 +19,11 @@ deliberate downstream compatibility, not a leftover.
 
 ## The maintainers
 
-[Sorpaas](https://github.com/sorpaas) led multi-geth's development from its start in 2018 until 2020.
+[Sorpaas](https://github.com/sorpaas) led Multi-Geth's development from its start in 2018 until 2020.
 
 ETC Labs Core formed in December 2018, many of its developers having previously been part of
 [ETCDEV](https://web.archive.org/web/20190330063218/https://www.etcdevteam.com/), which supported the Classic
-Geth client. It led development through the fork and rebrand of multi-geth to Core-Geth in 2020, publishing
+Geth client. It led development through the fork and rebrand of Multi-Geth to Core-Geth in 2020, publishing
 as [ETC Labs](https://web.archive.org/web/20200425081322/https://etclabs.org/) and
 [ETC Core](https://web.archive.org/web/20200426174445/https://etccore.io/).
 
@@ -40,9 +40,9 @@ Core-Geth in 2025 and wound down its team.
 
 | Organization | What it did for Core-Geth | When |
 | --- | --- | --- |
-| ETCDEV | supported Classic Geth, the client whose developers went on to form ETC Labs Core | to 2018 |
-| [Sorpaas](https://github.com/sorpaas) | led multi-geth's development from its start | 2018 to 2020 |
-| ETC Labs and ETC Core | led development through the fork and rebrand of multi-geth to Core-Geth | 2020 to 2021 |
+| ETCDEV | supported the Classic Geth client | to 2018 |
+| [Sorpaas](https://github.com/sorpaas) | led Multi-Geth's development from its start | 2018 to 2020 |
+| ETC Labs and ETC Core | led development through the fork and rebrand of Multi-Geth to Core-Geth | 2020 to 2021 |
 | ETC Cooperative | funded and maintained Core-Geth at `etclabscore/core-geth`, and maintained other Ethereum Classic services | January 2022 to 2024, then maintenance mode |
 | [Ethereum Classic DAO](https://ethereumclassicdao.org) | a Wyoming DAO LLC launched in May 2025; the 2026 modernization was carried out for it | 2026 |
 | [`ethereumclassic`](https://github.com/ethereumclassic) GitHub organization | holds Ethereum Classic's public goods: the ECIPs, the website, the discovery lists and Core-Geth, maintained there by Ethereum Classic core developers and community contributors | 2024 onward |
@@ -53,8 +53,8 @@ Cooperative winds down.
 
 ## This repository
 
-Maintenance moved to [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth), the Ethereum
-Classic community repository, created on December 21, 2024 from the preceding repository at commit
+Maintenance moved to [`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth), in
+the `ethereumclassic` organization, created on December 21, 2024 from the preceding repository at commit
 [`7ef3ecd7a`](https://github.com/ethereumclassic/core-geth/commit/7ef3ecd7a716354589c2f27ff8f4b74d7a5edf2e)
 (December 16, 2024). That commit is preserved on the
 [`archive-etclabscore-2024-12`](https://github.com/ethereumclassic/core-geth/tree/archive-etclabscore-2024-12)
@@ -110,7 +110,7 @@ repeated here.
 | --- | --- |
 | 2024-06-10 | [`v1.12.20`](https://github.com/etclabscore/core-geth/releases/tag/v1.12.20) is released from `etclabscore/core-geth`, the last release there before a 21-month gap |
 | 2024-07-30 | The ETC Cooperative's published roadmap lists moving Core-Geth to the community GitHub repository |
-| December 2024 | The ETC Cooperative announces maintenance mode for Core-Geth and sets out moving it, with the network's other public goods, to the `ethereumclassic` community organization |
+| December 2024 | The ETC Cooperative announces maintenance mode for Core-Geth and sets out moving it, with the network's other public goods, to the `ethereumclassic` organization |
 | 2024-12-16 | [`7ef3ecd7a`](https://github.com/ethereumclassic/core-geth/commit/7ef3ecd7a716354589c2f27ff8f4b74d7a5edf2e), the last commit on the previous repository before this one is created |
 | 2024-12-21 | `ethereumclassic/core-geth` is created from that commit |
 | 2025-01-23 | The previous repository's last commit before 2026: a CI dependency bump, not a code change |
@@ -122,6 +122,6 @@ repeated here.
 
 ## Supporting the work
 
-Maintaining Core-Geth since it moved to the community repository is public-goods work, sustained by
+Maintaining Core-Geth since it moved to the `ethereumclassic` organization is public-goods work, sustained by
 sponsorship and backed by the Ethereum Classic DAO. [Support this work](../index.md#support-this-work)
 says how to fund it.

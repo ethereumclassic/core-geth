@@ -1,8 +1,8 @@
 # Core-Geth
 
 > Core-Geth is an Ethereum Classic execution client, maintained at
-> [github.com/ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth) in the Ethereum Classic
-> community's GitHub organization. The Ethereum Classic DAO, a Wyoming DAO LLC, is the legal entity that maintains
+> [github.com/ethereumclassic/core-geth](https://github.com/ethereumclassic/core-geth) in the `ethereumclassic`
+> GitHub organization. The Ethereum Classic DAO, a Wyoming DAO LLC, is the legal entity that maintains
 > it, together with Ethereum Classic's core developers and community contributors. It is a go-ethereum downstream
 > that holds chain configuration as data, so one binary serves Ethereum Classic, the Mordor test network, MintMe
 > and private chains. [Releases](https://docs.coregeth.com/releases/) lists every release, and the latest is the
@@ -23,7 +23,7 @@ attestation, which `gh attestation verify <file> --repo ethereumclassic/core-get
 
 ## What this project is
 
-- [Project history](https://docs.coregeth.com/about/project-history/): the lineage of the code, from go-ethereum through multi-geth, and of the organizations that funded and maintained it from 2018 to today.
+- [Project history](https://docs.coregeth.com/about/project-history/): the lineage of the code, from go-ethereum through Multi-Geth, and of the organizations that funded and maintained it from 2018 to today.
 - [Questions and answers](https://docs.coregeth.com/about/faq/): which repository publishes releases, which version to run, why node key rotation is required, MESS, public RPC endpoints and how to verify a download.
 - [Support this work](https://docs.coregeth.com/support/): who maintains and funds this client, why it needs sponsors, how a sponsor is credited, and the routes for sponsoring it.
 

@@ -21,7 +21,7 @@ That arrangement is new. Until now, this work moved between organizations as eac
 2018, ETC Labs in 2021, and the ETC Cooperative, which entered maintenance mode at the end of 2024 and is due to
 dissolve. Along the way, the client changed repositories, the bootnodes and discovery trees
 changed operators, and Core-Geth went 21 months without security maintenance. A standing legal entity, with the
-software kept in the community's own organization, is meant to end that churn.
+software kept in the `ethereumclassic` organization, is meant to end that churn.
 
 With the ETC Cooperative's dissolution, Ethereum Classic stakeholders such as mining pools, exchanges and service
 providers should use <security@ethereumclassic.net> as their point of contact. A person answers it: one of the
@@ -41,8 +41,9 @@ tells how the work passed between them.
 
 The Ethereum Classic DAO pays for this work today, as its funder of last resort, on top of maintaining it. It was
 [launched in May 2025](https://wyobiz.wyo.gov/business/FilingDetails.aspx?eFNum=101157225123250204055197221085227098244002050082) and took up Core-Geth's maintenance in February 2026. By then the client had gone without a
-release since June 2024, and the ETC Cooperative had been in maintenance mode since the end of 2024. The DAO pays
-for the client's development, the bootnode servers, and the domains these services are published under.
+release since June 2024, and the ETC Cooperative had been in maintenance mode since the end of 2024. The
+Ethereum Classic DAO pays for the client's development, the bootnode servers, and the domains these services are
+published under.
 
 **Sponsors are credited here.** A sponsoring organization is added to this table with its name, a link and the
 years it has contributed, and can be credited for the specific work it funds. A sponsor that prefers not to be

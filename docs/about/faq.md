@@ -9,8 +9,8 @@ read [Node operators: start here](../operators.md).
 
 ## Which repository publishes Core-Geth releases?
 
-[`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases), in the Ethereum Classic
-community's GitHub organization, is the canonical release pipeline for Core-Geth, where the client is developed and released now. `v1.13.0`, published September 14, 2026, is the first release cut from it.
+[`ethereumclassic/core-geth`](https://github.com/ethereumclassic/core-geth/releases), in
+the `ethereumclassic` GitHub organization, is the canonical release pipeline for Core-Geth, where the client is developed and released now. `v1.13.0`, published September 14, 2026, is the first release cut from it.
 Archives published under the previous `etclabscore` namespace are not built from this source and do not carry the
 fixes released here. [Project history](project-history.md) covers how maintenance moved.
 
@@ -53,7 +53,7 @@ what has been claimed about it and what the record shows.
 
 ## Is `ethereumclassic/core-geth` the same Core-Geth, or a fork?
 
-It is the same client, in the Ethereum Classic community's own organization, and the canonical home for Core-Geth now.
+It is the same client, in the `ethereumclassic` organization, and the canonical home for Core-Geth now.
 The repository was created on December 21, 2024 from `etclabscore/core-geth` at commit `7ef3ecd7a`, and holds the full
 history up to that point on the
 [`archive-etclabscore-2024-12`](https://github.com/ethereumclassic/core-geth/tree/archive-etclabscore-2024-12) branch.

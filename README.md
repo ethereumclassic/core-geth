@@ -9,7 +9,7 @@
 | **Current release** | the v1.13 line, [latest release](https://github.com/ethereumclassic/core-geth/releases/latest) |
 | **Maintainers** | the **@ethereumclassic/core-developers** team, in the [`ethereumclassic`](https://github.com/ethereumclassic) organization |
 
-Core-Geth implements every Ethereum Classic fork, and the consensus rules are maintained here by the Ethereum Classic core developers: several admins and contributors in the community organization, not any single person or company.
+Core-Geth implements every Ethereum Classic fork, and the consensus rules are maintained here by the Ethereum Classic core developers: several admins and contributors in the `ethereumclassic` organization, not any single person or company.
 
 ## Supported networks
 
@@ -69,7 +69,7 @@ Fork the repository, make your change, and open a pull request against `main`; f
 
 ## Project history
 
-Core-Geth descends from go-ethereum by way of [multi-geth](https://github.com/multi-geth/multi-geth), and has been maintained in the [`ethereumclassic`](https://github.com/ethereumclassic) community organization since 2024. [Project history](https://docs.coregeth.com/about/project-history/) has the full account of the code and the maintaining team.
+Core-Geth descends from go-ethereum by way of [Multi-Geth](https://github.com/multi-geth/multi-geth), and has been maintained in the [`ethereumclassic`](https://github.com/ethereumclassic) organization since 2024. [Project history](https://docs.coregeth.com/about/project-history/) has the full account of the code and the maintaining team.
 
 ## Supporting the work
 

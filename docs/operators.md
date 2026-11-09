@@ -78,7 +78,7 @@ every document here, and the article written about the release, and reports wher
 the bootnodes and the public JSON-RPC endpoints continue as the ETC Cooperative winds down, and which public
 endpoint to point an application at today.
 [Project history](about/project-history.md) traces who has maintained this client since 2018 and how it reached
-the community organization.
+the `ethereumclassic` GitHub organization.
 
 **If you want the artifacts checked rather than described.**
 [Release artifacts](audits/2026-09-release-pipeline.md) measures what the published archives actually contain,
