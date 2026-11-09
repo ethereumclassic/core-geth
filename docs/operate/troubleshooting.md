@@ -262,6 +262,14 @@ causes in order.
     - **On `v1.13`,** a configuration file that `dumpconfig` wrote on `v1.12` keeps those lists until you
       delete its [peer list lines](../tutorials/v1.13.0-migration.md#if-your-config-file-came-from-dumpconfig).
 
+9. **The lists and bootnodes are dark.** If the peer discovery lists stop resolving and no bootnode answers, a
+   node with no saved peers it can still reach finds none. Each list is committed in
+   [`ethereumclassic/discv4-dns-lists`](https://github.com/ethereumclassic/discv4-dns-lists) exactly as it was
+   published, so a node on `v1.12` or `v1.13` can start once with those records as its bootnodes, then start the
+   usual way once it holds peers:
+   [If the trees stop resolving](https://github.com/ethereumclassic/discv4-dns-lists/blob/main/docs/dns-outage.md#if-the-trees-stop-resolving)
+   has the commands.
+
 **Once fixed:** `net.peerCount` returns a number above 0.
 
 ### Why did nodes that list this one stop connecting after its key changed?
