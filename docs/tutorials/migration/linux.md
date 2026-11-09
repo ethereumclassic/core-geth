@@ -235,6 +235,9 @@ first two lines if that node also lists this one as a static peer. They do not o
 
 ## 6. If you need to roll back
 
+Roll back only for as long as it takes to find what went wrong: every `v1.12` release carries the flaws the audits
+found.
+
 The data directory works in both directions, so rolling back swaps the binary. Stop the node, and take any `--mess` flag
 out of the start command, because a `v1.12` binary refuses it. Under systemd, run `sudo systemctl daemon-reload`. Then:
 
@@ -244,3 +247,19 @@ sudo mv /usr/local/bin/geth-v1.12 /usr/local/bin/geth
 
 Start it again. Keep the new key: rolling back does not make the old key safe. A release before `v1.12.21` leaks bits of
 the key it runs with, so rolling back to one exposes the new key too.
+
+Once the cause is fixed, move again from step 1, renaming the key again in step 3. A second rename on the same day finds
+its target name taken, so add `-2` after `$(date +%F)` in it. If the node has to stay on `v1.12` longer,
+[If a v1.12 node cannot move yet](../../etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet) keeps it finding
+peers.
+
+## 7. Once the node is stable, delete the v1.12 binary
+
+Once the node has caught up, holds peers, and has run on the `v1.13` line long enough that you will not roll back:
+
+```bash
+sudo rm /usr/local/bin/geth-v1.12
+```
+
+Every `v1.12` release carries the flaws the audits found, so a copy left on the machine is one a later mistake can
+start. If you installed over a `geth` at another path, delete the `geth-v1.12` beside it instead.

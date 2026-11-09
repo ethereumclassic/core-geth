@@ -215,6 +215,9 @@ first two lines if that node also lists this one as a static peer. They do not o
 
 ## 6. If you need to roll back
 
+Roll back only for as long as it takes to find what went wrong: every `v1.12` release carries the flaws the audits
+found.
+
 The data directory works in both directions, so rolling back swaps the container for the old one:
 
 ```bash
@@ -233,3 +236,24 @@ If you copied the data out, run only the first two lines, which stop and remove 
 old one: its own copy of the data still holds the old key. Run the image it used,
 `docker inspect core-geth-v1.12 --format '{{.Config.Image}}'`, on the copy instead, with
 `-v $HOME/core-geth-data:/root` and the old container's ports and flags.
+
+Once the cause is fixed, move again from step 1, renaming the key again in step 3. A second rename on the same day finds
+its target name taken, so add `-2` after `$(date +%F)` in it. If the node has to stay on `v1.12` longer,
+[If a v1.12 node cannot move yet](../../etc-cooperative-transition.md#if-a-v112-node-cannot-move-yet) keeps it finding
+peers.
+
+## 7. Once the node is stable, remove the v1.12 container and image
+
+Once the node has caught up, holds peers, and has run on the `v1.13` line long enough that you will not roll back:
+
+```bash
+OLD=$(docker inspect core-geth-v1.12 --format '{{.Config.Image}}') &&
+  docker rm core-geth-v1.12 &&
+  docker rmi "$OLD"
+```
+
+Every `v1.12` release carries the flaws the audits found, so a container left on the machine is one a later mistake can
+start. The first line reads which image the old container ran, then the block removes the stopped container and that
+image. `docker rm` leaves the volumes the new container uses. If you copied the data out, the old container's own copy
+of the data goes with it, and the node runs on the copy. `docker rmi` refuses while another container still uses the
+image.
