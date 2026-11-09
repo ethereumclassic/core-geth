@@ -34,6 +34,8 @@ geth --classic
 
 [Installation](https://docs.coregeth.com/getting-started/installation/) has the steps for each platform, and [Choose your role](https://docs.coregeth.com/guides/) routes you to the right guide.
 
+**Already running a `v1.12` node?** Move it with [Migrating to v1.13](https://docs.coregeth.com/tutorials/v1.13.0-migration/) instead: the move requires a new P2P node key, and these steps start a node on the key it has. Until it can move, it can [read the peer discovery lists and bootnodes the `v1.13` line ships](https://docs.coregeth.com/etc-cooperative-transition/#if-a-v112-node-cannot-move-yet).
+
 ## Documentation
 
 Published from this repository at [docs.coregeth.com](https://docs.coregeth.com/):
